@@ -41,7 +41,11 @@ def load_system_prompt() -> str:
 def format_spec_filename(topic: str) -> str:
     """Generate SPEC filename: SPEC_YYYY-MM-DD_topic.md"""
     today = datetime.now().strftime("%Y-%m-%d")
-    clean_topic = topic.lower().replace(" ", "_")[:30]
+    clean_topic = topic.lower().replace(" ", "_")
+    # Remove special characters that cause filesystem issues
+    for char in ":<>|?*\"/":
+        clean_topic = clean_topic.replace(char, "_")
+    clean_topic = clean_topic[:30]
     return f"SPEC_{today}_{clean_topic}.md"
 
 
