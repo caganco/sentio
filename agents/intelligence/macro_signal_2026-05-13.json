@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-05-12T23:54:50.714380Z",
+  "regime": "TRANSITION",
+  "vix_score": 0.0,
+  "usdtry_score": -0.0,
+  "brent_score": 0.0,
+  "bist100_score": 0.0,
+  "macro_environment_score": 0.0,
+  "data_date": "2026-05-13",
+  "symbols": {
+    "USDTRY": 45.387229919433594,
+    "BRENT": 107.36000061035156,
+    "VIX": 17.989999771118164,
+    "BIST100": 14779.9296875
+  }
+}

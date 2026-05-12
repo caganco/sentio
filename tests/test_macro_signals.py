@@ -1,0 +1,342 @@
+"""Tests for macro signals module."""
+import pytest
+import json
+import pandas as pd
+from pathlib import Path
+from datetime import datetime
+from src.signals.macro_signals import (
+    MacroSignal,
+    score_macro_component,
+    calculate_macro_environment_score,
+    detect_regime,
+    generate_macro_signal,
+    save_signal_json,
+)
+
+TEST_DB = "data/test_macro_signals.db"
+TEST_OUTPUT_DIR = "data/test_signals"
+
+
+@pytest.fixture(autouse=True)
+def cleanup_test_files():
+    """Clean up test files after each test."""
+    yield
+    # Clean up DB
+    if Path(TEST_DB).exists():
+        try:
+            import sqlite3
+            conn = sqlite3.connect(TEST_DB)
+            conn.close()
+            Path(TEST_DB).unlink()
+        except Exception:
+            pass
+    # Clean up output files
+    import shutil
+    if Path(TEST_OUTPUT_DIR).exists():
+        try:
+            shutil.rmtree(TEST_OUTPUT_DIR)
+        except Exception:
+            pass
+
+
+class TestScoringFunction:
+    """Test component scoring."""
+
+    def test_score_positive_change(self):
+        """Score should be positive for price increase."""
+        score = score_macro_component("BRENT", 110.0, 100.0, is_inverse=False)
+        assert score > 0, "Positive price change should yield positive score"
+
+    def test_score_negative_change(self):
+        """Score should be negative for price decrease."""
+        score = score_macro_component("BRENT", 90.0, 100.0, is_inverse=False)
+        assert score < 0, "Negative price change should yield negative score"
+
+    def test_score_bounds(self):
+        """Score should be within [-1, +1]."""
+        score = score_macro_component("VIX", 50.0, 10.0, is_inverse=False)
+        assert -1.0 <= score <= 1.0, f"Score {score} outside [-1, 1]"
+
+    def test_score_inverse(self):
+        """USDTRY: price down should be positive (TRY strengthening)."""
+        # USDTRY: 45 → 40 (down) = TRY strengthening = positive
+        score = score_macro_component("USDTRY", 40.0, 45.0, is_inverse=True)
+        assert score > 0, "USDTRY decrease (TRY strength) should be positive"
+
+    def test_score_zero_change(self):
+        """No change should score ~0."""
+        score = score_macro_component("BIST100", 10000.0, 10000.0, is_inverse=False)
+        assert abs(score) < 0.05, f"No change should score ~0, got {score}"
+
+    def test_score_nan_handling(self):
+        """NaN values should be handled gracefully."""
+        score = score_macro_component("BRENT", float("nan"), 100.0, is_inverse=False)
+        assert score == 0.0, "NaN should return 0.0"
+
+
+class TestEnvironmentScore:
+    """Test weighted macro environment score."""
+
+    def test_all_positive_scores(self):
+        """All positive components should yield positive macro score."""
+        score = calculate_macro_environment_score(
+            vix_score=0.5,
+            usdtry_score=0.5,
+            brent_score=0.5,
+            bist100_score=0.5,
+        )
+        assert score > 0, "All positive components should yield positive macro score"
+
+    def test_all_negative_scores(self):
+        """All negative components should yield negative macro score."""
+        score = calculate_macro_environment_score(
+            vix_score=-0.5,
+            usdtry_score=-0.5,
+            brent_score=-0.5,
+            bist100_score=-0.5,
+        )
+        assert score < 0, "All negative components should yield negative macro score"
+
+    def test_mixed_scores(self):
+        """Mixed scores should yield intermediate result."""
+        score = calculate_macro_environment_score(
+            vix_score=0.8,  # positive
+            usdtry_score=-0.3,  # negative
+            brent_score=0.5,  # positive
+            bist100_score=0.2,  # slightly positive
+        )
+        assert -1.0 <= score <= 1.0, f"Score {score} out of bounds"
+
+    def test_custom_weights(self):
+        """Custom weights should be respected."""
+        # Make VIX dominant (100% weight)
+        score_high_vix = calculate_macro_environment_score(
+            vix_score=0.8,
+            usdtry_score=-0.5,
+            brent_score=-0.5,
+            bist100_score=-0.5,
+            weights={"vix": 1.0, "usdtry": 0, "brent": 0, "bist100": 0},
+        )
+        assert score_high_vix > 0.5, "VIX-dominant weighting should emphasize VIX score"
+
+    def test_bounds(self):
+        """Score should always be in [-1, +1]."""
+        score = calculate_macro_environment_score(
+            vix_score=2.0,  # out of bounds
+            usdtry_score=2.0,  # out of bounds
+            brent_score=2.0,  # out of bounds
+            bist100_score=2.0,  # out of bounds
+        )
+        assert -1.0 <= score <= 1.0, f"Score {score} should be clamped to [-1, 1]"
+
+
+class TestRegimeDetection:
+    """Test risk regime detection."""
+
+    def test_regime_risk_on(self):
+        """Positive macro score should give RISK_ON."""
+        regime = detect_regime(
+            vix_score=0.8,
+            usdtry_score=0.2,
+            brent_score=0.5,
+            bist100_score=0.7,
+            macro_score=0.5,  # > 0.3
+        )
+        assert regime == "RISK_ON", f"Expected RISK_ON, got {regime}"
+
+    def test_regime_risk_off(self):
+        """Negative macro score should give RISK_OFF."""
+        regime = detect_regime(
+            vix_score=-0.8,
+            usdtry_score=-0.2,
+            brent_score=-0.5,
+            bist100_score=-0.7,
+            macro_score=-0.5,  # < -0.3
+        )
+        assert regime == "RISK_OFF", f"Expected RISK_OFF, got {regime}"
+
+    def test_regime_transition(self):
+        """Neutral macro score should give TRANSITION."""
+        regime = detect_regime(
+            vix_score=0.1,
+            usdtry_score=-0.1,
+            brent_score=0.0,
+            bist100_score=0.05,
+            macro_score=0.01,  # between -0.3 and 0.3
+        )
+        assert regime == "TRANSITION", f"Expected TRANSITION, got {regime}"
+
+    def test_regime_boundary_high(self):
+        """Score exactly at +0.3 boundary."""
+        regime = detect_regime(
+            vix_score=0.3,
+            usdtry_score=0.3,
+            brent_score=0.3,
+            bist100_score=0.3,
+            macro_score=0.3,
+        )
+        assert regime == "RISK_ON", "Score = 0.3 should be RISK_ON"
+
+    def test_regime_boundary_low(self):
+        """Score exactly at -0.3 boundary."""
+        regime = detect_regime(
+            vix_score=-0.3,
+            usdtry_score=-0.3,
+            brent_score=-0.3,
+            bist100_score=-0.3,
+            macro_score=-0.3,
+        )
+        assert regime == "RISK_OFF", "Score = -0.3 should be RISK_OFF"
+
+
+class TestMacroSignalObject:
+    """Test MacroSignal dataclass."""
+
+    def test_signal_creation(self):
+        """Create valid MacroSignal."""
+        signal = MacroSignal(
+            timestamp="2026-05-13T15:30:00Z",
+            regime="RISK_ON",
+            vix_score=0.8,
+            usdtry_score=0.2,
+            brent_score=0.5,
+            bist100_score=0.7,
+            macro_environment_score=0.58,
+            data_date="2026-05-13",
+            symbols={"USDTRY": 45.39, "BRENT": 107.41, "VIX": 17.99, "BIST100": 9876.5},
+        )
+
+        assert signal.regime == "RISK_ON"
+        assert signal.macro_environment_score == 0.58
+        assert len(signal.symbols) == 4
+
+    def test_signal_regime_validation(self):
+        """Regime should be one of three values."""
+        for regime in ["RISK_ON", "RISK_OFF", "TRANSITION"]:
+            signal = MacroSignal(
+                timestamp="2026-05-13T15:30:00Z",
+                regime=regime,
+                vix_score=0.0,
+                usdtry_score=0.0,
+                brent_score=0.0,
+                bist100_score=0.0,
+                macro_environment_score=0.0,
+                data_date="2026-05-13",
+                symbols={},
+            )
+            assert signal.regime == regime
+
+
+class TestSignalSaving:
+    """Test JSON signal saving."""
+
+    def test_save_signal_creates_file(self):
+        """Saving signal should create JSON file."""
+        signal = MacroSignal(
+            timestamp="2026-05-13T15:30:00Z",
+            regime="RISK_ON",
+            vix_score=0.8,
+            usdtry_score=0.2,
+            brent_score=0.5,
+            bist100_score=0.7,
+            macro_environment_score=0.58,
+            data_date="2026-05-13",
+            symbols={"USDTRY": 45.39, "BRENT": 107.41, "VIX": 17.99, "BIST100": 9876.5},
+        )
+
+        filepath = save_signal_json(signal, output_dir=TEST_OUTPUT_DIR)
+
+        assert Path(filepath).exists(), f"Signal file not created: {filepath}"
+
+    def test_save_signal_json_format(self):
+        """Saved JSON should be valid and complete."""
+        signal = MacroSignal(
+            timestamp="2026-05-13T15:30:00Z",
+            regime="RISK_OFF",
+            vix_score=-0.7,
+            usdtry_score=0.3,
+            brent_score=-0.4,
+            bist100_score=-0.6,
+            macro_environment_score=-0.42,
+            data_date="2026-05-13",
+            symbols={"USDTRY": 46.12, "BRENT": 104.20, "VIX": 22.50, "BIST100": 9650.0},
+        )
+
+        filepath = save_signal_json(signal, output_dir=TEST_OUTPUT_DIR)
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        assert data["regime"] == "RISK_OFF"
+        assert data["macro_environment_score"] == -0.42
+        assert data["data_date"] == "2026-05-13"
+        assert data["symbols"]["BIST100"] == 9650.0
+
+    def test_save_signal_filename(self):
+        """File should be named macro_signal_YYYY-MM-DD.json."""
+        signal = MacroSignal(
+            timestamp="2026-05-13T15:30:00Z",
+            regime="TRANSITION",
+            vix_score=0.0,
+            usdtry_score=0.0,
+            brent_score=0.0,
+            bist100_score=0.0,
+            macro_environment_score=0.0,
+            data_date="2026-05-13",
+            symbols={},
+        )
+
+        filepath = save_signal_json(signal, output_dir=TEST_OUTPUT_DIR)
+
+        assert "macro_signal_2026-05-13.json" in filepath
+
+
+class TestSignalGeneration:
+    """Test full signal generation from macro feed."""
+
+    def test_generate_signal_requires_data(self):
+        """Signal generation should fail gracefully if no data."""
+        with pytest.raises(ValueError, match="no macro data"):
+            generate_macro_signal(db_path=TEST_DB)
+
+    def test_generate_signal_structure(self):
+        """Generated signal should have all required fields."""
+        from src.data.macro_feed import fetch_macro_snapshot, save_to_db
+
+        # Create test data
+        snapshot = fetch_macro_snapshot()
+        if snapshot.empty:
+            pytest.skip("No macro feed data available")
+
+        save_to_db(snapshot, db_path=TEST_DB)
+
+        # Generate signal
+        signal = generate_macro_signal(db_path=TEST_DB)
+
+        assert signal.regime in ["RISK_ON", "RISK_OFF", "TRANSITION"]
+        assert -1.0 <= signal.macro_environment_score <= 1.0
+        assert -1.0 <= signal.vix_score <= 1.0
+        assert -1.0 <= signal.usdtry_score <= 1.0
+        assert -1.0 <= signal.brent_score <= 1.0
+        assert -1.0 <= signal.bist100_score <= 1.0
+        assert len(signal.symbols) > 0
+        assert signal.timestamp.endswith("Z")
+
+    def test_generate_and_save(self):
+        """Generate signal and save to JSON."""
+        from src.data.macro_feed import fetch_macro_snapshot, save_to_db
+
+        snapshot = fetch_macro_snapshot()
+        if snapshot.empty:
+            pytest.skip("No macro feed data available")
+
+        save_to_db(snapshot, db_path=TEST_DB)
+
+        signal = generate_macro_signal(db_path=TEST_DB)
+        filepath = save_signal_json(signal, output_dir=TEST_OUTPUT_DIR)
+
+        assert Path(filepath).exists()
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        assert data["regime"] == signal.regime
+        assert data["macro_environment_score"] == signal.macro_environment_score
