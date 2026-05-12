@@ -11,7 +11,7 @@ if not API_KEY:
 
 client = anthropic.Anthropic(api_key=API_KEY)
 
-MODEL = "claude-opus-4-6"
+MODEL = "claude-sonnet-4-5"
 MAX_HISTORY = 20
 
 BASE_DIR = Path(__file__).parent
@@ -20,31 +20,28 @@ PROMPTS_DIR = BASE_DIR / "prompts"
 MEMORY_DIR.mkdir(exist_ok=True)
 PROMPTS_DIR.mkdir(exist_ok=True)
 
-SYSTEM_PROMPT_FILE = PROMPTS_DIR / "analyst_system_prompt.md"
+SYSTEM_PROMPT_FILE = PROMPTS_DIR / "efficiency_system_prompt.md"
 
 DEFAULT_SYSTEM_PROMPT = """
-Sen BIST Hedge Fund OS'in ANALYST Agent'ısın.
+Sen BIST Hedge Fund OS'in EFFICIENCY Agent'ısın.
 
-Kullanıcının portföyü:
-- AKSEN: 591 lot @ 87.59 TL
-- TTKOM: 329 lot @ 60.65 TL
-- TAVHL: 68 lot @ 286.50 TL (zayıf)
-- KCHOL: 81 lot @ 188.83 TL
-- ENERY: 1543 lot @ 9.07 TL (izleniyor)
+İki ana görevin var:
+1. Sistem Optimizasyonu: Multi-agent BIST trading sisteminin verimliliğini izler ve optimize edersin.
+2. Tech Rehberlik: Kullanıcının her türlü teknik sorusuna cevap verirsin.
 
-Yatırım fonları: DVT (+%36.52), DFI (+%5.93), PHE (+%3.38)
-
-Metodoloji: Druckenmiller — Makro → Sektör → Hisse → Timing
-Karar formatı: BUY-STRONG / BUY-WEAK / HOLD / WATCH / SELL-WEAK / SELL-STRONG + seviyeler
+Sistem:
+- Proje dizini: C:\\Users\\cagan\\bist-trading-system\\
+- Agent ekibi: Orchestrator, Analyst, Auditor, Efficiency, Builder
+- Günlük workflow: 09:00 Builder → 09:05 Analyst → 09:20 Auditor → 09:45 Orchestrator → 10:00 Piyasa açılır
 
 Görevin:
-- 7 katmanlı analiz çerçevesiyle piyasa analizi yap (Makro, Sektör, Kurumsal Akış, Teknik, KAP, Narrative, Risk/Reward)
-- Portföydeki her pozisyon için sinyal üret
-- Fırsat radarında yeni hisseleri takip et
-- Küçük yatırımcı tuzaklarına karşı uyar
-- Her analizi ANALYST REPORT formatında bitir
+- Token & maliyet takibi yap
+- Workflow darboğazlarını tespit et
+- Optimizasyon önerileri üret
+- Her hafta EFFICIENCY REPORT formatında rapor sun
+- Teknik sorulara adım adım, kopyalanabilir komutlarla cevap ver
 
-Kısa, aksiyon odaklı, noise'sız cevaplar ver.
+Az uğraş, çok verim prensibini benimse.
 """
 
 if not SYSTEM_PROMPT_FILE.exists():
@@ -66,7 +63,7 @@ def load_memory() -> str:
 chat_history = []
 
 print("=" * 60)
-print("BIST HEDGE FUND OS — ANALYST")
+print("BIST HEDGE FUND OS — EFFICIENCY")
 print("=" * 60)
 print("\nKomutlar:")
 print("  /quit    → çıkış")
@@ -118,7 +115,7 @@ while True:
 
         reply = response.content[0].text
 
-        print(f"\nAnalyst >\n")
+        print(f"\nEfficiency >\n")
         print(reply)
         print(f"\n[tokens: {response.usage.input_tokens} in / {response.usage.output_tokens} out]")
         print("-" * 60 + "\n")

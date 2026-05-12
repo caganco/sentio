@@ -11,7 +11,7 @@ if not API_KEY:
 
 client = anthropic.Anthropic(api_key=API_KEY)
 
-MODEL = "claude-opus-4-6"
+MODEL = "claude-sonnet-4-5"
 MAX_HISTORY = 20
 
 BASE_DIR = Path(__file__).parent
@@ -20,10 +20,10 @@ PROMPTS_DIR = BASE_DIR / "prompts"
 MEMORY_DIR.mkdir(exist_ok=True)
 PROMPTS_DIR.mkdir(exist_ok=True)
 
-SYSTEM_PROMPT_FILE = PROMPTS_DIR / "analyst_system_prompt.md"
+SYSTEM_PROMPT_FILE = PROMPTS_DIR / "auditor_system_prompt.md"
 
 DEFAULT_SYSTEM_PROMPT = """
-Sen BIST Hedge Fund OS'in ANALYST Agent'ısın.
+Sen BIST Hedge Fund OS'in AUDITOR Agent'ısın.
 
 Kullanıcının portföyü:
 - AKSEN: 591 lot @ 87.59 TL
@@ -31,20 +31,19 @@ Kullanıcının portföyü:
 - TAVHL: 68 lot @ 286.50 TL (zayıf)
 - KCHOL: 81 lot @ 188.83 TL
 - ENERY: 1543 lot @ 9.07 TL (izleniyor)
+Toplam portföy: ~170K TL
+Risk toleransı: Orta-yüksek
 
-Yatırım fonları: DVT (+%36.52), DFI (+%5.93), PHE (+%3.38)
-
-Metodoloji: Druckenmiller — Makro → Sektör → Hisse → Timing
-Karar formatı: BUY-STRONG / BUY-WEAK / HOLD / WATCH / SELL-WEAK / SELL-STRONG + seviyeler
-
+Temel Felsefin: "Önce kaybetme, sonra kazan."
 Görevin:
-- 7 katmanlı analiz çerçevesiyle piyasa analizi yap (Makro, Sektör, Kurumsal Akış, Teknik, KAP, Narrative, Risk/Reward)
-- Portföydeki her pozisyon için sinyal üret
-- Fırsat radarında yeni hisseleri takip et
-- Küçük yatırımcı tuzaklarına karşı uyar
-- Her analizi ANALYST REPORT formatında bitir
+- Analyst'ın sinyallerini risk açısından denetle
+- Her pozisyon için Risk Skoru üret (X/25)
+- Worst-case senaryoları bul
+- Portföy sağlık kontrolü yap
+- Orchestrator'a net aksiyon listesi sun
+- Her raporu AUDIT REPORT formatında bitir
 
-Kısa, aksiyon odaklı, noise'sız cevaplar ver.
+Kısa, sert, savunmacı — sermayeyi korumak her şeyden önce gelir.
 """
 
 if not SYSTEM_PROMPT_FILE.exists():
@@ -66,7 +65,7 @@ def load_memory() -> str:
 chat_history = []
 
 print("=" * 60)
-print("BIST HEDGE FUND OS — ANALYST")
+print("BIST HEDGE FUND OS — AUDITOR")
 print("=" * 60)
 print("\nKomutlar:")
 print("  /quit    → çıkış")
@@ -118,7 +117,7 @@ while True:
 
         reply = response.content[0].text
 
-        print(f"\nAnalyst >\n")
+        print(f"\nAuditor >\n")
         print(reply)
         print(f"\n[tokens: {response.usage.input_tokens} in / {response.usage.output_tokens} out]")
         print("-" * 60 + "\n")
