@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(schtasks /Query /TN \"BIST_DailyUpdate\" /FO LIST 2>&1)"
+    ]
+  }
+}

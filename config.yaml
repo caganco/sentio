@@ -1,0 +1,69 @@
+portfolio:
+  positions:
+    - ticker: AKSEN.IS
+      quantity: 591
+      avg_cost: 87.59
+    - ticker: TTKOM.IS
+      quantity: 329
+      avg_cost: 60.65
+    - ticker: TAVHL.IS
+      quantity: 68
+      avg_cost: 286.50
+    - ticker: KCHOL.IS
+      quantity: 81
+      avg_cost: 188.83
+    - ticker: ENERY.IS
+      quantity: 1543
+      avg_cost: 9.07
+
+scanner:
+  volume_threshold: 1.5
+  high_52w_proximity: 0.05
+  min_price: 1.0
+  top_n_results: 10
+
+technicals:
+  rsi_period: 14
+  ma_short: 20
+  ma_medium: 50
+  ma_long: 200
+
+risk:
+  max_position_size: 0.15
+  stop_loss_pct: 0.08
+  profit_target_pct: 0.20
+
+data:
+  bist100_tickers:
+    - THYAO.IS
+    - AKBNK.IS
+    - EREGL.IS
+    - KCHOL.IS
+    - TUPRS.IS
+    - SAHOL.IS
+    - GARAN.IS
+    - ISCTR.IS
+    - VAKBN.IS
+    - SISE.IS
+    - TTKOM.IS
+    - PETKM.IS
+    - BIMAS.IS
+    - ASELS.IS
+
+    - FROTO.IS
+    - TAVHL.IS
+    - AKSEN.IS
+    - ENERY.IS
+    - TCELL.IS
+    - HALKB.IS
+    - EKGYO.IS
+    - KRDMD.IS
+    - SOKM.IS
+  lookback_days: 365
+
+reporting:
+  output_dir: reports
+  formats:
+    - markdown
+    - html
+  email_alerts: false

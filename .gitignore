@@ -1,0 +1,15 @@
+.env
+*.db
+logs/*.log
+reports/*.md
+reports/*.html
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.idea/
+.vscode/
+*.egg-info/
+dist/
+build/
