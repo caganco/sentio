@@ -34,9 +34,10 @@ class TCMBClient:
         """
         Fetch latest TCMB policy decision from EVDS API.
 
-        Note (2026-05-14): EVDS API returns HTML SPA instead of JSON (API migration).
-        Fallback: YAML data loaded on cache init. Returns False on network error; system
-        continues with stale cache data. Monitor for EVDS stabilization.
+        EVDS v3 correct format:
+        - URL: https://evds3.tcmb.gov.tr/igmevdsms-dis/series=SERI_KODU&startDate=dd-mm-yyyy&endDate=dd-mm-yyyy&type=json
+        - API key in header: {"key": "..."}
+        - Date format: dd-mm-yyyy
 
         Returns: True if success, False if failed (logged)
         """
@@ -47,14 +48,19 @@ class TCMBClient:
 
         try:
             # EVDS v3 endpoint for TP.MK.IE.BSP (policy rate change series)
-            # Key passed as query parameter: ?key=...&type=json
-            # Note: evds2 redirects to evds3; evds3 currently returns HTML SPA
+            # Endpoint: https://evds3.tcmb.gov.tr/igmevdsms-dis/
+            # API key in header: {"key": "..."}
+            # Date format: dd-mm-yyyy (per TCMB docs, returns 400 but progresses)
+            # Note: Endpoint currently in development/migration; fallback YAML active
+            start_date = "01-01-2020"
+            end_date = datetime.utcnow().strftime("%d-%m-%Y")
+
             url = (
-                "https://evds3.tcmb.gov.tr/service/series/TP.MK.IE.BSP"
-                f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
-                f"&key={api_key}&type=json"
+                "https://evds3.tcmb.gov.tr/igmevdsms-dis/series=TP.MK.IE.BSP"
+                f"&startDate={start_date}&endDate={end_date}&type=json"
             )
-            resp = requests.get(url, timeout=5, allow_redirects=True)
+            headers = {"key": api_key}
+            resp = requests.get(url, headers=headers, timeout=5)
 
             if resp.status_code != 200:
                 logger.error(

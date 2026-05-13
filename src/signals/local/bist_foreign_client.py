@@ -50,14 +50,20 @@ class BistForeignOwnershipClient:
 
         try:
             for series_id in series_ids:
-                # EVDS v3 endpoint: key passed as query parameter
-                # Note: evds2 redirects to evds3; evds3 currently returns HTML SPA
+                # EVDS v3 endpoint for BIST foreign ownership weekly
+                # Endpoint: https://evds3.tcmb.gov.tr/igmevdsms-dis/
+                # API key in header: {"key": "..."}
+                # Date format: dd-mm-yyyy
+                # Note: Endpoint currently in development/migration; fallback YAML active
+                start_date = "01-01-2020"
+                end_date = datetime.utcnow().strftime("%d-%m-%Y")
+
                 url = (
-                    f"https://evds3.tcmb.gov.tr/service/series/{series_id}"
-                    f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
-                    f"&frequency=weekly&key={api_key}&type=json"
+                    f"https://evds3.tcmb.gov.tr/igmevdsms-dis/series={series_id}"
+                    f"&startDate={start_date}&endDate={end_date}&type=json"
                 )
-                resp = requests.get(url, timeout=5, allow_redirects=True)
+                headers = {"key": api_key}
+                resp = requests.get(url, headers=headers, timeout=5)
 
                 if resp.status_code == 200:
                     data = resp.json()
