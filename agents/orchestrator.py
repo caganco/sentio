@@ -68,7 +68,18 @@ ANALYST_COMPACT_SYSTEM = """Hedge fund analyst. Druckenmiller methodology: Macro
 Input: macro snapshot + pre-filtered BIST tickers.
 Output: JSON only — no prose, no explanation.
 Format:
-{"signals":[{"ticker":"X","action":"BUY|SELL|HOLD|WATCH","conviction":"HIGH|MED|LOW","reason":"max 15 words","levels":{"entry":0,"stop":0,"target":0}}]}"""
+{"signals":[{"ticker":"X","action":"BUY|SELL|HOLD|WATCH","conviction":"HIGH|MED|LOW","reason":"max 15 words","narrative":"max 20 words","levels":{"entry":0,"stop":0,"target":0}}]}
+
+LOKAL MAKRO NARRATIVE:
+For each stock signal, answer: "Does current local macro regime support this stock's story?"
+
+Local macro context:
+- TCMB rate direction: Hike → weakens holding/cash companies, strengthens exporters
+- CDS premium: >350 bps → downgrade all BUY signals one level (BUY→HOLD, HOLD→SELL)
+- BIST foreign ownership trend: Declining → institutional exit risk, reduce conviction
+
+Narrative output format: "narrative": "max 20 words briefly explaining if macro supports this signal"
+Do NOT modify Layer 7 score — narrative is audit context only."""
 
 AUDITOR_COMPACT_SYSTEM = """Hedge fund risk director. Devil's advocate.
 Input: analyst JSON signals.
