@@ -1,5 +1,5 @@
 # BIST Hedge Fund OS — Master Plan
-*Last updated: 13 Mayıs 2026*
+*Last updated: 14 Mayıs 2026*
 
 ---
 
