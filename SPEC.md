@@ -297,7 +297,7 @@ def daily_update():
 | Dependency | Type | Mitigation |
 |-----------|------|-----------|
 | `EVDS_API_KEY` env var | External config | Document requirement, validate at startup |
-| TCMB EVDS API availability | Network | Retry logic (3 retries, exponential backoff) TBD |
+| TCMB EVDS API availability | Network | ⚠️ **Currently unavailable (2026-05-14)**: All `/service/evds/*` endpoints return HTML SPA instead of JSON. Fallback YAML data active. Monitor for API stabilization. |
 | `worldgovernmentbonds.com` structure | Web scraping | Selector mapping in config, monthly validation |
 | `requests`, `beautifulsoup4` | Python libs | Already in requirements.txt (assumed) |
 | Cache layer (`self.cache.*`) | Internal | Existing, no changes required |

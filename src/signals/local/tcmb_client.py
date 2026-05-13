@@ -34,6 +34,10 @@ class TCMBClient:
         """
         Fetch latest TCMB policy decision from EVDS API.
 
+        Note (2026-05-14): EVDS API returns HTML SPA instead of JSON (API migration).
+        Fallback: YAML data loaded on cache init. Returns False on network error; system
+        continues with stale cache data. Monitor for EVDS stabilization.
+
         Returns: True if success, False if failed (logged)
         """
         api_key = os.getenv("EVDS_API_KEY")
