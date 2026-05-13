@@ -27,6 +27,8 @@ class LocalMacroSignals:
     def __init__(self, cache: Optional[LocalMacroCache] = None):
         if cache is None:
             cache = LocalMacroCache()
+            # Load YAML fallback if cache is empty
+            cache.load_from_yaml_fallback()
         self.cache = cache
         self.tcmb = TCMBClient(cache)
         self.cds = CDSClient(cache)

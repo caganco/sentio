@@ -170,3 +170,64 @@ class LocalMacroCache:
                 "SELECT * FROM bist_foreign_weekly ORDER BY week_ending_date DESC LIMIT 2"
             ).fetchall()
             return [dict(row) for row in rows]
+
+    def load_from_yaml_fallback(self, yaml_path: str = "src/signals/local/data/local_macro_fallback.yaml") -> None:
+        """Load fallback data from YAML into cache (idempotent)."""
+        import yaml
+        from pathlib import Path
+
+        fallback_file = Path(yaml_path)
+        if not fallback_file.exists():
+            return
+
+        with open(fallback_file, "r") as f:
+            data = yaml.safe_load(f)
+
+        if not data:
+            return
+
+        # Load TCMB decisions
+        if "tcmb" in data and "decisions" in data["tcmb"]:
+            for decision in data["tcmb"]["decisions"]:
+                # Check if already exists before inserting
+                with self._conn() as conn:
+                    existing = conn.execute(
+                        "SELECT 1 FROM tcmb_decisions WHERE decision_date = ?",
+                        (decision["decision_date"],),
+                    ).fetchone()
+                if not existing:
+                    self.store_tcmb(
+                        decision_date=decision["decision_date"],
+                        decision_type=decision["decision_type"],
+                        rate_before=decision.get("rate_before"),
+                        rate_after=decision.get("rate_after"),
+                        source=decision.get("source", "yaml_fallback"),
+                    )
+
+        # Load CDS data
+        if "cds" in data:
+            cds_data = data["cds"]
+            with self._conn() as conn:
+                existing = conn.execute("SELECT 1 FROM cds_data").fetchone()
+            if not existing:
+                self.store_cds(
+                    data_date=cds_data.get("last_fetch", datetime.utcnow().isoformat())[:10],
+                    cds_bps=cds_data["last_value"],
+                    source=cds_data.get("source", "yaml_fallback"),
+                )
+
+        # Load BIST foreign ownership
+        if "bist_foreign_weekly" in data:
+            for record in data["bist_foreign_weekly"]:
+                with self._conn() as conn:
+                    existing = conn.execute(
+                        "SELECT 1 FROM bist_foreign_weekly WHERE week_ending_date = ?",
+                        (record["week_ending_date"],),
+                    ).fetchone()
+                if not existing:
+                    self.store_bist_foreign(
+                        week_ending_date=record["week_ending_date"],
+                        foreign_ownership_pct=record["foreign_ownership_pct"],
+                        pct_change_weekly=record["pct_change_weekly"],
+                        source=record.get("source", "yaml_fallback"),
+                    )

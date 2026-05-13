@@ -98,7 +98,7 @@ REGIME_RISK_ON_VIX_MAX: float = 20.0
 REGIME_NEUTRAL_VIX_MAX: float = 30.0
 
 # Local macro signals (TCMB, CDS, BIST Foreign Weekly)
-LOCAL_MACRO_ENABLED: bool = False  # Feature flag: default off
+LOCAL_MACRO_ENABLED: bool = True  # Feature flag: enabled for live testing
 
 # TCMB Policy Rate signals
 TCMB_DECISION_MAP: dict[str, float] = {

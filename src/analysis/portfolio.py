@@ -44,14 +44,20 @@ def analyze_portfolio(
 ) -> list[PositionAnalysis]:
     """Analyze all portfolio positions against live price data."""
     config = load_config()
-    positions = config.get("portfolio", {}).get("positions", [])
+    positions = config.get("portfolio", {}).get("positions", {})
 
     results: list[PositionAnalysis] = []
 
-    for pos in positions:
-        ticker = pos["ticker"]
-        qty = pos["quantity"]
-        avg_cost = pos["avg_cost"]
+    # Handle both dict format (ticker: {lots, avg_cost}) and list format
+    pos_items = positions.items() if isinstance(positions, dict) else [(p["ticker"], p) for p in positions]
+
+    for ticker, pos_data in pos_items:
+        if isinstance(pos_data, dict):
+            qty = pos_data.get("lots", 0)
+            avg_cost = pos_data.get("avg_cost", 0)
+        else:
+            qty = pos_data["quantity"]
+            avg_cost = pos_data["avg_cost"]
 
         df = all_data.get(ticker)
         if df is None or df.empty:

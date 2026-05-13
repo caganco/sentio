@@ -125,17 +125,28 @@ def upsert_prices(df: pd.DataFrame, ticker: str) -> int:
     return len(rows)
 
 
-def sync_portfolio(positions: list[dict]) -> None:
+def sync_portfolio(positions: dict | list) -> None:
     """Sync portfolio positions from config into DB."""
     from datetime import datetime
     now = datetime.now().isoformat(timespec="seconds")
+
+    # Handle both dict format (ticker: {lots, avg_cost}) and list format
+    pos_list = []
+    if isinstance(positions, dict):
+        pos_list = [
+            {"ticker": ticker, "quantity": data.get("lots", 0), "avg_cost": data.get("avg_cost", 0)}
+            for ticker, data in positions.items()
+        ]
+    else:
+        pos_list = positions
+
     with get_connection() as conn:
-        for pos in positions:
+        for pos in pos_list:
             conn.execute(
                 "INSERT OR REPLACE INTO portfolio (ticker, quantity, avg_cost, updated_at) VALUES (?, ?, ?, ?)",
                 (pos["ticker"], pos["quantity"], pos["avg_cost"], now),
             )
-    logger.info("Portfolio synced: %d positions", len(positions))
+    logger.info("Portfolio synced: %d positions", len(pos_list))
 
 
 def get_prices(ticker: str, limit_days: int = 365) -> pd.DataFrame:
