@@ -1,6 +1,11 @@
 """CDS spreads (Turkey 5Y) client."""
+import logging
+import re
 from datetime import datetime, timedelta
 from typing import Optional
+
+import requests
+from bs4 import BeautifulSoup
 
 from ..models import LocalMacroSignal
 from ..thresholds import (
@@ -9,6 +14,8 @@ from ..thresholds import (
     CDS_THRESHOLDS,
 )
 from .cache_store import LocalMacroCache
+
+logger = logging.getLogger(__name__)
 
 
 class CDSClient:
@@ -20,6 +27,78 @@ class CDSClient:
     def get_latest_cds(self) -> Optional[dict]:
         """Get latest CDS data from cache."""
         return self.cache.get_latest_cds()
+
+    def fetch_and_store(self) -> bool:
+        """
+        Fetch Turkey 5Y CDS spreads from worldgovernmentbonds.com.
+
+        Returns: True if success, False if failed (logged)
+        """
+        try:
+            url = "https://www.worldgovernmentbonds.com/country/turkey/"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+            resp = requests.get(url, headers=headers, timeout=10)
+
+            if resp.status_code != 200:
+                logger.error(
+                    f"CDSClient.fetch_and_store: HTTP {resp.status_code} from {url}"
+                )
+                return False
+
+            soup = BeautifulSoup(resp.content, "html.parser")
+
+            # Look for "5Y CDS: XXX" or similar patterns in full page text
+            page_text = soup.get_text()
+
+            # Pattern: "5Y CDS: 287.5" or "5 Y CDS 287.5" etc
+            match = re.search(r"5\s*Y.*?CDS\s*[:=]?\s*(\d+\.?\d*)", page_text, re.IGNORECASE)
+            cds_value = None
+
+            if match:
+                cds_value = float(match.group(1))
+
+            # Fallback: Look for largest number > 100 (CDS spreads are typically > 100 bps)
+            if not cds_value:
+                numbers = re.findall(r"(\d+\.?\d*)", page_text)
+                for num_str in numbers:
+                    val = float(num_str)
+                    if 100 < val < 1000:  # CDS range is typically 100-1000 bps
+                        cds_value = val
+                        break
+
+            if not cds_value:
+                logger.error("CDSClient.fetch_and_store: CDS 5Y value not found on page")
+                return False
+
+            # Store in cache with today's date
+            self.cache.store_cds(
+                data_date=datetime.utcnow().strftime("%Y-%m-%d"),
+                cds_bps=cds_value,
+                source="worldgovernmentbonds_scrape",
+                confidence=0.9,
+            )
+
+            logger.info(
+                f"CDSClient.fetch_and_store: Success — Turkey 5Y CDS = {cds_value:.1f} bps"
+            )
+            return True
+
+        except requests.exceptions.Timeout:
+            logger.error("CDSClient.fetch_and_store: Request timeout (10s)")
+            return False
+        except requests.exceptions.RequestException as e:
+            logger.error(f"CDSClient.fetch_and_store: Network error: {e}")
+            return False
+        except (ValueError, AttributeError) as e:
+            logger.error(f"CDSClient.fetch_and_store: Parse error: {e}")
+            return False
+        except Exception as e:
+            logger.error(
+                f"CDSClient.fetch_and_store failed: {e.__class__.__name__}: {str(e)}"
+            )
+            return False
 
     def cds_to_score(self, cds_bps: float) -> tuple[float, str]:
         """

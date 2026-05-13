@@ -1,6 +1,10 @@
 """BIST foreign ownership weekly (macro context only)."""
+import logging
+import os
 from datetime import datetime, timedelta
 from typing import Optional
+
+import requests
 
 from ..models import LocalMacroSignal
 from ..thresholds import (
@@ -9,6 +13,8 @@ from ..thresholds import (
     BIST_FOREIGN_THRESHOLD_OUTFLOW,
 )
 from .cache_store import LocalMacroCache
+
+logger = logging.getLogger(__name__)
 
 
 class BistForeignOwnershipClient:
@@ -20,6 +26,90 @@ class BistForeignOwnershipClient:
     def get_latest_weekly(self) -> Optional[dict]:
         """Get latest BIST foreign ownership weekly data."""
         return self.cache.get_latest_bist_foreign()
+
+    def fetch_and_store(self) -> bool:
+        """
+        Fetch BIST foreign ownership weekly data from EVDS API.
+
+        Series ID: TP.DNYBNK.ADBK (TBD: confirm if not found)
+        Returns: True if success, False if failed (logged)
+        """
+        api_key = os.getenv("EVDS_API_KEY")
+        if not api_key:
+            logger.error(
+                "BistForeignClient.fetch_and_store: EVDS_API_KEY env var not set"
+            )
+            return False
+
+        # Try multiple potential series IDs for BIST foreign ownership
+        series_ids = [
+            "TP.DNYBNK.ADBK",  # Primary candidate (spec'd)
+            "TP.DNYBNK",  # Alternative
+            "TP.YBNK.ADBK",  # Alternative
+        ]
+
+        try:
+            for series_id in series_ids:
+                url = (
+                    f"https://evds2.tcmb.gov.tr/service/series/{series_id}"
+                    f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
+                    f"&frequency=weekly&type=json"
+                )
+                headers = {"Authorization": f"Bearer {api_key}"}
+                resp = requests.get(url, headers=headers, timeout=5)
+
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if "data" in data and data["data"]:
+                        observations = data["data"]
+                        # Sort by date, take latest
+                        observations_sorted = sorted(
+                            observations, key=lambda x: x["Tarih"], reverse=True
+                        )
+                        latest = observations_sorted[0]
+                        week_ending_date = latest["Tarih"]
+                        foreign_pct = float(latest["Birimi"])
+
+                        # Calculate weekly change if we have 2+ points
+                        pct_change = 0.0
+                        if len(observations_sorted) >= 2:
+                            previous = float(observations_sorted[1]["Birimi"])
+                            pct_change = foreign_pct - previous
+
+                        self.cache.store_bist_foreign(
+                            week_ending_date=week_ending_date,
+                            foreign_ownership_pct=foreign_pct,
+                            pct_change_weekly=pct_change,
+                            source=f"evds_api_{series_id}",
+                            confidence=0.9,
+                        )
+
+                        logger.info(
+                            f"BistForeignClient.fetch_and_store: Success (series={series_id}) — "
+                            f"Foreign ownership {foreign_pct:.2f}% (change: {pct_change:+.2f}%)"
+                        )
+                        return True
+
+            # No series ID worked
+            logger.error(
+                f"BistForeignClient.fetch_and_store: No valid series found. Tried: {series_ids}"
+            )
+            return False
+
+        except requests.exceptions.Timeout:
+            logger.error("BistForeignClient.fetch_and_store: Request timeout (5s)")
+            return False
+        except requests.exceptions.RequestException as e:
+            logger.error(f"BistForeignClient.fetch_and_store: Network error: {e}")
+            return False
+        except (KeyError, ValueError, TypeError) as e:
+            logger.error(f"BistForeignClient.fetch_and_store: Parse error: {e}")
+            return False
+        except Exception as e:
+            logger.error(
+                f"BistForeignClient.fetch_and_store failed: {e.__class__.__name__}: {str(e)}"
+            )
+            return False
 
     def weekly_change_to_score(self, weekly_pct_change: float) -> float:
         """

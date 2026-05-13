@@ -15,6 +15,7 @@ from src.data.kap_scraper import fetch_kap_news
 from src.data.macro import fetch_macro_data
 from src.data.macro_feed import fetch_macro_snapshot, save_to_db, get_latest_snapshot
 from src.data.macro_scheduler import run_daily_update as run_macro_update
+from src.signals.local import LocalMacroCache, TCMBClient, CDSClient, BistForeignOwnershipClient
 from src.signals.macro_signals import generate_macro_signal, save_signal_json
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.utils.config import load_config
@@ -104,6 +105,24 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     logger.info("=== BIST Daily Update Started ===")
 
     initialize_db()
+
+    # Pre-market: fetch local macro signals (TCMB, CDS, BIST foreign)
+    logger.info("Fetching local macro signals...")
+    cache = LocalMacroCache()
+    tcmb_client = TCMBClient(cache)
+    cds_client = CDSClient(cache)
+    bist_client = BistForeignOwnershipClient(cache)
+
+    tcmb_ok = tcmb_client.fetch_and_store()
+    cds_ok = cds_client.fetch_and_store()
+    bist_ok = bist_client.fetch_and_store()
+
+    logger.info(
+        "Daily macro fetch: TCMB=%s, CDS=%s, BIST=%s",
+        tcmb_ok,
+        cds_ok,
+        bist_ok,
+    )
 
     config = load_config()
     positions = config.get("portfolio", {}).get("positions", [])
