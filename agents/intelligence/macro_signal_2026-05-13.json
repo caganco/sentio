@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-05-12T23:54:50.714380Z",
+  "timestamp": "2026-05-13T00:04:11.310320Z",
   "regime": "TRANSITION",
-  "vix_score": 0.0,
-  "usdtry_score": -0.0,
-  "brent_score": 0.0,
-  "bist100_score": 0.0,
-  "macro_environment_score": 0.0,
+  "vix_score": -0.4243736751424,
+  "usdtry_score": -0.009960089040674481,
+  "brent_score": 0.6275797526512348,
+  "bist100_score": -0.46726839462120456,
+  "macro_environment_score": -0.16897883945993603,
   "data_date": "2026-05-13",
   "symbols": {
-    "USDTRY": 45.387229919433594,
-    "BRENT": 107.36000061035156,
+    "USDTRY": 45.407901763916016,
+    "BRENT": 107.4800033569336,
     "VIX": 17.989999771118164,
     "BIST100": 14779.9296875
   }

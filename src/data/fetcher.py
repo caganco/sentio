@@ -22,8 +22,18 @@ def fetch_bist_stock(ticker: str, period: str = "1y") -> Optional[pd.DataFrame]:
             if data.empty:
                 logger.warning("No data returned for %s", ticker)
                 return None
-            # Keep only OHLCV columns, rename to standard names
+            # Keep only OHLCV columns
             data = data[["Open", "High", "Low", "Close", "Volume"]].copy()
+            # Drop rows where Close is NaN (yfinance returns a partial intraday row
+            # with NaN OHLC + filled Volume for the current trading day)
+            before = len(data)
+            data = data.dropna(subset=["Close"])
+            dropped = before - len(data)
+            if dropped:
+                logger.debug("Dropped %d NaN-close row(s) for %s", dropped, ticker)
+            if data.empty:
+                logger.warning("All rows had NaN Close for %s", ticker)
+                return None
             # Strip timezone from index so downstream code stays simple
             if data.index.tz is not None:
                 data.index = data.index.tz_localize(None)

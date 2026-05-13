@@ -1,0 +1,120 @@
+{
+  "date": "2026-05-13",
+  "bist100": 0,
+  "risk_limits": {
+    "max_sector_concentration": 0.3,
+    "max_position_size": 0.15
+  },
+  "portfolio": [
+    {
+      "ticker": "AKSEN.IS",
+      "sector": "enerji",
+      "quantity": 591,
+      "avg_cost": 87.59,
+      "current_price": 88.2,
+      "unrealized_pnl_pct": 0.7,
+      "unrealized_pnl": 360.51,
+      "rsi": 65.3,
+      "ma20": 83.44,
+      "stop_loss": 80.58,
+      "profit_target": 105.11,
+      "alerts": []
+    },
+    {
+      "ticker": "TTKOM.IS",
+      "sector": "telekom",
+      "quantity": 329,
+      "avg_cost": 60.65,
+      "current_price": 66.85,
+      "unrealized_pnl_pct": 10.22,
+      "unrealized_pnl": 2039.8,
+      "rsi": 62.1,
+      "ma20": 63.94,
+      "stop_loss": 55.8,
+      "profit_target": 72.78,
+      "alerts": []
+    },
+    {
+      "ticker": "TAVHL.IS",
+      "sector": "havacılık",
+      "quantity": 68,
+      "avg_cost": 286.5,
+      "current_price": 279.0,
+      "unrealized_pnl_pct": -2.62,
+      "unrealized_pnl": -510.0,
+      "rsi": 38.6,
+      "ma20": 301.68,
+      "stop_loss": 263.58,
+      "profit_target": 343.8,
+      "alerts": []
+    },
+    {
+      "ticker": "KCHOL.IS",
+      "sector": "holding",
+      "quantity": 81,
+      "avg_cost": 188.83,
+      "current_price": 212.3,
+      "unrealized_pnl_pct": 12.43,
+      "unrealized_pnl": 1901.07,
+      "rsi": 62.2,
+      "ma20": 206.14,
+      "stop_loss": 173.72,
+      "profit_target": 226.6,
+      "alerts": []
+    },
+    {
+      "ticker": "ENERY.IS",
+      "sector": "enerji",
+      "quantity": 1543,
+      "avg_cost": 9.07,
+      "current_price": 8.98,
+      "unrealized_pnl_pct": -0.99,
+      "unrealized_pnl": -138.87,
+      "rsi": 49.9,
+      "ma20": 9.03,
+      "stop_loss": 8.34,
+      "profit_target": 10.88,
+      "alerts": []
+    }
+  ],
+  "momentum_top5": [],
+  "macro_data": {
+    "usdtry": null,
+    "usdtry_change_pct": null,
+    "oil_brent": 107.48,
+    "oil_brent_change_pct": 3.14,
+    "vix": 17.99,
+    "vix_change_pct": -2.12,
+    "sp500": 7400.96,
+    "sp500_change_pct": -0.16,
+    "gold": 4726.1,
+    "gold_change_pct": 0.16
+  },
+  "macro_snapshot": {
+    "timestamp": "2026-05-13T00:04:11.310320Z",
+    "regime": "TRANSITION",
+    "macro_environment_score": -0.169,
+    "components": {
+      "vix": -0.424,
+      "usdtry": -0.01,
+      "brent": 0.628,
+      "bist100": -0.467
+    },
+    "prices": {
+      "usdtry": 45.407901763916016,
+      "brent": 107.4800033569336,
+      "vix": 17.989999771118164,
+      "bist100": 14779.9296875
+    },
+    "data_date": "2026-05-13"
+  },
+  "kap_news": {
+    "fetched_at": "2026-05-13T00:04:21.673606+00:00",
+    "source_used": "none",
+    "coverage_hours": 24,
+    "total": 0,
+    "items": []
+  },
+  "sector_performance": {},
+  "alerts": []
+}

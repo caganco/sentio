@@ -11,7 +11,7 @@ if not API_KEY:
 
 client = anthropic.Anthropic(api_key=API_KEY)
 
-MODEL = "claude-sonnet-4-5"
+MODEL = "claude-sonnet-4-6"
 MAX_HISTORY = 20
 
 BASE_DIR = Path(__file__).parent

@@ -63,9 +63,19 @@ def initialize_db() -> None:
 
 
 def upsert_prices(df: pd.DataFrame, ticker: str) -> int:
-    """Insert or replace price rows for a ticker. Returns row count written."""
+    """Insert or replace price rows for a ticker. Returns row count written.
+    Rows with NaN Close are skipped (partial intraday rows from yfinance)."""
     if df.empty:
         return 0
+
+    # Drop NaN-Close rows defensively (fetcher already does this, but
+    # `float(nan or 0) == nan` so we must filter, not coerce).
+    df = df.dropna(subset=["Close"])
+    if df.empty:
+        return 0
+
+    def _num(v):
+        return float(v) if pd.notna(v) else 0.0
 
     rows = []
     for date, row in df.iterrows():
@@ -73,11 +83,11 @@ def upsert_prices(df: pd.DataFrame, ticker: str) -> int:
         rows.append((
             date_str,
             ticker,
-            float(row.get("Open", 0) or 0),
-            float(row.get("High", 0) or 0),
-            float(row.get("Low", 0) or 0),
-            float(row.get("Close", 0) or 0),
-            int(row.get("Volume", 0) or 0),
+            _num(row.get("Open")),
+            _num(row.get("High")),
+            _num(row.get("Low")),
+            _num(row.get("Close")),
+            int(_num(row.get("Volume"))),
         ))
 
     with get_connection() as conn:
