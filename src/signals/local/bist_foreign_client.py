@@ -50,13 +50,14 @@ class BistForeignOwnershipClient:
 
         try:
             for series_id in series_ids:
-                # EVDS v2: key passed as query parameter
+                # EVDS v3 endpoint: key passed as query parameter
+                # Note: evds2 redirects to evds3; evds3 currently returns HTML SPA
                 url = (
-                    f"https://evds2.tcmb.gov.tr/service/series/{series_id}"
+                    f"https://evds3.tcmb.gov.tr/service/series/{series_id}"
                     f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
                     f"&frequency=weekly&key={api_key}&type=json"
                 )
-                resp = requests.get(url, timeout=5)
+                resp = requests.get(url, timeout=5, allow_redirects=True)
 
                 if resp.status_code == 200:
                     data = resp.json()

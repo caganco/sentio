@@ -42,14 +42,15 @@ class TCMBClient:
             return False
 
         try:
-            # EVDS endpoint for TP.MK.IE.BSP (policy rate change series)
+            # EVDS v3 endpoint for TP.MK.IE.BSP (policy rate change series)
             # Key passed as query parameter: ?key=...&type=json
+            # Note: evds2 redirects to evds3; evds3 currently returns HTML SPA
             url = (
-                "https://evds2.tcmb.gov.tr/service/series/TP.MK.IE.BSP"
+                "https://evds3.tcmb.gov.tr/service/series/TP.MK.IE.BSP"
                 f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
                 f"&key={api_key}&type=json"
             )
-            resp = requests.get(url, timeout=5)
+            resp = requests.get(url, timeout=5, allow_redirects=True)
 
             if resp.status_code != 200:
                 logger.error(
