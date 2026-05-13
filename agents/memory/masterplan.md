@@ -78,6 +78,7 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 - **Layer 2 lokal makro genişletme:** TCMB faiz yönü (hike/cut/hold) + CDS spreads (250-500 bps risk levels) + BIST yabancı pay haftalık (EVDS stub) — `src/signals/local/` (5 modül), SQLite cache + YAML fallback, feature flag `LOCAL_MACRO_ENABLED=False` (safe mode), 255/255 test (231 mevcut + 24 yeni), zero regression
 - **LOCAL_MACRO_ENABLED=True aktivasyonu:** Feature flag açıldı, YAML fallback bootstrap otomasyonu eklendi, composite scoring canlı — `src/signals/local/cache_store.py::load_from_yaml_fallback()`, `src/signals/local_macro_signals.py::__init__()` auto-init, daily_update.py canlı test geçiyor, 112 test (26 macro_layer + 20 local_macro + 86 engine), zero regression — macro scores now reflect TCMB (hike→25, bearish) + CDS (neutral→50) weighting (50% global + 25% TCMB + 25% CDS)
 - **Analyst prompt — lokal makro narrative:** ANALYST_COMPACT_SYSTEM güncellendi, her hisse sinyali için "narrative" alanı (max 20 kelime) eklendi — TCMB hike impactı (holding/nakit zayıflar, ihracatçı güçlenir), CDS >350 bps downgrade rehberi, BIST yabancı pay düşüş = kurumsal çıkış riski — `agents/orchestrator.py`, 10/10 orchestrator test pass, zero regression
+- **Macro fetchers implementation:** TCMBClient.fetch_and_store() (EVDS API, hike/cut/hold decision), CDSClient.fetch_and_store() (worldgovernmentbonds.com scraping, 100-1000 bps range), BistForeignClient.fetch_and_store() (EVDS API weekly foreign ownership, multiple series ID fallback) — `src/signals/local/tcmb_client.py`, `cds_client.py`, `bist_foreign_client.py` + 20 unit tests (8+6+6), graceful error handling (bool return, no exceptions), daily_update.py integration (pre-market fetch before market open) — 277/277 tests pass, zero regression, SPEC compliant
 - Macro signal per-symbol volatility scaling (USDTRY scale=0.02, VIX scale=0.15, BRENT/equity scale=0.05) — `src/signals/macro_signals.py`
 - Decisions otomasyonu — `decisions/decisions_YYYY-MM-DD.md` orchestrator pipeline sonunda otomatik oluşturuluyor
 - KAP source tagging — haber başına `source_type: kap_official / news_media / unknown`, `source_domain` alanları eklendi
@@ -102,6 +103,7 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 - [x] **Signal Engine — Layer 7:** Multi-layer weighted scoring sistemi, BUY-STRONG/SELL-STRONG output formatı ✅ (13 Mayıs 2026)
 - [x] **Layer 2 genişletme — Lokal makro:** TCMB faiz yönü, CDS primi seviyesi, yabancı takas oranı → `src/signals/local/` entegre ✅ (14 Mayıs 2026)
 - [x] **LOCAL_MACRO_ENABLED=True yap** — Feature flag açılıp canlı ortamda test tamamlandı ✅ (14 Mayıs 2026). YAML fallback bootstrap aktif, composite weighting live (50% global + 25% TCMB + 25% CDS). EVDS API stabilize olunca gerçek veri başlatılacak
+- [x] **Macro fetchers — fetch_and_store():** TCMBClient (EVDS API TP.MK.IE.BSP, hike/cut/hold decision logic), CDSClient (worldgovernmentbonds.com scraping, 100-1000 bps range detection), BistForeignClient (EVDS API weekly foreign ownership, multiple series ID fallback) — 20 unit tests, graceful error handling (bool return, log-based), daily_update.py pre-market integration ✅ (14 Mayıs 2026)
 - [ ] **Layer 5 Smart Money:** Halk Yatırım scraping araştır (analizim.halkyatirim.com.tr yabancı pay hisse bazlı günlük) → kurumsal net alım/satım → Bull Trap flag (teknik BUY + 3+ gün %0.5+ kurumsal net satış → HOLD override)
 
 ### Öncelik: ORTA
@@ -115,7 +117,7 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 
 ---
 
-## Mevcut Sistem Durumu (Phase 4.6 — Layer 2 Local Extended + Active ✅)
+## Mevcut Sistem Durumu (Phase 4.7 — Macro Fetchers Live + Pre-Market Ready ✅)
 
 ### Kurulu Bileşenler
 ```
