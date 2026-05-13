@@ -43,12 +43,13 @@ class TCMBClient:
 
         try:
             # EVDS endpoint for TP.MK.IE.BSP (policy rate change series)
+            # Key passed as query parameter: ?key=...&type=json
             url = (
                 "https://evds2.tcmb.gov.tr/service/series/TP.MK.IE.BSP"
-                f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}&type=json"
+                f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
+                f"&key={api_key}&type=json"
             )
-            headers = {"Authorization": f"Bearer {api_key}"}
-            resp = requests.get(url, headers=headers, timeout=5)
+            resp = requests.get(url, timeout=5)
 
             if resp.status_code != 200:
                 logger.error(

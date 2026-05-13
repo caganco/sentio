@@ -50,13 +50,13 @@ class BistForeignOwnershipClient:
 
         try:
             for series_id in series_ids:
+                # EVDS v2: key passed as query parameter
                 url = (
                     f"https://evds2.tcmb.gov.tr/service/series/{series_id}"
                     f"?startDate=2020-01-01&endDate={datetime.utcnow().strftime('%Y-%m-%d')}"
-                    f"&frequency=weekly&type=json"
+                    f"&frequency=weekly&key={api_key}&type=json"
                 )
-                headers = {"Authorization": f"Bearer {api_key}"}
-                resp = requests.get(url, headers=headers, timeout=5)
+                resp = requests.get(url, timeout=5)
 
                 if resp.status_code == 200:
                     data = resp.json()

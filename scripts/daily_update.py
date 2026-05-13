@@ -109,6 +109,9 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     # Pre-market: fetch local macro signals (TCMB, CDS, BIST foreign)
     logger.info("Fetching local macro signals...")
     cache = LocalMacroCache()
+    # Load YAML fallback data if cache is empty
+    cache.load_from_yaml_fallback()
+
     tcmb_client = TCMBClient(cache)
     cds_client = CDSClient(cache)
     bist_client = BistForeignOwnershipClient(cache)
