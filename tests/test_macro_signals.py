@@ -6,6 +6,8 @@ from pathlib import Path
 from datetime import datetime
 from src.signals.macro_signals import (
     MacroSignal,
+    SYMBOL_VOLATILITY_PROFILES,
+    get_symbol_scale,
     score_macro_component,
     calculate_macro_environment_score,
     detect_regime,
@@ -39,39 +41,69 @@ def cleanup_test_files():
             pass
 
 
+class TestVolatilityProfiles:
+    """Test SYMBOL_VOLATILITY_PROFILES and get_symbol_scale."""
+
+    def test_known_symbols_present(self):
+        for sym in ("USDTRY", "VIX", "BRENT", "BRENTOIL", "EURTRY", "XAU", "_default"):
+            assert sym in SYMBOL_VOLATILITY_PROFILES
+
+    def test_get_symbol_scale_known(self):
+        profile = get_symbol_scale("VIX")
+        assert profile["scale"] == 0.15
+        assert profile["group"] == "vix"
+
+    def test_get_symbol_scale_unknown_falls_back(self):
+        profile = get_symbol_scale("THYAO")
+        assert profile == SYMBOL_VOLATILITY_PROFILES["_default"]
+
+
 class TestScoringFunction:
-    """Test component scoring."""
+    """Test component scoring — SPEC 1 asserts."""
 
-    def test_score_positive_change(self):
-        """Score should be positive for price increase."""
-        score = score_macro_component("BRENT", 110.0, 100.0, is_inverse=False)
-        assert score > 0, "Positive price change should yield positive score"
+    def test_vix_full_saturation(self):
+        assert score_macro_component("VIX", 0.15) == pytest.approx(1.0)
 
-    def test_score_negative_change(self):
-        """Score should be negative for price decrease."""
-        score = score_macro_component("BRENT", 90.0, 100.0, is_inverse=False)
-        assert score < 0, "Negative price change should yield negative score"
+    def test_vix_half_scale(self):
+        assert score_macro_component("VIX", 0.075) == pytest.approx(0.5)
+
+    def test_vix_clip_upper(self):
+        assert score_macro_component("VIX", 0.30) == pytest.approx(1.0)
+
+    def test_vix_clip_lower(self):
+        assert score_macro_component("VIX", -0.30) == pytest.approx(-1.0)
+
+    def test_usdtry_full_saturation(self):
+        assert score_macro_component("USDTRY", 0.02) == pytest.approx(1.0)
+
+    def test_usdtry_half_scale(self):
+        assert score_macro_component("USDTRY", 0.01) == pytest.approx(0.5)
+
+    def test_unknown_symbol_uses_default(self):
+        assert score_macro_component("UNKNOWN_SYM", 0.05) == pytest.approx(1.0)
+
+    def test_zero_change(self):
+        assert score_macro_component("VIX", 0.0) == pytest.approx(0.0)
+
+    def test_positive_change_positive_score(self):
+        score = score_macro_component("BRENT", 0.05)
+        assert score > 0
+
+    def test_negative_change_negative_score(self):
+        score = score_macro_component("BRENT", -0.05)
+        assert score < 0
 
     def test_score_bounds(self):
-        """Score should be within [-1, +1]."""
-        score = score_macro_component("VIX", 50.0, 10.0, is_inverse=False)
-        assert -1.0 <= score <= 1.0, f"Score {score} outside [-1, 1]"
+        score = score_macro_component("VIX", 5.0)  # way above clip
+        assert -1.0 <= score <= 1.0
 
-    def test_score_inverse(self):
-        """USDTRY: price down should be positive (TRY strengthening)."""
-        # USDTRY: 45 → 40 (down) = TRY strengthening = positive
-        score = score_macro_component("USDTRY", 40.0, 45.0, is_inverse=True)
-        assert score > 0, "USDTRY decrease (TRY strength) should be positive"
+    def test_profile_override(self):
+        custom = {"scale": 0.10, "clip": (-1.0, 1.0)}
+        assert score_macro_component("VIX", 0.10, profile_override=custom) == pytest.approx(1.0)
 
-    def test_score_zero_change(self):
-        """No change should score ~0."""
-        score = score_macro_component("BIST100", 10000.0, 10000.0, is_inverse=False)
-        assert abs(score) < 0.05, f"No change should score ~0, got {score}"
-
-    def test_score_nan_handling(self):
-        """NaN values should be handled gracefully."""
-        score = score_macro_component("BRENT", float("nan"), 100.0, is_inverse=False)
-        assert score == 0.0, "NaN should return 0.0"
+    def test_scale_zero_raises(self):
+        with pytest.raises(ValueError):
+            score_macro_component("VIX", 0.05, profile_override={"scale": 0, "clip": (-1.0, 1.0)})
 
 
 class TestEnvironmentScore:

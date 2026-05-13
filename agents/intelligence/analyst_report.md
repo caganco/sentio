@@ -1,78 +1,75 @@
 # Analyst Report
 
+
+
 === ANALYST REPORT — 2026-05-13 ===
 
+---
+
 ## MAKRO DURUM
-Brent'in %3+ sıçraması (107$/varil) enerji sektörü için güçlü bir katalizör; ancak bu hamle AKSEN üzerindeki yoğunlaşma sorununu daha da görünür hale getiriyor. VIX'in 18 altında kalması ve S&P'nin neredeyse sabit olması global risk iştahının dengeli seyrettiğini gösteriyor. USD/TRY'nin 45.39'da yatay seyri ihracatçı baskısını artırmıyor, iç tüketim hikayesi canlı.
+
+Brent 107$ ile yüksek seyrini koruyor ancak günlük -0.40% geri çekilme var; altın 4700$+ ile güvenli liman talebi canlı. VIX 17.85 ile sakin, S&P yatay — global risk-off yok ama altın/TRY kombinasyonu TL varlıklarda temkinli olunması gerektiğine işaret ediyor. USD/TRY 45.42 ile kontrollü yükseliş sürecinde; TCMB politikasında sürpriz beklentisi düşük.
+
+---
 
 ## SEKTÖR ROTASYONU
-- **HOT 🔥:** Enerji (Brent +3% → doğrudan kazanan), Holding (düşük VIX + stabil TRY → risk iştahı)
-- **WARM ♨️:** Telekom (defansif + temettü kalkanı, faiz ortamı nötr), Banka (S&P stabil, global satış baskısı yok)
-- **COLD ❄️:** Havacılık (Brent 107$ → yakıt maliyeti kabusu, TAVHL için ciddi headwind)
+
+| Sıcaklık | Sektörler | Gerekçe |
+|----------|-----------|---------|
+| **HOT** 🔥 | Perakende (BIMAS), Savunma (ASELS) | BIMAS RSI 66 + %2.2 günlük = sağlıklı kurumsal momentum. ASELS savunma harcama teması devam. |
+| **WARM** 🌤️ | Telekom, Holding | Defansif-büyüme karışımı; faiz beklentisi nötr ama nakit akışı güçlü isimler. |
+| **COLD** 🧊 | Demir-çelik (EREGL, KRDMD), Petrokimya (PETKM) | RSI 70-73 aşırı alım bölgesi + günlük negatif kapanış = distribution sinyali. Havacılık da zayıf (TAVHL RSI 34). |
 
 ---
 
 ## PORTFÖY AKSİYONLARI
 
-### 🔴 AKSEN.IS — **SELL-WEAK** (Kısmi Küçültme Zorunlu)
-> Fiyat verisi eksik ancak RSI=65 → aşırı alım sınırına yakın. Brent rallisi kısa vadeli destek verse de **sektör konsantrasyonu %54.6 = portföy için egzistansiyel risk.** Risk yönetimi, fiyat performansından önce gelir.
-- **Aksiyon:** ~150-180 lot sat → enerji konsantrasyonunu %30-35 bandına çek
-- **Seviye:** Bugünkü açılışta piyasa fiyatından kademeli satış (Brent rallisi çıkışı kullan)
-- **Stop:** Satış sonrası kalan pozisyon için maliyet altı %8 → çık
-- **Mantık:** Brent 107$ iken enerji hissesi satmak duygusal olarak zor — ama risk limiti kural, his değil
+### 🔴 ENERY — SELL-STRONG
+**Neden:** Portföy enerji konsantrasyonu %54.6 ile %30 limitini ciddi aşıyor. ENERY RSI 46 = ne momentum ne dip, "hiçbir yere" gitmiyor. P&L -2.1% ile kayıp henüz küçükken çıkmak rasyonel. 1543 lot × ₺8.88 = ~₺13,700 nakit yaratır → toplam nakit ~₺54K'ya çıkar.
+**Aksiyon:** Tüm pozisyonu LİKİDE ET. Enerji ağırlığı %41.5'e düşer (hâlâ yüksek ama tek hamlede makul).
+**Stop:** Eğer bugün satılamıyorsa ₺8.60 altı hard stop.
 
----
+### 🟡 AKSEN — HOLD (Azaltma Hazırlığı)
+**Neden:** RSI 55 sağlıklı, Brent 107$ destekleyici. Ancak enerji konsantrasyonu ENERY satışından sonra bile ~%41.5. AKSEN'de %30 limitine uymak için 150-200 lot azaltma yapılmalı ama bugün değil — RSI ve Brent dengeyi koruyor.
+**Seviyeler:** ₺82.50 altında 200 lot SELL tetikle. ₺90+ olursa 150 lot kâr al.
+**Aksiyon:** Yarına kadar HOLD, ₺82.50 stop-loss girili olsun.
 
-### 🟡 TTKOM.IS — **HOLD**
-> RSI=62, trend sağlıklı. Defansif telekom karakteri bu belirsiz makroda kalkan görevi görüyor. Fiyat verisi eksik olduğundan agresif aksiyon yok.
-- **Seviye:** MA20 üzerinde kaldığı sürece tut
-- **Stop:** Maliyet ₺60.65 → %7 altı = ₺56.4 kesin çık
-- **Katalizör:** TCMB faiz kararı → faiz indirim sinyali gelirse telekom re-rating potansiyeli var
+### 🟢 TTKOM — BUY-WEAK
+**Neden:** RSI 51 = tam ideal giriş bölgesi (50-65 aralığı). Telekom defansif + TL nakit akışı güçlü. ENERY satışından gelen nakitle 50 lot ekleme düşünülebilir. P&L +5.1% trend sağlıklı.
+**Seviyeler:** ₺62.50-63.00 aralığında 50 lot ekleme. ₺59.00 stop. Hedef ₺68.
+**R/R:** ~%7 upside / %5 downside → kabul edilir.
 
----
+### 🔴 TAVHL — SELL-WEAK
+**Neden:** RSI 34 = momentum kaybı ciddi. -6.9% P&L ve trend kırılmış. Havacılık sektörü "cold" kategorisinde. 68 lot × ₺266.75 = ~₺18,100 büyüklükte pozisyon, portföyün %15'i.
+**Aksiyon:** ₺260 altında kesin çık (hard stop). Bugünkü kapanış ₺270 üstü olursa yarın bir gün daha beklenebilir. Ancak RSI 34 → 30 altına düşerse toparlanma uzar.
+**Seviyeler:** Stop ₺260 | Bounce hedefi ₺280 (gelirse %50 azalt).
 
-### 🔴 TAVHL.IS — **SELL-WEAK** ⚠️
-> **En kritik pozisyon.** RSI=39 → momentum kaybı net. Brent 107$ ile yakıt maliyet baskısı doğrudan kazançları eritiyor. Havacılık Brent'e karşı en yüksek negatif beta'ya sahip sektör. ⚠️ işareti zaten vardı, makro teyit etti.
-- **Aksiyon:** 68 lotun %50-60'ını sat (34-40 lot) → kalan için stop koy
-- **Kalan Stop:** ₺286.50 maliyet → %7 altı = ₺266.6 → aşılırsa tam çıkış
-- **Senaryo:** Brent 100$ altına dönerse geri al — şimdi değil
-- **Risk/Reward:** Brent 107$'da havacılık = asimetrik kötü setup
-
----
-
-### 🟢 KCHOL.IS — **HOLD / BUY-WEAK**
-> RSI=62, holding karakteri düşük VIX ortamında değer açar. Sabancı/Koç tarzı holdingler TRY stabilitesinde kurumsal favoriler. Fiyat verisi eksik ama teknik görünüm sağlıklı.
-- **Aksiyon:** Mevcut pozisyonu koru. TAVHL/AKSEN'den gelen nakdi buraya kısmen yönlendir
-- **Hedef:** Enerji ağırlığı azaldıkça holding/banka rotasyonu mantıklı
-- **Stop:** ₺188.83 maliyet → %6 altı = ₺177.5
-
----
-
-### 🟡 ENERY.IS — **WATCH** ⚠️
-> RSI=50, Brent +3% ama ENERY sadece +0.5% → **divergence!** Büyük enerji rallisinden küçük enerji hisseleri faydalanmıyor → kurumsal ilgi yok veya dağıtım var. Momentum skoru negatif (-0.11).
-- **Aksiyon:** Yeni alım YOK. Mevcut -1% zarar ile izle
-- **Kritik Seviye:** ₺8.98 destek kırılırsa (₺8.50 altı) → SELL-STRONG'a geçer
-- **Stop:** ₺8.40 → kesin çıkış (maliyet ₺9.07'den %7.4 aşağı)
-- **Uyarı:** Brent 107$'da bu kadar zayıf kalması = distribüsyon işareti
+### 🟢 KCHOL — HOLD (Güçlü)
+**Neden:** RSI 49 ideal, P&L +7.5%, holding sektörü warm. Makroda faiz sürprizi yoksa holding iskonto kapanma hikâyesi devam eder. Pozisyon büyüklüğü %12.7 = limit dahilinde.
+**Seviyeler:** ₺195 stop. ₺215 hedef. Yerinde tut.
 
 ---
 
 ## FIRSAT RADAR
 
-### 📡 AKBNK.IS — **WATCH → BUY-WEAK**
-> RSI=52 → ideal giriş bölgesi. VIX düşük, global risk iştahı stabil. TCMB faiz indirim döngüsü banka NIM'lerini destekler.
-- **Giriş Kriteri:** Fiyat > MA20 + hacim 1.5x ortalama üzeri gün
-- **Pozisyon:** Max %10 portföy → TAVHL/AKSEN satışından gelen nakit
+### ⭐ BIMAS — BUY-WEAK
+**Neden:** Günlük +2.2% momentum + RSI 66 = kurumsal alım var, henüz aşırı alım değil. Perakende sektörü enflasyon ortamında fiyatlama gücü olan ender sektör. Defansif karakter + büyüme.
+**Giriş Kriteri:** ₺785-790 geri çekilmede 15-18 lot al (~₺14K, ENERY satış nakitiyle). RSI 60 altına gelirse agresif ekle.
+**Stop:** ₺760 | Hedef: ₺850 | **R/R: %8 upside / %4 downside = asimetrik ✅**
 
-### 📡 EREGL.IS — **UZAK DUR (Şimdilik)**
-> RSI=79 → **aşırı alım.** Momentum var ama bu seviyeden giriş Druckenmiller metodolojisine aykırı. "Haberden sonra alma, RSI 80+'da alma" — iki kural aynı anda çiğneniyor.
-- **Giriş Kriteri:** RSI 65 altına çekilirse izle. Şu an: geç kaldın.
-
-### 📡 THYAO.IS — **WATCH (Negatif)**
-> RSI=48, Brent 107$ → TAVHL ile aynı yakıt maliyeti sorunu. Zaten TAVHL portföyde varken THY eklemek sektör konsantrasyon sorununu havacılıkta da yaratır.
-- **Sinyal:** Brent 95$ altına inerse pozitif WATCH'a döner
+### 👁️ ASELS — WATCH
+**Neden:** RSI 59 sağlıklı, savunma teması global olarak güçlü. Ancak günlük %0.1 = katalizör bekleniyor. Momentum skoru negatif (-0.04), henüz tetik çekilmedi.
+**Giriş Kriteri:** RSI 55 altına çekilme + ₺410 test = giriş noktası. Günlük hacim 1.5x surge gelirse hemen al.
 
 ---
 
-## KÜÇÜK YATIRIMCI TUZAĞI UYARISI
-> ⚠️ **"Brent rallisi var, ENERY ve AKSEN'e ek alım yapayım
+## BUGÜNÜN PLANI (Özet)
+
+| Aksiyon | Ticker | Lot | Tahmini Tutar |
+|---------|--------|-----|---------------|
+| SAT | ENERY | 1543 (tümü) | +₺13,700 |
+| SAT (koşullu) | TAVHL | 68 (₺260 altı) | +₺18,100 |
+| AL (koşullu) | TTKOM | +50 lot (₺62.50-63) | -₺3,150 |
+| AL (koşullu) | BIMAS | +15 lot (₺785-790) | -₺11,850 |
+
+Sonuç enerji ağırlığı: %54.6 → ~%41.5 (

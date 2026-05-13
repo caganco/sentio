@@ -1,0 +1,36 @@
+# Local macro signals bootstrap/fallback data
+version: 1
+last_sync: "2026-05-13T18:30:00Z"
+
+tcmb:
+  decisions:
+    - decision_date: "2026-05-08"
+      decision_type: "hike"
+      rate_before: 32.0
+      rate_after: 33.0
+      source: "web_scrape"
+      confidence: 1.0
+    - decision_date: "2026-04-10"
+      decision_type: "hold"
+      rate_before: 32.0
+      rate_after: 32.0
+      source: "web_scrape"
+      confidence: 1.0
+
+cds:
+  last_value: 287.5
+  last_fetch: "2026-05-13T16:00:00Z"
+  source: "world_govt_bonds"
+  confidence: 1.0
+
+bist_foreign_weekly:
+  - week_ending_date: "2026-05-09"
+    foreign_ownership_pct: 28.45
+    pct_change_weekly: -0.12
+    source: "evds_api"
+    confidence: 0.9
+  - week_ending_date: "2026-05-02"
+    foreign_ownership_pct: 28.57
+    pct_change_weekly: 0.08
+    source: "evds_api"
+    confidence: 0.9

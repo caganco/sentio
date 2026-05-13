@@ -73,9 +73,8 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 
 ---
 
-## Tamamlananlar (14 Mayıs 2026 — güncellendi) ✅
+## Tamamlananlar (13 Mayıs 2026 — güncellendi) ✅
 
-- **Layer 2 lokal makro genişletme:** TCMB faiz yönü (hike/cut/hold) + CDS spreads (250-500 bps risk levels) + BIST yabancı pay haftalık (EVDS stub) — `src/signals/local/` (5 modül), SQLite cache + YAML fallback, feature flag `LOCAL_MACRO_ENABLED=False` (safe mode), 255/255 test (231 mevcut + 24 yeni), zero regression
 - Macro signal per-symbol volatility scaling (USDTRY scale=0.02, VIX scale=0.15, BRENT/equity scale=0.05) — `src/signals/macro_signals.py`
 - Decisions otomasyonu — `decisions/decisions_YYYY-MM-DD.md` orchestrator pipeline sonunda otomatik oluşturuluyor
 - KAP source tagging — haber başına `source_type: kap_official / news_media / unknown`, `source_domain` alanları eklendi
@@ -98,9 +97,8 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 ### Öncelik: YÜKSEK
 - [ ] **KAP WAF sorunu** → `fintables.com` alternatifini araştır ve entegre et (mevcut KAP API WAF tarafından sıkça engelleniyor)
 - [x] **Signal Engine — Layer 7:** Multi-layer weighted scoring sistemi, BUY-STRONG/SELL-STRONG output formatı ✅ (13 Mayıs 2026)
-- [x] **Layer 2 genişletme — Lokal makro:** TCMB faiz yönü, CDS primi seviyesi, yabancı takas oranı → `src/signals/local/` entegre ✅ (14 Mayıs 2026)
-- [ ] **LOCAL_MACRO_ENABLED=True yap** — Feature flag açıp canlı ortamda test et. EVDS API stabilize olunca gerçek veri başlat (şimdilik YAML fallback)
-- [ ] **Layer 5 Smart Money:** Halk Yatırım scraping araştır (analizim.halkyatirim.com.tr yabancı pay hisse bazlı günlük) → kurumsal net alım/satım → Bull Trap flag (teknik BUY + 3+ gün %0.5+ kurumsal net satış → HOLD override)
+- [ ] **Layer 2 genişletme — Lokal makro:** TCMB faiz yönü (sayısal delta), CDS primi seviyesi, yabancı takas oranı → `macro_layer.py`'e entegre *(Signal Engine bittikten sonra)*
+- [ ] **Layer 5 Smart Money:** Borsa İstanbul günlük takas raporu scraper → kurumsal net alım/satım → Bull Trap flag (teknik BUY + kurumsal net satış → HOLD override) *(Signal Engine bittikten sonra)*
 
 ### Öncelik: ORTA
 - [ ] **Analyst Agent prompt güncelle:** "Lokal makro rejim bu hissenin hikayesini destekliyor mu?" narrative perspektifi ekle — Engine'e değil, prompt'a *(Gemini Stratejik Raporu kararı)*
@@ -113,24 +111,12 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 
 ---
 
-## Mevcut Sistem Durumu (Phase 4.5 — Layer 2 Local Extended ✅)
+## Mevcut Sistem Durumu (Phase 4 Başlıyor 🚀)
 
 ### Kurulu Bileşenler
 ```
 C:\Users\cagan\bist-trading-system\
 ├── src/
-│   ├── signals/
-│   │   ├── local/              ✅ TCMB + CDS + BIST Foreign (haftalık)
-│   │   │   ├── cache_store.py  ✅ SQLite backend
-│   │   │   ├── tcmb_client.py  ✅ Policy rate signals
-│   │   │   ├── cds_client.py   ✅ CDS spreads
-│   │   │   └── bist_foreign_client.py ✅ BIST foreign ownership
-│   │   ├── local_macro_signals.py ✅ Composite class
-│   │   ├── engine.py           ✅ Signal Engine (Layer 7)
-│   │   ├── layers/
-│   │   │   └── macro_layer.py  ✅ Global + local support (flag: OFF)
-│   │   ├── models.py           ✅ LocalMacroSignal
-│   │   └── thresholds.py       ✅ Magic number zero, local constants
 │   ├── data/
 │   │   ├── fetcher.py          ✅ Yahoo Finance (.IS format)
 │   │   └── database.py         ✅ SQLite CRUD
@@ -171,11 +157,10 @@ TCELL, HALKB, EKGYO, KRDMD, SOKM
 - Yahoo Finance → OHLCV, volume
 - 60 hisse, batch download, SQLite storage
 
-### Layer 2: Macro Intelligence ✅ (Aktif — Local Extended)
-- **Global:** Crude oil, USD/TRY, Gold, S&P500, VIX (macro_signals.py, per-symbol volatility scaling)
-- **Local:** TCMB policy rate, CDS spreads, BIST foreign weekly (src/signals/local/, feature flag OFF)
+### Layer 2: Macro Intelligence ✅ (Aktif)
+- Crude oil, USD/TRY, Gold, S&P500, VIX — macro.py
+- Per-symbol volatility scaling aktif
 - Rejim sınıflandırması (RISK_ON/RISK_OFF/TRANSITION)
-- Composite: 50% global + 25% TCMB + 25% CDS (+ 0% foreign stub)
 
 ### Layer 3: Corporate Intelligence ❌ (Phase 4 — AKTİF GELIŞTIRME)
 - **KAP scraper** → Finansal tablolar, özel durumlar, temettü
@@ -270,6 +255,23 @@ C:\Users\cagan\bist-trading-system\intelligence\
 
 ## Druckenmiller Framework — Karar Kuralları
 
+### Narrative & Engine Dengesi:
+
+- Layer 7 tamamen sayısal ve deterministik kalır — narrative score'a girmez
+- Analyst Agent narrative yorum yazar (audit trail'e), Layer 7 score'una dokunmaz
+- Orchestrator her ikisini okur, final kararı verir
+
+### Takas Veri Stratejisi:
+
+- Şu an: Borsa İstanbul gün sonu takas bülteni (ücretsiz, gecikmeli) — yeterli
+- Geçiş koşulu: Portföy 1M TL+ olduğunda veya vade 1 haftanın altına indiğinde gerçek zamanlı sağlayıcıya (Matriks/Foreks) geç
+
+### Bull Trap Kuralı (kesinleşti):
+
+- Koşul: 3 gün üst üste kurumsal net satış ≥ -500K lot → BULL_TRAP flag
+- KAP eventi YOK: Mutlak veto → BUY durdur
+- KAP eventi VAR (kap_official, temettü/sözleşme): Veto → downgrade (BUY-STRONG → BUY-WEAK), audit trail'e "KAP event kurumsal satışı override etti" yaz, final karar Orchestrator'a gelir
+
 ### Giriş Koşulları (BUY)
 - RSI 50-65 (ne aşırı alım ne aşırı satım)
 - Fiyat > MA20
@@ -345,6 +347,8 @@ C:\Users\cagan\bist-trading-system\intelligence\
 ---
 
 ## Önemli Notlar
+- Narrative zekası Engine'e girmez, Analyst Agent promptunda kalır — backtest bütünlüğü korunur
+- Bull Trap istisnası: kap_official kaynaklı pozitif event varsa mutlak veto → downgrade'e dönüşür
 - **Smart Money kaynağı:** Borsa İstanbul takas raporu (günlük, ücretsiz) — format araştırılacak, `smartmoney_layer.py` stub olarak bekliyor
 - **Narrative zekası Engine'e girmez:** Analyst Agent prompt'unda kalır — "Lokal makro rejim bu hissenin hikayesini destekliyor mu?" perspektifi
 - **Bull Trap mantığı:** Teknik BUY-STRONG + 3 gün üst üste kurumsal net satış → HOLD override (henüz implement edilmedi, Layer 5 planı)

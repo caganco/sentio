@@ -4,13 +4,105 @@ Katman 1 — KAP API  : POST memberDisclosureQuery (kısa timeout, sıkça engel
 Katman 2 — Google News RSS: Türkçe haber özeti, no extra deps
 Katman 3 — Boş placeholder: Her şey başarısız olursa loglama
 """
+import logging
 import time
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
-from typing import Optional
+from typing import Literal, Optional
+from urllib.parse import urlparse
 
 import requests
+
+logger = logging.getLogger(__name__)
+
+# ── Source-type constants ─────────────────────────────────────────────────────
+
+SOURCE_TYPE = Literal["kap_official", "news_media", "unknown"]
+
+KAP_OFFICIAL_DOMAINS: set[str] = {
+    "kap.org.tr",
+    "www.kap.org.tr",
+}
+
+NEWS_MEDIA_DOMAINS: set[str] = {
+    "bloomberght.com",
+    "ekonomim.com",
+    "haberturk.com",
+    "hurriyet.com.tr",
+    "sabah.com.tr",
+    "milliyet.com.tr",
+    "dunya.com",
+    "paraanaliz.com",
+}
+
+
+@dataclass
+class NewsItem:
+    title: str
+    url: str
+    published: datetime
+    symbol: str
+    source_type: SOURCE_TYPE
+    source_domain: str
+    summary: str | None = None
+
+
+def classify_source_type(url: str) -> SOURCE_TYPE:
+    """Extract domain from url and return the matching SOURCE_TYPE."""
+    if not url:
+        return "unknown"
+    try:
+        parsed = urlparse(url)
+        domain = parsed.netloc.lower()
+        if not domain:
+            return "unknown"
+    except Exception:
+        logger.warning("classify_source_type: could not parse URL '%s'", url)
+        return "unknown"
+
+    # KAP official: exact match or subdomain ending in kap.org.tr
+    if domain in KAP_OFFICIAL_DOMAINS or domain.endswith(".kap.org.tr"):
+        return "kap_official"
+
+    # Strip leading www. for media domain matching
+    bare = domain[4:] if domain.startswith("www.") else domain
+    if bare in NEWS_MEDIA_DOMAINS or domain in NEWS_MEDIA_DOMAINS:
+        return "news_media"
+
+    return "unknown"
+
+
+def parse_rss_item(raw_item: dict, symbol: str = "") -> NewsItem:
+    """Parse a Google News RSS raw dict into a NewsItem with source tagging."""
+    title = raw_item.get("title", "")
+    url = raw_item.get("link", "")
+    published_str = raw_item.get("published", raw_item.get("pubDate", ""))
+
+    try:
+        published = parsedate_to_datetime(published_str)
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
+    except Exception:
+        published = datetime.now(timezone.utc)
+
+    try:
+        source_domain = urlparse(url).netloc.lower() if url else ""
+    except Exception:
+        source_domain = ""
+
+    source_type = classify_source_type(url)
+
+    return NewsItem(
+        title=title,
+        url=url,
+        published=published,
+        symbol=symbol,
+        source_type=source_type,
+        source_domain=source_domain,
+        summary=raw_item.get("summary"),
+    )
 
 # ── Sabitler ─────────────────────────────────────────────────────────────────
 PORTFOLIO_TICKERS = ["AKSEN", "TTKOM", "TAVHL", "KCHOL", "ENERY"]

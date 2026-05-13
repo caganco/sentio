@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.analysis.momentum import scan_momentum_stocks
 from src.analysis.portfolio import analyze_portfolio, portfolio_summary
 from src.data.database import get_prices, initialize_db, sync_portfolio, upsert_prices
-from src.data.fetcher import fetch_multiple_stocks, get_bist100_tickers
+from src.data.fetcher import fetch_all_bist_batch, fetch_multiple_stocks, get_bist100_tickers
 from src.data.kap_scraper import fetch_kap_news
 from src.data.macro import fetch_macro_data
 from src.data.macro_feed import fetch_macro_snapshot, save_to_db, get_latest_snapshot
@@ -26,6 +26,80 @@ SEP = "=" * 65
 DASH = "-" * 65
 
 
+def pre_filter_tickers(
+    all_signals: list[dict],
+    portfolio_tickers: set[str],
+    max_results: int = 10,
+) -> list[dict]:
+    """
+    Filter momentum scan results down to the most actionable candidates.
+
+    Portfolio tickers are always included. Others must have momentum_score >= 60
+    (normalised 0-100 scale) OR at least 2 of the trigger conditions below.
+
+    Returns a list of dicts (same schema as scan rows) sorted by priority score,
+    capped at max_results.
+    """
+    config = load_config()
+    agent_cfg = config.get("agent", {}).get("analyst", {})
+    min_score = agent_cfg.get("pre_filter_min_score", 60)
+    use_filter = agent_cfg.get("pre_filter", True)
+
+    if not use_filter:
+        return all_signals[:max_results]
+
+    scanner_cfg = config.get("scanner", {})
+    rsi_buy_min = scanner_cfg.get("rsi_buy_min", 50)
+    rsi_buy_max = scanner_cfg.get("rsi_buy_max", 65)
+    rsi_overbought = scanner_cfg.get("rsi_overbought", 80)
+    rsi_oversold = scanner_cfg.get("rsi_oversold", 35)
+    vol_threshold = scanner_cfg.get("volume_surge_threshold", 1.5)
+
+    flagged: list[tuple[float, dict]] = []
+
+    for s in all_signals:
+        ticker = s.get("ticker", "")
+        score = s.get("momentum_score") or 0.0
+        rsi = s.get("rsi")
+        vol = s.get("vol_surge")
+        prox = s.get("proximity_52w_high_pct")
+
+        # Portfolio positions — always include
+        if ticker in portfolio_tickers:
+            flagged.append((200.0 + score, s))
+            continue
+
+        reasons = 0
+
+        # Momentum score above threshold
+        if score >= min_score:
+            reasons += 1
+
+        # RSI in buy zone or extreme
+        if rsi is not None:
+            if rsi_buy_min <= rsi <= rsi_buy_max:
+                reasons += 1
+            elif rsi > rsi_overbought:
+                reasons += 1
+            elif rsi < rsi_oversold:
+                reasons += 1
+
+        # Volume surge
+        if vol is not None and vol > vol_threshold:
+            reasons += 1
+
+        # Near 52-week high (proximity_52w_high_pct is % below high, so <5 = near)
+        if prox is not None and prox > -5:
+            reasons += 1
+
+        if reasons >= 2:
+            priority = score + (reasons * 5)
+            flagged.append((priority, s))
+
+    flagged.sort(key=lambda x: x[0], reverse=True)
+    return [s for _, s in flagged[:max_results]]
+
+
 def run_update(scan: bool = False, generate_report: bool = False) -> None:
     logger.info("=== BIST Daily Update Started ===")
 
@@ -36,11 +110,11 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     sync_portfolio(positions)
 
     tickers = get_bist100_tickers()
-    logger.info("Fetching data for %d tickers...", len(tickers))
+    logger.info("Fetching data for %d tickers (batch mode)...", len(tickers))
 
     lookback_days = config.get("data", {}).get("lookback_days", 365)
     period = _days_to_period(lookback_days)
-    all_data = fetch_multiple_stocks(tickers, period=period)
+    all_data = fetch_all_bist_batch(tickers, period=period)
 
     total_rows = 0
     for ticker, df in all_data.items():
@@ -62,6 +136,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
 
     # --- Momentum scan ---
     momentum_df = None
+    filtered_signals: list[dict] = []
     if scan:
         scanner_cfg = config.get("scanner", {})
         momentum_df = scan_momentum_stocks(
@@ -69,9 +144,18 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             vol_threshold=scanner_cfg.get("volume_threshold", 1.5),
             proximity_threshold=scanner_cfg.get("high_52w_proximity", 0.05),
             min_price=scanner_cfg.get("min_price", 1.0),
-            top_n=scanner_cfg.get("top_n_results", 10),
+            top_n=len(all_data),  # get all, pre_filter will cap
         )
         _print_momentum(momentum_df)
+
+        # Pre-filter: keep only actionable signals for the agent pipeline
+        portfolio_tickers = set(positions) if isinstance(positions, dict) else {p["ticker"] for p in positions}
+        all_signals_list = momentum_df.to_dict(orient="records") if momentum_df is not None and not momentum_df.empty else []
+        filtered_signals = pre_filter_tickers(all_signals_list, portfolio_tickers)
+        logger.info(
+            "Pre-filter: %d/%d tickers flagged for agent pipeline",
+            len(filtered_signals), len(all_signals_list),
+        )
 
     if generate_report:
         # Build daily briefing JSON for the agent pipeline
@@ -193,6 +277,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             },
             "portfolio": portfolio_data,
             "momentum_top5": momentum_top5,
+            "filtered_signals": filtered_signals,  # pre-filtered for agent pipeline
             "macro_data": macro_data,
             "macro_snapshot": macro_snapshot_section,
             "kap_news": kap_news,

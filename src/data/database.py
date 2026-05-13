@@ -10,6 +10,30 @@ from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+KAP_SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS kap_events (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    disclosure_index  TEXT NOT NULL UNIQUE,
+    symbol            TEXT NOT NULL,
+    published_at      TEXT NOT NULL,
+    fetched_at        TEXT NOT NULL,
+    subject           TEXT NOT NULL,
+    category          TEXT NOT NULL,
+    summary           TEXT,
+    url               TEXT NOT NULL,
+    source_type       TEXT NOT NULL DEFAULT 'kap_official',
+    structured_data   TEXT,
+    has_attachment    INTEGER DEFAULT 0,
+    attachment_urls   TEXT,
+    created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_kap_symbol_date
+    ON kap_events(symbol, published_at);
+CREATE INDEX IF NOT EXISTS idx_kap_category
+    ON kap_events(category);
+"""
+
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS prices (
     date TEXT NOT NULL,
@@ -59,6 +83,7 @@ def get_connection() -> Generator[sqlite3.Connection, None, None]:
 def initialize_db() -> None:
     with get_connection() as conn:
         conn.executescript(SCHEMA_SQL)
+        conn.executescript(KAP_SCHEMA_SQL)
     logger.info("Database initialized at %s", get_db_path())
 
 
@@ -142,6 +167,49 @@ def get_all_prices_latest() -> pd.DataFrame:
     """
     with get_connection() as conn:
         return pd.read_sql_query(query, conn)
+
+
+def upsert_kap_events(events: list) -> int:
+    """Insert KapEvent list into kap_events table (INSERT OR IGNORE on duplicate index).
+
+    Returns: number of newly inserted rows.
+    """
+    import json
+
+    if not events:
+        return 0
+
+    rows = []
+    for ev in events:
+        rows.append((
+            ev.disclosure_index,
+            ev.symbol,
+            ev.published_at.isoformat(),
+            ev.fetched_at.isoformat(),
+            ev.subject,
+            ev.category,
+            ev.summary,
+            ev.url,
+            ev.source_type,
+            json.dumps(ev.structured_data) if ev.structured_data else None,
+            1 if ev.has_attachment else 0,
+            json.dumps(ev.attachment_urls) if ev.attachment_urls else None,
+        ))
+
+    with get_connection() as conn:
+        before = conn.execute("SELECT COUNT(*) FROM kap_events").fetchone()[0]
+        conn.executemany(
+            """INSERT OR IGNORE INTO kap_events
+               (disclosure_index, symbol, published_at, fetched_at, subject, category,
+                summary, url, source_type, structured_data, has_attachment, attachment_urls)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            rows,
+        )
+        after = conn.execute("SELECT COUNT(*) FROM kap_events").fetchone()[0]
+
+    inserted = after - before
+    logger.info("kap_events: inserted %d new rows (skipped %d duplicates)", inserted, len(rows) - inserted)
+    return inserted
 
 
 def get_portfolio_with_prices() -> pd.DataFrame:

@@ -64,8 +64,29 @@
       "Bash(python -c \"from src.data.macro_feed import get_latest_snapshot, get_db_connection; conn = get_db_connection\\(\\); print\\(get_latest_snapshot\\(conn\\)\\)\")",
       "Bash(python -c \"from src.data.macro_feed import *; import inspect; print\\([name for name, obj in inspect.getmembers\\(__import__\\('src.data.macro_feed'\\)\\) if not name.startswith\\('_'\\)]\\)\")",
       "Bash(python -c \"from src.data.macro_feed import get_latest_snapshot; from src.utils.config import get_db_path; df = get_latest_snapshot\\(get_db_path\\(\\)\\); print\\(df.to_string\\(\\)\\)\")",
-      "Bash(python scripts/backfill_macro_feed.py)"
+      "Bash(python scripts/backfill_macro_feed.py)",
+      "Bash(git commit -m ' *)",
+      "Bash(python -m pytest tests/test_macro_signals.py::TestVolatilityProfiles tests/test_macro_signals.py::TestScoringFunction -v)",
+      "Bash(mkdir -p tests/fixtures)",
+      "Bash(ls tests/fixtures/)",
+      "Bash(python -m pytest tests/test_orchestrator_decisions.py -v)",
+      "Bash(python -m pytest tests/test_kap_source_tagging.py -v)",
+      "Bash(python -m pytest tests/test_macro_signals.py::TestVolatilityProfiles tests/test_macro_signals.py::TestScoringFunction tests/test_orchestrator_decisions.py tests/test_kap_source_tagging.py -v)",
+      "Bash(python agents/orchestrator.py)",
+      "Bash(exit 0)",
+      "Bash(C:Userscagananaconda3python.exe -c ' *)",
+      "PowerShell(& \"C:\\\\Users\\\\cagan\\\\anaconda3\\\\python.exe\" \"C:\\\\tmp\\\\test_batch.py\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\cagan\\\\anaconda3\\\\python.exe\" \"C:\\\\tmp\\\\test_prefilter.py\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\cagan\\\\anaconda3\\\\python.exe\" \"C:\\\\tmp\\\\test_cache.py\" 2>&1)",
+      "Bash(python -c \"import kap_client; import inspect, os; print\\(os.path.dirname\\(inspect.getfile\\(kap_client\\)\\)\\)\")",
+      "Bash(ls \"C:\\\\Users\\\\cagan\\\\anaconda3\\\\Lib\\\\site-packages\\\\kap_client\\\\\")",
+      "Read(//c/Users/cagan/anaconda3/Lib/site-packages/**)",
+      "Bash(python -m pytest tests/ --co -q)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0,'agents'\\); import orchestrator; print\\('ok'\\)\")",
+      "Bash(python -m pytest tests/test_kap_fetcher.py tests/test_kap_parser.py tests/test_kap_scheduler.py -v)",
+      "Bash(python -m pytest tests/ -v)"
     ],
+    "defaultMode": "auto",
     "additionalDirectories": [
       "\\tmp"
     ]

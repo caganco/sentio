@@ -1,3 +1,11 @@
+# Trading Decisions — 2026-05-13
+
+## Source
+Generated from: C:\Users\cagan\bist-trading-system\agents\intelligence\final_decision.md
+Generated at: 2026-05-13T12:56:15.356875+03:00
+
+## Decisions
+
 # Final Decision — 2026-05-13
 
 ## Analyst Sinyalleri
@@ -43,3 +51,6 @@ Brent 107$ ile yüksek seyrini koruyor ancak günlük -0.40% geri çekilme var; 
 
 ---
 *Üretildi: 2026-05-13 | Model: claude-haiku-4-5*
+
+## Metadata
+- pipeline_run_id: 1bef062f-e2c8-4148-9e1e-ceaf15f2d956

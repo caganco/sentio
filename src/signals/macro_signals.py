@@ -12,6 +12,26 @@ from src.data.macro_feed import load_from_db, get_latest_snapshot
 
 logger = setup_logger(__name__)
 
+SYMBOL_VOLATILITY_PROFILES: dict[str, dict] = {
+    "USDTRY":   {"group": "forex",     "scale": 0.02, "clip": (-1.0, 1.0)},
+    "EURTRY":   {"group": "forex",     "scale": 0.02, "clip": (-1.0, 1.0)},
+    "BIST100": {"group": "equity", "scale": 0.05, "clip": (-1.0, 1.0)},
+    "XU100":   {"group": "equity", "scale": 0.05, "clip": (-1.0, 1.0)},
+    "VIX":      {"group": "vix",       "scale": 0.15, "clip": (-1.0, 1.0)},
+    "BRENTOIL": {"group": "commodity", "scale": 0.05, "clip": (-1.0, 1.0)},
+    "BRENT":    {"group": "commodity", "scale": 0.05, "clip": (-1.0, 1.0)},
+    "XAU":      {"group": "commodity", "scale": 0.03, "clip": (-1.0, 1.0)},
+    "_default": {"group": "equity",    "scale": 0.05, "clip": (-1.0, 1.0)},
+}
+
+
+def get_symbol_scale(symbol: str) -> dict:
+    """Return volatility profile for symbol; unknown symbols fall back to _default."""
+    if symbol in SYMBOL_VOLATILITY_PROFILES:
+        return SYMBOL_VOLATILITY_PROFILES[symbol]
+    logger.warning(f"Unknown symbol '{symbol}' — using _default volatility profile")
+    return SYMBOL_VOLATILITY_PROFILES["_default"]
+
 
 @dataclass
 class MacroSignal:
@@ -36,32 +56,37 @@ class MacroSignal:
 
 def score_macro_component(
     symbol: str,
-    current_close: float,
-    prev_close: float,
-    is_inverse: bool = False,
+    raw_change_pct: float,
+    profile_override: dict | None = None,
 ) -> float:
     """
-    Score a macro component [-1, +1].
+    Return a normalized macro signal score in [-1.0, 1.0] using per-symbol scaling.
 
-    Logic:
-    - pct_change = (current - prev) / prev * 100
-    - normal: pct_change > +2% → +1, < -2% → -1
-    - inverse (USDTRY): -pct_change (TRY strengthening is positive)
+    Args:
+        symbol: Symbol name (key in SYMBOL_VOLATILITY_PROFILES)
+        raw_change_pct: Raw price change as a decimal (0.03 = 3%)
+        profile_override: Manual profile for testing. None = look up SYMBOL_VOLATILITY_PROFILES.
 
-    Clamps result to [-1, +1].
+    Raises:
+        ValueError: If the profile's scale is zero (misconfiguration).
     """
-    if prev_close == 0 or pd.isna(current_close) or pd.isna(prev_close):
+    profile = profile_override if profile_override is not None else get_symbol_scale(symbol)
+
+    scale = profile["scale"]
+    if scale == 0:
+        raise ValueError(f"Volatility profile for '{symbol}' has scale=0 — invalid config")
+
+    if raw_change_pct == 0.0:
         return 0.0
 
-    pct_change = ((current_close - prev_close) / prev_close) * 100
+    clip_lo, clip_hi = profile["clip"]
+    raw_score = raw_change_pct / scale
+    score = max(clip_lo, min(clip_hi, raw_score))
 
-    if is_inverse:
-        pct_change = -pct_change
-
-    # Linear scale: ±5% = ±1
-    score = max(-1.0, min(1.0, pct_change / 5.0))
-
-    logger.debug(f"{symbol}: pct_change={pct_change:.2f}%, score={score:.3f}")
+    if raw_score != score:
+        logger.debug(f"{symbol}: clipped {raw_score:.3f} → {score:.3f} (scale={scale})")
+    else:
+        logger.debug(f"{symbol}: raw_change_pct={raw_change_pct:.4f}, score={score:.3f}")
 
     return score
 
@@ -198,11 +223,11 @@ def generate_macro_signal(
         if prev_close is None or prev_close == 0:
             score = 0.0
         else:
-            # USDTRY is inverse: TRY strength (USDTRY down) is positive
-            is_inverse = symbol == "USDTRY"
-            score = score_macro_component(
-                symbol, current_close, prev_close, is_inverse=is_inverse
-            )
+            raw_change = (current_close - prev_close) / prev_close
+            # USDTRY is inverse: TRY strength (USDTRY down) is positive for equities
+            if symbol == "USDTRY":
+                raw_change = -raw_change
+            score = score_macro_component(symbol, raw_change)
 
         key = symbol.lower()
         scores[key] = score

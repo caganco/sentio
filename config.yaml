@@ -1,75 +1,176 @@
+# ============================================================
+# BIST Hedge Fund OS — config.yaml (GÜNCEL)
+# Son güncelleme: 13 Mayıs 2026
+# Değişiklik: 23 → 60 hisse (BIST30 tam + BIST100 seçili)
+# ============================================================
+
 portfolio:
+  tickers:
+    # --- BIST30 TAM (30 hisse) ---
+    - AKBNK   # Akbank
+    - AKSEN   # Aksen Enerji
+    - ARCLK   # Arçelik
+    - ASELS   # Aselsan
+    - BIMAS   # BİM
+    - EKGYO   # Emlak GYO
+    - ENERY   # Enerya
+    - EREGL   # Ereğli Demir Çelik
+    - FROTO   # Ford Otosan
+    - GARAN   # Garanti BBVA
+    - HALKB   # Halkbank
+    - ISCTR   # İş Bankası C
+    - KCHOL   # Koç Holding
+    - KOZAA   # Koza Altın A
+    - KOZAL   # Koza Altın
+    - KRDMD   # Kardemir D
+    - PETKM   # Petkim
+    - PGSUS   # Pegasus
+    - SAHOL   # Sabancı Holding
+    - SISE    # Şişe Cam
+    - TAVHL   # TAV Havalimanları
+    - TCELL   # Turkcell
+    - THYAO   # THY
+    - TKFEN   # Tekfen Holding
+    - TOASO   # Tofaş
+    - TTKOM   # Türk Telekom
+    - TUPRS   # Tüpraş
+    - VAKBN   # Vakıfbank
+    - VESTL   # Vestel
+    - YKBNK   # Yapı Kredi
+
+    # --- BIST100 SEÇİLİ (30 hisse — sektör bazlı) ---
+
+    # Bankacılık / Finans
+    - SKBNK   # Şekerbank
+    - ALBRK   # Albaraka Türk
+    - KLNMA   # Kalkınma Yatırım Bankası
+
+    # Enerji / Utilities
+    - AKENR   # Akenerji
+    - ZOREN   # Zorlu Enerji
+    - ODAS    # Odaş Elektrik
+    - IZENR   # İzmir Enerji
+    - KAPLM   # Kaplamin Ambalaj (eklenebilir, izle)
+
+    # Holding
+    - AGHOL   # AG Anadolu Grubu Holding
+    - GLYHO   # Global Yatırım Holding
+    - NTHOL   # Net Holding
+    - POLHO   # Polisan Holding
+
+    # Sanayi / Otomotiv
+    - BRISA   # Brisa
+    - OTKAR   # Otokar
+    - DOAS    # Doğuş Otomotiv
+
+    # Çimento / İnşaat Malzemesi
+    - CIMSA   # Çimsa
+    - BUCIM   # Bursa Çimento
+
+    # Perakende / Tüketim
+    - MGROS   # Migros
+    - ULKER   # Ülker
+    - AEFES   # Anadolu Efes
+
+    # GYO (Gayrimenkul Yatırım Ortaklığı)
+    - ALGYO   # Alarko GYO
+    - ISGYO   # İş GYO
+    - TRGYO   # Torunlar GYO
+    - PEGYO   # Peker GYO
+
+    # Teknoloji / Yazılım
+    - LOGO    # Logo Yazılım
+    - KAREL   # Karel Elektronik
+    - NETAS   # Netaş Telekomünikasyon
+
+    # Ulaşım / Lojistik
+    - CLEBI   # Çelebi Havacılık
+
+    # Tarım / Kimya
+    - GUBRF   # Gübre Fabrikaları
+
+    # İlaç
+    - DEVA    # Deva Holding
+
+  # Mevcut açık pozisyonlar
   positions:
-    - ticker: AKSEN.IS
-      quantity: 591
-      avg_cost: 87.59
-      sector: enerji
-    - ticker: TTKOM.IS
-      quantity: 329
-      avg_cost: 60.65
-      sector: telekom
-    - ticker: TAVHL.IS
-      quantity: 68
-      avg_cost: 286.50
-      sector: havacılık
-    - ticker: KCHOL.IS
-      quantity: 81
-      avg_cost: 188.83
-      sector: holding
-    - ticker: ENERY.IS
-      quantity: 1543
-      avg_cost: 9.07
-      sector: enerji
+    AKSEN:  { lots: 591,  avg_cost: 87.59 }
+    TTKOM:  { lots: 329,  avg_cost: 60.65 }
+    TAVHL:  { lots: 68,   avg_cost: 286.50 }
+    KCHOL:  { lots: 81,   avg_cost: 188.83 }
+    ENERY:  { lots: 1543, avg_cost: 9.07 }
+
+  # Yatırım fonları (izleme)
+  funds:
+    DVT: { value: 41688, return_pct: 36.52, name: "Deniz Metaverse" }
+    DFI: { value: 47672, return_pct: 5.93,  name: "Atlas Serbest" }
+    PHE: { value: 20673, return_pct: 3.38,  name: "Pusula Hisse" }
 
 scanner:
-  volume_threshold: 1.5
-  high_52w_proximity: 0.05
-  min_price: 1.0
-  top_n_results: 10
+  # Momentum kriterleri
+  rsi_buy_min: 50
+  rsi_buy_max: 65
+  rsi_overbought: 80
+  rsi_oversold: 35
+  volume_surge_threshold: 1.5      # 20-day avg üstü
+  momentum_1m_min_pct: 5.0         # 1 aylık min momentum
+  ma_periods: [20, 50, 200]
 
-technicals:
-  rsi_period: 14
-  ma_short: 20
-  ma_medium: 50
-  ma_long: 200
+  # Stop-loss kuralları
+  stop_loss_pct: 0.07              # %7 max kayıp
 
-risk:
-  max_position_size: 0.15
-  max_sector_concentration: 0.30
-  stop_loss_pct: 0.08
-  profit_target_pct: 0.20
+  # Pozisyon büyüklüğü
+  position_sizing:
+    high_conviction_pct: 0.175     # %15-20 portföy
+    medium_conviction_pct: 0.075   # %5-10 portföy
 
-data:
-  bist100_tickers:
-    - THYAO.IS
-    - AKBNK.IS
-    - EREGL.IS
-    - KCHOL.IS
-    - TUPRS.IS
-    - SAHOL.IS
-    - GARAN.IS
-    - ISCTR.IS
-    - VAKBN.IS
-    - SISE.IS
-    - TTKOM.IS
-    - PETKM.IS
-    - BIMAS.IS
-    - ASELS.IS
+  # Sektör limitleri
+  max_same_sector: 2
+  max_sector_pct: 0.30
 
-    - FROTO.IS
-    - TAVHL.IS
-    - AKSEN.IS
-    - ENERY.IS
-    - TCELL.IS
-    - HALKB.IS
-    - EKGYO.IS
-    - KRDMD.IS
-    - SOKM.IS
-  lookback_days: 365
+macro:
+  # Makro sinyal ağırlıkları (Layer 2)
+  signals:
+    usdtry:  { scale: 0.02, weight: 0.25 }
+    vix:     { scale: 0.15, weight: 0.20 }
+    brent:   { scale: 0.05, weight: 0.15 }
+    gold:    { scale: 0.05, weight: 0.10 }
+    sp500:   { scale: 0.05, weight: 0.15 }
+    bist100: { scale: 0.05, weight: 0.15 }
+
+agent:
+  # Agent token optimization ayarları
+  analyst:
+    model: "claude-opus-4-6"
+    max_tokens: 2000
+    # Sadece WATCHLIST filtresinden geçen hisseler gönderilir
+    pre_filter: true              # ← OPTİMİZASYON: tüm 60 değil, sinyal verenler
+    pre_filter_min_score: 60      # Momentum score < 60 → analyst'a gönderme
+
+  auditor:
+    model: "claude-sonnet-4-6"
+    max_tokens: 1500
+    # Sadece BUY/SELL sinyali olan hisseler gönderilir
+    only_flagged: true            # ← OPTİMİZASYON: HOLD'lar audit edilmez
+
+  efficiency:
+    model: "claude-sonnet-4-6"
+    max_tokens: 1000
+    run_frequency: "weekly"       # Günlük değil, haftalık
 
 reporting:
-  output_dir: reports
-  formats:
-    - markdown
-    - html
-  email_alerts: false
+  output_dir: "reports"
+  intelligence_dir: "intelligence"
+  formats: ["md", "html"]
+  # Report optimizasyonu
+  include_hold_details: false     # ← OPTİMİZASYON: HOLD pozisyonlar tek satır
+  max_watchlist_in_report: 10     # En iyi 10 sinyal (hepsi değil)
+
+scheduler:
+  times:
+    data_fetch:    "06:00"
+    analyst_run:   "08:00"
+    auditor_run:   "08:30"
+    market_open:   "10:00"
+    eod_update:    "18:30"
+    efficiency:    "18:45"  # Sadece Cuma

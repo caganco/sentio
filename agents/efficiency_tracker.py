@@ -18,7 +18,7 @@ if not API_KEY:
 
 client = anthropic.Anthropic(api_key=API_KEY)
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-haiku-4-5"
 
 BASE_DIR = Path(__file__).parent
 INTELLIGENCE_DIR = BASE_DIR / "intelligence"
@@ -113,7 +113,7 @@ def main() -> None:
 
     response = client.messages.create(
         model=MODEL,
-        max_tokens=3000,
+        max_tokens=300,
         system=load_system_prompt(),
         messages=[{"role": "user", "content": user_message}],
     )
