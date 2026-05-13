@@ -77,6 +77,7 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 
 - **Layer 2 lokal makro genişletme:** TCMB faiz yönü (hike/cut/hold) + CDS spreads (250-500 bps risk levels) + BIST yabancı pay haftalık (EVDS stub) — `src/signals/local/` (5 modül), SQLite cache + YAML fallback, feature flag `LOCAL_MACRO_ENABLED=False` (safe mode), 255/255 test (231 mevcut + 24 yeni), zero regression
 - **LOCAL_MACRO_ENABLED=True aktivasyonu:** Feature flag açıldı, YAML fallback bootstrap otomasyonu eklendi, composite scoring canlı — `src/signals/local/cache_store.py::load_from_yaml_fallback()`, `src/signals/local_macro_signals.py::__init__()` auto-init, daily_update.py canlı test geçiyor, 112 test (26 macro_layer + 20 local_macro + 86 engine), zero regression — macro scores now reflect TCMB (hike→25, bearish) + CDS (neutral→50) weighting (50% global + 25% TCMB + 25% CDS)
+- **Analyst prompt — lokal makro narrative:** ANALYST_COMPACT_SYSTEM güncellendi, her hisse sinyali için "narrative" alanı (max 20 kelime) eklendi — TCMB hike impactı (holding/nakit zayıflar, ihracatçı güçlenir), CDS >350 bps downgrade rehberi, BIST yabancı pay düşüş = kurumsal çıkış riski — `agents/orchestrator.py`, 10/10 orchestrator test pass, zero regression
 - Macro signal per-symbol volatility scaling (USDTRY scale=0.02, VIX scale=0.15, BRENT/equity scale=0.05) — `src/signals/macro_signals.py`
 - Decisions otomasyonu — `decisions/decisions_YYYY-MM-DD.md` orchestrator pipeline sonunda otomatik oluşturuluyor
 - KAP source tagging — haber başına `source_type: kap_official / news_media / unknown`, `source_domain` alanları eklendi
@@ -104,10 +105,10 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 - [ ] **Layer 5 Smart Money:** Halk Yatırım scraping araştır (analizim.halkyatirim.com.tr yabancı pay hisse bazlı günlük) → kurumsal net alım/satım → Bull Trap flag (teknik BUY + 3+ gün %0.5+ kurumsal net satış → HOLD override)
 
 ### Öncelik: ORTA
-- [ ] **Analyst Agent prompt güncelle:** "Lokal makro rejim bu hissenin hikayesini destekliyor mu?" narrative perspektifi ekle — Engine'e değil, prompt'a *(Gemini Stratejik Raporu kararı)*
+- [x] **Analyst Agent prompt güncelle:** "Lokal makro rejim bu hissenin hikayesini destekliyor mu?" narrative perspektifi ekle ✅ (14 Mayıs 2026) — ANALYST_COMPACT_SYSTEM'e "narrative" alanı eklendi
 - [ ] **KAP → Macro → Teknik sinyal entegrasyonu** — üç katman tek bir sinyal skoruna birleştirilecek *(kısmen tamamlandı: Signal Engine bu entegrasyonu sağlıyor)*
 - [ ] Backtest'e makro regime filtresi ekle (RISK_ON → uzun, RISK_OFF → nakit/kısa)
-- [ ] Analyst system prompt'una `source_type` bilgisini ekle (`kap_official` haberlere daha yüksek güven ağırlığı)
+- [ ] Analyst system prompt'una `source_type` bilgisini ekle (`kap_official` haberlere daha yüksek güven ağırlığı) — narrative context'e entegre edilecek
 
 ### Öncelik: DÜŞÜK
 - [ ] `server.py` path traversal güvenlik açığını kapat (`_safe_resolve` `/file` endpoint dışında kullanılmıyor)
