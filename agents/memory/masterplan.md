@@ -93,12 +93,32 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 - **Signal Engine — Layer 7:** `src/signals/engine.py` + 6 layer (`technical`, `macro`, `kap`, `sentiment`-stub, `smart_money`-stub, `risk`) — deterministik, audit trail dahil, backtest-safe. 86 yeni test. `agents/orchestrator.py`'e entegre: sinyal context analyst prompt'a inject ediliyor
 - **KAP bildirimleri Signal Engine'e entegre:** `kap_layer.py` 3 günlük event window, high_priority multiplier, category impact tablosu
 - **`thresholds.py`:** Tüm eşik sabitleri tek dosyada — magic number sıfır
+- **SPEC_E_1: Signal Engine Efficiency (3 tasks) — 14 Mayıs 2026 tamamlandı ✅**
+  - Task 1: Ticker config externalization — ALREADY IN config.yaml (no changes needed)
+  - Task 2: LocalMacroSignals singleton — Implemented `__new__` pattern, prevents YAML reload redundancy, test isolation via explicit cache= parameter
+  - Task 3: Stub layer weight cleanup — Removed sentiment (0.15) and smart_money (0.10) from MASTER_WEIGHTS; renormalized 4 active layers (technical/macro/kap/risk) by dividing by 0.65 and rounding to 10 decimals for precision; engine.py updated to remove stub imports/calls; weight sum = exactly 1.0; 291/291 tests pass (zero regression)
+- **SPEC_S_1: Brent-Sector Correlation Feature — 14 Mayıs 2026 tamamlandı ✅**
+  - Sector mapping: 60-ticker JSON created at `data/sector_mapping.json` with sector names + sector_context (Brent correlation notes)
+  - Energy tickers (AKENR, AKSEN, ENERY, IZENR, ODAS, ZOREN): "Brent korelasyonu: pozitif"
+  - Aviation tickers (PGSUS, TAVHL, THYAO): "Brent korelasyonu: negatif (fuel cost ~30%)"
+  - Petrochemical tickers (PETKM, TUPRS): "Brent korelasyonu: karmaşık (input cost vs pricing power)"
+  - Database integration: `get_sector_context(ticker)` function in `database.py`; portfolio building in `daily_update.py` includes sector_context per position
+  - Brent price fed to Strategist: `"brent_usd"` field in macro_data dict
+- **SPEC_R_1: Compact Report Data Builder — 14 Mayıs 2026 tamamlandı ✅**
+  - New module: `src/signals/strategist.py` — StrategistAgent class with Claude API integration
+  - Encoding functions: `_enc_tcmb()` (H/U/D), `_enc_ma()` (BL/BR/0 — fixed user-reported bug), `_enc_sector()` (2-char codes), `_enc_brent_corr()` (bc=+/-/~)
+  - Compact user message format: ~400 tokens (66% reduction vs 1000 token baseline)
+  - Message structure: BIST/ENC/MACRO/SIG/SCORE/PORT/MOMENTUM/FLAGS/prompt
+  - Risk flags auto-derived: breadth_extreme (<0.1), cds_elevated (>400), drawdown_alert (position <-5%)
+  - System prompt moved to `agents/prompts/strategist_system_prompt.txt`; old location deleted to eliminate confusion
+  - Test suite: 14 new tests in `tests/test_strategist.py`, all passing; zero regression (291/291 tests pass)
 
 ---
 
 ## Kalan Görevler (Backlog)
 
 ### Öncelik: YÜKSEK
+- [ ] **SPEC_M_1: Macro Alignment Calculator** — Sektör+hisse makro rejime uyum analizi (TCMB hike → holding/ihracatçı, CDS spike → risk-off, Brent ↑ → enerji/hızlı açılı, ↓ → havacılık). Sektör uyum skoru (0-100). Hisse alignment rating (perfect/good/neutral/conflicting).
 - [ ] **KAP WAF sorunu** → `fintables.com` alternatifini araştır ve entegre et (mevcut KAP API WAF tarafından sıkça engelleniyor)
 - [x] **Signal Engine — Layer 7:** Multi-layer weighted scoring sistemi, BUY-STRONG/SELL-STRONG output formatı ✅ (13 Mayıs 2026)
 - [x] **Layer 2 genişletme — Lokal makro:** TCMB faiz yönü, CDS primi seviyesi, yabancı takas oranı → `src/signals/local/` entegre ✅ (14 Mayıs 2026)
@@ -107,17 +127,22 @@ Hedef: Minimum insan müdahalesi, maksimum getiri, sistematik karar mekanizması
 - [ ] **Layer 5 Smart Money:** Halk Yatırım scraping araştır (analizim.halkyatirim.com.tr yabancı pay hisse bazlı günlük) → kurumsal net alım/satım → Bull Trap flag (teknik BUY + 3+ gün %0.5+ kurumsal net satış → HOLD override)
 
 ### Öncelik: ORTA
+- [x] **SPEC_E_1: Signal Engine Efficiency** ✅ (14 Mayıs 2026) — Singleton pattern + stub weight cleanup
+- [x] **SPEC_S_1: Sector-Brent Correlation** ✅ (14 Mayıs 2026) — sector_mapping.json + context integration
+- [x] **SPEC_R_1: Compact Report Data** ✅ (14 Mayıs 2026) — StrategistAgent + encoding schema (~400 token reduction)
 - [x] **Analyst Agent prompt güncelle:** "Lokal makro rejim bu hissenin hikayesini destekliyor mu?" narrative perspektifi ekle ✅ (14 Mayıs 2026) — ANALYST_COMPACT_SYSTEM'e "narrative" alanı eklendi
 - [ ] **KAP → Macro → Teknik sinyal entegrasyonu** — üç katman tek bir sinyal skoruna birleştirilecek *(kısmen tamamlandı: Signal Engine bu entegrasyonu sağlıyor)*
 - [ ] Backtest'e makro regime filtresi ekle (RISK_ON → uzun, RISK_OFF → nakit/kısa)
 - [ ] Analyst system prompt'una `source_type` bilgisini ekle (`kap_official` haberlere daha yüksek güven ağırlığı) — narrative context'e entegre edilecek
+- [ ] **CDS WAF alternatifleri** — Mevcut `worldgovernmentbonds.com` scraping'in WAF blokajı — investing.com, tradingeconomics.com alternatifleri araştır
 
 ### Öncelik: DÜŞÜK
 - [ ] `server.py` path traversal güvenlik açığını kapat (`_safe_resolve` `/file` endpoint dışında kullanılmıyor)
+- [ ] **KAP edge case testleri** — Ulusal tatil günleri (duyuru yok), haber toplu açıklamalar (aynı indeks), system downtime handling (retry + fallback)
 
 ---
 
-## Mevcut Sistem Durumu (Phase 4.7 — Macro Fetchers Live + Pre-Market Ready ✅)
+## Mevcut Sistem Durumu (Phase 4.8 — Signal Engine Efficiency + Strategist Compact ✅)
 
 ### Kurulu Bileşenler
 ```
@@ -205,14 +230,12 @@ TCELL, HALKB, EKGYO, KRDMD, SOKM
 - Drawdown management (-10% → risk off, -15% → flatten)
 - Max 2 hisse aynı sektörden, sektör max %30
 
-### Layer 7: Signal Engine ✅ (Aktif — Phase 4 tamamlandı)
-- Multi-layer weighted scoring:
-  - Technical: %15
-  - Macro: %25
-  - Earnings/KAP: %20
-  - Sentiment: %15
-  - Smart money: %10
-  - Risk: %05
+### Layer 7: Signal Engine ✅ (Aktif — Phase 4.8 tamamlandı, 4-layer optimized)
+- Multi-layer weighted scoring (stub layers removed, Phase 4.8):
+  - Technical: 23.08% (0.15/0.65)
+  - Macro: 38.46% (0.25/0.65)
+  - Earnings/KAP: 30.77% (0.20/0.65)
+  - Risk: 7.69% (0.05/0.65)
 - Output: BUY-STRONG / BUY-WEAK / HOLD / SELL-WEAK / SELL-STRONG
 
 ---
