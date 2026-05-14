@@ -14,7 +14,7 @@
 
 ---
 
-## Current Phase: 4.8 → 4.9 — Signal Engine Efficiency + Macro-Equity Correlation
+## Current Phase: 4.9 — Macro-Equity Correlation + CDS Resilience
 
 ### Completed This Session (14 May 2026)
 - **SPEC_E_1:** Signal Engine Efficiency (3 tasks) ✅
@@ -28,6 +28,11 @@
   - `src/signals/macro_alignment.py`: MacroAlignmentCalculator (brent, usd_try, vix, cds)
   - `tests/test_macro_alignment.py`: 25 tests (unit, integration, regression validation)
   - Integration: daily_update.py portfolio_data includes macro_alignment scores
+- **SPEC_CDS_2:** CDS Data Source Alternative ✅
+  - `src/signals/local/cds_fallback.py`: CDSFallbackClient (primary → iShares proxy → cache)
+  - `data/macro_sensitivity.json`: CDS model coefficients (base=250, α=30, β=2, γ=-100)
+  - `tests/test_cds_fallback.py`: 14 tests (cache fallback, source tracking, bounds)
+  - Integration: daily_update.py uses CDSFallbackClient, cds_src in macro_snapshot
 
 ---
 
