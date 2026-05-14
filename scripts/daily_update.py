@@ -15,7 +15,8 @@ from src.data.kap_scraper import fetch_kap_news
 from src.data.macro import fetch_macro_data
 from src.data.macro_feed import fetch_macro_snapshot, save_to_db, get_latest_snapshot
 from src.data.macro_scheduler import run_daily_update as run_macro_update
-from src.signals.local import LocalMacroCache, TCMBClient, CDSClient, BistForeignOwnershipClient
+from src.signals.local import LocalMacroCache, TCMBClient, BistForeignOwnershipClient
+from src.signals.local.cds_fallback import CDSFallbackClient
 from src.signals.macro_signals import generate_macro_signal, save_signal_json
 from src.signals.macro_alignment import MacroAlignmentCalculator
 from src.signals.strategist import StrategistAgent, StrategistError
@@ -115,7 +116,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     cache.load_from_yaml_fallback()
 
     tcmb_client = TCMBClient(cache)
-    cds_client = CDSClient(cache)
+    cds_client = CDSFallbackClient(cache)  # Fallback: primary → iShares proxy → cache
     bist_client = BistForeignOwnershipClient(cache)
 
     tcmb_ok = tcmb_client.fetch_and_store()
@@ -299,6 +300,10 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
 
         all_alerts = summary.get("alerts", [])
 
+        # Get CDS source (R=real/primary, P=proxy/estimated)
+        cds_data = cds_client.get_latest_cds()
+        cds_src = "R" if cds_data and cds_data.get("source", "").startswith("worldgovernmentbonds") else "P"
+
         # Build macro snapshot section
         macro_snapshot_section = {}
         if 'macro_signal' in locals() and macro_signal:
@@ -319,6 +324,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "bist100": macro_signal.symbols.get("BIST100"),
                 },
                 "data_date": macro_signal.data_date,
+                "cds_src": cds_src,  # R=real (primary scraping), P=proxy (iShares estimated)
             }
 
         briefing = {
