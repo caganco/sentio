@@ -23,6 +23,7 @@ from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.utils.config import load_config
 from src.utils.logger import setup_logger
+from src.utils.os_state_manager import OSStateManager
 
 logger = setup_logger("daily_update")
 
@@ -392,6 +393,14 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         report_path = reports_dir / f"report_{briefing['date']}.md"
         _write_daily_report(report_path, briefing, strategist_notes)
         print(f"  Strategist: {report_path}\n")
+
+    # --- Auto-update OS_STATE.md ---
+    try:
+        os_state = OSStateManager()
+        os_state.update_metadata()
+        logger.info("OS_STATE.md updated successfully")
+    except Exception as e:
+        logger.warning(f"OS_STATE.md update failed: {e}")
 
     logger.info("=== BIST Daily Update Complete ===")
 

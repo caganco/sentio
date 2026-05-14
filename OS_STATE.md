@@ -3,18 +3,18 @@ _Güncelleme: 2026-05-14_
 
 ### ACTIVE DIRECTIVES
 
-| ID    | Target    | Konu                    | Status       |
-|-------|-----------|-------------------------|--------------|
-| D-001 | Architect | SPEC_KAP_2 üret         | ✅ Done       |
-| D-002 | Builder   | SPEC_KAP_2 implement    | 🟡 Pending   |
+| ID    | Target    | Konu                        | Status     |
+|-------|-----------|---------------------------  |------------|
+| D-003 | Architect | SPEC_CTX_1 üret             | ✅ Done     |
+| D-004 | Architect | SPEC_KELLY_1 üret           | 🟡 Pending |
+| D-005 | Builder   | SPEC_CTX_1 implement        | 🟡 Pending |
 
-### BACKLOG (Öncelik Sırası)
-
+### BACKLOG
 | Priority | Task | Notes |
 |----------|------|-------|
-| 🔴 HIGH | KAP Edge Cases | D-002 aktif |
-| 🔴 HIGH | Kelly Criterion | D-002 tamamlanınca |
-| 🟠 MED | EVDS Batch Optimization | 2 API call → 1 |
-| 🟠 MED | Drawdown Management | -10%/-15% thresholds |
-| 🟡 LOW | News Sentiment NLP | Layer 4, architecture pending |
-| 🟡 LOW | Smart Money | Layer 5, BİST takas scraping |
+| 🔴 HIGH | Kelly Criterion | D-004 Arch'ta pending |
+| 🟠 MED | kap_client konsolidasyonu | Wrapper vs replace |
+| 🟠 MED | EVDS Batch Optimization | — |
+| 🟠 MED | Drawdown Management | — |
+| 🟡 LOW | News Sentiment NLP | — |
+| 🟡 LOW | Smart Money | — |
