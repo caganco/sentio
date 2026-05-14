@@ -3,6 +3,15 @@
 **Last Updated:** 14 May 2026  
 **Status:** Active Development
 
+## Project Info
+- Path: C:\Users\cagan\bist-trading-system
+- Branch: master
+- Python env: base (anaconda)
+- Key commands:
+  - Run: python scripts/daily_update.py --scan --generate-report
+  - Test: python -m pytest tests/ -q
+  - Report: type reports\report_2026-05-14.md
+
 ---
 
 ## Current Phase: 4.8 — Signal Engine Efficiency + Strategist Compact
