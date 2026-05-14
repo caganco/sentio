@@ -1,7 +1,7 @@
 # ============================================================
 # BIST Hedge Fund OS — config.yaml (GÜNCEL)
-# Son güncelleme: 13 Mayıs 2026
-# Değişiklik: 23 → 60 hisse (BIST30 tam + BIST100 seçili)
+# Son güncelleme: 14 Mayıs 2026
+# Değişiklik: 23 → 58 hisse (BIST30 tam + BIST100 seçili) //PEGYO ve KOZA, KOZAL yfinance'ta bulunmadığı için çıkarıldı (kullanıcı(insan) tarafından)
 # ============================================================
 
 portfolio:
@@ -20,8 +20,6 @@ portfolio:
     - HALKB   # Halkbank
     - ISCTR   # İş Bankası C
     - KCHOL   # Koç Holding
-    - KOZAA   # Koza Altın A
-    - KOZAL   # Koza Altın
     - KRDMD   # Kardemir D
     - PETKM   # Petkim
     - PGSUS   # Pegasus
@@ -76,7 +74,6 @@ portfolio:
     - ALGYO   # Alarko GYO
     - ISGYO   # İş GYO
     - TRGYO   # Torunlar GYO
-    - PEGYO   # Peker GYO
 
     # Teknoloji / Yazılım
     - LOGO    # Logo Yazılım

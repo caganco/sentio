@@ -7,8 +7,6 @@ from datetime import date, datetime, timezone
 from src.signals.layers.kap_layer import score_kap
 from src.signals.layers.macro_layer import score_macro
 from src.signals.layers.risk_layer import detect_regime, score_risk
-from src.signals.layers.sentiment_layer import score_sentiment
-from src.signals.layers.smartmoney_layer import score_smartmoney
 from src.signals.layers.technical_layer import score_technical
 from src.signals.models import (
     AuditTrail,
@@ -195,18 +193,6 @@ def compute_signal(
         weight=_w("kap"), detail=kap_ls.detail, source=kap_ls.source,
     )
 
-    sentiment_ls = score_sentiment()
-    sentiment_ls = LayerScore(
-        layer=sentiment_ls.layer, score=sentiment_ls.score, confidence=sentiment_ls.confidence,
-        weight=_w("sentiment"), detail=sentiment_ls.detail, source=sentiment_ls.source,
-    )
-
-    smartmoney_ls = score_smartmoney()
-    smartmoney_ls = LayerScore(
-        layer=smartmoney_ls.layer, score=smartmoney_ls.score, confidence=smartmoney_ls.confidence,
-        weight=_w("smart_money"), detail=smartmoney_ls.detail, source=smartmoney_ls.source,
-    )
-
     risk_ls = score_risk(symbol, technical_data, macro_data)
     risk_ls = LayerScore(
         layer=risk_ls.layer, score=risk_ls.score, confidence=risk_ls.confidence,
@@ -214,7 +200,7 @@ def compute_signal(
     )
 
     layer_scores: list[LayerScore] = [
-        tech_ls, macro_ls, kap_ls, sentiment_ls, smartmoney_ls, risk_ls
+        tech_ls, macro_ls, kap_ls, risk_ls
     ]
 
     weighted_sum = _compute_weighted_sum(layer_scores)
@@ -283,7 +269,7 @@ def build_signal_context_for_orchestrator(results: list[SignalResult]) -> dict:
             "holds": [],
             "sell_signals": [],
             "conflict_symbols": [],
-            "missing_layers": ["sentiment", "smart_money"],
+            "missing_layers": [],
         }
 
     first_audit = results[0].audit
@@ -315,5 +301,5 @@ def build_signal_context_for_orchestrator(results: list[SignalResult]) -> dict:
         "holds": holds,
         "sell_signals": sells,
         "conflict_symbols": conflicts,
-        "missing_layers": ["sentiment", "smart_money"],
+        "missing_layers": [],
     }

@@ -453,16 +453,14 @@ class TestComputeSignal:
 
     def test_missing_layers_neutral_passthrough(self):
         r = compute_signal("TEST", TECH_NEUTRAL, MACRO_NEUTRAL, [], AS_OF)
-        sl = next(ls for ls in r.audit.layer_scores if ls.layer == "sentiment")
-        assert sl.score == 50.0
-        assert sl.confidence == 0.0
-        assert sl.source == "missing"
+        layer_names = [ls.layer for ls in r.audit.layer_scores]
+        assert "sentiment" not in layer_names
+        assert "smart_money" not in layer_names
 
     def test_smartmoney_stub_neutral(self):
         r = compute_signal("TEST", TECH_NEUTRAL, MACRO_NEUTRAL, [], AS_OF)
-        sm = next(ls for ls in r.audit.layer_scores if ls.layer == "smart_money")
-        assert sm.score == 50.0
-        assert sm.confidence == 0.0
+        layer_names = [ls.layer for ls in r.audit.layer_scores]
+        assert "smart_money" not in layer_names
 
     def test_backtesting_stateless(self):
         r1 = compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], date(2025, 1, 15))
@@ -476,9 +474,9 @@ class TestComputeSignal:
         with pytest.raises(ValueError):
             compute_signal("THYAO", TECH_NEUTRAL, MACRO_NEUTRAL, [], future)
 
-    def test_audit_has_6_layers(self):
+    def test_audit_has_4_layers(self):
         r = compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], AS_OF)
-        assert len(r.audit.layer_scores) == 6
+        assert len(r.audit.layer_scores) == 4
 
     def test_audit_signal_summary_nonempty(self):
         r = compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], AS_OF)
@@ -569,11 +567,10 @@ class TestBuildSignalContext:
                     "holds", "sell_signals", "conflict_symbols", "missing_layers"):
             assert key in ctx, f"Missing key: {key}"
 
-    def test_missing_layers_always_present(self):
+    def test_missing_layers_empty(self):
         results = self._run_batch(["THYAO"], TECH_NEUTRAL, MACRO_NEUTRAL, [])
         ctx = build_signal_context_for_orchestrator(results)
-        assert "sentiment" in ctx["missing_layers"]
-        assert "smart_money" in ctx["missing_layers"]
+        assert ctx["missing_layers"] == []
 
     def test_risk_off_reflected(self):
         results = self._run_batch(["THYAO"], TECH_BULLISH, MACRO_RISK_OFF_VIX35, _kap_for("THYAO"))

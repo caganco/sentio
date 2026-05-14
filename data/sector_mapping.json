@@ -1,0 +1,193 @@
+{
+  "AEFES": {
+    "sector": "Gıda"
+  },
+  "AGHOL": {
+    "sector": "Holding"
+  },
+  "AKBNK": {
+    "sector": "Bankacılık"
+  },
+  "AKENR": {
+    "sector": "Enerji",
+    "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir."
+  },
+  "AKSEN": {
+    "sector": "Enerji",
+    "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir."
+  },
+  "ALBRK": {
+    "sector": "Bankacılık"
+  },
+  "ALGYO": {
+    "sector": "Gayrimenkul"
+  },
+  "ARCLK": {
+    "sector": "Dayanıklı Tüketim"
+  },
+  "ASELS": {
+    "sector": "Savunma"
+  },
+  "BIMAS": {
+    "sector": "Perakende"
+  },
+  "BRISA": {
+    "sector": "Otomotiv"
+  },
+  "BUCIM": {
+    "sector": "İnşaat Malzemesi"
+  },
+  "CARREFOUR": {
+    "sector": "Perakende"
+  },
+  "CIMSA": {
+    "sector": "İnşaat Malzemesi"
+  },
+  "CLEBI": {
+    "sector": "Havacılık Hizmetleri"
+  },
+  "DEVA": {
+    "sector": "İlaç"
+  },
+  "DOAS": {
+    "sector": "Otomotiv"
+  },
+  "EKGYO": {
+    "sector": "Gayrimenkul"
+  },
+  "ENERY": {
+    "sector": "Enerji",
+    "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir."
+  },
+  "EREGL": {
+    "sector": "Demir Çelik"
+  },
+  "FROTO": {
+    "sector": "Otomotiv"
+  },
+  "GARAN": {
+    "sector": "Bankacılık"
+  },
+  "GLYHO": {
+    "sector": "Holding"
+  },
+  "GUBRF": {
+    "sector": "Kimya"
+  },
+  "HALKB": {
+    "sector": "Bankacılık"
+  },
+  "ISCTR": {
+    "sector": "Bankacılık"
+  },
+  "ISGYO": {
+    "sector": "Gayrimenkul"
+  },
+  "IZENR": {
+    "sector": "Enerji",
+    "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir."
+  },
+  "KAPLM": {
+    "sector": "Kimya"
+  },
+  "KAREL": {
+    "sector": "Elektronik"
+  },
+  "KCHOL": {
+    "sector": "Holding"
+  },
+  "KLNMA": {
+    "sector": "Kimya"
+  },
+  "KRDMD": {
+    "sector": "Demir Çelik"
+  },
+  "LOGO": {
+    "sector": "Yazılım"
+  },
+  "MGROS": {
+    "sector": "Perakende"
+  },
+  "MIGROS": {
+    "sector": "Perakende"
+  },
+  "NETAS": {
+    "sector": "Telekomünikasyon"
+  },
+  "NTHOL": {
+    "sector": "Holding"
+  },
+  "ODAS": {
+    "sector": "Enerji",
+    "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir."
+  },
+  "OTKAR": {
+    "sector": "Otomotiv"
+  },
+  "PETKM": {
+    "sector": "Petrokimya",
+    "sector_context": "Brent korelasyonu: karmaşık. Ham petrol hem girdi maliyeti (negatif) hem de ürün fiyatlama gücü (pozitif) — net etki marj dinamiğine bağlı."
+  },
+  "PGSUS": {
+    "sector": "Havacılık",
+    "sector_context": "Brent korelasyonu: negatif. Yakıt maliyeti toplam giderlerin ~%30'u — Brent yükselişi marjları sıkıştırır."
+  },
+  "POLHO": {
+    "sector": "Holding"
+  },
+  "SAHOL": {
+    "sector": "Holding"
+  },
+  "SISE": {
+    "sector": "Cam"
+  },
+  "SKBNK": {
+    "sector": "Bankacılık"
+  },
+  "TAVHL": {
+    "sector": "Havacılık",
+    "sector_context": "Brent korelasyonu: negatif. Yakıt maliyeti toplam giderlerin ~%30'u — Brent yükselişi marjları sıkıştırır."
+  },
+  "TBNK": {
+    "sector": "Bankacılık"
+  },
+  "TCELL": {
+    "sector": "Telekomünikasyon"
+  },
+  "THYAO": {
+    "sector": "Havacılık",
+    "sector_context": "Brent korelasyonu: negatif. Yakıt maliyeti toplam giderlerin ~%30'u — Brent yükselişi marjları sıkıştırır."
+  },
+  "TKFEN": {
+    "sector": "İnşaat"
+  },
+  "TOASO": {
+    "sector": "Otomotiv"
+  },
+  "TRGYO": {
+    "sector": "Gayrimenkul"
+  },
+  "TTKOM": {
+    "sector": "Telekomünikasyon"
+  },
+  "TUPRS": {
+    "sector": "Petrokimya",
+    "sector_context": "Brent korelasyonu: karmaşık. Ham petrol hem girdi maliyeti (negatif) hem de ürün fiyatlama gücü (pozitif) — net etki marj dinamiğine bağlı."
+  },
+  "ULKER": {
+    "sector": "Gıda"
+  },
+  "VAKBN": {
+    "sector": "Bankacılık"
+  },
+  "VESTL": {
+    "sector": "Dayanıklı Tüketim"
+  },
+  "YKBNK": {
+    "sector": "Bankacılık"
+  },
+  "ZOREN": {
+    "sector": "Enerji",
+    "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir."
+  }
+}

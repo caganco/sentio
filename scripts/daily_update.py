@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.analysis.momentum import scan_momentum_stocks
 from src.analysis.portfolio import analyze_portfolio, portfolio_summary
-from src.data.database import get_prices, initialize_db, sync_portfolio, upsert_prices
+from src.data.database import get_prices, initialize_db, sync_portfolio, upsert_prices, get_sector, get_sector_context
 from src.data.fetcher import fetch_all_bist_batch, fetch_multiple_stocks, get_bist100_tickers
 from src.data.kap_scraper import fetch_kap_news
 from src.data.macro import fetch_macro_data
@@ -17,6 +17,7 @@ from src.data.macro_feed import fetch_macro_snapshot, save_to_db, get_latest_sna
 from src.data.macro_scheduler import run_daily_update as run_macro_update
 from src.signals.local import LocalMacroCache, TCMBClient, CDSClient, BistForeignOwnershipClient
 from src.signals.macro_signals import generate_macro_signal, save_signal_json
+from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.utils.config import load_config
 from src.utils.logger import setup_logger
@@ -229,17 +230,17 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         print(f"  HTML     : {html_path}")
 
         logger.info("Fetching KAP disclosures...")
+        _pos_tickers = list(positions.keys()) if isinstance(positions, dict) else [p["ticker"] for p in positions]
         kap_news = fetch_kap_news(
-            portfolio_tickers=[p["ticker"] for p in positions],
+            portfolio_tickers=_pos_tickers,
         )
-
-        sector_map = {p["ticker"]: p.get("sector", "bilinmiyor") for p in positions}
 
         portfolio_data = []
         for a in analyses:
             portfolio_data.append({
                 "ticker": a.ticker,
-                "sector": sector_map.get(a.ticker, "bilinmiyor"),
+                "sector": get_sector(a.ticker),
+                "sector_context": get_sector_context(a.ticker),
                 "quantity": a.quantity,
                 "avg_cost": round(a.avg_cost, 2),
                 "current_price": round(a.current_price, 2) if a.current_price is not None else None,
@@ -253,6 +254,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             })
 
         momentum_top5 = []
+        momentum_top10 = []
         if momentum_df is not None and not momentum_df.empty:
             for _, row in momentum_df.head(5).iterrows():
                 momentum_top5.append({
@@ -264,6 +266,14 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "proximity_52w_high_pct": round(float(row["proximity_52w_high_pct"]), 2) if row["proximity_52w_high_pct"] is not None else None,
                     "rsi": round(float(row["rsi"]), 1) if row["rsi"] is not None else None,
                     "momentum_score": round(float(row["momentum_score"]), 4) if row["momentum_score"] is not None else None,
+                })
+            for _, row in momentum_df.head(10).iterrows():
+                momentum_top10.append({
+                    "ticker": row["ticker"],
+                    "score": round(float(row["momentum_score"]), 4) if row["momentum_score"] is not None else None,
+                    "rsi": round(float(row["rsi"]), 1) if row["rsi"] is not None else None,
+                    "1m_pct": round(float(row["ret_1m_pct"]), 2) if row["ret_1m_pct"] is not None else None,
+                    "vol_surge": round(float(row["vol_surge"]), 2) if row["vol_surge"] is not None else None,
                 })
 
         all_alerts = summary.get("alerts", [])
@@ -314,6 +324,47 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         kap_total = kap_news.get("total", 0)
         print(f"  Briefing  : {briefing_path}")
         print(f"  KAP News  : {kap_total} item(s) via {kap_src}\n")
+
+        # --- Strategist Agent ---
+        strategist_notes = "(Strategist analysis unavailable)"
+        _brent_price = macro_snapshot_section.get("prices", {}).get("brent") if macro_snapshot_section else None
+        report_data_for_strategist = {
+            "timestamp": briefing["date"],
+            "macro_data": {
+                "tcmb_decision": macro_data.get("tcmb_decision") if isinstance(macro_data, dict) else "N/A",
+                "cds_bps": macro_data.get("cds_bps") if isinstance(macro_data, dict) else "N/A",
+                "bist_foreign": macro_data.get("bist_foreign") if isinstance(macro_data, dict) else "N/A",
+                "brent_usd": round(_brent_price, 2) if _brent_price is not None else "N/A",
+            },
+            "signals": {
+                "rsi_5d": briefing["macro_snapshot"].get("components", {}).get("bist100", "N/A"),
+                "ma_cross": "N/A",
+                "breadth_score": briefing["macro_snapshot"].get("macro_environment_score", "N/A"),
+                "volume_trend": "N/A",
+            },
+            "scores": {
+                "overall_score": round(
+                    (briefing["macro_snapshot"].get("macro_environment_score", 0) + 1) * 50, 1
+                ) if briefing["macro_snapshot"] else "N/A",
+                "sector_ratings": "N/A",
+            },
+            "portfolio_positions": portfolio_data,
+            "momentum_top5": briefing.get("momentum_top5", []),
+            "momentum_top10": momentum_top10,
+        }
+        try:
+            strategist = StrategistAgent(timeout=60)
+            strategist_notes = strategist.analyze_report(report_data_for_strategist)
+            logger.info("Strategist notes generated successfully")
+        except StrategistError as exc:
+            logger.warning("Strategist analysis failed: %s; proceeding with empty notes", exc)
+
+        # --- Write daily report markdown ---
+        reports_dir = Path(__file__).parent.parent / "reports"
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        report_path = reports_dir / f"report_{briefing['date']}.md"
+        _write_daily_report(report_path, briefing, strategist_notes)
+        print(f"  Strategist: {report_path}\n")
 
     logger.info("=== BIST Daily Update Complete ===")
 
@@ -387,6 +438,57 @@ def _print_momentum(df) -> None:
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
+
+def _write_daily_report(report_path: Path, briefing: dict, strategist_notes: str) -> None:
+    """Write combined daily report markdown file."""
+    date_str = briefing.get("date", "unknown")
+    macro_snap = briefing.get("macro_snapshot", {})
+    portfolio = briefing.get("portfolio", [])
+
+    lines = [
+        f"# Daily Market Report — {date_str}",
+        "",
+        "## Macro Snapshot",
+        "",
+    ]
+
+    if macro_snap:
+        lines += [
+            f"- **Regime:** {macro_snap.get('regime', 'N/A')}",
+            f"- **Environment Score:** {macro_snap.get('macro_environment_score', 'N/A')}",
+            f"- **USD/TRY:** {macro_snap.get('prices', {}).get('usdtry', 'N/A')}",
+            f"- **BRENT:** {macro_snap.get('prices', {}).get('brent', 'N/A')}",
+            f"- **VIX:** {macro_snap.get('prices', {}).get('vix', 'N/A')}",
+            f"- **BIST100:** {macro_snap.get('prices', {}).get('bist100', 'N/A')}",
+        ]
+    else:
+        lines.append("_No macro snapshot available._")
+
+    lines += ["", "## Portfolio", ""]
+    if portfolio:
+        lines.append("| Ticker | Sector | P&L% | RSI | Alerts |")
+        lines.append("|--------|--------|------|-----|--------|")
+        for pos in portfolio:
+            alerts = "; ".join(a.get("message", "") for a in pos.get("alerts", [])) or "—"
+            lines.append(
+                f"| {pos.get('ticker','?')} | {pos.get('sector','?')} "
+                f"| {pos.get('unrealized_pnl_pct','N/A')} "
+                f"| {pos.get('rsi','N/A')} | {alerts} |"
+            )
+    else:
+        lines.append("_No portfolio data._")
+
+    lines += [
+        "",
+        "---",
+        "",
+        "## STRATEGIST NOTES",
+        "",
+        strategist_notes,
+    ]
+
+    report_path.write_text("\n".join(lines), encoding="utf-8")
+
 
 def _days_to_period(days: int) -> str:
     if days <= 30:

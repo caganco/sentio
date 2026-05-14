@@ -1,12 +1,11 @@
 """All threshold constants for the Signal Engine. No magic numbers elsewhere."""
 
 MASTER_WEIGHTS: dict[str, float] = {
-    "technical":   0.15,
-    "macro":       0.25,
-    "kap":         0.20,
-    "sentiment":   0.15,
-    "smart_money": 0.10,
-    "risk":        0.05,
+    "technical": round(0.15 / 0.65, 10),   # 0.2308
+    "macro":     round(0.25 / 0.65, 10),   # 0.3846
+    "kap":       round(0.20 / 0.65, 10),   # 0.3077
+    "risk":      round(0.05 / 0.65, 10),   # 0.0769
+    # sentiment (0.15) and smart_money (0.10) removed — stubs, always return 50.0
 }
 
 SIGNAL_THRESHOLDS: dict[str, float] = {

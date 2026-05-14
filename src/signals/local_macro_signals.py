@@ -22,17 +22,40 @@ class LocalMacroResult:
 
 
 class LocalMacroSignals:
-    """Composite local macro signals."""
+    """Composite local macro signals.
+
+    When called with no arguments (default path), returns a singleton so that
+    YAML fallback is loaded only once per process.  Passing an explicit cache
+    always creates a fresh instance (used by tests and by direct cache injection).
+    """
+
+    _instance: "LocalMacroSignals | None" = None
+
+    def __new__(cls, cache: Optional[LocalMacroCache] = None):
+        if cache is not None:
+            # Explicit cache → never share the singleton
+            return super().__new__(cls)
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
     def __init__(self, cache: Optional[LocalMacroCache] = None):
+        if getattr(self, "_initialized", False) and cache is None:
+            return
         if cache is None:
             cache = LocalMacroCache()
-            # Load YAML fallback if cache is empty
             cache.load_from_yaml_fallback()
         self.cache = cache
         self.tcmb = TCMBClient(cache)
         self.cds = CDSClient(cache)
         self.bist_foreign_weekly = BistForeignOwnershipClient(cache)
+        self._initialized = True
+
+    @classmethod
+    def _reset(cls) -> None:
+        """Test helper — reset the default singleton."""
+        cls._instance = None
 
     def score(self) -> LocalMacroResult:
         """

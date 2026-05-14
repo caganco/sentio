@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -243,3 +244,26 @@ def get_portfolio_with_prices() -> pd.DataFrame:
     """
     with get_connection() as conn:
         return pd.read_sql_query(query, conn)
+
+
+def _load_sector_mapping_raw() -> dict:
+    mapping_file = Path(__file__).parent.parent.parent / "data" / "sector_mapping.json"
+    if not mapping_file.exists():
+        return {}
+    with open(mapping_file, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_sector_mapping() -> dict[str, str]:
+    """Load sector mapping from data/sector_mapping.json."""
+    return {ticker: info.get("sector", "Bilinmiyor") for ticker, info in _load_sector_mapping_raw().items()}
+
+
+def get_sector(ticker: str) -> str:
+    """Get sector for a given ticker."""
+    return _load_sector_mapping_raw().get(ticker, {}).get("sector", "Bilinmiyor")
+
+
+def get_sector_context(ticker: str) -> str | None:
+    """Return Brent/macro context note for a ticker, or None if not defined."""
+    return _load_sector_mapping_raw().get(ticker, {}).get("sector_context")

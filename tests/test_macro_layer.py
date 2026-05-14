@@ -27,7 +27,7 @@ class TestScoreMacroWithoutLocalSignals:
         score = score_macro(macro_data)
         assert score.layer == "macro"
         assert 0.0 <= score.score <= 100.0
-        assert score.weight == 0.25  # MASTER_WEIGHTS["macro"]
+        assert abs(score.weight - round(0.25 / 0.65, 10)) < 1e-9  # MASTER_WEIGHTS["macro"]
         assert score.source == "computed"
 
     def test_score_missing_assets(self):
