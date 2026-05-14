@@ -17,6 +17,7 @@ from src.data.macro_feed import fetch_macro_snapshot, save_to_db, get_latest_sna
 from src.data.macro_scheduler import run_daily_update as run_macro_update
 from src.signals.local import LocalMacroCache, TCMBClient, CDSClient, BistForeignOwnershipClient
 from src.signals.macro_signals import generate_macro_signal, save_signal_json
+from src.signals.macro_alignment import MacroAlignmentCalculator
 from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.utils.config import load_config
@@ -235,9 +236,18 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             portfolio_tickers=_pos_tickers,
         )
 
+        # Calculate macro alignment scores for portfolio positions
+        calculator = MacroAlignmentCalculator()
+        macro_state = {
+            "brent": macro_data.get("brent") if macro_data else None,
+            "usd_try": macro_data.get("usd_try") if macro_data else None,
+            "vix": macro_data.get("vix") if macro_data else None,
+            "cds": macro_data.get("cds") if macro_data else None,
+        }
+
         portfolio_data = []
         for a in analyses:
-            portfolio_data.append({
+            position = {
                 "ticker": a.ticker,
                 "sector": get_sector(a.ticker),
                 "sector_context": get_sector_context(a.ticker),
@@ -251,7 +261,18 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 "stop_loss": round(a.stop_loss_price, 2) if a.stop_loss_price is not None else None,
                 "profit_target": round(a.profit_target_price, 2) if a.profit_target_price is not None else None,
                 "alerts": [{"severity": al.severity, "message": al.message} for al in a.alerts],
-            })
+            }
+
+            # Add macro alignment if all macro data available
+            if all(macro_state.values()):
+                alignment = calculator.calculate_alignment(a.ticker, macro_state)
+                position["macro_alignment"] = {
+                    "score": alignment["alignment_score"],
+                    "direction": alignment["alignment_direction"],
+                    "narrative": alignment["narrative"],
+                }
+
+            portfolio_data.append(position)
 
         momentum_top5 = []
         momentum_top10 = []

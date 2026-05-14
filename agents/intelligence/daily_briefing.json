@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-13",
+  "date": "2026-05-14",
   "bist100": 0,
   "risk_limits": {
     "max_sector_concentration": 0.3,
@@ -7,71 +7,76 @@
   },
   "portfolio": [
     {
-      "ticker": "AKSEN.IS",
-      "sector": "enerji",
+      "ticker": "AKSEN",
+      "sector": "Enerji",
+      "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir.",
       "quantity": 591,
       "avg_cost": 87.59,
-      "current_price": 84.6,
-      "unrealized_pnl_pct": -3.41,
-      "unrealized_pnl": -1767.09,
-      "rsi": 54.6,
-      "ma20": 83.68,
+      "current_price": 83.6,
+      "unrealized_pnl_pct": -4.56,
+      "unrealized_pnl": -2358.09,
+      "rsi": 51.7,
+      "ma20": 83.7,
       "stop_loss": 80.58,
       "profit_target": 105.11,
       "alerts": []
     },
     {
-      "ticker": "TTKOM.IS",
-      "sector": "telekom",
+      "ticker": "TTKOM",
+      "sector": "Telekomünikasyon",
+      "sector_context": null,
       "quantity": 329,
       "avg_cost": 60.65,
-      "current_price": 63.75,
-      "unrealized_pnl_pct": 5.11,
-      "unrealized_pnl": 1019.9,
-      "rsi": 50.9,
-      "ma20": 64.06,
+      "current_price": 63.9,
+      "unrealized_pnl_pct": 5.36,
+      "unrealized_pnl": 1069.25,
+      "rsi": 51.1,
+      "ma20": 64.17,
       "stop_loss": 55.8,
       "profit_target": 72.78,
       "alerts": []
     },
     {
-      "ticker": "TAVHL.IS",
-      "sector": "havacılık",
+      "ticker": "TAVHL",
+      "sector": "Havacılık",
+      "sector_context": "Brent korelasyonu: negatif. Yakıt maliyeti toplam giderlerin ~%30'u — Brent yükselişi marjları sıkıştırır.",
       "quantity": 68,
       "avg_cost": 286.5,
-      "current_price": 266.75,
-      "unrealized_pnl_pct": -6.89,
-      "unrealized_pnl": -1343.0,
-      "rsi": 33.7,
-      "ma20": 294.76,
+      "current_price": 265.75,
+      "unrealized_pnl_pct": -7.24,
+      "unrealized_pnl": -1411.0,
+      "rsi": 34.0,
+      "ma20": 291.4,
       "stop_loss": 263.58,
       "profit_target": 343.8,
       "alerts": []
     },
     {
-      "ticker": "KCHOL.IS",
-      "sector": "holding",
+      "ticker": "KCHOL",
+      "sector": "Holding",
+      "sector_context": null,
       "quantity": 81,
       "avg_cost": 188.83,
-      "current_price": 202.9,
-      "unrealized_pnl_pct": 7.45,
-      "unrealized_pnl": 1139.67,
-      "rsi": 49.4,
+      "current_price": 204.7,
+      "unrealized_pnl_pct": 8.4,
+      "unrealized_pnl": 1285.47,
+      "rsi": 51.5,
       "ma20": 206.06,
       "stop_loss": 173.72,
       "profit_target": 226.6,
       "alerts": []
     },
     {
-      "ticker": "ENERY.IS",
-      "sector": "enerji",
+      "ticker": "ENERY",
+      "sector": "Enerji",
+      "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir.",
       "quantity": 1543,
       "avg_cost": 9.07,
-      "current_price": 8.88,
-      "unrealized_pnl_pct": -2.09,
-      "unrealized_pnl": -293.17,
-      "rsi": 46.3,
-      "ma20": 9.04,
+      "current_price": 8.76,
+      "unrealized_pnl_pct": -3.42,
+      "unrealized_pnl": -478.33,
+      "rsi": 42.6,
+      "ma20": 9.02,
       "stop_loss": 8.34,
       "profit_target": 10.88,
       "alerts": []
@@ -79,92 +84,227 @@
   ],
   "momentum_top5": [
     {
-      "ticker": "BIMAS.IS",
-      "close": 798.5,
-      "daily_chg_pct": 2.24,
-      "ret_1m_pct": 7.3,
+      "ticker": "AKENR",
+      "close": 14.23,
+      "daily_chg_pct": 2.74,
+      "ret_1m_pct": 42.6,
+      "vol_surge": 2.04,
+      "proximity_52w_high_pct": 4.5,
+      "rsi": 88.8,
+      "momentum_score": 0.419
+    },
+    {
+      "ticker": "ALGYO",
+      "close": 7.68,
+      "daily_chg_pct": 4.07,
+      "ret_1m_pct": 56.9,
+      "vol_surge": 0.63,
+      "proximity_52w_high_pct": 0.5,
+      "rsi": 74.5,
+      "momentum_score": 0.331
+    },
+    {
+      "ticker": "SKBNK",
+      "close": 14.77,
+      "daily_chg_pct": 7.57,
+      "ret_1m_pct": 16.3,
+      "vol_surge": 1.34,
+      "proximity_52w_high_pct": 1.5,
+      "rsi": 74.0,
+      "momentum_score": 0.2635
+    },
+    {
+      "ticker": "AGHOL",
+      "close": 37.22,
+      "daily_chg_pct": 1.14,
+      "ret_1m_pct": 20.6,
+      "vol_surge": 1.48,
+      "proximity_52w_high_pct": 1.5,
+      "rsi": 72.3,
+      "momentum_score": 0.1907
+    },
+    {
+      "ticker": "ISGYO",
+      "close": 20.7,
+      "daily_chg_pct": 4.07,
+      "ret_1m_pct": -0.5,
+      "vol_surge": 2.81,
+      "proximity_52w_high_pct": 15.5,
+      "rsi": 53.6,
+      "momentum_score": 0.1534
+    }
+  ],
+  "filtered_signals": [
+    {
+      "ticker": "AKSEN",
+      "close": 83.6,
+      "daily_chg_pct": -1.76,
       "vol_surge": 0.66,
-      "proximity_52w_high_pct": 1.6,
-      "rsi": 65.8,
-      "momentum_score": 0.061
+      "proximity_52w_high_pct": 7.4,
+      "ret_1m_pct": -0.1,
+      "rsi": 51.7,
+      "momentum_score": -0.0666
     },
     {
-      "ticker": "EREGL.IS",
-      "close": 39.66,
-      "daily_chg_pct": -1.05,
-      "ret_1m_pct": 23.9,
-      "vol_surge": 0.24,
-      "proximity_52w_high_pct": 9.3,
-      "rsi": 71.7,
-      "momentum_score": 0.0345
+      "ticker": "TTKOM",
+      "close": 63.9,
+      "daily_chg_pct": -1.31,
+      "vol_surge": 0.6,
+      "proximity_52w_high_pct": 15.5,
+      "ret_1m_pct": 1.9,
+      "rsi": 51.1,
+      "momentum_score": -0.1359
     },
     {
-      "ticker": "KRDMD.IS",
-      "close": 43.44,
-      "daily_chg_pct": -3.29,
-      "ret_1m_pct": 20.3,
-      "vol_surge": 0.25,
-      "proximity_52w_high_pct": 7.6,
-      "rsi": 73.2,
-      "momentum_score": 0.0335
+      "ticker": "KCHOL",
+      "close": 204.7,
+      "daily_chg_pct": 0.15,
+      "vol_surge": 0.53,
+      "proximity_52w_high_pct": 7.3,
+      "ret_1m_pct": -0.8,
+      "rsi": 51.5,
+      "momentum_score": -0.1441
     },
     {
-      "ticker": "PETKM.IS",
-      "close": 26.46,
-      "daily_chg_pct": -2.51,
-      "ret_1m_pct": 19.2,
-      "vol_surge": 0.18,
-      "proximity_52w_high_pct": 5.7,
-      "rsi": 70.3,
-      "momentum_score": 0.0246
-    },
-    {
-      "ticker": "ASELS.IS",
-      "close": 419.75,
-      "daily_chg_pct": 0.12,
-      "ret_1m_pct": 1.1,
+      "ticker": "ENERY",
+      "close": 8.76,
+      "daily_chg_pct": 0.0,
       "vol_surge": 0.19,
-      "proximity_52w_high_pct": 6.7,
-      "rsi": 59.2,
-      "momentum_score": -0.0419
+      "proximity_52w_high_pct": 26.6,
+      "ret_1m_pct": -4.2,
+      "rsi": 42.6,
+      "momentum_score": -0.2148
+    },
+    {
+      "ticker": "TAVHL",
+      "close": 265.75,
+      "daily_chg_pct": 0.66,
+      "vol_surge": 0.46,
+      "proximity_52w_high_pct": 28.0,
+      "ret_1m_pct": -19.5,
+      "rsi": 34.0,
+      "momentum_score": -0.2957
+    },
+    {
+      "ticker": "AKENR",
+      "close": 14.23,
+      "daily_chg_pct": 2.74,
+      "vol_surge": 2.04,
+      "proximity_52w_high_pct": 4.5,
+      "ret_1m_pct": 42.6,
+      "rsi": 88.8,
+      "momentum_score": 0.419
+    },
+    {
+      "ticker": "ISGYO",
+      "close": 20.7,
+      "daily_chg_pct": 4.07,
+      "vol_surge": 2.81,
+      "proximity_52w_high_pct": 15.5,
+      "ret_1m_pct": -0.5,
+      "rsi": 53.6,
+      "momentum_score": 0.1534
+    },
+    {
+      "ticker": "TKFEN",
+      "close": 144.7,
+      "daily_chg_pct": -2.62,
+      "vol_surge": 0.31,
+      "proximity_52w_high_pct": 9.5,
+      "ret_1m_pct": 20.1,
+      "rsi": 62.2,
+      "momentum_score": 0.1294
+    },
+    {
+      "ticker": "KAPLM",
+      "close": 647.0,
+      "daily_chg_pct": 7.3,
+      "vol_surge": 0.5,
+      "proximity_52w_high_pct": 13.3,
+      "ret_1m_pct": 0.5,
+      "rsi": 56.3,
+      "momentum_score": 0.0477
+    },
+    {
+      "ticker": "ODAS",
+      "close": 7.77,
+      "daily_chg_pct": -0.38,
+      "vol_surge": 0.71,
+      "proximity_52w_high_pct": 8.5,
+      "ret_1m_pct": 15.1,
+      "rsi": 64.3,
+      "momentum_score": 0.0347
     }
   ],
   "macro_data": {
-    "usdtry": 45.42,
-    "usdtry_change_pct": 0.07,
-    "oil_brent": 107.34,
-    "oil_brent_change_pct": -0.4,
-    "vix": 17.85,
-    "vix_change_pct": -0.78,
-    "sp500": 7400.96,
-    "sp500_change_pct": -0.16,
-    "gold": 4703.7,
-    "gold_change_pct": 0.56
+    "usdtry": 45.4,
+    "usdtry_change_pct": 0.01,
+    "oil_brent": 105.28,
+    "oil_brent_change_pct": -0.33,
+    "vix": 17.93,
+    "vix_change_pct": 0.34,
+    "sp500": 7474.22,
+    "sp500_change_pct": 0.4,
+    "gold": 4689.2,
+    "gold_change_pct": -0.18
   },
   "macro_snapshot": {
-    "timestamp": "2026-05-13T08:53:36.852936Z",
+    "timestamp": "2026-05-14T13:56:59.303909Z",
     "regime": "TRANSITION",
-    "macro_environment_score": -0.091,
+    "macro_environment_score": 0.024,
     "components": {
-      "vix": -0.052,
-      "usdtry": -0.034,
-      "brent": -0.026,
-      "bist100": -0.17
+      "vix": 0.022,
+      "usdtry": 0.075,
+      "brent": -0.081,
+      "bist100": 0.059
     },
     "prices": {
-      "usdtry": 45.41640090942383,
-      "brent": 107.33999633789062,
-      "vix": 17.850000381469727,
-      "bist100": 14654.26953125
+      "usdtry": 45.347999572753906,
+      "brent": 105.27999877929688,
+      "vix": 17.93000030517578,
+      "bist100": 14641.5595703125
     },
-    "data_date": "2026-05-13"
+    "data_date": "2026-05-14"
   },
   "kap_news": {
-    "fetched_at": "2026-05-13T08:53:47.637954+00:00",
-    "source_used": "none",
+    "fetched_at": "2026-05-14T13:57:10.904810+00:00",
+    "source_used": "gnews",
     "coverage_hours": 24,
-    "total": 0,
-    "items": []
+    "total": 4,
+    "items": [
+      {
+        "source": "gnews:Rota Borsa",
+        "ticker": "AKSEN",
+        "title": "Aksa Enerji (AKSEN) 2026 yılı temettü kararını açıkladı - Rota Borsa",
+        "published": "2026-05-13T15:54:15+00:00",
+        "category": "IMPORTANT",
+        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPUlRHODRJSVIzTHd2UDFvZlRFd09xSUJObzlSWmlYYmgwRmNTMFZtSVV4RkxwX3ZKYmNWYUgxUXRTQVdaV0hZQWdfVlNWTEVJczZGRnJKbmQxc0FZOWNwWWRkR3BwUWRGUUNNN1Z3U0Y4RGJhVDlUV2lwdmJ5Z3hGVFdB?oc=5"
+      },
+      {
+        "source": "gnews:Paratic Haber",
+        "ticker": "AKSEN",
+        "title": "Aksa Enerji 3,5 milyar TL kar etti: Temettü dağıtacak mı? - Paratic Haber",
+        "published": "2026-05-13T16:17:15+00:00",
+        "category": "IMPORTANT",
+        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNSE9nUnlYS2p1aVJlUkN0alpWTVRZRDM0N3BZa2x1UDFLazNpMDF1Y3ctbFJXYUotOUNjbko5VHBQQ1hfWjhheE1VejJSVTQyQ2xlTWpEbklmMGFIMkJpMGlKdnBIOVVocFhvbnpLN240aTNuUTFNMXdMajhGYnFPbHpR?oc=5"
+      },
+      {
+        "source": "gnews:Mynet",
+        "ticker": "KCHOL",
+        "title": "KOÇ HOLDİNG (KCHOL) 14 Mayıs Perşembe 2026 Günlük Teknik Analiz - Mynet",
+        "published": "2026-05-13T15:58:00+00:00",
+        "category": "NOISE",
+        "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNU0V3MnpST1RqSWU3X1ZyMW4tTXhMYlJFbVF4TTZMeVdUV2hYYi04S2ViQm85WHVYNFRsLWFTRmR2bmdKXzJzeHhPQkhhMU9UeDhGQnlDNGswWDFLUzVwcWR6TkZFLS1TaHk5OHBiM2hqUXBzTnI2akUxa0hTU2I1MVMzdnNUUEVFcmVMS0l5bXlPVzl1OE5zNFhpeEJPVzJYcW5N?oc=5"
+      },
+      {
+        "source": "gnews:Mynet",
+        "ticker": "TAVHL",
+        "title": "TAV HAVALIMANLARI (TAVHL) 14 Mayıs Perşembe 2026 Günlük Teknik Analiz - Mynet",
+        "published": "2026-05-13T16:39:00+00:00",
+        "category": "NOISE",
+        "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOZHNUZjRqZ0VTd3dfN0dxVEFUeTR2WVh3MHRRNEFoSlRGYk5hWDBqdDdvYm9HWjR6WllDSjRSVEJVdU9Xbmp5NElyaUVsR0JpMzFXaUgzd1VHLUJDNDlQNnBUOXMzQ1c0eXNwQk4xLVgtVzRIamQwSFBrNkc4TzJ0S2dlNHpicGdvMXdNWHFwREhJdDdCMVZXRkJkcW9ObjJBcElxVTRMdkZPMTA?oc=5"
+      }
+    ]
   },
   "sector_performance": {},
   "alerts": []

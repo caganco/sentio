@@ -14,15 +14,20 @@
 
 ---
 
-## Current Phase: 4.8 — Signal Engine Efficiency + Strategist Compact
+## Current Phase: 4.8 → 4.9 — Signal Engine Efficiency + Macro-Equity Correlation
 
 ### Completed This Session (14 May 2026)
-- **SPEC_E_1:** Signal Engine Efficiency (3 tasks)
+- **SPEC_E_1:** Signal Engine Efficiency (3 tasks) ✅
   - Task 1: Ticker externalization (ALREADY in config.yaml)
   - Task 2: LocalMacroSignals singleton pattern
   - Task 3: Stub layer cleanup (sentiment 0.15 + smart_money 0.10 removed)
-- **SPEC_S_1:** Brent-Sector Correlation (60-ticker sector_mapping.json)
-- **SPEC_R_1:** Compact Report Data (StrategistAgent, ~400 tokens, 66% reduction)
+- **SPEC_S_1:** Brent-Sector Correlation (60-ticker sector_mapping.json) ✅
+- **SPEC_R_1:** Compact Report Data (StrategistAgent, ~400 tokens, 66% reduction) ✅
+- **SPEC_M_1:** Macro-Equity Correlation Layer ✅
+  - `data/macro_sensitivity.json`: 10-ticker profiles (AKSEN, TAVHL, TTKOM, KCHOL, ENERY, ASELS, TOASO, THYAO, HALKB, GARAN)
+  - `src/signals/macro_alignment.py`: MacroAlignmentCalculator (brent, usd_try, vix, cds)
+  - `tests/test_macro_alignment.py`: 25 tests (unit, integration, regression validation)
+  - Integration: daily_update.py portfolio_data includes macro_alignment scores
 
 ---
 

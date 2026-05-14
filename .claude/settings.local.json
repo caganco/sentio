@@ -84,7 +84,10 @@
       "Bash(python -m pytest tests/ --co -q)",
       "Bash(python -c \"import sys; sys.path.insert\\(0,'agents'\\); import orchestrator; print\\('ok'\\)\")",
       "Bash(python -m pytest tests/test_kap_fetcher.py tests/test_kap_parser.py tests/test_kap_scheduler.py -v)",
-      "Bash(python -m pytest tests/ -v)"
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python -m pytest tests/ -q)",
+      "Bash(python -m pytest tests/test_engine.py -q)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('data/sector_mapping.json'\\)\\); print\\(len\\(d\\), 'tickers'\\); print\\(list\\(d.items\\(\\)\\)[:5]\\)\")"
     ],
     "defaultMode": "auto",
     "additionalDirectories": [

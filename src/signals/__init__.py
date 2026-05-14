@@ -10,6 +10,7 @@ from .macro_signals import (
 from .engine import compute_signal, compute_batch, build_signal_context_for_orchestrator
 from .models import LayerScore, SignalResult, AuditTrail, FinalSignal, MacroRegime
 from .thresholds import MASTER_WEIGHTS, SIGNAL_THRESHOLDS
+from .macro_alignment import MacroAlignmentCalculator
 
 __all__ = [
     "MacroSignal",
@@ -28,4 +29,5 @@ __all__ = [
     "MacroRegime",
     "MASTER_WEIGHTS",
     "SIGNAL_THRESHOLDS",
+    "MacroAlignmentCalculator",
 ]

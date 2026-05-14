@@ -1,8 +1,8 @@
-# System Efficiency Report — Phase 4.8
+# System Efficiency Report — Phase 4.9
 
 **Report Date:** 14 May 2026  
-**Session Duration:** ~6 hours (compacted from ~12 hours context)  
-**Focus Area:** Signal Engine Efficiency + Compact Report Format
+**Session Duration:** ~2 hours (SPEC_M_1 implementation)  
+**Focus Area:** Macro-Equity Correlation Layer + Integration Testing
 
 ---
 
@@ -10,19 +10,19 @@
 
 ### Test Suite Status ✅
 ```
-Total Tests:           291 passed, 1 skipped
+Total Tests:           316 passed, 1 skipped (25 new macro_alignment tests)
 Regression:            ZERO (0 failures)
-Coverage:              ~85% (core signal + macro layers)
-Latest Run:            2026-05-14 after SPEC_R_1 integration
-Critical Tests:        macro_layer (26), local_macro (20), engine (86) — all passing
+Coverage:              ~86% (added macro alignment layer)
+Latest Run:            2026-05-14 after SPEC_M_1 integration
+Critical Tests:        macro_alignment (25), macro_layer (26), local_macro (20), engine (86) — all passing
 ```
 
-### Data Quality Gaps (Critical)
+### Data Quality Gaps (Remaining Critical)
 ```
-8 Critical Gaps Identified:
+7 Critical Gaps Remaining:
 
 1. CDS Scraping WAF Blockage      → Fallback: YAML cache (5+ days stale)
-2. Macro Alignment Missing         → No sector-hisse macro regime validation
+2. ✅ RESOLVED: Macro Alignment   → SPEC_M_1 MacroAlignmentCalculator live
 3. KAP Edge Cases Untested         → National holidays, bulk events, system downtime
 4. Smart Money Layer (Layer 5)      → Stub only, institutional flow not captured
 5. Sentiment Layer (Layer 4)        → Stub only, news NLP not implemented
@@ -35,18 +35,19 @@ Critical Tests:        macro_layer (26), local_macro (20), engine (86) — all p
 
 ## Session Deliverables (14 May 2026)
 
-### SPEC_E_1: Signal Engine Efficiency ✅
-| Task | Status | Impact |
-|------|--------|--------|
-| Ticker externalization | Already done | No change needed |
-| LocalMacroSignals singleton | ✅ Implemented | Prevents YAML reload redundancy |
-| Stub layer cleanup | ✅ Completed | 4-layer engine, weight sum = 1.0 exactly |
+### SPEC_M_1: Macro-Equity Correlation Layer ✅
+| Deliverable | Status | Impact |
+|-----------|--------|--------|
+| Sensitivity profiles (10 tickers) | ✅ Created | data/macro_sensitivity.json (AKSEN, TAVHL, TTKOM, KCHOL, ENERY, ASELS, TOASO, THYAO, HALKB, GARAN) |
+| Alignment calculator | ✅ Implemented | src/signals/macro_alignment.py (MacroAlignmentCalculator class) |
+| Unit + integration tests | ✅ Completed | 25 tests (load, variable score, aggregate, narrative, edge cases, regression validation) |
+| Daily integration | ✅ Integrated | daily_update.py adds macro_alignment to portfolio_data |
+| Test regression | ✅ Zero | 316 passed (291 + 25 new) |
 
-**Weight Distribution (Post-Cleanup):**
-- Technical: 23.08% (0.15/0.65)
-- Macro: 38.46% (0.25/0.65)
-- KAP: 30.77% (0.20/0.65)
-- Risk: 7.69% (0.05/0.65)
+**Alignment Score Interpretation:**
+- `score`: [0, 1] (0=headwinds, 0.5=neutral, 1=tailwinds)
+- `direction`: "+"/"-"/"0" (bullish/bearish/neutral)
+- `narrative`: Strategist-friendly tailwind/headwind explanation
 
 ### SPEC_S_1: Brent-Sector Correlation ✅
 - **60-ticker sector_mapping.json:** Energy (positive), Aviation (negative), Petrochemical (mixed)
@@ -125,15 +126,16 @@ TOTAL:              ~400 tokens (66% reduction achieved)
 ## Code Quality Metrics
 
 ### Regression Testing
-- Full suite: **291 passed, 1 skipped** (after SPEC_R_1 + SPEC_E_1 + SPEC_S_1)
-- Critical layers (macro + engine): **111/111 passing**
-- New strategist tests: **14/14 passing**
+- Full suite: **316 passed, 1 skipped** (291 + 25 new macro_alignment tests)
+- Critical layers: **136/136 passing** (macro + macro_alignment + engine)
+- New macro_alignment tests: **25/25 passing** (unit, integration, regression validation)
 
 ### Technical Debt
 ```
 Magic numbers eliminated:     ✅ (thresholds.py centralized)
 Stub layers live but unused:  ⚠️ (sentiment_layer, smartmoney_layer)
 Singleton pattern applied:    ✅ (LocalMacroSignals)
+Macro sensitivity profiles:   ✅ (10 tickers, quarterly maintenance)
 DRY violations:               2 (sector context extraction, flag derivation)
 Security gaps:                1 (server.py path traversal, low priority)
 ```
@@ -142,19 +144,21 @@ Security gaps:                1 (server.py path traversal, low priority)
 
 ## Operational Checklist for Next Session
 
-- [ ] Start SPEC_M_1 implementation (macro alignment calculator)
+- [x] ✅ SPEC_M_1 implementation (macro alignment calculator) — 316 tests pass
 - [ ] Research CDS alternatives (investing.com vs tradingeconomics.com)
 - [ ] Write KAP edge case tests (national holidays, bulk events)
-- [ ] Run full test suite → confirm 291+ pass
-- [ ] Generate daily report → verify Strategist output quality
-- [ ] Update masterplan.md → Phase 4.9 or 5.0 decision point
+- [ ] Run full test suite → confirm 316+ pass
+- [ ] Generate daily report → verify Strategist output quality + macro_alignment scores
+- [ ] Phase 4.9 decision: CDS WAF fix or Kelly Criterion next
 
 ---
 
 ## Notes for Future Sessions
 
-1. **EVDS Batch Optimization:** Can combine TCMB + foreign ownership into single API batch call
-2. **Layer 4 (Sentiment):** Blocked on architecture decision (keyword vs topic model)
-3. **Layer 5 (Smart Money):** Borsa İstanbul takas raporu scraping ready when prioritized
-4. **Druckenmiller Framework:** Fully implemented for giriş/çıkış, bull trap detection ready
-5. **Phase 5 Entry:** Ready once SPEC_M_1, CDS, KAP edge cases complete (est. 1-2 days)
+1. **Macro Alignment Integration:** Profiles now in data/macro_sensitivity.json (quarterly maintenance), calculator active in daily_update.py
+2. **EVDS Batch Optimization:** Can combine TCMB + foreign ownership into single API batch call (2-hour gain)
+3. **CDS WAF Resolution:** Urgent — switch to investing.com, keep worldgovernmentbonds.com as fallback
+4. **Layer 4 (Sentiment):** Blocked on architecture decision (keyword vs topic model)
+5. **Layer 5 (Smart Money):** Borsa İstanbul takas raporu scraping ready when prioritized
+6. **Druckenmiller Framework:** Fully implemented for giriş/çıkış + macro-equity correlation, bull trap detection ready
+7. **Phase 5 Entry:** Ready once CDS WAF fix + KAP edge cases + Kelly Criterion complete (est. 2-3 days)

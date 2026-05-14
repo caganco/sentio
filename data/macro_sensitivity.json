@@ -1,0 +1,292 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2026-05-14",
+    "update_frequency": "quarterly",
+    "note": "Profiles reviewed Q1, Q2, Q3, Q4 for regime shifts. Based on fundamental analysis and historical correlation."
+  },
+  "variables": {
+    "brent": {
+      "unit": "USD/bbl",
+      "direction": "higher price = up",
+      "description": "Oil price, direct cost/revenue impact on sectors"
+    },
+    "usd_try": {
+      "unit": "TRY/USD",
+      "direction": "higher = TRY weakness",
+      "description": "FX rate, export competitiveness & foreign debt impact"
+    },
+    "vix": {
+      "unit": "volatility index",
+      "direction": "higher = risk-off",
+      "description": "Global risk appetite, affects EM inflows"
+    },
+    "cds": {
+      "unit": "basis points",
+      "direction": "higher = credit risk up",
+      "description": "Turkey sovereign risk, FX stability sentiment"
+    }
+  },
+  "profiles": {
+    "AKSEN": {
+      "sector": "Energy",
+      "description": "Oil & gas producer, direct commodity exposure",
+      "sensitivities": {
+        "brent": {
+          "direction": "+",
+          "strength": "strong",
+          "mechanism": "Revenue directly tied to oil price; margin improvement on price up"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Minor FX exposure (international customers, but USD-denominated revenues hedge)"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "EM carry trade unwind (VIX up) → EM currency weakness → commodity price down correlation"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Indirect (if sovereign stress, currency weak, but energy revenues USD-based)"
+        }
+      }
+    },
+    "TAVHL": {
+      "sector": "Tourism/Airlines",
+      "description": "International airline, fuel cost sensitive, FX sensitive",
+      "sensitivities": {
+        "brent": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Jet fuel cost (35-40% of operating cost); fuel hedging partial, margin compression"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Aircraft leasing in USD; TRY weakness increases capex/lease costs; revenues partially TRY"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Travel demand drops in risk-off; EM tourism most hit"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Higher sovereign risk → less tourist inflows; currency weakness affects leasing costs"
+        }
+      }
+    },
+    "TTKOM": {
+      "sector": "Telecom",
+      "description": "Telecom operator, capex FX sensitive, domestic revenue TRY",
+      "sensitivities": {
+        "brent": {
+          "direction": "0",
+          "strength": "none",
+          "mechanism": "No direct commodity exposure; energy cost minor"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Network expansion capex in USD/EUR; TRY weakness inflates capex spend, margin compression"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Dividend yield relative to volatility; risk-off → dividend appeal down, but dividend-oriented stock"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Indirect FX impact; refinancing risk if CDS > 500 bps"
+        }
+      }
+    },
+    "KCHOL": {
+      "sector": "Holding",
+      "description": "Conglomerate holding, net long EM, FX sensitive, dividend yield",
+      "sensitivities": {
+        "brent": {
+          "direction": "+",
+          "strength": "medium",
+          "mechanism": "Portfolio exposure to energy subunits (AKSEN stake), risk-on commodities"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "FX mismatch (some assets USD revenue, equity financing TRY); net negative"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "EM carry sentiment positive when VIX low; VIX down = EM inflows = bullish"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Refinancing access (if CDS high, borrowing cost up); portfolio company stress"
+        }
+      }
+    },
+    "ENERY": {
+      "sector": "Energy",
+      "description": "Power generation (hydro + thermal), revenue in TRY, fuel cost sensitivity",
+      "sensitivities": {
+        "brent": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Thermal generation (coal/gas cost); not fully passed to customers; margin compression"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Minor FX exposure; mostly domestic TRY revenue"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Indirect (economic slowdown → electricity demand down)"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Regulatory risk (price controls) if sovereign stress"
+        }
+      }
+    },
+    "ASELS": {
+      "sector": "Retail",
+      "description": "Consumer electronics retailer, domestic TRY revenue, FX sensitive imports",
+      "sensitivities": {
+        "brent": {
+          "direction": "0",
+          "strength": "none",
+          "mechanism": "No direct energy exposure; logistics cost minor"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Imports of electronics in USD; TRY weakness inflates COGS, margin compression"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Consumer discretionary; risk-off → spending drops sharply"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Consumer credit tightens; purchasing power down as TRY weakens"
+        }
+      }
+    },
+    "TOASO": {
+      "sector": "Chemicals/Energy",
+      "description": "Petrochemical producer, raw material cost + FX sensitive",
+      "sensitivities": {
+        "brent": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Raw materials (naphtha, crude) cost up with oil price; margin compression if not passed"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Input costs in USD (oil), sales partially TRY; net negative on TRY weakness"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Chemical demand (auto, packaging) drops in risk-off"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Refinancing costs up; FX cost on dollar debt"
+        }
+      }
+    },
+    "THYAO": {
+      "sector": "Tourism/Airlines",
+      "description": "Flag carrier airline, international routes, fuel cost + FX sensitive",
+      "sensitivities": {
+        "brent": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Jet fuel (40% of operating cost); limited hedging; margin compression"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Aircraft leasing in USD; revenues in mix of USD/TRY; net negative on TRY weakness"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "International travel demand most sensitive to EM risk-off"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Sovereign stress → tourist decline; refinancing cost on USD debt"
+        }
+      }
+    },
+    "HALKB": {
+      "sector": "Banking",
+      "description": "Commercial bank, TRY liabilities/assets, FX fee income positive, credit risk",
+      "sensitivities": {
+        "brent": {
+          "direction": "0",
+          "strength": "none",
+          "mechanism": "No direct commodity exposure"
+        },
+        "usd_try": {
+          "direction": "+",
+          "strength": "medium",
+          "mechanism": "FX fee income up on volatility; TRY weakness → forex trading profit; NPL risk on TRY borrowers"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Risk-off → credit tightening, lower lending volume; dividend yield attractive in risk-off"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Sovereign stress → bank stress; deposit flight risk; capital controls risk"
+        }
+      }
+    },
+    "GARAN": {
+      "sector": "Banking",
+      "description": "Large commercial bank, similar to HALKB + some FX exposure",
+      "sensitivities": {
+        "brent": {
+          "direction": "0",
+          "strength": "none",
+          "mechanism": "No direct commodity exposure"
+        },
+        "usd_try": {
+          "direction": "+",
+          "strength": "medium",
+          "mechanism": "FX fee income on volatility; but NPL risk on TRY borrowers in import sectors"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "Credit cycle; dividend yield attractive, but volume down in risk-off"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "strong",
+          "mechanism": "Sovereign stress → banking crisis risk; deposit confidence shaken"
+        }
+      }
+    }
+  }
+}
