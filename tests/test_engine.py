@@ -211,14 +211,32 @@ class TestTechnicalLayer:
 class TestMacroLayer:
 
     def test_risk_on_above_neutral(self):
-        ls = score_macro(MACRO_RISK_ON)
-        assert ls.score > 50.0
+        from unittest.mock import patch, MagicMock
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
+            ls = score_macro(MACRO_RISK_ON)
+            # 50% global*76.39 + 25% TCMB*50 + 25% CDS*50 = 38.19 + 12.5 + 12.5 = 63.19 > 50
+            assert ls.score > 50.0
 
     def test_neutral_near_50(self):
-        ls = score_macro(MACRO_NEUTRAL)
-        # With LOCAL_MACRO_ENABLED: TCMB hike pulls neutral down to ~43.75
-        # (50% global*50 + 25% TCMB*25 + 25% CDS*50 = 43.75)
-        assert ls.score == pytest.approx(50.0, abs=10.0)
+        from unittest.mock import patch, MagicMock
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
+            ls = score_macro(MACRO_NEUTRAL)
+            # 50% global*50 + 25% TCMB*50 + 25% CDS*50 = 25 + 12.5 + 12.5 = 50
+            assert ls.score == pytest.approx(50.0, abs=1.0)
 
     def test_empty_returns_missing(self):
         ls = score_macro({})
@@ -236,9 +254,19 @@ class TestMacroLayer:
         assert ls.confidence == 1.0
 
     def test_vix_score_key_accepted(self):
-        ls = score_macro({"vix_score": -0.5, "usdtry_score": -0.3, "bist100_score": 0.4})
-        assert ls.source == "computed"
-        assert ls.score > 50.0
+        from unittest.mock import patch, MagicMock
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
+            ls = score_macro({"vix_score": -0.5, "usdtry_score": -0.3, "bist100_score": 0.4})
+            assert ls.source == "computed"
+            # 50% global*62.5 + 25% TCMB*50 + 25% CDS*50 = 31.25 + 12.5 + 12.5 = 56.25 > 50
+            assert ls.score > 50.0
 
     def test_score_clamped_0_100(self):
         extreme = {"USDTRY": -1.0, "VIX": -1.0, "BRENT": 1.0, "SP500": 1.0, "BIST100": 1.0}
