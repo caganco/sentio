@@ -103,14 +103,14 @@ class TestSentimentIntegration:
         from src.signals.thresholds import MASTER_WEIGHTS
 
         assert "sentiment" in MASTER_WEIGHTS
-        assert MASTER_WEIGHTS["sentiment"] == 0.25
+        assert MASTER_WEIGHTS["sentiment"] == 0.05  # Reduced from 0.25 (Smart Money now 0.20)
 
-    def test_all_5_layers_in_signal(self):
+    def test_all_6_layers_in_signal(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
             result = compute_signal("TEST", self.TECH_BULLISH, self.MACRO_NEUTRAL, [], date.today())
 
         layer_names = {ls.layer for ls in result.audit.layer_scores}
-        expected_layers = {"technical", "macro", "kap", "sentiment", "risk"}
+        expected_layers = {"technical", "macro", "kap", "sentiment", "risk", "smart_money"}
         assert layer_names == expected_layers
 
     def test_sentiment_returns_valid_result(self):
@@ -152,14 +152,16 @@ class TestSentimentIntegration:
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
             result = compute_signal("AKSEN", self.TECH_BULLISH, bullish_macro, [], date.today())
 
-        assert result.score > 60
+        # After SMART_MONEY layer activation: sentiment weight reduced 0.25 → 0.05
+        # Smart Money neutral (0.5) + reduced sentiment impact = lower overall score
+        assert result.score > 50  # Reduced from 60 due to weight restructuring
 
     def test_sentiment_layer_weight_applied_correctly(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
             result = compute_signal("AKSEN", self.TECH_BULLISH, self.MACRO_NEUTRAL, [], date.today())
 
         sentiment_ls = [ls for ls in result.audit.layer_scores if ls.layer == "sentiment"][0]
-        assert sentiment_ls.weight == 0.25
+        assert sentiment_ls.weight == 0.05  # Reduced from 0.25
 
     def test_sentiment_missing_source_when_error(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
@@ -175,7 +177,7 @@ class TestSentimentIntegration:
         if article_count > 0:
             assert result.confidence >= 0.3
 
-    def test_integration_checkpoint_5_layers(self):
+    def test_integration_checkpoint_6_layers(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
             result = compute_signal(
                 "AKSEN",
@@ -185,11 +187,11 @@ class TestSentimentIntegration:
                 date.today(),
             )
 
-        assert len(result.audit.layer_scores) == 5
+        assert len(result.audit.layer_scores) == 6  # Now includes smart_money
 
         for layer in result.audit.layer_scores:
             assert 0 <= layer.score <= 100
             assert 0 <= layer.confidence <= 1.0
-            assert layer.layer in ("technical", "macro", "kap", "sentiment", "risk")
+            assert layer.layer in ("technical", "macro", "kap", "sentiment", "risk", "smart_money")
 
         assert result.final_signal in ("BUY-STRONG", "BUY-WEAK", "HOLD", "SELL-WEAK", "SELL-STRONG")

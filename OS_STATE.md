@@ -1,20 +1,16 @@
 ## 6. OS_STATE
-_Güncelleme: 2026-05-14_
+_Güncelleme: 2026-05-15_
 
 ### ACTIVE DIRECTIVES
-
-| ID    | Target    | Konu                        | Status     |
-|-------|-----------|---------------------------  |------------|
-| D-003 | Architect | SPEC_CTX_1 üret             | ✅ Done     |
-| D-004 | Architect | SPEC_KELLY_1 üret           | 🟡 Pending |
-| D-005 | Builder   | SPEC_CTX_1 implement        | 🟡 Pending |
+Yok.
 
 ### BACKLOG
 | Priority | Task | Notes |
 |----------|------|-------|
-| 🔴 HIGH | Kelly Criterion | D-004 Arch'ta pending |
-| 🟠 MED | kap_client konsolidasyonu | Wrapper vs replace |
-| 🟠 MED | EVDS Batch Optimization | — |
-| 🟠 MED | Drawdown Management | — |
-| 🟡 LOW | News Sentiment NLP | — |
-| 🟡 LOW | Smart Money | — |
+| 🔴 HIGH | TAVHL sat | Bugün |
+| 🔴 HIGH | Smart Money mock → gerçek veri | Builder rapor bekliyor |
+| 🔴 HIGH | Phase 6 başlangıç kararı | Backtest vs Broker API |
+| 🟠 MED | Smart Money kalibrasyon | 28 Mayıs review |
+| 🟠 MED | Auto-test detection | D-014 bekliyor |
+| 🟠 MED | Turkish BERT | Coverage sorunu |
+| 🟠 MED | kap_client konsolidasyonu | — |

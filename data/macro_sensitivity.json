@@ -287,6 +287,58 @@
           "mechanism": "Sovereign stress → banking crisis risk; deposit confidence shaken"
         }
       }
+    },
+    "AKENR": {
+      "sector": "Energy",
+      "description": "Energy producer, direct commodity exposure similar to AKSEN",
+      "sensitivities": {
+        "brent": {
+          "direction": "+",
+          "strength": "strong",
+          "mechanism": "Revenue directly tied to oil price; margin improvement on price up"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Minor FX exposure (international customers, but USD-denominated revenues hedge)"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "EM carry trade unwind (VIX up) → EM currency weakness → commodity price down correlation"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Indirect (if sovereign stress, currency weak, but energy revenues USD-based)"
+        }
+      }
+    },
+    "ZOREN": {
+      "sector": "Energy",
+      "description": "Energy producer, direct commodity exposure similar to AKSEN",
+      "sensitivities": {
+        "brent": {
+          "direction": "+",
+          "strength": "strong",
+          "mechanism": "Revenue directly tied to oil price; margin improvement on price up"
+        },
+        "usd_try": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Minor FX exposure (international customers, but USD-denominated revenues hedge)"
+        },
+        "vix": {
+          "direction": "-",
+          "strength": "medium",
+          "mechanism": "EM carry trade unwind (VIX up) → EM currency weakness → commodity price down correlation"
+        },
+        "cds": {
+          "direction": "-",
+          "strength": "weak",
+          "mechanism": "Indirect (if sovereign stress, currency weak, but energy revenues USD-based)"
+        }
+      }
     }
   }
 }

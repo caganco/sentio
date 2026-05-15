@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-14",
+  "date": "2026-05-15",
   "bist100": 0,
   "risk_limits": {
     "max_sector_concentration": 0.3,
@@ -19,12 +19,35 @@
       "ma20": 83.7,
       "stop_loss": 80.58,
       "profit_target": 105.11,
-      "alerts": []
+      "alerts": [],
+      "drawdown": {
+        "drawdown_pct": -4.56,
+        "peak_price": 87.59,
+        "alert_level": "OK",
+        "max_dd_ever_pct": -4.56
+      },
+      "sentiment": {
+        "score": 77.36,
+        "normalized": 0.55,
+        "confidence": 0.63,
+        "bullish_count": 2,
+        "bearish_count": 0,
+        "article_count": 3,
+        "source": "computed"
+      },
+      "smart_money": {
+        "score": 0.522,
+        "confidence": 0.5,
+        "institutional_net_pct": 0.22,
+        "trend": null,
+        "trend_3day_avg_pct": null,
+        "source": "borsa"
+      }
     },
     {
       "ticker": "TTKOM",
       "sector": "Telekomünikasyon",
-      "sector_context": null,
+      "sector_context": "Defansif sektör. Makro belirsizlikte değerli. TCMB kararları faiz duyarlılığı — yüksek oranlar maliyeti artırır.",
       "quantity": 329,
       "avg_cost": 60.65,
       "current_price": 63.9,
@@ -34,7 +57,30 @@
       "ma20": 64.17,
       "stop_loss": 55.8,
       "profit_target": 72.78,
-      "alerts": []
+      "alerts": [],
+      "drawdown": {
+        "drawdown_pct": -0.0,
+        "peak_price": 63.9,
+        "alert_level": "OK",
+        "max_dd_ever_pct": 0.0
+      },
+      "sentiment": {
+        "score": 93.58,
+        "normalized": 0.87,
+        "confidence": 0.6,
+        "bullish_count": 1,
+        "bearish_count": 0,
+        "article_count": 1,
+        "source": "computed"
+      },
+      "smart_money": {
+        "score": 1.0,
+        "confidence": 0.9,
+        "institutional_net_pct": 5.37,
+        "trend": null,
+        "trend_3day_avg_pct": null,
+        "source": "borsa"
+      }
     },
     {
       "ticker": "TAVHL",
@@ -49,7 +95,30 @@
       "ma20": 291.4,
       "stop_loss": 263.58,
       "profit_target": 343.8,
-      "alerts": []
+      "alerts": [],
+      "drawdown": {
+        "drawdown_pct": -7.24,
+        "peak_price": 286.5,
+        "alert_level": "INFO",
+        "max_dd_ever_pct": -7.24
+      },
+      "sentiment": {
+        "score": 50.0,
+        "normalized": 0.0,
+        "confidence": 0.0,
+        "bullish_count": 0,
+        "bearish_count": 0,
+        "article_count": 0,
+        "source": "missing"
+      },
+      "smart_money": {
+        "score": 0.0,
+        "confidence": 0.9,
+        "institutional_net_pct": -10.0,
+        "trend": null,
+        "trend_3day_avg_pct": null,
+        "source": "borsa"
+      }
     },
     {
       "ticker": "KCHOL",
@@ -64,7 +133,30 @@
       "ma20": 206.06,
       "stop_loss": 173.72,
       "profit_target": 226.6,
-      "alerts": []
+      "alerts": [],
+      "drawdown": {
+        "drawdown_pct": -0.0,
+        "peak_price": 204.7,
+        "alert_level": "OK",
+        "max_dd_ever_pct": 0.0
+      },
+      "sentiment": {
+        "score": 50.0,
+        "normalized": 0.0,
+        "confidence": 0.0,
+        "bullish_count": 0,
+        "bearish_count": 0,
+        "article_count": 0,
+        "source": "missing"
+      },
+      "smart_money": {
+        "score": 0.536,
+        "confidence": 0.5,
+        "institutional_net_pct": 0.36,
+        "trend": null,
+        "trend_3day_avg_pct": null,
+        "source": "borsa"
+      }
     },
     {
       "ticker": "ENERY",
@@ -72,16 +164,46 @@
       "sector_context": "Brent korelasyonu: pozitif. Ham petrol fiyatı yükseldiğinde enerji hisseleri genelde olumlu etkilenir.",
       "quantity": 1543,
       "avg_cost": 9.07,
-      "current_price": 8.76,
-      "unrealized_pnl_pct": -3.42,
-      "unrealized_pnl": -478.33,
-      "rsi": 42.6,
+      "current_price": 8.77,
+      "unrealized_pnl_pct": -3.31,
+      "unrealized_pnl": -462.9,
+      "rsi": 43.0,
       "ma20": 9.02,
       "stop_loss": 8.34,
       "profit_target": 10.88,
-      "alerts": []
+      "alerts": [],
+      "drawdown": {
+        "drawdown_pct": -3.31,
+        "peak_price": 9.07,
+        "alert_level": "OK",
+        "max_dd_ever_pct": -3.31
+      },
+      "sentiment": {
+        "score": 50.55,
+        "normalized": 0.01,
+        "confidence": 0.63,
+        "bullish_count": 0,
+        "bearish_count": 1,
+        "article_count": 3,
+        "source": "computed"
+      },
+      "smart_money": {
+        "score": 0.602,
+        "confidence": 0.9,
+        "institutional_net_pct": 1.02,
+        "trend": null,
+        "trend_3day_avg_pct": null,
+        "source": "borsa"
+      }
     }
   ],
+  "portfolio_drawdown": {
+    "drawdown_pct": -0.0,
+    "peak_value": 118614.51,
+    "current_value": 118614.51,
+    "mode": "NORMAL",
+    "circuit_breaker_triggered": false
+  },
   "momentum_top5": [
     {
       "ticker": "AKENR",
@@ -167,13 +289,13 @@
     },
     {
       "ticker": "ENERY",
-      "close": 8.76,
-      "daily_chg_pct": 0.0,
-      "vol_surge": 0.19,
-      "proximity_52w_high_pct": 26.6,
-      "ret_1m_pct": -4.2,
-      "rsi": 42.6,
-      "momentum_score": -0.2148
+      "close": 8.77,
+      "daily_chg_pct": 0.11,
+      "vol_surge": 0.24,
+      "proximity_52w_high_pct": 26.5,
+      "ret_1m_pct": -4.0,
+      "rsi": 43.0,
+      "momentum_score": -0.207
     },
     {
       "ticker": "TAVHL",
@@ -226,85 +348,100 @@
       "momentum_score": 0.0477
     },
     {
-      "ticker": "ODAS",
-      "close": 7.77,
-      "daily_chg_pct": -0.38,
-      "vol_surge": 0.71,
-      "proximity_52w_high_pct": 8.5,
-      "ret_1m_pct": 15.1,
-      "rsi": 64.3,
-      "momentum_score": 0.0347
+      "ticker": "IZENR",
+      "close": 11.1,
+      "daily_chg_pct": -1.07,
+      "vol_surge": 1.06,
+      "proximity_52w_high_pct": 7.0,
+      "ret_1m_pct": 12.5,
+      "rsi": 62.3,
+      "momentum_score": 0.0392
     }
   ],
   "macro_data": {
-    "usdtry": 45.4,
-    "usdtry_change_pct": 0.01,
-    "oil_brent": 105.28,
-    "oil_brent_change_pct": -0.33,
-    "vix": 17.93,
-    "vix_change_pct": 0.34,
-    "sp500": 7474.22,
-    "sp500_change_pct": 0.4,
-    "gold": 4689.2,
-    "gold_change_pct": -0.18
+    "usdtry": 45.53,
+    "usdtry_change_pct": 0.22,
+    "oil_brent": 106.46,
+    "oil_brent_change_pct": 0.79,
+    "vix": 17.26,
+    "vix_change_pct": -3.41,
+    "sp500": 7501.24,
+    "sp500_change_pct": 0.77,
+    "gold": 4629.0,
+    "gold_change_pct": -1.46
   },
   "macro_snapshot": {
-    "timestamp": "2026-05-14T13:56:59.303909Z",
+    "timestamp": "2026-05-15T00:48:21.030831Z",
     "regime": "TRANSITION",
-    "macro_environment_score": 0.024,
+    "macro_environment_score": -0.035,
     "components": {
-      "vix": 0.022,
-      "usdtry": 0.075,
-      "brent": -0.081,
-      "bist100": 0.059
+      "vix": -0.228,
+      "usdtry": -0.212,
+      "brent": 0.142,
+      "bist100": 0.063
     },
     "prices": {
-      "usdtry": 45.347999572753906,
-      "brent": 105.27999877929688,
-      "vix": 17.93000030517578,
-      "bist100": 14641.5595703125
+      "usdtry": 45.540000915527344,
+      "brent": 106.45999908447266,
+      "vix": 17.260000228881836,
+      "bist100": 14644.7001953125
     },
-    "data_date": "2026-05-14"
+    "data_date": "2026-05-15",
+    "cds_src": "P"
   },
   "kap_news": {
-    "fetched_at": "2026-05-14T13:57:10.904810+00:00",
+    "fetched_at": "2026-05-15T00:48:32.030271+00:00",
     "source_used": "gnews",
     "coverage_hours": 24,
     "total": 4,
     "items": [
       {
-        "source": "gnews:Rota Borsa",
-        "ticker": "AKSEN",
-        "title": "Aksa Enerji (AKSEN) 2026 yılı temettü kararını açıkladı - Rota Borsa",
-        "published": "2026-05-13T15:54:15+00:00",
-        "category": "IMPORTANT",
-        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPUlRHODRJSVIzTHd2UDFvZlRFd09xSUJObzlSWmlYYmgwRmNTMFZtSVV4RkxwX3ZKYmNWYUgxUXRTQVdaV0hZQWdfVlNWTEVJczZGRnJKbmQxc0FZOWNwWWRkR3BwUWRGUUNNN1Z3U0Y4RGJhVDlUV2lwdmJ5Z3hGVFdB?oc=5"
+        "source": "gnews:getmidas.com",
+        "ticker": "TTKOM",
+        "title": "Göstergeleri al sinyali veren BIST 100 hisseleri hangileri? (14 Mayıs) - getmidas.com",
+        "published": "2026-05-14T08:37:25+00:00",
+        "category": "NOISE",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPOW5DQjVOY2NZVmpzRDlHODVSRFFWeUFMc2owRHY3d1RpdmdjSEpFdElLTVh2X05xcjNGNVVhZjE1SlNZZXFuT0Foc3RkVjBnOEpERVNaTXlhanpYVDhOQ1NnWkp6dGpRVzY0NVZUcUl0S1RWRnYyYnpTUTlUaU03TmxRRjBlZFF6Z3c3dGdvNUlIdjR1VE5zbXEzNHE4TkRkNUVaQm4tUGFId3dPejBZZ2xPOEQ?oc=5"
       },
       {
-        "source": "gnews:Paratic Haber",
-        "ticker": "AKSEN",
-        "title": "Aksa Enerji 3,5 milyar TL kar etti: Temettü dağıtacak mı? - Paratic Haber",
-        "published": "2026-05-13T16:17:15+00:00",
-        "category": "IMPORTANT",
-        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNSE9nUnlYS2p1aVJlUkN0alpWTVRZRDM0N3BZa2x1UDFLazNpMDF1Y3ctbFJXYUotOUNjbko5VHBQQ1hfWjhheE1VejJSVTQyQ2xlTWpEbklmMGFIMkJpMGlKdnBIOVVocFhvbnpLN240aTNuUTFNMXdMajhGYnFPbHpR?oc=5"
+        "source": "gnews:Mynet",
+        "ticker": "TTKOM",
+        "title": "TURK TELEKOM (TTKOM) 15 Mayıs Cuma 2026 Günlük Teknik Analiz - Mynet",
+        "published": "2026-05-14T15:35:00+00:00",
+        "category": "NOISE",
+        "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOZVhCaU4zMkxxbGUzMFNaUlhncUp1QUNuY3I0ZldOUWlHbUZsX2lvd2hqb2tGVTN1Z2wtSWUtbjJKa09zREVqTnRZV0NLZHc3QmduTXZkR01wRndaajFTaUQ2eHpzd0duVmlsZmZoZVZPY0FjMVBVY3QwUmhsMy1OT0pCZU1JSGpmZ2ZHWDl3UDZlQUtjalAxblFtci05bFk?oc=5"
       },
       {
         "source": "gnews:Mynet",
         "ticker": "KCHOL",
-        "title": "KOÇ HOLDİNG (KCHOL) 14 Mayıs Perşembe 2026 Günlük Teknik Analiz - Mynet",
-        "published": "2026-05-13T15:58:00+00:00",
+        "title": "KOÇ HOLDİNG (KCHOL) 15 Mayıs Cuma 2026 Günlük Teknik Analiz - Mynet",
+        "published": "2026-05-14T15:42:00+00:00",
         "category": "NOISE",
-        "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNU0V3MnpST1RqSWU3X1ZyMW4tTXhMYlJFbVF4TTZMeVdUV2hYYi04S2ViQm85WHVYNFRsLWFTRmR2bmdKXzJzeHhPQkhhMU9UeDhGQnlDNGswWDFLUzVwcWR6TkZFLS1TaHk5OHBiM2hqUXBzTnI2akUxa0hTU2I1MVMzdnNUUEVFcmVMS0l5bXlPVzl1OE5zNFhpeEJPVzJYcW5N?oc=5"
+        "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOQzhEX2xaamR6cUp5SzNYMGxsOWlSWHNlZWFNdGpuVXJFeUdTSlFmdTF1TWhVejl6ZURIbnRtbHJQMG9CT3IxaFhkWExIdVQydEx3NklEMTFKaUFjZV9wUm84eE5EdFRObF9OMnlkd3B4N3hZYmxKTXdER3JDSEZOei12QzUxZk43RXJGS2V3MU5KazhZSHhMLUpFNTRMQQ?oc=5"
       },
       {
         "source": "gnews:Mynet",
         "ticker": "TAVHL",
-        "title": "TAV HAVALIMANLARI (TAVHL) 14 Mayıs Perşembe 2026 Günlük Teknik Analiz - Mynet",
-        "published": "2026-05-13T16:39:00+00:00",
+        "title": "TAV HAVALIMANLARI (TAVHL) 15 Mayıs Cuma 2026 Günlük Teknik Analiz - Mynet",
+        "published": "2026-05-14T16:05:00+00:00",
         "category": "NOISE",
-        "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOZHNUZjRqZ0VTd3dfN0dxVEFUeTR2WVh3MHRRNEFoSlRGYk5hWDBqdDdvYm9HWjR6WllDSjRSVEJVdU9Xbmp5NElyaUVsR0JpMzFXaUgzd1VHLUJDNDlQNnBUOXMzQ1c0eXNwQk4xLVgtVzRIamQwSFBrNkc4TzJ0S2dlNHpicGdvMXdNWHFwREhJdDdCMVZXRkJkcW9ObjJBcElxVTRMdkZPMTA?oc=5"
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQeEpKUUtldnp4dEVPRzBiOEFwNHRYU2R5eUVIQ1BzY29qSGM0Vl9WZVc2RnRaRGdtMG9lYVd5NlJ5LXpHQUNoZUN3cko1a05KRWs1ZG5vaE93SFBIeENPU1lVZHVqalhuMFh0d2wzWU4tNTUyOUN1UzdTR0QwWGxyMVhxUWFTdWIwOUcyMU5sMGRTQkY3bTJzYS1aY3QzcHhfdmJGUTBR?oc=5"
       }
     ]
+  },
+  "sentiment_summary": {
+    "avg_score": 64.3,
+    "bullish_tickers": [
+      "AKSEN",
+      "TTKOM"
+    ],
+    "bearish_tickers": [],
+    "neutral_tickers": [
+      "TAVHL",
+      "KCHOL",
+      "ENERY"
+    ],
+    "total_tickers": 5
   },
   "sector_performance": {},
   "alerts": []

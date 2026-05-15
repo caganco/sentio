@@ -22,7 +22,10 @@ from src.signals.macro_alignment import MacroAlignmentCalculator
 from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.risk.kelly import KellySizer
+from src.risk.drawdown import DrawdownTracker
+from src.signals.layers.smart_money_layer import SmartMoneyLayer
 from src.signals.sentiment.sentiment_signal import SentimentSignal
+from src.data.smart_money_client import BorsaSettlementClient, SmartMoneyCache
 from src.utils.config import load_config
 from src.utils.logger import setup_logger
 from src.utils.os_state_manager import OSStateManager
@@ -259,11 +262,38 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         except Exception as e:
             logger.warning("Sentiment batch failed: %s", e)
 
+        # --- Smart Money (Layer 5) batch for portfolio positions ---
+        institutional_flows: dict = {}
+        smart_money_cache = SmartMoneyCache()
+        try:
+            borsa_client = BorsaSettlementClient()
+            borsa_flows = borsa_client.fetch_settlement_report()
+            logger.info("Smart Money: Fetched institutional flows for %d tickers", len(borsa_flows))
+
+            # Store in cache and prepare for analysis
+            for ticker, flow in borsa_flows.items():
+                smart_money_cache.update_flow(ticker, flow.get("net_pct", 0.0))
+                institutional_flows[ticker] = flow
+        except Exception as e:
+            logger.warning("Smart Money: Institutional flow fetch failed: %s", e)
+
         portfolio_data = []
         kelly_sizer = KellySizer(portfolio_value_pct=100.0, kelly_fraction=0.25)
         current_positions = {}
 
+        # Initialize drawdown tracker with portfolio total value
+        portfolio_total_value = summary.get("total_value", 0)
+        drawdown_tracker = DrawdownTracker(initial_portfolio_value=portfolio_total_value if portfolio_total_value > 0 else 100000)
+
         for a in analyses:
+            # Update drawdown tracking
+            if a.current_price is not None and a.current_price > 0:
+                drawdown_tracker.update_position(
+                    ticker=a.ticker,
+                    current_price=a.current_price,
+                    entry_price=a.avg_cost
+                )
+
             position = {
                 "ticker": a.ticker,
                 "sector": get_sector(a.ticker),
@@ -280,17 +310,48 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 "alerts": [{"severity": al.severity, "message": al.message} for al in a.alerts],
             }
 
+            # Add drawdown data if available
+            if a.ticker in drawdown_tracker.position_drawdowns:
+                pd = drawdown_tracker.position_drawdowns[a.ticker]
+                position["drawdown"] = {
+                    "drawdown_pct": round(pd.peak_to_current_dd * 100, 2),
+                    "peak_price": round(pd.peak_price, 2),
+                    "alert_level": pd.get_drawdown_level(),
+                    "max_dd_ever_pct": round(pd.max_dd_ever * 100, 2),
+                }
+
             # Add sentiment data if available
             if a.ticker in sentiment_scores:
                 sent = sentiment_scores[a.ticker]
                 position["sentiment"] = {
-                    "score": sent.get("score"),
-                    "normalized": sent.get("normalized"),
-                    "confidence": sent.get("confidence"),
+                    "score": round(sent.get("score"), 2) if sent.get("score") is not None else None,
+                    "normalized": round(sent.get("normalized"), 2) if sent.get("normalized") is not None else None,
+                    "confidence": round(sent.get("confidence"), 2) if sent.get("confidence") is not None else None,
                     "bullish_count": sent.get("bullish_count", 0),
                     "bearish_count": sent.get("bearish_count", 0),
                     "article_count": sent.get("article_count", 0),
                     "source": sent.get("source"),
+                }
+
+            # Add smart money data if available
+            if a.ticker in institutional_flows:
+                sm_layer = SmartMoneyLayer()
+                inst_flow = institutional_flows[a.ticker]
+                smart_money_signal = sm_layer.calculate_score(a.ticker, inst_flow)
+
+                # Calculate 3-day trend if available
+                daily_flows = smart_money_cache.get_history(a.ticker)
+                trend = None
+                if len(daily_flows) >= 3:
+                    trend = sm_layer.calculate_3day_trend(a.ticker, [{"net_pct": pct} for pct in daily_flows[-3:]])
+
+                position["smart_money"] = {
+                    "score": round(smart_money_signal.score, 3),
+                    "confidence": round(smart_money_signal.confidence, 2),
+                    "institutional_net_pct": round(smart_money_signal.institutional_net_pct * 100, 2),
+                    "trend": trend["direction"] if trend else None,
+                    "trend_3day_avg_pct": round(trend["avg_3day"] * 100, 2) if trend else None,
+                    "source": smart_money_signal.source,
                 }
 
             # Add macro alignment if all macro data available
@@ -311,6 +372,12 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 }
 
             portfolio_data.append(position)
+
+        # Update portfolio drawdown and check circuit breaker
+        drawdown_tracker.update_portfolio(current_value=portfolio_total_value)
+        portfolio_drawdown_alerts = drawdown_tracker.get_all_alerts()
+        if portfolio_drawdown_alerts:
+            logger.warning(f"Drawdown alerts: {portfolio_drawdown_alerts}")
 
         momentum_top5 = []
         momentum_top10 = []
@@ -392,6 +459,13 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 "max_position_size": risk_cfg.get("max_position_size", 0.15),
             },
             "portfolio": portfolio_data,
+            "portfolio_drawdown": {
+                "drawdown_pct": round(drawdown_tracker.portfolio_dd.portfolio_dd * 100, 2),
+                "peak_value": round(drawdown_tracker.portfolio_dd.peak_value, 2),
+                "current_value": round(drawdown_tracker.portfolio_dd.current_value, 2),
+                "mode": drawdown_tracker.portfolio_mode,
+                "circuit_breaker_triggered": drawdown_tracker.portfolio_dd.circuit_breaker_triggered,
+            },
             "momentum_top5": momentum_top5,
             "filtered_signals": filtered_signals,  # pre-filtered for agent pipeline
             "macro_data": macro_data,
@@ -466,6 +540,8 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 "sector_ratings": "N/A",
             },
             "portfolio_positions": portfolio_data,
+            "portfolio_drawdown": briefing.get("portfolio_drawdown", {}),
+            "portfolio_mode": drawdown_tracker.portfolio_mode,
             "momentum_top5": briefing.get("momentum_top5", []),
             "momentum_top10": momentum_top10,
             "kelly_sizing": kelly_sizing,

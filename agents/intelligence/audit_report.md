@@ -1,93 +1,81 @@
 # Audit Report
 
-# === AUDIT REPORT — 2026-05-13 ===
+# === AUDIT REPORT — 2024 Q[X] DENETİM ===
+
+## ⚠️ KRİTİK BULGULAR: ANALYST SİSTEMATİK HATALARI TESPİT EDİLDİ
 
 ---
 
-## 🚨 ANALİST SİNYALLERİ DEĞERLENDİRMESİ
+## 1️⃣ ANALİST SİNYALLERİ DEĞERLENDİRMESİ
 
-### 1. **ENERY — SELL-STRONG** ⚠️ **ONAYLANDI (Koşullu)**
-**Risk Skoru: 5/25** (Likidite-4, Konsantrasyon-5, Makro-5, Şirket-2, Timing-4)
-
-✅ **Thesis Kırma Başarılı:**
-- Konsantrasyon sorunu gerçek: %54.6 → %41.5 (hâlâ yüksek ama adım doğru)
-- RSI 46 = momentum kaybı + Brent -0.40% günlük = enerji sektörüne rüzgâr yok
-- -2.1% P&L **temiz çıkış fırsat**, delay riski >5% drawdown
-
-⚠️ **RED FLAGI:**
-- **Likidite sorgusu:** ENERY günlük ortalama hacim nedir? 1543 lot tek satış 1-2 blok içinde mi? Slippage riski göz ardı edilmiş.
-- **Timing şüphesi:** Brent 107$ "yüksek" ama -0.40% günlük = **analyst pozisyon kapatmak için makroyu okumayı tersyüz etmiş midir?** (Brent sağlamken neden çık?)
-- **Enerji sektörü %41.5 kalıp % 30'a inmemesi:** AKSEN +200 lot satılmıyor iken neden ENERY tüm pozisyon?
-
-**Verdict:** ✅ **ONAYLANDI AMA koşullu:**
-- Önce günlük hacim profili + spread check et
-- Sabah açılışta 2 lot test order ile slippage ölç
-- Brent 106$ altına düşerse, agresif satış yerine tranche'e böl (500+500+543)
-
----
-
-### 2. **AKSEN — HOLD (Azaltma Hazırlığı)** 🟡 **UYARI: Thesis Tutarsızlık**
-**Risk Skoru: 4/25** (Likidite-2, Konsantrasyon-5, Makro-3, Şirket-3, Timing-3)
-
-⚠️ **Mantık Çelişkisi (Kritik):**
-- Analyst: "Enerji konsantrasyonu %54.6 limitü aşıyor → ENERY sat"
-- Ardından: "AKSEN'de %30 limitine uymak için 150-200 lot azaltma yapılmalı **ama bugün değil**"
-- **Problem:** ENERY satılırsa AKSEN'in portföy ağırlığı ARTAR (nakit artar), enerji sektörü yine %41.5 (!)
+### 🔴 **AKENR | SELL | RSI 89 Extreme Overbought**
+- **Risk Skoru: 18/25** (Likidite 4 | Konsantrasyon 4 | Makro 3 | Şirket 3 | Timing 4)
+- **Karar: REDDEDİLDİ — Eksik Bağlam**
   
-  ```
-  Bugün enerji = 54.6%
-  ENERY sat → enerji = 41.5% (sadece AKSEN)
-  Nakit = 32% 
+  **Thesis Kırma:**
+  - RSI 89 tek başına satış sinyali değildir. AAPL, TSLA gibi büyüme hisseleri 6+ ay RSI >75'te kalabilir.
+  - "42.6% rally" *zamanlaması* kritik: Son 10 gün mi, 3 ay mı? Momentum ivmesi hızlanmıyor mu (trend devam)?
+  - **Worst-case:** RSI 89 iken %5 daha yükselip, sonra -30% correctionda satış yapılırsa → -35% down hareket kaybı + slippage.
+  - **Makro bağlamı yok:** Analyst "TRANSITION regime does not justify" diyor ama Brent 106 (raporda belirtilen) enerji sektörü destekliyor!
   
-  AKSEN ₺82.50 altında 200 lot SAT → Ne olur?
-  AKSEN'in ağırlığı daha azalır AMA Brent hâlâ 107$!
+  **Gerekçe:** HIGH conviction çok agresif. Recommendation → **HOLD + Trailing Stop %8 (Fibonacci)** veya kısa pozisyonda %5 risk limitli.
+  - **Stop-loss kontrol:** Raporda stop level = 0 → **UYGULAMA HATASINA NEDEN OLUR.**
+
+---
+
+### 🟡 **TAVHL | WATCH | -19.5% Momentum Ama Oversold (RSI 34)**
+- **Risk Skoru: 22/25** (Likidite 5 | Konsantrasyon 2 | Makro 5 | Şirket 3 | Timing 5) ⚠️⚠️
+- **Karar: KISMEN ONAYLANDI — Ama Portföy İçin KRİTİK RİSK**
+  
+  **Thesis Kırma:**
+  - TRY weakness burada **NET POZITIF olabilir:** TAVHL döviz geliri (turist doları, havayolu depo gelirleri). TRY zayıfsa *gerçek fiyat* stability iyileşir.
+  - Analyst "tourism sector hurt by TRY weakness" diyor → **MANTIK HATASI.** TRY zayıf = USD turist geliri ↑.
+  - RSI 34 oversold = Base oluşma zamanı → "wait for base" doğru ama *itibaren* ne zaman? 2 hafta mı, ay mı?
+  
+  **Portföy Bağlamı:** TAVHL **68@₺286.50 = ₺19.5K pozisyon (11.5% portföy)**
+  - Çift konsantrasyon riski: TAVHL + AKSEN (enerji/transport) = sektör correlation 0.68+
+  - **Worst-case (jeopolitik kriz):** -30% = -₺5.9K (portföyden -3.5%) + AKSEN -20% = kombine -₺6.5K drawdown.
+  
+  **Gerekçe:** WATCH doğru, ama "base" bekleme = **pas geçme riski.** Daha iyi rec: **Kademeli satış başı %50 pozisyon (₺9.7K) + %30 seviyesi yeni entry.** Stop-loss = **-15% (₺242.5) kesinleştirilsin.**
+
+---
+
+### 🟢 **TKFEN | HOLD | +20.1% Ama "Thin Conviction" (0.3x Vol)**
+- **Risk Skoru: 16/25** (Likidite 3 | Konsantrasyon 2 | Makro 3 | Şirket 4 | Timing 4)
+- **Karar: ONAYLANDI + AYDINTLANMA GEREKLİ**
+  
+  **Thesis Kırma — Analyst Doğru Yaklaşmış:**
+  - Thin volume **BUY sinyali değil, EXIT RİSKİ:** %20 gain ↓ satıldığında sıvılaştırma maliyeti 2-3% olabilir.
+  - "Contracting exposure benefits from high oil" → **Tam tersi:** Contractor marj kompression, inflation costs ↑.
+  
+  **Worst-case:** Brent %15 düşerse (100→85) + TCMB tightening → contractor demand ↓ + cost inflation → -25% risk.
+  
+  **Gerekçe:** HOLD doğru ama *passif.* Daha iyi rec: **REDUCE %50 (thin vol nedeniyle) + Trailing Stop 12% (kazançtan).**
+
+---
+
+### 🔴 **ISGYO | WATCH | High Vol 2.8x + Flat Price = Distribution**
+- **Risk Skoru: 19/25** (Likidite 4 | Konsantrasyon 2 | Makro 5 | Şirket 3 | Timing 5)
+- **Karar: ONAYLANDI — Analyst Vol Profilesi Doğru**
+  
+  **Volume Analysis:**
+  - 2.8x vol + flat price = klassik distribution (smart money exit).
+  - REIT sector: TCMB tightening → hurdle rates ↑ → NAV compression doğru.
+  
+  **Gerekçe:** WATCH ✅ Ama daha agresif rec: **SHORT avansı (margin) varsa, -₺[X] stop ile kısa pozisyon + %12 carry hedging amaçlı.**
+
+---
+
+### 🟡 **AKSEN | HOLD | "Treading Water" — Ancak Portföy'ün %26'si**
+- **Risk Skoru: 14/25** (Likidite 3 | Konsantrasyon 5⚠️ | Makro 3 | Şirket 2 | Timing 3)
+- **Karar: DEĞIŞTIRILDI — OVER-ALLOCATION RİSKİ**
+  
+  **Thesis Kırma:**
+  - "No catalyst" = analyst kameraya ait. Ama **₺87.59@591 hisseler = portföy'ün KALBI.**
+  - TRANSITION regime: makro riski orta, ama **AKSEN + TAVHL + TKFEN = sektör konsantrasyon 50%+ = SİSTEMATİK RİSK.**
+  - Analyst "flat returns" diyor, ama PİYASA nötr iken tutmanın riski = alternatif taşıma (carry trade, dış piyasa).
+  
+  **Worst-case:** TCMB faiz artışı %2 (500bps yol gösterme) → enerji port demand ↓ + valuation compression → -20% + liquidity dry-up → sızma riski.
+  
+  **Gerekçe:** HOLD **CANCEL.** Yeni rec:
   ```
-
-✅ **Doğru Kısım:**
-- RSI 55 sağlıklı, Brent destekleyici = HOLD geçerli
-- ₺82.50 stop mantıklı (1w low 85'in altı)
-
-**Verdict:** 🟡 **HOLD ONAYLANDI AMA Azaltma Mantığı Revizyona Muhtaç:**
-- ENERY satışından sonra enerji sektörü hedefini NET tanımla: %30 mi %35 mi?
-- Hedef %30 ise → AKSEN 200-250 lot SAT aynı anda TTKOM/BIMAS ekle
-- Hedef %35 ise → AKSEN hold, enerji ağırlığı kabul edilebilir
-- **Önerilen aksiyon:** AKSEN'e ₺82.50 hard stop gir + ₺88 / ₺90 partial sell limit (200 lot @₺88, 150 lot @₺90)
-
----
-
-### 3. **TTKOM — BUY-WEAK** ✅ **ONAYLANDI**
-**Risk Skoru: 2/25** (Likidite-1, Konsantrasyon-2, Makro-2, Şirket-2, Timing-2)
-
-✅ **Thesis Solid:**
-- RSI 51 = ideal entry (oversolded değil, toparlama alanı var)
-- Defansif karakter + nakit akışı = TL varlıkta güvenli
-- P&L +5.1% sağlıklı trend
-- ₺62.50 entry / ₺68 hedef = %8 upside kabul edilebilir
-- Stop ₺59 = %4.5 downside (R/R iyi)
-
-⚠️ **Küçük Sorgu:**
-- 50 lot ekleme mi 100 lot? ENERY satışı ~₺13.7K yaratır, TTKOM 50 lot = ₺3.15K sadece
-- **Nakit kullanım oranı düşük.** BIMAS'ın yanında TTKOM'a 100 lot koyup BIMAS'ı 8-10 lot yapabilirsin
-
-**Verdict:** ✅ **ONAYLANDI, 50 LOT OKEY AMA 100 LOT DÜŞÜNÜLEBİLİR**
-
----
-
-### 4. **TAVHL — SELL-WEAK** ✅ **ONAYLANDI**
-**Risk Skoru: 4/25** (Likidite-2, Konsantrasyon-4, Makro-3, Şirket-3, Timing-4)
-
-✅ **Thesis Güçlü:**
-- RSI 34 = momentum kaybı ciddi (30 altı "aşırı satım" değil, **trendinin kırıldı** demek)
-- -6.9% P&L = trend kırılması sinyali (5%+ düşüş genelde recovery bekler ama TAVHL trend değişti)
-- Havacılık sektörü "cold" = global risk appetite kaybı endişe (Brent düşüşüyle tutarlı)
-- ₺260 stop mantıklı = 2w low'un altı
-
-⚠️ **Worst-Case Check:**
-- TAVHL ₺270 (bugünkü) → ₺260 stop tetiklenirse = -%3.7
-- Toplam P&L = -6.9% - 3.7% = -10.6% (makul, ama stop geç gelmişse?)
-- **Havacılık black swan:** Jeopolitik kriz + Brent hızlı düşüş = ₺250'ye kadar hızlı düşüş
-
-**Verdict:** ✅ **ONAYLANDI, UYGULANMALI:**
-- ₺260 hard stop gir hemen
-- Yarın açılışta ₺280+ bounce olursa %50 satış yap (34 lot, ~₺9.5K)
-- RSI 30 altına düşerse tüm pozisyon

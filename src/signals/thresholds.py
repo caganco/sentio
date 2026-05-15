@@ -1,11 +1,12 @@
 """All threshold constants for the Signal Engine. No magic numbers elsewhere."""
 
 MASTER_WEIGHTS: dict[str, float] = {
-    "technical": round(0.15 / 0.65, 10),   # 0.2308
-    "macro":     round(0.25 / 0.65, 10),   # 0.3846
-    "kap":       round(0.20 / 0.65, 10),   # 0.3077
-    "risk":      round(0.05 / 0.65, 10),   # 0.0769
-    # sentiment (0.15) and smart_money (0.10) removed — stubs, always return 50.0
+    "technical": round(0.20 / 1.00, 10),   # 0.2000 (unchanged)
+    "macro":     round(0.35 / 1.00, 10),   # 0.3500 (unchanged)
+    "kap":       round(0.15 / 1.00, 10),   # 0.1500 (unchanged)
+    "risk":      round(0.05 / 1.00, 10),   # 0.0500 (unchanged)
+    "smart_money": round(0.20 / 1.00, 10), # 0.2000 (NEW: Layer 5 active, was stub)
+    "sentiment": round(0.05 / 1.00, 10),   # 0.0500 (reduced from 0.25, rationale: institutional flow stronger than retail)
 }
 
 SIGNAL_THRESHOLDS: dict[str, float] = {

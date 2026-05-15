@@ -168,7 +168,8 @@
     "sector": "Gayrimenkul"
   },
   "TTKOM": {
-    "sector": "Telekomünikasyon"
+    "sector": "Telekomünikasyon",
+    "sector_context": "Defansif sektör. Makro belirsizlikte değerli. TCMB kararları faiz duyarlılığı — yüksek oranlar maliyeti artırır."
   },
   "TUPRS": {
     "sector": "Petrokimya",

@@ -7,6 +7,8 @@ from datetime import date, datetime, timezone
 from src.signals.layers.kap_layer import score_kap
 from src.signals.layers.macro_layer import score_macro
 from src.signals.layers.risk_layer import detect_regime, score_risk
+from src.signals.layers.sentiment_layer import score_sentiment
+from src.signals.layers.smart_money_layer import SmartMoneyLayer
 from src.signals.layers.technical_layer import score_technical
 from src.signals.models import (
     AuditTrail,
@@ -199,8 +201,28 @@ def compute_signal(
         weight=_w("risk"), detail=risk_ls.detail, source=risk_ls.source,
     )
 
+    sentiment_ls = score_sentiment(symbol)
+    sentiment_ls = LayerScore(
+        layer=sentiment_ls.layer, score=sentiment_ls.score, confidence=sentiment_ls.confidence,
+        weight=_w("sentiment"), detail=sentiment_ls.detail, source=sentiment_ls.source,
+    )
+
+    # Smart Money (Layer 5): Institutional flow detection
+    # For now: stub (return neutral, weight is 0.20)
+    # In daily_update.py: will be populated with real institutional flow data
+    smart_money_layer = SmartMoneyLayer()
+    smart_money_signal = smart_money_layer.calculate_score(symbol, None)  # None = no data yet
+    smart_money_ls = LayerScore(
+        layer="smart_money",
+        score=smart_money_signal.score * 100,  # Convert from [0,1] to [0,100]
+        confidence=smart_money_signal.confidence,
+        weight=_w("smart_money"),
+        detail={"institutional_net_pct": smart_money_signal.institutional_net_pct, "trend": smart_money_signal.trend},
+        source="stub"  # Will become "borsa" or "halk_yatirim" in daily_update
+    )
+
     layer_scores: list[LayerScore] = [
-        tech_ls, macro_ls, kap_ls, risk_ls
+        tech_ls, macro_ls, kap_ls, risk_ls, smart_money_ls, sentiment_ls
     ]
 
     weighted_sum = _compute_weighted_sum(layer_scores)
