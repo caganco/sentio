@@ -239,6 +239,71 @@ def test_system_prompt_file_loadable():
     assert len(content) > 50, "System prompt too short"
 
 
+# ---------------------------------------------------------------------------
+# Sentiment encoding tests
+# ---------------------------------------------------------------------------
+
+def test_enc_sentiment_bullish():
+    mod = _load_module()
+    assert mod._enc_sentiment(65) == "B+"
+    assert mod._enc_sentiment(100) == "B+"
+
+
+def test_enc_sentiment_bearish():
+    mod = _load_module()
+    assert mod._enc_sentiment(35) == "B-"
+    assert mod._enc_sentiment(0) == "B-"
+
+
+def test_enc_sentiment_neutral():
+    mod = _load_module()
+    assert mod._enc_sentiment(50) == "N"
+    assert mod._enc_sentiment(55) == "N"
+    assert mod._enc_sentiment(None) == "N"
+    assert mod._enc_sentiment("bad") == "N"
+
+
+def test_build_user_message_includes_sentiment_summary():
+    mod = _load_module()
+    report = {
+        **_VALID_REPORT,
+        "sentiment_summary": {
+            "avg_score": 62.0,
+            "bullish_tickers": ["AKBNK"],
+            "bearish_tickers": [],
+            "neutral_tickers": [],
+        },
+        "sentiment_scores": {},
+    }
+    msg = mod._build_user_message(report)
+    assert "SENTIMENT" in msg
+    assert "62.0" in msg
+    assert "AKBNK" in msg
+
+
+def test_build_user_message_sentiment_per_position():
+    mod = _load_module()
+    report = {
+        **_VALID_REPORT,
+        "portfolio_positions": [
+            {"ticker": "AKBNK", "sector": "Bankacılık", "unrealized_pnl_pct": 3.0,
+             "rsi": 60, "alerts": []},
+        ],
+        "sentiment_scores": {
+            "AKBNK": {"score": 70, "article_count": 5, "source": "computed"},
+        },
+    }
+    msg = mod._build_user_message(report)
+    assert "sent=B+(5art)" in msg
+
+
+def test_build_user_message_no_sentiment_no_section():
+    mod = _load_module()
+    report = {**_VALID_REPORT}
+    msg = mod._build_user_message(report)
+    assert "SENTIMENT" not in msg
+
+
 def test_system_prompt_borsa_focus():
     prompt_path = (
         Path(__file__).parent.parent / "agents" / "prompts" / "strategist_system_prompt.txt"

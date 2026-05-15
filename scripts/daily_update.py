@@ -21,6 +21,8 @@ from src.signals.macro_signals import generate_macro_signal, save_signal_json
 from src.signals.macro_alignment import MacroAlignmentCalculator
 from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
+from src.risk.kelly import KellySizer
+from src.signals.sentiment.sentiment_signal import SentimentSignal
 from src.utils.config import load_config
 from src.utils.logger import setup_logger
 from src.utils.os_state_manager import OSStateManager
@@ -247,7 +249,20 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             "cds": macro_data.get("cds") if macro_data else None,
         }
 
+        # --- Sentiment batch for portfolio positions ---
+        _pos_ticker_list = list(positions.keys()) if isinstance(positions, dict) else [p["ticker"] for p in positions]
+        sentiment_scores: dict = {}
+        try:
+            _sentiment_signal = SentimentSignal()
+            sentiment_scores = _sentiment_signal.batch_calculate(_pos_ticker_list, days=7)
+            logger.info("Sentiment batch calculated for %d tickers", len(sentiment_scores))
+        except Exception as e:
+            logger.warning("Sentiment batch failed: %s", e)
+
         portfolio_data = []
+        kelly_sizer = KellySizer(portfolio_value_pct=100.0, kelly_fraction=0.25)
+        current_positions = {}
+
         for a in analyses:
             position = {
                 "ticker": a.ticker,
@@ -265,6 +280,19 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 "alerts": [{"severity": al.severity, "message": al.message} for al in a.alerts],
             }
 
+            # Add sentiment data if available
+            if a.ticker in sentiment_scores:
+                sent = sentiment_scores[a.ticker]
+                position["sentiment"] = {
+                    "score": sent.get("score"),
+                    "normalized": sent.get("normalized"),
+                    "confidence": sent.get("confidence"),
+                    "bullish_count": sent.get("bullish_count", 0),
+                    "bearish_count": sent.get("bearish_count", 0),
+                    "article_count": sent.get("article_count", 0),
+                    "source": sent.get("source"),
+                }
+
             # Add macro alignment if all macro data available
             if all(macro_state.values()):
                 alignment = calculator.calculate_alignment(a.ticker, macro_state)
@@ -272,6 +300,14 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "score": alignment["alignment_score"],
                     "direction": alignment["alignment_direction"],
                     "narrative": alignment["narrative"],
+                }
+
+            # Track current position for Kelly sizing
+            if a.current_price is not None and a.current_price > 0:
+                position_pct = (a.quantity * a.current_price) / summary["total_value"] if summary["total_value"] > 0 else 0
+                current_positions[a.ticker] = {
+                    "size": position_pct,
+                    "pnl_pct": a.unrealized_pnl_pct if a.unrealized_pnl_pct is not None else 0,
                 }
 
             portfolio_data.append(position)
@@ -328,6 +364,26 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 "cds_src": cds_src,  # R=real (primary scraping), P=proxy (iShares estimated)
             }
 
+        # Build portfolio-level sentiment summary
+        sentiment_summary: dict = {}
+        if sentiment_scores:
+            bullish_tickers = [t for t, s in sentiment_scores.items() if s.get("score", 50) > 60]
+            bearish_tickers = [t for t, s in sentiment_scores.items() if s.get("score", 50) < 40]
+            avg_sentiment = (
+                sum(s.get("score", 50) for s in sentiment_scores.values()) / len(sentiment_scores)
+                if sentiment_scores else 50.0
+            )
+            sentiment_summary = {
+                "avg_score": round(avg_sentiment, 1),
+                "bullish_tickers": bullish_tickers,
+                "bearish_tickers": bearish_tickers,
+                "neutral_tickers": [
+                    t for t in sentiment_scores
+                    if t not in bullish_tickers and t not in bearish_tickers
+                ],
+                "total_tickers": len(sentiment_scores),
+            }
+
         briefing = {
             "date": str(_date.today()),
             "bist100": 0,
@@ -341,6 +397,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             "macro_data": macro_data,
             "macro_snapshot": macro_snapshot_section,
             "kap_news": kap_news,
+            "sentiment_summary": sentiment_summary,
             "sector_performance": {},
             "alerts": [{"severity": al.severity, "ticker": al.ticker, "message": al.message} for al in all_alerts],
         }
@@ -352,6 +409,38 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         kap_total = kap_news.get("total", 0)
         print(f"  Briefing  : {briefing_path}")
         print(f"  KAP News  : {kap_total} item(s) via {kap_src}\n")
+
+        # --- Kelly Criterion Position Sizing ---
+        kelly_sizing = {}
+        vix_val = macro_data.get("vix") if isinstance(macro_data, dict) else None
+        for a in analyses:
+            try:
+                # Build minimal signal data for Kelly sizing
+                overall_score = (briefing["macro_snapshot"].get("macro_environment_score", 0) + 1) * 0.5
+                signal_data = {
+                    "overall_score": overall_score,
+                    "signals": {
+                        "tech": {"score": 0.5 + (a.rsi - 50) / 100 if a.rsi else 0.5, "weight": 0.20},
+                        "macro": {"score": briefing["macro_snapshot"].get("macro_environment_score", 0) * 0.5 + 0.5, "weight": 0.333},
+                        "kap": {"score": 0.5, "weight": 0.267},
+                        "risk": {"score": 0.5, "weight": 0.067},
+                    },
+                    "stop_loss_pct": 0.05,
+                    "vix": vix_val or 17,
+                }
+                kelly_result = kelly_sizer.size_position(a.ticker, signal_data, current_positions)
+                kelly_sizing[a.ticker] = {
+                    "conviction": kelly_result["conviction"],
+                    "current_size_pct": round(kelly_result["current_size_pct"] * 100, 2),
+                    "recommended_size_pct": round(kelly_result["recommended_size_pct"] * 100, 2),
+                    "kelly_pct": round(kelly_result["kelly_pct"], 2),
+                    "kelly_fractional_pct": round(kelly_result["kelly_fractional_pct"], 2),
+                    "win_probability": round(kelly_result["win_probability"], 3),
+                    "action": kelly_result["action"],
+                }
+            except Exception as e:
+                logger.debug(f"Kelly sizing failed for {a.ticker}: {e}")
+                kelly_sizing[a.ticker] = {"error": str(e)}
 
         # --- Strategist Agent ---
         strategist_notes = "(Strategist analysis unavailable)"
@@ -379,6 +468,9 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             "portfolio_positions": portfolio_data,
             "momentum_top5": briefing.get("momentum_top5", []),
             "momentum_top10": momentum_top10,
+            "kelly_sizing": kelly_sizing,
+            "sentiment_scores": sentiment_scores,
+            "sentiment_summary": sentiment_summary,
         }
         try:
             strategist = StrategistAgent(timeout=60)

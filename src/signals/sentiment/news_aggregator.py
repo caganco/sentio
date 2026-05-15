@@ -1,0 +1,208 @@
+"""News aggregation and sentiment calculation for tickers."""
+
+import json
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+# BIST tickers map to Yahoo Finance suffix
+_BIST_SUFFIX = ".IS"
+
+# How many days old a news article can be before we treat it as missing
+_MAX_ARTICLE_AGE_DAYS = 30
+
+
+class NewsAggregator:
+    """Fetch and aggregate news articles with sentiment."""
+
+    def __init__(self, cache_file: str = "data/sentiment_cache.json"):
+        self.cache_file = Path(cache_file)
+        self.cache = self._load_cache()
+        self.cache_ttl = 12 * 3600  # 12 hours in seconds
+
+    def _load_cache(self) -> Dict:
+        if not self.cache_file.exists():
+            return {}
+        try:
+            with open(self.cache_file) as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"Failed to load cache: {e}")
+            return {}
+
+    def _save_cache(self) -> None:
+        try:
+            self.cache_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.cache_file, "w") as f:
+                json.dump(self.cache, f, indent=2)
+        except Exception as e:
+            logger.warning(f"Failed to save cache: {e}")
+
+    def _is_cache_valid(self, ticker: str) -> bool:
+        if ticker not in self.cache:
+            return False
+        cached = self.cache[ticker]
+        if "timestamp" not in cached:
+            return False
+        age = datetime.now().timestamp() - cached["timestamp"]
+        return age < self.cache_ttl
+
+    def fetch_news(self, ticker: str, days: int = 7) -> List[Dict]:
+        """
+        Fetch news articles for ticker via YahooFinance.
+
+        Falls back to cached articles if the live fetch fails.
+        Returns empty list when no data is available — caller is
+        responsible for handling the "no news" case.
+        """
+        if self._is_cache_valid(ticker):
+            articles = self.cache[ticker].get("articles", [])
+            logger.debug(f"{ticker}: using {len(articles)} cached articles")
+            return articles
+
+        articles = self._fetch_yahoo_news(ticker, days)
+
+        # Persist whatever we got (even empty list) so we don't hammer
+        # Yahoo on every call during a cache-miss storm.
+        self.cache[ticker] = {
+            "articles": articles,
+            "timestamp": datetime.now().timestamp(),
+        }
+        self._save_cache()
+
+        if not articles:
+            logger.warning(f"{ticker}: no news articles from YahooFinance")
+        else:
+            logger.info(f"{ticker}: fetched {len(articles)} articles from YahooFinance")
+
+        return articles
+
+    def _fetch_yahoo_news(self, ticker: str, days: int) -> List[Dict]:
+        """Fetch news from YahooFinance for a BIST ticker."""
+        try:
+            import yfinance as yf
+        except ImportError:
+            logger.error("yfinance not installed; run: pip install yfinance")
+            return []
+
+        yahoo_symbol = ticker + _BIST_SUFFIX
+        cutoff_ts = (datetime.now() - timedelta(days=days)).timestamp()
+
+        try:
+            yf_ticker = yf.Ticker(yahoo_symbol)
+            raw_news = yf_ticker.news or []
+        except Exception as e:
+            logger.warning(f"{ticker}: YahooFinance fetch failed: {e}")
+            return []
+
+        articles: List[Dict] = []
+        for item in raw_news:
+            try:
+                pub_ts = item.get("providerPublishTime") or item.get("publishTime") or 0
+                # yfinance >=0.2 wraps content inside item["content"]
+                if not pub_ts and isinstance(item.get("content"), dict):
+                    import time as _time
+                    pub_date_str = item["content"].get("pubDate", "")
+                    if pub_date_str:
+                        try:
+                            pub_ts = datetime.fromisoformat(
+                                pub_date_str.replace("Z", "+00:00")
+                            ).timestamp()
+                        except ValueError:
+                            pub_ts = 0
+
+                if pub_ts and pub_ts < cutoff_ts:
+                    continue
+
+                # Extract title + summary from either schema variant
+                content = item.get("content", {})
+                if isinstance(content, dict):
+                    title = content.get("title") or item.get("title", "")
+                    summary = content.get("summary") or content.get("description") or ""
+                else:
+                    title = item.get("title", "")
+                    summary = item.get("summary") or item.get("description") or ""
+
+                text = f"{title}. {summary}".strip(". ") if summary else title
+                if not text:
+                    continue
+
+                pub_dt = datetime.fromtimestamp(pub_ts) if pub_ts else datetime.now()
+                articles.append({
+                    "title": title,
+                    "text": text,
+                    "date": pub_dt.isoformat(),
+                    "source": item.get("publisher") or (
+                        content.get("provider", {}).get("displayName", "yahoo")
+                        if isinstance(content, dict) else "yahoo"
+                    ),
+                })
+            except Exception as e:
+                logger.debug(f"{ticker}: skipping malformed news item: {e}")
+                continue
+
+        return articles
+
+    def aggregate_sentiment(self, articles: List[Dict], analyzer) -> Dict:
+        """
+        Calculate aggregate sentiment from articles with recency weighting.
+
+        Returns:
+            score: weighted average sentiment [-1, 1]
+            normalized: [0, 1] (0=bearish, 0.5=neutral, 1=bullish)
+            count: number of articles
+            bullish/bearish: article counts by category
+            articles: per-article score breakdown
+        """
+        if not articles:
+            return {
+                "score": 0.0,
+                "normalized": 0.5,
+                "count": 0,
+                "bullish": 0,
+                "bearish": 0,
+                "articles": [],
+            }
+
+        now = datetime.now().timestamp()
+        article_scores = []
+
+        for article in articles:
+            sentiment = analyzer.analyze_article(article.get("text", ""))
+
+            try:
+                date = datetime.fromisoformat(article.get("date", ""))
+                age_days = (now - date.timestamp()) / 86400
+                weight = 0.9 ** age_days
+            except (ValueError, TypeError):
+                weight = 0.9
+
+            article_scores.append({
+                "score": sentiment,
+                "weighted": sentiment * weight,
+                "weight": weight,
+                "title": article.get("title", ""),
+            })
+
+        total_weight = sum(a["weight"] for a in article_scores)
+        weighted_avg = (
+            sum(a["weighted"] for a in article_scores) / total_weight
+            if total_weight > 0
+            else 0.0
+        )
+
+        bullish_count = sum(1 for a in article_scores if a["score"] > 0.5)
+        bearish_count = sum(1 for a in article_scores if a["score"] < -0.5)
+        normalized = (weighted_avg + 1) / 2
+
+        return {
+            "score": weighted_avg,
+            "normalized": normalized,
+            "count": len(articles),
+            "bullish": bullish_count,
+            "bearish": bearish_count,
+            "articles": article_scores,
+        }

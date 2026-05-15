@@ -172,6 +172,19 @@ class StrategistAgent:
 # Compact user message builder (~400 tokens vs ~1000 before)
 # ---------------------------------------------------------------------------
 
+def _enc_sentiment(score) -> str:
+    """Encode sentiment score: B+=bullish, B-=bearish, N=neutral."""
+    try:
+        s = float(score)
+    except (TypeError, ValueError):
+        return "N"
+    if s > 60:
+        return "B+"
+    if s < 40:
+        return "B-"
+    return "N"
+
+
 def _build_user_message(report_data: dict) -> str:
     macro = report_data.get("macro_data", {})
     signals = report_data.get("signals", {})
@@ -179,6 +192,9 @@ def _build_user_message(report_data: dict) -> str:
     timestamp = report_data.get("timestamp", "unknown")
     portfolio = report_data.get("portfolio_positions", [])
     momentum_top10 = report_data.get("momentum_top10", [])
+    kelly_sizing = report_data.get("kelly_sizing", {})
+    sentiment_scores = report_data.get("sentiment_scores", {})
+    sentiment_summary = report_data.get("sentiment_summary", {})
 
     # Macro
     tcmb = _enc_tcmb(macro.get("tcmb_decision", "N/A"))
@@ -196,7 +212,7 @@ def _build_user_message(report_data: dict) -> str:
 
     lines = [
         f"BIST {timestamp}",
-        "ENC tcmb:H=hold,U=hike,D=cut | ma:BL=bullish,BR=bearish | bc:+=pos,-=neg,~=mix | s:B=bank,E=enrj,T=telekom,H=hold,Av=avia,RE=re",
+        "ENC tcmb:H=hold,U=hike,D=cut | ma:BL=bullish,BR=bearish | bc:+=pos,-=neg,~=mix | s:B=bank,E=enrj,T=telekom,H=hold,Av=avia,RE=re | sent:B+=bullish,B-=bearish,N=neutral",
         f"MACRO tcmb={tcmb} cds={cds} brent={brent} fa={fa}",
         f"SIG rsi5d={rsi5d} ma={ma} breadth={breadth}",
         f"SCORE {overall}/100",
@@ -217,7 +233,32 @@ def _build_user_message(report_data: dict) -> str:
                 parts.append(bc)
             if alert_str:
                 parts.append(f"[{alert_str}]")
+
+            # Add Kelly sizing if available (conviction level + recommended action)
+            if t in kelly_sizing and "error" not in kelly_sizing[t]:
+                kelly = kelly_sizing[t]
+                conviction = kelly.get("conviction", "?")
+                action = kelly.get("action", "?")
+                kelly_pct = kelly.get("kelly_fractional_pct", "?")
+                parts.append(f"kelly={conviction}({kelly_pct}%,{action})")
+
+            # Add sentiment if available (B+=bullish,B-=bearish,N=neutral)
+            if t in sentiment_scores:
+                sent_score = sentiment_scores[t].get("score")
+                sent_articles = sentiment_scores[t].get("article_count", 0)
+                sent_code = _enc_sentiment(sent_score)
+                if sent_articles > 0:
+                    parts.append(f"sent={sent_code}({sent_articles}art)")
+                else:
+                    parts.append("sent=N(0art)")
+
             lines.append(" ".join(parts))
+
+    if sentiment_summary:
+        avg_s = sentiment_summary.get("avg_score", 50)
+        bull_t = ",".join(sentiment_summary.get("bullish_tickers", [])) or "none"
+        bear_t = ",".join(sentiment_summary.get("bearish_tickers", [])) or "none"
+        lines.append(f"SENTIMENT avg={avg_s} bull={bull_t} bear={bear_t}")
 
     if momentum_top10:
         lines.append("MOMENTUM")
