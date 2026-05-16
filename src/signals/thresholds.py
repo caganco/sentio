@@ -136,6 +136,11 @@ MACRO_WEIGHTS_COMPOSITE: dict[str, float] = {
     "bist_foreign_weekly": 0.0,  # Stub (Layer 5 will use daily version)
 }
 
+# Correlation Matrix (Phase 4.3 — portfolio risk / position sizing)
+CORRELATION_WINDOW_DAYS: int = 60       # Rolling window for return correlations
+CORRELATION_MIN_SAMPLES: int = 50       # Samples for full confidence (1.0)
+CORRELATION_CLUSTER_THRESHOLD: float = 0.75  # Min corr to group stocks in a cluster
+
 # Exit and risk alerting thresholds
 EXIT_STOP_LOSS: float = 0.92        # Stop-loss at entry * 0.92 (-8%)
 EXIT_PROFIT_TARGET: float = 1.20    # Profit target at entry * 1.20 (+20%)
