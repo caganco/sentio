@@ -44,32 +44,48 @@ class YahooNewsFetcher:
         self,
         base_url: str = "https://query1.finance.yahoo.com",
         timeout: float = 10.0,
-        max_retries: int = 3,
-        backoff_factor: float = 0.5,
+        max_retries: int = 5,
+        backoff_factor: float = 1.0,
     ):
         """Initialize YahooNewsFetcher with retry logic.
 
         Args:
             base_url: YahooFinance API base URL
             timeout: Request timeout in seconds
-            max_retries: Max retry attempts for failed requests
-            backoff_factor: Exponential backoff multiplier
+            max_retries: Max retry attempts for failed requests (increased from 3 to 5)
+            backoff_factor: Exponential backoff multiplier (increased from 0.5 to 1.0)
         """
         self.base_url = base_url
         self.timeout = timeout
         self.session = self._create_session(max_retries, backoff_factor)
+        self._set_browser_headers()
         self.fetch_success = 0
         self.fetch_failure = 0
 
+    def _set_browser_headers(self):
+        """Set User-Agent to mimic browser (avoid blocking)."""
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                         "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+        }
+        self.session.headers.update(headers)
+
     @staticmethod
     def _create_session(max_retries: int, backoff_factor: float):
-        """Create requests session with retry strategy."""
+        """Create requests session with aggressive retry strategy."""
         session = requests.Session()
         retry_strategy = Retry(
             total=max_retries,
             status_forcelist=[429, 500, 502, 503, 504],
             allowed_methods=["GET"],
             backoff_factor=backoff_factor,
+            raise_on_status=False,  # Don't raise on rate limit, let retry handle it
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session.mount("http://", adapter)
@@ -82,7 +98,7 @@ class YahooNewsFetcher:
         days: int = 7,
         max_articles: int = 10,
     ) -> list[dict]:
-        """Fetch news articles for a ticker from YahooFinance.
+        """Fetch news articles for a ticker using yfinance (D-033: Direct yfinance).
 
         Args:
             ticker: BIST ticker (e.g., "AKSEN")
@@ -96,76 +112,58 @@ class YahooNewsFetcher:
         symbol = f"{ticker}.IS" if not ticker.endswith(".IS") else ticker
 
         try:
-            # YahooFinance news endpoint
-            endpoint = f"{self.base_url}/v10/finance/quoteSummary/{symbol}"
-            params = {
-                "modules": "news",
-                "region": "TR",
-            }
+            import yfinance as yf
 
-            logger.debug(f"Fetching news for {ticker}...")
-            response = self.session.get(
-                endpoint, params=params, timeout=self.timeout
-            )
-            response.raise_for_status()
+            logger.debug(f"Fetching news for {ticker} using yfinance...")
 
-            data = response.json()
+            # Use yfinance Ticker object directly (handles auth better)
+            tk = yf.Ticker(symbol)
+            news_data = tk.news
+
             articles = []
-
-            # Extract news from response
-            if "quoteSummary" in data and "result" in data["quoteSummary"]:
-                result = data["quoteSummary"]["result"]
-                if result and len(result) > 0:
-                    news_section = result[0].get("news", [])
-                    if isinstance(news_section, list):
-                        for item in news_section[:max_articles]:
-                            try:
-                                article = {
-                                    "title": item.get("title", ""),
-                                    "source": item.get("source", "YahooFinance"),
-                                    "link": item.get("link", ""),
-                                    "date": datetime.fromtimestamp(
-                                        item.get("providerPublishTime", 0)
-                                    ).isoformat(),
-                                }
-                                if article["title"]:  # Only add if title exists
-                                    articles.append(article)
-                            except Exception as e:
-                                logger.debug(f"Error parsing article: {e}")
-                                continue
+            if news_data:
+                for item in news_data[:max_articles]:
+                    try:
+                        article = {
+                            "title": item.get("title", ""),
+                            "source": item.get("source", "YahooFinance"),
+                            "link": item.get("link", ""),
+                            "date": datetime.fromtimestamp(
+                                item.get("providerPublishTime", 0)
+                            ).isoformat() if item.get("providerPublishTime") else "",
+                        }
+                        if article["title"]:  # Only add if title exists
+                            articles.append(article)
+                    except Exception as e:
+                        logger.debug(f"Error parsing article: {e}")
+                        continue
 
             if articles:
                 self.fetch_success += 1
-                logger.info(
-                    f"{ticker}: fetched {len(articles)} articles from YahooFinance"
-                )
+                logger.info(f"{ticker}: fetched {len(articles)} articles from yfinance")
             else:
                 self.fetch_failure += 1
-                logger.warning(f"{ticker}: no articles found in YahooFinance")
+                logger.warning(f"{ticker}: no articles found in yfinance")
 
             return articles
 
-        except requests.RequestException as e:
-            self.fetch_failure += 1
-            logger.warning(f"{ticker}: fetch failed — {e}")
-            return []
         except Exception as e:
             self.fetch_failure += 1
-            logger.error(f"{ticker}: unexpected error — {e}")
+            logger.warning(f"{ticker}: fetch failed — {e}")
             return []
 
     def fetch_batch(
         self,
         tickers: list[str],
         days: int = 7,
-        rate_limit_delay: float = 0.5,
+        rate_limit_delay: float = 2.0,
     ) -> dict[str, list[dict]]:
-        """Fetch news for multiple tickers with rate limiting.
+        """Fetch news for multiple tickers with aggressive rate limiting (D-033 fix).
 
         Args:
             tickers: List of BIST tickers
             days: Look back window
-            rate_limit_delay: Delay between requests (seconds)
+            rate_limit_delay: Delay between requests in seconds (increased from 0.5 to 2.0)
 
         Returns:
             Dict mapping ticker → list of articles
@@ -175,7 +173,7 @@ class YahooNewsFetcher:
             articles = self.fetch_news(ticker, days=days)
             results[ticker] = articles
 
-            # Rate limiting (respect API limits)
+            # Aggressive rate limiting to avoid 429 errors
             if i < len(tickers) - 1:
                 time.sleep(rate_limit_delay)
 
@@ -207,7 +205,7 @@ class YahooNewsFetcher:
 def validate_ticker_format(ticker: str) -> bool:
     """Validate BIST ticker format."""
     # BIST tickers are 1-5 uppercase letters, optionally with .IS suffix
-    ticker = ticker.rstrip(".IS")
+    ticker = ticker.removesuffix(".IS")
     return len(ticker) >= 1 and len(ticker) <= 5 and ticker.isalpha() and ticker.isupper()
 
 

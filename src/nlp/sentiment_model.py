@@ -1,8 +1,9 @@
-"""DistilBERT Sentiment Model — Phase 4.2.1 Foundation.
+"""FinBERT Sentiment Model — Phase 4.2.1 Upgraded (D-033).
 
-Pre-trained DistilBERT model for financial sentiment analysis.
-Expected: >70% accuracy on financial headlines (vs VADER 50%).
+Pre-trained FinBERT model for financial sentiment analysis.
+Expected: >70% accuracy on financial headlines (vs DistilBERT-SST2 40%).
 Latency: <500ms per ticker.
+FinBERT: Trained on financial news corpus (3.4B financial texts).
 """
 import logging
 import time
@@ -13,32 +14,34 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-class DistilBERTSentimentModel:
-    """DistilBERT-based sentiment analyzer for financial text.
+class FinBERTSentimentModel:
+    """FinBERT-based sentiment analyzer for financial text.
 
-    Phase 4.2.1: Foundation implementation.
-    - Loads pre-trained DistilBERT-financial from HuggingFace
+    Phase 4.2.1 Upgrade (D-033): FinBERT replaces DistilBERT-SST2
+    - Loads pre-trained FinBERT from HuggingFace (ProsusAI/finbert)
+    - Trained on 3.4B financial texts (SEC filings, earnings calls, etc.)
+    - Expected accuracy: >70% on financial headlines
     - Inference pipeline for single + batch scoring
     - Latency tracking for <500ms target
     """
 
     def __init__(
         self,
-        model_name: str = "distilbert-base-uncased-finetuned-sst-2-english",
+        model_name: str = "ProsusAI/finbert",
         cache_dir: Optional[str] = None,
         device: str = "cpu",
     ):
-        """Initialize DistilBERT sentiment model.
+        """Initialize FinBERT sentiment model.
 
         Args:
-            model_name: HuggingFace model ID (financial BERT recommended for production)
+            model_name: HuggingFace model ID (default: ProsusAI/finbert)
             cache_dir: Cache directory for model weights
             device: PyTorch device ("cpu" or "cuda:0")
 
-        Models to evaluate:
-        - distilbert-base-uncased-finetuned-sst-2-english (SST-2, general)
-        - distilbert-base-multilingual-uncased (multilingual, handles Turkish)
-        - Financial BERT models from NICE/FinBERT (not yet tested)
+        FinBERT: Specialized for financial sentiment analysis
+        - Trained on SEC filings, earnings call transcripts, financial news
+        - 3-class output: positive, negative, neutral
+        - Expected accuracy: >70% on financial text
         """
         self.model_name = model_name
         self.cache_dir = cache_dir
@@ -51,36 +54,36 @@ class DistilBERTSentimentModel:
         self._load_model()
 
     def _load_model(self):
-        """Load pre-trained model and tokenizer from HuggingFace."""
+        """Load pre-trained FinBERT model and tokenizer from HuggingFace."""
         try:
             from transformers import pipeline
 
-            logger.info(f"Loading DistilBERT model: {self.model_name}")
+            logger.info(f"Loading FinBERT model: {self.model_name}")
             self.pipeline = pipeline(
                 "sentiment-analysis",
                 model=self.model_name,
                 device=0 if self.device.startswith("cuda") else -1,
             )
-            logger.info(f"Model loaded successfully on {self.device}")
+            logger.info(f"FinBERT model loaded successfully on {self.device}")
         except ImportError:
             logger.error("transformers library not installed. Install: pip install transformers torch")
             self.pipeline = None
         except Exception as e:
-            logger.error(f"Failed to load model: {e}")
+            logger.error(f"Failed to load FinBERT model: {e}")
             self.pipeline = None
 
     def analyze_text(self, text: str) -> dict:
-        """Analyze sentiment of a single text.
+        """Analyze sentiment of a single text using FinBERT.
 
         Args:
             text: Article headline or body text
 
         Returns:
             {
-                'label': 'POSITIVE' or 'NEGATIVE',
+                'label': 'POSITIVE' or 'NEGATIVE' or 'NEUTRAL',
                 'score': float [0.0, 1.0],
                 'latency_ms': float,
-                'source': 'distilbert',
+                'source': 'finbert',
             }
         """
         if not text or not self.pipeline:
@@ -99,20 +102,26 @@ class DistilBERTSentimentModel:
             self.latency_samples.append(latency_ms)
 
             # Extract label and confidence
-            label = result[0]["label"]  # "POSITIVE" or "NEGATIVE"
+            # FinBERT outputs: {"label": "positive|negative|neutral", "score": float}
+            label_raw = result[0]["label"].upper()  # "POSITIVE", "NEGATIVE", "NEUTRAL"
             score = result[0]["score"]  # Confidence [0.0, 1.0]
 
-            # Convert to [0, 1] range: POSITIVE = 1.0, NEGATIVE = 0.0
-            sentiment_score = score if label == "POSITIVE" else 1.0 - score
+            # Map FinBERT labels to standard format
+            if label_raw == "POSITIVE":
+                sentiment_score = score
+            elif label_raw == "NEGATIVE":
+                sentiment_score = 1.0 - score
+            else:  # NEUTRAL
+                sentiment_score = 0.5
 
             return {
-                "label": label,
+                "label": label_raw,
                 "score": round(sentiment_score, 4),
                 "latency_ms": round(latency_ms, 2),
-                "source": "distilbert",
+                "source": "finbert",
             }
         except Exception as e:
-            logger.error(f"Inference error: {e}")
+            logger.error(f"FinBERT inference error: {e}")
             return {
                 "label": "NEUTRAL",
                 "score": 0.5,
@@ -121,7 +130,7 @@ class DistilBERTSentimentModel:
             }
 
     def analyze_batch(self, texts: list[str], batch_size: int = 8) -> list[dict]:
-        """Analyze sentiment of multiple texts (batched for efficiency).
+        """Analyze sentiment of multiple texts using FinBERT (batched for efficiency).
 
         Args:
             texts: List of article headlines/bodies
@@ -147,26 +156,33 @@ class DistilBERTSentimentModel:
             # Truncate long texts
             truncated = [t[:512] for t in texts]
 
-            # Batch processing
+            # Batch processing via FinBERT
             outputs = self.pipeline(truncated, batch_size=batch_size)
             latency_ms = (time.time() - start) * 1000 / len(texts)  # Per-text average
 
             for output in outputs:
-                label = output["label"]
+                label_raw = output["label"].upper()
                 score = output["score"]
-                sentiment_score = score if label == "POSITIVE" else 1.0 - score
+
+                # Map to sentiment score
+                if label_raw == "POSITIVE":
+                    sentiment_score = score
+                elif label_raw == "NEGATIVE":
+                    sentiment_score = 1.0 - score
+                else:  # NEUTRAL
+                    sentiment_score = 0.5
 
                 results.append({
-                    "label": label,
+                    "label": label_raw,
                     "score": round(sentiment_score, 4),
                     "latency_ms": round(latency_ms, 2),
-                    "source": "distilbert",
+                    "source": "finbert",
                 })
 
             self.latency_samples.extend([latency_ms] * len(texts))
             return results
         except Exception as e:
-            logger.error(f"Batch inference error: {e}")
+            logger.error(f"FinBERT batch inference error: {e}")
             return [
                 {
                     "label": "NEUTRAL",
@@ -270,24 +286,24 @@ class DummyDistilBERTAnalyzer:
 
 
 def get_sentiment_model(
-    model_type: str = "distilbert",
+    model_type: str = "finbert",
     fallback_to_dummy: bool = True,
-) -> DistilBERTSentimentModel | DummyDistilBERTAnalyzer:
+) -> FinBERTSentimentModel | DummyDistilBERTAnalyzer:
     """Factory function to get sentiment model.
 
     Args:
-        model_type: "distilbert" or "dummy"
+        model_type: "finbert" (default) or "dummy"
         fallback_to_dummy: If True, fallback to dummy when real model unavailable
 
     Returns:
-        Model instance (DistilBERT or Dummy)
+        Model instance (FinBERT or Dummy)
     """
     if model_type == "dummy":
         return DummyDistilBERTAnalyzer()
 
-    model = DistilBERTSentimentModel()
+    model = FinBERTSentimentModel()
     if model.pipeline is None and fallback_to_dummy:
-        logger.warning("Falling back to dummy analyzer")
+        logger.warning("Falling back to dummy analyzer (FinBERT unavailable)")
         return DummyDistilBERTAnalyzer()
     return model
 
