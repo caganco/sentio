@@ -103,7 +103,8 @@ class TestSentimentIntegration:
         from src.signals.thresholds import MASTER_WEIGHTS
 
         assert "sentiment" in MASTER_WEIGHTS
-        assert MASTER_WEIGHTS["sentiment"] == 0.05  # Reduced from 0.25 (Smart Money now 0.20)
+        # Sentiment deactivated (0.0) pending DistilBERT Phase 4.2.1; weight redistributed to smart_money
+        assert MASTER_WEIGHTS["sentiment"] == 0.0
 
     def test_all_6_layers_in_signal(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
@@ -161,7 +162,8 @@ class TestSentimentIntegration:
             result = compute_signal("AKSEN", self.TECH_BULLISH, self.MACRO_NEUTRAL, [], date.today())
 
         sentiment_ls = [ls for ls in result.audit.layer_scores if ls.layer == "sentiment"][0]
-        assert sentiment_ls.weight == 0.05  # Reduced from 0.25
+        # Sentiment weight = 0.0 (deactivated); code runs but contribution is null
+        assert sentiment_ls.weight == 0.0
 
     def test_sentiment_missing_source_when_error(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
