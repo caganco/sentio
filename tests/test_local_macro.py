@@ -12,7 +12,11 @@ from src.signals.local import (
     TCMBClient,
 )
 from src.signals.local_macro_signals import LocalMacroSignals
-from src.signals.thresholds import CDS_SCORES, TCMB_DECISION_MAP
+from src.signals.thresholds import (
+    CDS_SCORES,
+    LOCAL_MACRO_WEIGHTS,
+    TCMB_DECISION_MAP,
+)
 
 
 @pytest.fixture
@@ -257,18 +261,22 @@ class TestLocalMacroSignals:
             assert 0.0 <= result.composite_score <= 100.0
 
     def test_composite_weights(self):
-        """Test composite weighting (50% TCMB + 50% CDS, stub foreign)."""
+        """Composite uses config-driven LOCAL_MACRO_WEIGHTS (no foreign data)."""
         with tempfile.TemporaryDirectory() as tmpdir:
             cache = LocalMacroCache(db_path=str(Path(tmpdir) / "test.db"))
             today = datetime.utcnow().date().isoformat()
 
-            # TCMB: hike -> 25.0, CDS: neutral -> 50.0
-            # Composite: 25*1.0*0.5 + 50*1.0*0.5 = 37.5
+            # TCMB: hike -> 25.0, CDS: neutral -> 50.0, both confidence 1.0.
+            # No foreign data -> confidence 0.0 -> contributes 0 regardless
+            # of its weight.
             cache.store_tcmb(decision_date=today, decision_type="hike")
             cache.store_cds(data_date=today, cds_bps=300.0)
 
             signals = LocalMacroSignals(cache=cache)
             result = signals.score()
 
-            expected = 25.0 * 0.5 + 50.0 * 0.5
+            expected = (
+                25.0 * LOCAL_MACRO_WEIGHTS["tcmb"]
+                + 50.0 * LOCAL_MACRO_WEIGHTS["cds"]
+            )
             assert abs(result.composite_score - expected) < 1.0
