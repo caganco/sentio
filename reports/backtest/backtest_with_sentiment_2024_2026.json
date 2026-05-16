@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-05-16T03:40:13.673010",
+  "backtest_period": "2024-01-01 to 2026-05-31",
+  "sentiment_layer": "VADER (integrated)",
+  "sharpe_ratio": -5.1389,
+  "metrics": {
+    "period": "2024-01-01 to 2026-05-31",
+    "trading_days": 594,
+    "initial_capital_tl": 120000.0,
+    "final_portfolio_tl": 125906.83,
+    "total_return_pct": 4.92,
+    "total_trades": 76,
+    "completed_trades": 38,
+    "win_rate_pct": 44.74,
+    "avg_win_pct": 17.8187,
+    "avg_loss_pct": 6.1894,
+    "profit_factor": 2.331,
+    "max_drawdown_pct": -2.77,
+    "sharpe_ratio": -5.139,
+    "system_return_pct": 4.92,
+    "benchmark_return_pct": 0.0,
+    "alpha_pct": 4.92,
+    "total_commission_tl": 264.69,
+    "circuit_breaker_trigger_days": 0,
+    "pass_fail_evaluation": {
+      "win_rate": "44.7% FAIL (threshold: >=52%)",
+      "sharpe": "-5.14 FAIL (threshold: >=1.0)",
+      "max_drawdown": "-2.8% PASS (threshold: >=-25%)",
+      "alpha": "4.9% PASS (threshold: >0%)",
+      "circuit_breaker": "0 triggers PASS (threshold: <=2)"
+    },
+    "overall_status": "FAIL -- Refine before live"
+  },
+  "sentiment_scores_sample": {
+    "AKSEN": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "TTKOM": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "TAVHL": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "KCHOL": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "ENERY": [
+      66.0023,
+      66.0023,
+      66.0023,
+      66.0023,
+      66.0023
+    ],
+    "GARAN": [
+      51.4721,
+      51.4721,
+      51.4721,
+      51.4721,
+      51.4721
+    ]
+  }
+}

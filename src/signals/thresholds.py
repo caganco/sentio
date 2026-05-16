@@ -5,15 +5,15 @@ MASTER_WEIGHTS: dict[str, float] = {
     "macro":     round(0.35 / 1.00, 10),   # 0.3500 (unchanged)
     "kap":       round(0.15 / 1.00, 10),   # 0.1500 (unchanged)
     "risk":      round(0.05 / 1.00, 10),   # 0.0500 (unchanged)
-    "smart_money": round(0.20 / 1.00, 10), # 0.2000 (NEW: Layer 5 active, was stub)
-    "sentiment": round(0.05 / 1.00, 10),   # 0.0500 (reduced from 0.25, rationale: institutional flow stronger than retail)
+    "smart_money": round(0.25 / 1.00, 10), # 0.2500 (was 0.20, +0.05 from sentiment)
+    "sentiment": round(0.00 / 1.00, 10),   # 0.0000 (deactivated, awaiting DistilBERT Phase 4.2.1)
 }
 
 SIGNAL_THRESHOLDS: dict[str, float] = {
     "buy_strong":  72.0,
     "buy_weak":    60.0,
     "hold_upper":  60.0,
-    "hold_lower":  43.0,
+    "hold_lower":  48.0,
     "sell_weak":   32.0,
     # sell_strong: < sell_weak
 }
@@ -135,3 +135,13 @@ MACRO_WEIGHTS_COMPOSITE: dict[str, float] = {
     "cds": 0.25,                 # CDS spreads
     "bist_foreign_weekly": 0.0,  # Stub (Layer 5 will use daily version)
 }
+
+# Correlation Matrix (Phase 4.3 — portfolio risk / position sizing)
+CORRELATION_WINDOW_DAYS: int = 60       # Rolling window for return correlations
+CORRELATION_MIN_SAMPLES: int = 50       # Samples for full confidence (1.0)
+CORRELATION_CLUSTER_THRESHOLD: float = 0.75  # Min corr to group stocks in a cluster
+
+# Exit and risk alerting thresholds
+EXIT_STOP_LOSS: float = 0.92        # Stop-loss at entry * 0.92 (-8%)
+EXIT_PROFIT_TARGET: float = 1.20    # Profit target at entry * 1.20 (+20%)
+STOP_APPROACH_BUFFER: float = 0.03  # Warning when price within 3% of stop-loss

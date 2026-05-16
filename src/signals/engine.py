@@ -201,10 +201,13 @@ def compute_signal(
         weight=_w("risk"), detail=risk_ls.detail, source=risk_ls.source,
     )
 
+    # Sentiment layer (VADER) deactivated pending DistilBERT Phase 4.2.1
+    # Code kept intact for phase transition; weight=0.0 in thresholds.py
     sentiment_ls = score_sentiment(symbol)
     sentiment_ls = LayerScore(
         layer=sentiment_ls.layer, score=sentiment_ls.score, confidence=sentiment_ls.confidence,
-        weight=_w("sentiment"), detail=sentiment_ls.detail, source=sentiment_ls.source,
+        weight=_w("sentiment"),  # Currently 0.0 — reweight distributed to smart_money
+        detail=sentiment_ls.detail, source=sentiment_ls.source,
     )
 
     # Smart Money (Layer 5): Institutional flow detection
