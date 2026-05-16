@@ -9,6 +9,7 @@ from .local import (
     TCMBClient,
 )
 from .models import LocalMacroSignal
+from .thresholds import LOCAL_MACRO_WEIGHTS
 
 
 @dataclass
@@ -67,11 +68,20 @@ class LocalMacroSignals:
         cds_signal = self.cds.score()
         foreign_signal = self.bist_foreign_weekly.score()
 
-        # Composite: currently 50% TCMB + 50% CDS (stub: foreign weight 0)
-        # TODO: Rebalance weights after Layer 5 integration
-        tcmb_contrib = tcmb_signal.score * tcmb_signal.confidence * 0.5
-        cds_contrib = cds_signal.score * cds_signal.confidence * 0.5
-        foreign_contrib = foreign_signal.score * foreign_signal.confidence * 0.0
+        # Composite weights are config-driven (LOCAL_MACRO_WEIGHTS in
+        # thresholds.py). Gap 1 (SPEC_L2_ENHANCEMENT_1) activated foreign
+        # flows from 0% -> 20%. Revisit after Layer 5 integration.
+        tcmb_contrib = (
+            tcmb_signal.score * tcmb_signal.confidence * LOCAL_MACRO_WEIGHTS["tcmb"]
+        )
+        cds_contrib = (
+            cds_signal.score * cds_signal.confidence * LOCAL_MACRO_WEIGHTS["cds"]
+        )
+        foreign_contrib = (
+            foreign_signal.score
+            * foreign_signal.confidence
+            * LOCAL_MACRO_WEIGHTS["bist_foreign_weekly"]
+        )
 
         composite = tcmb_contrib + cds_contrib + foreign_contrib
 

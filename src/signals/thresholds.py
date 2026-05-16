@@ -136,6 +136,16 @@ MACRO_WEIGHTS_COMPOSITE: dict[str, float] = {
     "bist_foreign_weekly": 0.0,  # Stub (Layer 5 will use daily version)
 }
 
+# Local-only macro composite weights (TCMB + CDS + BIST foreign weekly).
+# Gap 1 (SPEC_L2_ENHANCEMENT_1): foreign flows activated from 0% -> 20%.
+# Config-driven (NOT hard-coded) so weights can be retuned after Layer 5
+# integration without touching local_macro_signals.py logic.
+LOCAL_MACRO_WEIGHTS: dict[str, float] = {
+    "tcmb": 0.40,
+    "cds": 0.40,
+    "bist_foreign_weekly": 0.20,
+}
+
 # Correlation Matrix (Phase 4.3 — portfolio risk / position sizing)
 CORRELATION_WINDOW_DAYS: int = 60       # Rolling window for return correlations
 CORRELATION_MIN_SAMPLES: int = 50       # Samples for full confidence (1.0)
