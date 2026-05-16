@@ -109,9 +109,9 @@ Institutional-grade BIST trading OS. Methodology: Druckenmiller (Macro → Secto
 ## 5. CURRENT SYSTEM STATE (From OS_STATE.md)
 
 ### Active Status
-- **Phase:** 4.9 → 5.0 (Context standardization in progress)
-- **Test Suite:** 372 passing (330 original + 42 KAP edge cases), zero regression
-- **Code Coverage:** ~87%
+- **Phase:** 5.2 Complete (Backtest + Exit Mechanisms + Calibration Research)
+- **Test Suite:** 553 passing (330 original + 42 KAP + 20 backtest + 2 exit mechanisms + 145 layer stack), zero regression
+- **Code Coverage:** ~89%
 
 ### Completed Specs
 - ✅ SPEC_LOCAL_MACRO: TCMB, CDS, BIST foreign data sources
@@ -121,7 +121,8 @@ Institutional-grade BIST trading OS. Methodology: Druckenmiller (Macro → Secto
 - ✅ SPEC_MACRO_EQUITY: Sensitivity matrix, alignment scoring (25 tests)
 - ✅ SPEC_CDS: WAF bypass, iShares proxy, fallback chain (14 tests)
 - ✅ SPEC_KAP: Holiday detection, bulk queue, downtime cache (42 tests)
-- 🟡 SPEC_CTX: Context standardization (this implementation)
+- ✅ SPEC_KELLY_1: Conviction-aware position sizing, Kelly Criterion (DEC-006), signal-driven risk allocation
+- ✅ SPEC_SENTIMENT_NLP_1: Layer 4 YahooFinance NLP sentiment pipeline, 35% weight, daily narrative enrichment
 
 ### 7-Layer Intelligence Stack
 | Layer | Name | Status |
@@ -129,15 +130,24 @@ Institutional-grade BIST trading OS. Methodology: Druckenmiller (Macro → Secto
 | 1 | Market Data | ✅ ACTIVE |
 | 2 | Macro Intelligence | ✅ ACTIVE |
 | 3 | Corporate (KAP) | ✅ ACTIVE (with edge cases) |
-| 4 | Sentiment & Narrative | ❌ STUB (architecture pending) |
-| 5 | Smart Money Tracking | ❌ STUB (needs implementation) |
-| 6 | Risk Management | ⚠️ PARTIAL (Kelly criterion pending) |
-| 7 | Signal Engine | ✅ ACTIVE |
+| 4 | Sentiment & Narrative | ✅ ACTIVE (YahooFinance NLP + daily pipeline) |
+| 5 | Smart Money Tracking ⏸️ HOLD (mock data, live data source araştırılıyor — Finnet quote bekliyor)|
+| 6 | Risk Management | ✅ ACTIVE (Kelly 0.25x, DrawdownTracker -15% circuit breaker, exit mechanisms -8%/+20%) |
+| 7 | Signal Engine | ✅ ACTIVE (6-month backtest validation) |
 
-### Phase 5 Blockers (for next directive)
-1. Kelly Criterion position sizing (HIGH)
-2. Drawdown management (-10% risk-off threshold)
-3. News sentiment NLP (Layer 4 architecture)
+### Phase 5.2 Completed (Recent)
+✅ SPEC_BACKTEST_1: 6-month historical validation (Nov 2025 – May 2026), 539 tests pass
+✅ Exit Mechanisms: Stop-loss (-8%) and profit-target (+20%) in backtest engine
+✅ SPEC_CALIBRATION_1 Research: Weight calibration analysis, parameter tuning study (pending orchestrator decision)
+✅ ARCH_SAFETY_1: Mimari güvenlik paketi (CLAUDE.md + arch tests + health check)
+✅ SIGNAL_ALERT_1: Stop yaklaşım uyarısı + Strategist ACTION/PRICE/DEADLINE/OVERRIDE format
+
+
+### Phase 5.3 Priorities (Next Directive)
+1. **D-021 Exit Mekanizması:** ⏸️ SUSPENDED — pending signal quality (review after Layer 5 finalization)
+2. **D-022 Smart Money Real Data:** ⏹️ CLOSED — Finnet live data source pending, continued with mock institutional flows (L5 enhancement research completed)
+3. **D-023 Sentiment Layer Validation:** 🟡 ACTIVE — SPEC_SENTIMENT_NLP_1 YahooFinance NLP pipeline, backtest validation (25 weight, 35 pending)
+4. **D-024 Trailing Stops:** 🟡 QUEUED — Implement adaptive trailing stops for trending markets (post-Kelly implementation)
 
 ---
 
@@ -171,9 +181,10 @@ Constraint: Zero regression (maintain 330 tests).
 |--------|-----|----------|---------|-----|--------|
 | AKSEN | 591 | ₺87.59 | ₺88.23 | +0.73% | ⚠️ Watch |
 | TTKOM | 329 | ₺60.65 | ₺61.45 | +1.32% | ✅ Hold |
-| TAVHL | 68 | ₺286.50 | ₺283.92 | -0.90% | ⚠️ Weak |
 | KCHOL | 81 | ₺188.83 | ₺190.12 | +0.68% | ✅ Hold |
 | ENERY | 1543 | ₺9.07 | ₺9.15 | +0.88% | 👁️ Monitor |
+
+**Recent Exit:** TAVHL sold (68 shares @ ₺283.92, -0.90% exit loss)
 
 ### Funds
 | Fund | Type | Return |
@@ -181,6 +192,31 @@ Constraint: Zero regression (maintain 330 tests).
 | DVT | ETF | +36.52% |
 | DFI | ETF | +5.93% |
 | PHE | Fund | +3.38% |
+
+---
+
+## 7b. MODERN PLAYBOOK — MACRO OBSERVATIONS (May 2026)
+
+### BIST 54% Valuation Discount
+- **Observation:** BIST100 trading at 54% discount vs. developed market comparables (MSCI World)
+  - BIST P/E: ~7.5x | MSCI World P/E: ~16.2x
+  - Historical: BIST avg P/E 10-12x (current: 37.5% undervalued vs. 10-year normal)
+- **Implication:** Potential mean reversion catalyst if macro stabilizes
+- **Timeline:** 6-12 months if CDS stays < 350 bps
+
+### Carry Trade → Equity Transition (Under Watch)
+- **Context:** Turkish interest rates stabilizing (Policy Rate 25%), TRY stronger vs. USD
+  - Carry traders reducing FX hedging costs
+  - Capital flowing from bonds → equities
+- **Signal:** Monitor DVT (dividend ETF) and DFI (growth ETF) divergence
+  - DVT outperform = carry → yield play (safe)
+  - DFI outperform = carry → growth play (risk-on)
+- **Action:** If CDS crosses 280 bps → increase equity exposure (institutional inflow timing)
+
+### Risk Mitigants
+- CDS > 400 bps → REDUCE positions (geopolitical overshoot)
+- USD/TRY > 33.50 → hedge or hold cash (FX shock)
+- BIST trend below 8000 → circuit breaker auto-activates
 
 ---
 
@@ -229,12 +265,14 @@ Risk: [Main downside scenario]
 
 | Metric | Target | Current | Status |
 |--------|--------|---------|--------|
-| Test Suite | 100% pass | 372/372 ✅ | ✅ |
+| Test Suite | 100% pass | 553/553 ✅ | ✅ |
 | Regression | Zero | Zero ✅ | ✅ |
 | Daily Report | < 5s | ~4.2s ✅ | ✅ |
 | Token Budget | ≤ 600 | ~587 ✅ | ✅ |
 | Context Load | < 1s | ~500ms | ✅ |
 | OS_STATE freshness | < 6h | Auto every 6h | ✅ |
+| Backtest Validation | 6-month pass | Nov 2025 – May 2026 ✅ | ✅ |
+| Exit Mechanism | Fixed exits locked | -8% SL / +20% PT ✅, Trailing ⏸️ SUSPENDED
 
 ---
 
@@ -268,6 +306,20 @@ Deadline: EOD.
 
 ---
 
-**Last Updated:** 14 May 2026  
+## 13. ÇALIŞMA PROTOKOLÜ
+
+**Session Ayrımı:**
+- Sabah: Rapor + pozisyon kararı (kısa, odaklı)
+- Build: SPEC veya kod (rapordan bağımsız)
+
+**Context Kuralı:**
+- Builder → OS_STATE + SPEC + etkilenen dosyalar
+- Architect → Backlog + kısıtlar
+- Master Plan her session'a taşınmaz
+
+**SPEC Formatı Zorunlu:**
+GÖREV / KISITLAR / BAŞARI KRİTERİ / ETKİLENEN DOSYALAR / TAHMİNİ SÜRE
+
+**Last Updated:** 15 May 2026 (ARCH_SAFETY_1 + SIGNAL_ALERT_1)
 **Status:** Active ✅  
-**Next Update:** With next completed SPEC or major decision
+**Next Update:** Upon SPEC_CALIBRATION_1 orchestrator decision or D-021 completion
