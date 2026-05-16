@@ -8,7 +8,7 @@ from src.signals.layers.kap_layer import score_kap
 from src.signals.layers.macro_layer import score_macro
 from src.signals.layers.risk_layer import detect_regime, score_risk
 from src.signals.layers.sentiment_layer import score_sentiment
-from src.signals.layers.smart_money_layer import SmartMoneyLayer
+from src.signals.layers.smart_money_layer import get_l5_layer
 from src.signals.layers.technical_layer import score_technical
 from src.signals.models import (
     AuditTrail,
@@ -21,6 +21,7 @@ from src.signals.models import (
 )
 from src.signals.thresholds import (
     CONFLICT_THRESHOLD,
+    L5_SMART_MONEY_WEIGHT,
     MASTER_WEIGHTS,
     SIGNAL_THRESHOLDS,
 )
@@ -210,19 +211,29 @@ def compute_signal(
         detail=sentiment_ls.detail, source=sentiment_ls.source,
     )
 
-    # Smart Money (Layer 5): Institutional flow detection
-    # For now: stub (return neutral, weight is 0.20)
-    # In daily_update.py: will be populated with real institutional flow data
-    smart_money_layer = SmartMoneyLayer()
-    smart_money_signal = smart_money_layer.calculate_score(symbol, None)  # None = no data yet
-    smart_money_ls = LayerScore(
-        layer="smart_money",
-        score=smart_money_signal.score * 100,  # Convert from [0,1] to [0,100]
-        confidence=smart_money_signal.confidence,
-        weight=_w("smart_money"),
-        detail={"institutional_net_pct": smart_money_signal.institutional_net_pct, "trend": smart_money_signal.trend},
-        source="stub"  # Will become "borsa" or "halk_yatirim" in daily_update
-    )
+    # Smart Money L5 (D-055 — Phase 4.5 progressive build)
+    # compute_l5_score() returns None when: no history, stale >48h, ADV ineligible, or <10 days.
+    # On None: weight=0 (completely excluded from composite — not 50.0 neutral contribution).
+    # On valid score: weight=L5_SMART_MONEY_WEIGHT (0.10), normalizer handles the rest.
+    _l5_score = get_l5_layer().compute_l5_score(symbol)
+    if _l5_score is None:
+        smart_money_ls = LayerScore(
+            layer="smart_money",
+            score=50.0,
+            confidence=0.0,
+            weight=0.0,
+            detail={"status": "no_data_or_stale"},
+            source="stub",
+        )
+    else:
+        smart_money_ls = LayerScore(
+            layer="smart_money",
+            score=round(_l5_score, 2),
+            confidence=0.8,
+            weight=L5_SMART_MONEY_WEIGHT,
+            detail={"l5_score": _l5_score},
+            source="computed",
+        )
 
     layer_scores: list[LayerScore] = [
         tech_ls, macro_ls, kap_ls, risk_ls, smart_money_ls, sentiment_ls

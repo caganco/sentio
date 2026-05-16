@@ -1,8 +1,35 @@
-"""Smart Money layer (Layer 5): Institutional flow detection and bull trap prevention."""
+"""Smart Money layer (Layer 5): Institutional flow detection and bull trap prevention.
+
+SmartMoneySignal / SmartMoneyLayer — existing bull-trap logic (backward compat).
+SmartMoneyL5 — D-055 progressive foreign ratio signal (İş Yatırım screener + parquet).
+"""
+from __future__ import annotations
+
 import logging
-from typing import Optional
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
+
+import pandas as pd
+
+from src.signals.thresholds import (
+    L5_SMART_MONEY_WEIGHT,
+    SMART_MONEY_ADV_MIN_TL,
+    SMART_MONEY_FULL_COMPOSITE_DAYS,
+    SMART_MONEY_MOMENTUM_DAYS,
+    SMART_MONEY_MOMENTUM_WEIGHT,
+    SMART_MONEY_OUTLIER_THRESHOLD_PP,
+    SMART_MONEY_PERCENTILE_WEIGHT,
+    SMART_MONEY_PERCENTILE_WINDOW,
+    SMART_MONEY_STALE_HOURS,
+)
+
+if TYPE_CHECKING:
+    from src.signals.layers.connectors.smart_money_connector import SmartMoneyConnectorBase
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_PARQUET = Path("data/smart_money/daily_screener.parquet")
 
 
 class SmartMoneySignal:
@@ -260,3 +287,291 @@ class SmartMoneyLayer:
             self.cache[ticker] = signal
 
         return results
+
+
+# ---------------------------------------------------------------------------
+# SmartMoneyL5 — D-055 Phase 4.5 progressive build
+# ---------------------------------------------------------------------------
+
+class SmartMoneyL5:
+    """
+    L5 Smart Money: progressive foreign ratio signal from İş Yatırım screener.
+
+    Progressive activation (based on days of parquet history for the symbol):
+        Day  1–9:  write data, return None (no signal yet)
+        Day 10–19: momentum only (10-day foreign_ratio change → [0, 100])
+        Day 20+:   full composite (60% rolling percentile + 40% momentum)
+
+    Stale contract (>48h since last write):
+        compute_l5_score() → None
+        Engine sets LayerScore weight=0 → completely excluded from composite.
+
+    ADV filter: daily TL volume < 20M TL → compute_l5_score() → None.
+    Outlier: any single day's Δforeign_ratio > 1.0pp → MAD-based clipping.
+    """
+
+    DEFAULT_PARQUET_PATH: Path = _DEFAULT_PARQUET
+
+    # ------------------------------------------------------------------
+    # Write
+    # ------------------------------------------------------------------
+
+    def write_daily_snapshot(
+        self,
+        connector: SmartMoneyConnectorBase,
+        date_str: str,
+        parquet_path: Optional[Path] = None,
+    ) -> bool:
+        """
+        Fetch screener snapshot and append to parquet.
+
+        Returns True on success. On empty connector response (soft-block),
+        logs ALERT and returns False — never silently skips.
+        """
+        if parquet_path is None:
+            parquet_path = self.DEFAULT_PARQUET_PATH
+
+        data = connector.fetch_all_tickers()
+        if not data:
+            logger.error(
+                "ALERT SmartMoneyL5.write_daily_snapshot: connector returned empty — "
+                "no data written for %s. Check connector for soft-block or network error.",
+                date_str,
+            )
+            return False
+
+        written_at = datetime.now(timezone.utc).isoformat()
+        rows = [
+            {
+                "date": date_str,
+                "symbol": symbol,
+                "foreign_ratio": vals["foreign_ratio"],
+                "change_1w_bps": vals["change_1w_bps"],
+                "change_1m_bps": vals["change_1m_bps"],
+                "volume_3m_mn_usd": vals["volume_3m_mn_usd"],
+                "written_at": written_at,
+            }
+            for symbol, vals in data.items()
+        ]
+
+        new_df = pd.DataFrame(rows)
+        parquet_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            if parquet_path.exists():
+                existing = pd.read_parquet(parquet_path)
+                existing = existing[existing["date"] != date_str]
+                combined = pd.concat([existing, new_df], ignore_index=True)
+            else:
+                combined = new_df
+
+            combined = combined.sort_values(["date", "symbol"]).reset_index(drop=True)
+            combined.to_parquet(parquet_path, index=False)
+        except Exception as exc:
+            logger.error("ALERT SmartMoneyL5.write_daily_snapshot: parquet write failed — %s", exc)
+            return False
+
+        logger.info(
+            "SmartMoneyL5.write_daily_snapshot: %d tickers written for %s",
+            len(rows), date_str,
+        )
+        return True
+
+    # ------------------------------------------------------------------
+    # Read / stale check
+    # ------------------------------------------------------------------
+
+    def _load_history(self, parquet_path: Path) -> Optional[pd.DataFrame]:
+        """
+        Load parquet history. Returns None if:
+        - File missing (no data written yet)
+        - Stale: latest written_at > SMART_MONEY_STALE_HOURS old
+        """
+        if not parquet_path.exists():
+            return None
+
+        try:
+            df = pd.read_parquet(parquet_path)
+        except Exception as exc:
+            logger.error("ALERT SmartMoneyL5._load_history: read failed — %s", exc)
+            return None
+
+        if df.empty:
+            logger.error("ALERT SmartMoneyL5._load_history: parquet is empty")
+            return None
+
+        latest_written = df["written_at"].max()
+        age = datetime.now(timezone.utc) - datetime.fromisoformat(latest_written)
+        if age > timedelta(hours=SMART_MONEY_STALE_HOURS):
+            logger.warning(
+                "SmartMoneyL5: data stale (%.1fh > %dh) — score=None, weight=0",
+                age.total_seconds() / 3600,
+                SMART_MONEY_STALE_HOURS,
+            )
+            return None
+
+        return df
+
+    # ------------------------------------------------------------------
+    # ADV filter
+    # ------------------------------------------------------------------
+
+    def is_adv_eligible(self, symbol: str, df: pd.DataFrame) -> bool:
+        """
+        Return True if symbol's estimated daily TL volume >= SMART_MONEY_ADV_MIN_TL.
+
+        Approximation: volume_3m_mn_usd × 1e6 USD × 34 TL/USD ÷ 63 trading days.
+        """
+        sym_df = df[df["symbol"] == symbol]
+        if sym_df.empty:
+            return False
+        latest = sym_df.sort_values("date").iloc[-1]
+        vol_mn_usd = float(latest.get("volume_3m_mn_usd") or 0)
+        daily_adv_tl = vol_mn_usd * 1_000_000 * 34 / 63
+        return daily_adv_tl >= SMART_MONEY_ADV_MIN_TL
+
+    # ------------------------------------------------------------------
+    # Outlier clipping
+    # ------------------------------------------------------------------
+
+    def _mad_clip(self, series: pd.Series) -> pd.Series:
+        """
+        If any daily Δforeign_ratio > SMART_MONEY_OUTLIER_THRESHOLD_PP,
+        apply MAD-based clipping to all daily changes and reconstruct.
+        """
+        if len(series) < 2:
+            return series
+
+        daily = series.diff().fillna(0.0)
+        if not (daily.abs() > SMART_MONEY_OUTLIER_THRESHOLD_PP).any():
+            return series
+
+        median = daily.median()
+        mad = (daily - median).abs().median()
+        if mad == 0:
+            return series
+
+        lower = median - 3.5 * mad
+        upper = median + 3.5 * mad
+        clipped = daily.clip(lower, upper)
+        result = series.iloc[0] + clipped.cumsum()
+        result.iloc[0] = series.iloc[0]
+        return result
+
+    # ------------------------------------------------------------------
+    # Momentum score (Day 10+)
+    # ------------------------------------------------------------------
+
+    def compute_momentum_score(self, symbol: str, df: pd.DataFrame) -> Optional[float]:
+        """
+        10-day momentum: Δforeign_ratio over last SMART_MONEY_MOMENTUM_DAYS → [0, 100].
+
+        Normalization: [-5pp, +5pp] → [0, 100] (clamped).
+        Returns None if fewer than SMART_MONEY_MOMENTUM_DAYS trading days available.
+        """
+        sym_df = df[df["symbol"] == symbol].sort_values("date")
+        n_days = sym_df["date"].nunique()
+        if n_days < SMART_MONEY_MOMENTUM_DAYS:
+            return None
+
+        recent = sym_df.tail(SMART_MONEY_MOMENTUM_DAYS)
+        ratios = recent["foreign_ratio"].reset_index(drop=True)
+        ratios = self._mad_clip(ratios)
+
+        change_pp = float(ratios.iloc[-1] - ratios.iloc[0])
+        score = 50.0 + (change_pp / 5.0) * 50.0
+        return round(max(0.0, min(100.0, score)), 2)
+
+    # ------------------------------------------------------------------
+    # Percentile score (Day 20+)
+    # ------------------------------------------------------------------
+
+    def compute_percentile_score(self, symbol: str, df: pd.DataFrame) -> Optional[float]:
+        """
+        Rolling SMART_MONEY_PERCENTILE_WINDOW-day percentile rank of current
+        foreign_ratio → [0, 100].
+
+        Returns None if fewer than SMART_MONEY_FULL_COMPOSITE_DAYS days available.
+        """
+        sym_df = df[df["symbol"] == symbol].sort_values("date")
+        if sym_df["date"].nunique() < SMART_MONEY_FULL_COMPOSITE_DAYS:
+            return None
+
+        window = sym_df.tail(SMART_MONEY_PERCENTILE_WINDOW)
+        current = float(window["foreign_ratio"].iloc[-1])
+        all_vals = window["foreign_ratio"].values
+        pct = (all_vals < current).sum() / len(all_vals)
+        return round(pct * 100.0, 2)
+
+    # ------------------------------------------------------------------
+    # Main entry point
+    # ------------------------------------------------------------------
+
+    def compute_l5_score(
+        self,
+        symbol: str,
+        parquet_path: Optional[Path] = None,
+    ) -> Optional[float]:
+        """
+        Progressive L5 score for a single symbol.
+
+        Returns None when:
+        - No parquet history (Day 1–9)
+        - Stale data (>48h since last write)
+        - Symbol not ADV eligible (volume < 20M TL/day)
+        - Fewer than SMART_MONEY_MOMENTUM_DAYS trading days for symbol
+
+        Caller (engine) must set LayerScore.weight=0 when this returns None.
+        """
+        if parquet_path is None:
+            parquet_path = self.DEFAULT_PARQUET_PATH
+
+        df = self._load_history(parquet_path)
+        if df is None:
+            return None
+
+        if not self.is_adv_eligible(symbol, df):
+            logger.debug("SmartMoneyL5 %s: ADV < %.0fM TL — no signal", symbol, SMART_MONEY_ADV_MIN_TL / 1e6)
+            return None
+
+        sym_df = df[df["symbol"] == symbol]
+        n_days = sym_df["date"].nunique()
+
+        if n_days < SMART_MONEY_MOMENTUM_DAYS:
+            logger.debug("SmartMoneyL5 %s: %d days < %d — no signal yet", symbol, n_days, SMART_MONEY_MOMENTUM_DAYS)
+            return None
+
+        momentum = self.compute_momentum_score(symbol, df)
+        if momentum is None:
+            return None
+
+        if n_days < SMART_MONEY_FULL_COMPOSITE_DAYS:
+            logger.debug("SmartMoneyL5 %s: Day %d — momentum-only %.1f", symbol, n_days, momentum)
+            return momentum
+
+        percentile = self.compute_percentile_score(symbol, df)
+        if percentile is None:
+            return momentum
+
+        composite = round(
+            SMART_MONEY_PERCENTILE_WEIGHT * percentile
+            + SMART_MONEY_MOMENTUM_WEIGHT * momentum,
+            2,
+        )
+        logger.debug(
+            "SmartMoneyL5 %s: Day %d — pct=%.1f mom=%.1f composite=%.1f",
+            symbol, n_days, percentile, momentum, composite,
+        )
+        return composite
+
+
+# Module-level singleton used by engine.py
+_l5_singleton: Optional[SmartMoneyL5] = None
+
+
+def get_l5_layer() -> SmartMoneyL5:
+    """Return module-level SmartMoneyL5 singleton (lazy init)."""
+    global _l5_singleton
+    if _l5_singleton is None:
+        _l5_singleton = SmartMoneyL5()
+    return _l5_singleton

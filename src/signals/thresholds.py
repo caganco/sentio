@@ -108,6 +108,16 @@ TCMB_DECISION_MAP: dict[str, float] = {
 }
 TCMB_STALE_DAYS: int = 45
 
+# TCMB Trend Modeling (Gap 2 — SPEC_L2_ENHANCEMENT_1)
+# Inflection: direction reversal between last two decisions → strongest signal.
+TCMB_TREND_SCORES: dict[str, float] = {
+    "cutting_cycle": 80.0,   # hike → cut inflection: very bullish
+    "easing":        75.0,   # continued cuts: bullish (matches TCMB_DECISION_MAP["cut"])
+    "holding":       50.0,   # neutral
+    "tightening":    25.0,   # continued hikes: bearish (matches TCMB_DECISION_MAP["hike"])
+    "hiking_cycle":  20.0,   # cut → hike inflection: very bearish
+}
+
 # CDS (Turkey 5Y spreads) thresholds
 CDS_THRESHOLDS: dict[str, tuple[float, float]] = {
     "low_risk": (0.0, 250.0),          # < 250 bps -> bullish
@@ -128,12 +138,47 @@ BIST_FOREIGN_STALE_DAYS: int = 10
 BIST_FOREIGN_THRESHOLD_OUTFLOW: float = -0.2  # % daily change threshold
 BIST_FOREIGN_THRESHOLD_INFLOW: float = 0.2    # % daily change threshold
 
+# DXY — US Dollar Index (Gap 3 — SPEC_L2_ENHANCEMENT_1)
+# Higher DXY (USD strength) → EM capital outflows → bearish for BIST.
+# Thresholds: weekly % change → score. List ordered high-to-low; first match wins.
+DXY_STALE_DAYS: int = 2
+DXY_SCORE_THRESHOLDS: list[tuple[float, float]] = [
+    ( 0.015, 25.0),   # ≥ +1.5% weekly: strong USD → very bearish BIST
+    ( 0.005, 40.0),   # +0.5% to +1.5%: mild USD strength
+    (-0.005, 50.0),   # ±0.5%: neutral
+    (-0.015, 60.0),   # -0.5% to -1.5%: mild USD weakness → bullish BIST
+]
+DXY_SCORE_WEAK_USD: float = 75.0   # < -1.5% weekly: USD very weak → very bullish BIST
+
+# TL Bond Yield Proxy via CDS (Gap 4 — SPEC_L2_ENHANCEMENT_1)
+# Phase 5: Replace with native TL yields (ICDP/MINT data integration).
+# Formula: implied_tl_yield (%) = TL_BOND_PROXY_BASE_YIELD + cds_bps / 100
+# Higher implied yield → higher equity discount rate → bearish.
+TL_BOND_PROXY_BASE_YIELD: float = 4.5   # US 10Y proxy as floor rate (%)
+TL_BOND_PROXY_THRESHOLDS: dict[str, float] = {
+    "low":    5.0,    # implied yield < 5%  → low duration risk
+    "medium": 8.0,    # 5–8%               → medium
+    "high":   12.0,   # 8–12%              → high
+                      # ≥ 12%              → extreme
+}
+TL_BOND_PROXY_SCORES: dict[str, float] = {
+    "low":     70.0,
+    "medium":  50.0,
+    "high":    30.0,
+    "extreme": 15.0,
+}
+
 # Composite macro weighting (global + local)
+# Gap 3: DXY added at 0.25; global_signals reduced from 0.50 to 0.25.
+# macro_layer.py redistributes DXY weight back to global_signals when DXY absent
+# (confidence=0), so total effective weight always equals 1.0.
 MACRO_WEIGHTS_COMPOSITE: dict[str, float] = {
-    "global_signals": 0.50,      # MacroSignals (existing)
-    "tcmb": 0.25,                # TCMB policy rate
-    "cds": 0.25,                 # CDS spreads
+    "global_signals":    0.25,   # Gap 3: was 0.50; DXY fallback restores to 0.50 when absent
+    "tcmb":              0.25,   # TCMB policy rate
+    "cds":               0.25,   # CDS spreads
+    "dxy":               0.25,   # Gap 3: DXY global USD index
     "bist_foreign_weekly": 0.0,  # Stub (Layer 5 will use daily version)
+    "tl_bond_proxy":     0.0,    # Gap 4 stub: Phase 5 activate with native TL yields
 }
 
 # Local-only macro composite weights (TCMB + CDS + BIST foreign weekly).
@@ -155,3 +200,21 @@ CORRELATION_CLUSTER_THRESHOLD: float = 0.75  # Min corr to group stocks in a clu
 EXIT_STOP_LOSS: float = 0.92        # Stop-loss at entry * 0.92 (-8%)
 EXIT_PROFIT_TARGET: float = 1.20    # Profit target at entry * 1.20 (+20%)
 STOP_APPROACH_BUFFER: float = 0.03  # Warning when price within 3% of stop-loss
+
+# Backtest entry gatekeeping thresholds (prevent low-quality entries in risk-off regimes)
+BACKTEST_MACRO_MIN_SCORE: float = 45.0      # Minimum macro score to allow entry (< 45 = no entry)
+BACKTEST_VIX_MAX: float = 30.0              # VIX > 30 = no entry (extreme volatility risk-off)
+BACKTEST_USDTRY_SPIKE_THRESHOLD: float = 0.02  # USDTRY daily change > +2% = no entry (EM stress)
+
+# L5 Smart Money — D-055 (Phase 4.5 progressive build)
+# MASTER_WEIGHTS["smart_money"] stays at 0.25; L5_SMART_MONEY_WEIGHT is the ACTIVE weight
+# when L5 has valid data. Phase 4.5 normalizer divides by actual total_weight (0.78-0.85).
+L5_SMART_MONEY_WEIGHT: float = 0.10          # Active weight when score is valid
+SMART_MONEY_STALE_HOURS: int = 48            # >48h since last write → score=None, weight=0
+SMART_MONEY_MOMENTUM_DAYS: int = 10          # Day 10+: momentum signal activates
+SMART_MONEY_FULL_COMPOSITE_DAYS: int = 20    # Day 20+: full composite activates
+SMART_MONEY_PERCENTILE_WINDOW: int = 252     # Rolling window for percentile rank
+SMART_MONEY_PERCENTILE_WEIGHT: float = 0.60  # 60% percentile in composite
+SMART_MONEY_MOMENTUM_WEIGHT: float = 0.40    # 40% momentum in composite
+SMART_MONEY_ADV_MIN_TL: float = 20_000_000.0  # Min daily volume (TL) for eligibility
+SMART_MONEY_OUTLIER_THRESHOLD_PP: float = 1.0  # Daily change > 1pp triggers MAD clipping
