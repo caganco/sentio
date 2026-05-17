@@ -218,3 +218,14 @@ SMART_MONEY_PERCENTILE_WEIGHT: float = 0.60  # 60% percentile in composite
 SMART_MONEY_MOMENTUM_WEIGHT: float = 0.40    # 40% momentum in composite
 SMART_MONEY_ADV_MIN_TL: float = 20_000_000.0  # Min daily volume (TL) for eligibility
 SMART_MONEY_OUTLIER_THRESHOLD_PP: float = 1.0  # Daily change > 1pp triggers MAD clipping
+
+# L5 Sub-signal weights (D-058) — short interest integration
+L5_FOREIGN_WEIGHT: float = 0.70       # Foreign ratio weight in L5 composite
+L5_SHORT_INT_WEIGHT: float = 0.30     # Short interest weight in L5 composite
+
+# Short interest thresholds
+SHORT_INTEREST_HIGH: float = 15.0     # % free float — high crowding threshold
+SHORT_INTEREST_STALE: int = 10        # days — no update → neutral fallback
+
+# L3-L5 covariance dampening (D-058)
+L5_KAP_OVERLAP_DAMP: float = 0.6      # Dampening factor when L3 KAP + L5 short overlap

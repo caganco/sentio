@@ -15,7 +15,11 @@ import numpy as np
 import pandas as pd
 
 from src.signals.thresholds import (
+    L5_FOREIGN_WEIGHT,
+    L5_KAP_OVERLAP_DAMP,
+    L5_SHORT_INT_WEIGHT,
     L5_SMART_MONEY_WEIGHT,
+    SHORT_INTEREST_HIGH,
     SMART_MONEY_ADV_MIN_TL,
     SMART_MONEY_FULL_COMPOSITE_DAYS,
     SMART_MONEY_MOMENTUM_DAYS,
@@ -638,9 +642,19 @@ class SmartMoneyL5:
         self,
         symbol: str,
         parquet_path: Optional[Path] = None,
+        short_interest_score: Optional[float] = None,
+        short_ratio: Optional[float] = None,
+        kap_has_short_event: bool = False,
     ) -> Optional[float]:
         """
-        Progressive L5 score for a single symbol.
+        Progressive L5 score for a single symbol (D-055/D-058).
+
+        Args:
+            symbol: Stock symbol
+            parquet_path: Path to daily screener parquet
+            short_interest_score: Short interest score [0,1] from normalizer; None → no short data
+            short_ratio: Raw short ratio % for KAP overlap check
+            kap_has_short_event: L3 KAP short disclosure in this week
 
         Returns None when:
         - No parquet history (Day 1–9)
@@ -674,22 +688,39 @@ class SmartMoneyL5:
 
         if n_days < SMART_MONEY_FULL_COMPOSITE_DAYS:
             logger.debug("SmartMoneyL5 %s: Day %d — momentum-only %.1f", symbol, n_days, momentum)
-            return momentum
+            foreign_score = momentum
+        else:
+            percentile = self.compute_percentile_score(symbol, df)
+            if percentile is None:
+                foreign_score = momentum
+            else:
+                foreign_score = round(
+                    SMART_MONEY_PERCENTILE_WEIGHT * percentile
+                    + SMART_MONEY_MOMENTUM_WEIGHT * momentum,
+                    2,
+                )
+                logger.debug(
+                    "SmartMoneyL5 %s: Day %d — pct=%.1f mom=%.1f composite=%.1f",
+                    symbol, n_days, percentile, momentum, foreign_score,
+                )
 
-        percentile = self.compute_percentile_score(symbol, df)
-        if percentile is None:
-            return momentum
+        if short_interest_score is None:
+            return foreign_score
 
-        composite = round(
-            SMART_MONEY_PERCENTILE_WEIGHT * percentile
-            + SMART_MONEY_MOMENTUM_WEIGHT * momentum,
+        si = float(short_interest_score)
+        if kap_has_short_event and short_ratio is not None and short_ratio > SHORT_INTEREST_HIGH:
+            si = 0.5 + (si - 0.5) * L5_KAP_OVERLAP_DAMP
+
+        result = round(
+            L5_FOREIGN_WEIGHT * foreign_score
+            + L5_SHORT_INT_WEIGHT * (si * 100.0),
             2,
         )
         logger.debug(
-            "SmartMoneyL5 %s: Day %d — pct=%.1f mom=%.1f composite=%.1f",
-            symbol, n_days, percentile, momentum, composite,
+            "SmartMoneyL5 %s: L5 composite — foreign=%.1f short_int=%.1f (dampened=%s) result=%.1f",
+            symbol, foreign_score, si * 100.0, kap_has_short_event, result,
         )
-        return composite
+        return float(max(0.0, min(100.0, result)))
 
 
 # Module-level singleton used by engine.py

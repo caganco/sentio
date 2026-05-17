@@ -147,4 +147,26 @@ class TestSingletonPattern:
         assert instance2 is not instance1
 
 
+class TestL5VerdaIndependence:
+    """Verify L5 core is VERDA-independent (D-059)."""
+
+    def test_l5_no_verda_dependency(self):
+        """L5 core connector'larında VERDA referansı olmamalı."""
+        import pathlib
+
+        files_to_check = [
+            "src/signals/layers/smart_money_layer.py",
+            "src/signals/layers/connectors/smart_money_connector.py",
+            "src/signals/layers/connectors/smart_money_mock.py",
+            "src/signals/layers/connectors/bist_datastore_connector.py",
+        ]
+        for fpath in files_to_check:
+            p = pathlib.Path(fpath)
+            if p.exists():
+                source = p.read_text(encoding="utf-8")
+                assert "verda" not in source.lower(), (
+                    f"{fpath} contains 'verda' reference — L5 core must be VERDA-free"
+                )
+
+
 pytestmark = pytest.mark.baseline
