@@ -20,7 +20,14 @@ from src.signals.layers.connectors.smart_money_mock import (
     MockSmartMoneyConnector,
     make_ticker_row,
 )
-from src.signals.layers.smart_money_layer import SmartMoneyL5
+from src.signals.layers.smart_money_layer import (
+    NormalizerConfig,
+    OutlierGuard,
+    OutlierGuardConfig,
+    SmartMoneyL5,
+    SmartMoneyNormalizer,
+    l5_effective_weight,
+)
 from src.signals.thresholds import (
     SMART_MONEY_FULL_COMPOSITE_DAYS,
     SMART_MONEY_MOMENTUM_DAYS,
@@ -330,3 +337,145 @@ class TestSignalQuality:
 
         assert score is not None
         assert score == pytest.approx(0.0, abs=0.01)
+
+
+# ---------------------------------------------------------------------------
+# Group 21–23: l5_effective_weight
+# ---------------------------------------------------------------------------
+
+
+class TestL5EffectiveWeight:
+
+    def test_21_bull_healthy_returns_base_weight(self):
+        """Healthy pipeline + BULL → base_weight unchanged."""
+        assert l5_effective_weight(0.10, True, "BULL") == pytest.approx(0.10)
+
+    def test_22_unhealthy_pipeline_returns_zero(self):
+        """Unhealthy pipeline → 0.0 regardless of regime."""
+        assert l5_effective_weight(0.10, False, "BULL") == 0.0
+        assert l5_effective_weight(0.10, False, "BEAR") == 0.0
+
+    def test_23_bear_regime_halves_weight(self):
+        """BEAR regime → half the base_weight."""
+        assert l5_effective_weight(0.10, True, "BEAR") == pytest.approx(0.05)
+
+
+# ---------------------------------------------------------------------------
+# Group 24–26: OutlierGuard.is_signal_eligible
+# ---------------------------------------------------------------------------
+
+
+class TestOutlierGuardEligibility:
+
+    def _guard(self) -> OutlierGuard:
+        return OutlierGuard(OutlierGuardConfig(min_adv_tl=20_000_000.0, min_free_float=0.25))
+
+    def test_24_adv_and_ff_both_pass(self):
+        """ADV ≥ 20M TL and free_float ≥ 25% → eligible."""
+        assert self._guard().is_signal_eligible(adv_tl=25_000_000, free_float=0.30) is True
+
+    def test_25_adv_below_threshold_ineligible(self):
+        """ADV < 20M TL → not eligible."""
+        assert self._guard().is_signal_eligible(adv_tl=10_000_000, free_float=0.30) is False
+
+    def test_26_free_float_below_threshold_ineligible(self):
+        """free_float < 25% → not eligible even with high ADV."""
+        assert self._guard().is_signal_eligible(adv_tl=50_000_000, free_float=0.10) is False
+
+
+# ---------------------------------------------------------------------------
+# Group 27–29: OutlierGuard.filter_series
+# ---------------------------------------------------------------------------
+
+
+class TestOutlierGuardFilterSeries:
+
+    def test_27_small_changes_series_passthrough(self):
+        """No outliers (all within MAD, changes < 1pp) → result ≈ input."""
+        guard = OutlierGuard(OutlierGuardConfig())
+        s = pd.Series([30.0, 30.1, 30.2, 30.3, 30.4, 30.5])
+        result = guard.filter_series(s)
+        assert abs(float(result.iloc[-1]) - 30.5) < 0.1
+
+    def test_28_extreme_level_outlier_clipped(self):
+        """Value far beyond MAD threshold → clipped toward median."""
+        guard = OutlierGuard(OutlierGuardConfig(mad_threshold=3.5))
+        s = pd.Series([29.8, 30.0, 30.1, 30.2, 30.0, 30.1, 29.9, 30.0, 30.2, 55.0])
+        result = guard.filter_series(s)
+        assert result.iloc[-1] < 55.0
+
+    def test_29_both_conditions_required_for_eligibility(self):
+        """ADV OR free_float failure → ineligible; both must pass."""
+        guard = OutlierGuard(OutlierGuardConfig(min_adv_tl=20_000_000.0, min_free_float=0.25))
+        assert guard.is_signal_eligible(adv_tl=25_000_000, free_float=0.10) is False
+        assert guard.is_signal_eligible(adv_tl=10_000_000, free_float=0.30) is False
+        assert guard.is_signal_eligible(adv_tl=25_000_000, free_float=0.30) is True
+
+
+# ---------------------------------------------------------------------------
+# Group 30–33: SmartMoneyNormalizer
+# ---------------------------------------------------------------------------
+
+
+class TestSmartMoneyNormalizer:
+
+    def test_30_output_valid_after_warmup(self):
+        """normalize() returns values in [0,1] after min_periods of data."""
+        cfg = NormalizerConfig(
+            lookback_pctile=25,
+            level_weight=1.0,
+            momentum_weight=0.0,
+            ensemble_windows=(5,),
+            ensemble_weights=(1.0,),
+        )
+        norm = SmartMoneyNormalizer(cfg)
+        s = pd.Series([30.0 + i * 0.1 for i in range(50)])
+        result = norm.normalize(s)
+        valid = result.dropna()
+        assert len(valid) > 0
+        assert all(0.0 <= v <= 1.0 for v in valid)
+
+    def test_31_monotone_rising_scores_above_neutral(self):
+        """Steadily rising foreign_ratio → composite > 0.5."""
+        cfg = NormalizerConfig(
+            lookback_pctile=30,
+            ensemble_windows=(10,),
+            ensemble_weights=(1.0,),
+        )
+        norm = SmartMoneyNormalizer(cfg)
+        s = pd.Series([20.0 + i * 0.2 for i in range(60)])
+        result = norm.normalize(s)
+        last_valid = result.dropna().iloc[-1]
+        assert last_valid > 0.5
+
+    def test_32_output_always_clipped_to_0_1(self):
+        """Any realistic input → output always in [0, 1] (no boundary violations)."""
+        norm = SmartMoneyNormalizer(NormalizerConfig())
+        rng = pd.Series([30.0 + (i % 7) * 0.3 - (i % 3) * 0.1 for i in range(300)])
+        result = norm.normalize(rng)
+        valid = result.dropna()
+        assert len(valid) > 0
+        assert all(0.0 <= v <= 1.0 for v in valid)
+
+    def test_33_ensemble_weights_sum_to_one(self):
+        """Default NormalizerConfig ensemble_weights must sum to exactly 1.0."""
+        cfg = NormalizerConfig()
+        assert abs(sum(cfg.ensemble_weights) - 1.0) < 1e-9
+
+
+# ---------------------------------------------------------------------------
+# Group 34–35: l5_effective_weight — edge cases
+# ---------------------------------------------------------------------------
+
+
+class TestL5EffectiveWeightEdgeCases:
+
+    def test_34_neutral_regime_same_as_bull(self):
+        """NEUTRAL regime → same as BULL → base_weight unchanged."""
+        assert l5_effective_weight(0.10, True, "NEUTRAL") == pytest.approx(0.10)
+
+    def test_35_custom_base_weight_respected(self):
+        """base_weight parameter is forwarded correctly in all paths."""
+        assert l5_effective_weight(0.07, True, "BULL") == pytest.approx(0.07)
+        assert l5_effective_weight(0.07, True, "BEAR") == pytest.approx(0.035)
+        assert l5_effective_weight(0.07, False, "BULL") == 0.0

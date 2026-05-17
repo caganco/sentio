@@ -16,8 +16,38 @@ import json
 import logging
 import random
 import time
+from dataclasses import dataclass, field
+from datetime import date, datetime
+from decimal import Decimal
+from enum import StrEnum
 
 logger = logging.getLogger(__name__)
+
+
+class DataFreshness(StrEnum):
+    T_PLUS_1 = "t_plus_1"
+    EOD = "eod"
+
+
+@dataclass(frozen=True, slots=True)
+class ForeignRatioPoint:
+    """Immutable foreign ownership snapshot for a single ticker."""
+    symbol: str
+    as_of: date
+    foreign_ratio: Decimal           # 0–100 %
+    free_float_ratio: Decimal | None
+    source: str                      # "isyatirim_screener" | "finnet" | "mock"
+    fetched_at: datetime
+    raw: dict = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class HealthStatus:
+    """Pipeline health snapshot."""
+    healthy: bool
+    latency_ms: float
+    last_successful_fetch: datetime | None
+    error: str | None = None
 
 _SCREENER_URL = (
     "https://www.isyatirim.com.tr/tr-tr/analiz/_Layouts/15/IsYatirim.Website/"

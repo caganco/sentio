@@ -6,10 +6,12 @@ SmartMoneyL5 — D-055 progressive foreign ratio signal (İş Yatırım screener
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
+import numpy as np
 import pandas as pd
 
 from src.signals.thresholds import (
@@ -30,6 +32,131 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _DEFAULT_PARQUET = Path("data/smart_money/daily_screener.parquet")
+
+
+# ---------------------------------------------------------------------------
+# SmartMoneyNormalizer — D-055 supplement (pandas port of Polars design)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class NormalizerConfig:
+    lookback_pctile: int = 252
+    momentum_window: int = 10
+    level_weight: float = 0.60
+    momentum_weight: float = 0.40
+    ensemble_windows: tuple[int, ...] = (5, 10, 20)
+    ensemble_weights: tuple[float, ...] = (0.25, 0.50, 0.25)
+    calendar_dampening: dict[str, float] | None = None
+
+
+class SmartMoneyNormalizer:
+    """Composite normalizer: 60% rolling percentile + 40% multi-window momentum ensemble."""
+
+    def __init__(self, config: NormalizerConfig) -> None:
+        self.cfg = config
+
+    def normalize(
+        self,
+        foreign_ratio: pd.Series,
+        event_flags: pd.Series | None = None,
+    ) -> pd.Series:
+        level = self._rolling_percentile(foreign_ratio, self.cfg.lookback_pctile)
+
+        mom_ensemble = pd.Series(
+            np.zeros(len(foreign_ratio)), index=foreign_ratio.index, dtype=float
+        )
+        for w, weight in zip(self.cfg.ensemble_windows, self.cfg.ensemble_weights):
+            mom = foreign_ratio.diff(w)
+            mom_ensemble = mom_ensemble + (
+                self._rolling_percentile(mom, self.cfg.lookback_pctile).fillna(0.5) * weight
+            )
+
+        composite = (
+            self.cfg.level_weight * level.fillna(0.5)
+            + self.cfg.momentum_weight * mom_ensemble
+        )
+
+        if event_flags is not None and self.cfg.calendar_dampening:
+            damp = event_flags.map(
+                lambda x: self.cfg.calendar_dampening.get(x, 1.0)  # type: ignore[arg-type]
+            )
+            composite = 0.5 + (composite - 0.5) * damp
+
+        return composite.clip(0.0, 1.0)
+
+    @staticmethod
+    def _rolling_percentile(s: pd.Series, window: int) -> pd.Series:
+        min_periods = max(20, window // 4)
+        return s.rolling(window=window, min_periods=min_periods).apply(
+            lambda x: float((x[:-1] < x[-1]).mean()) if len(x) > 1 else 0.5,
+            raw=True,
+        )
+
+
+# ---------------------------------------------------------------------------
+# OutlierGuard — D-055 supplement (MAD clipping + ADV eligibility)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class OutlierGuardConfig:
+    mad_threshold: float = 5.0
+    daily_change_cap_pp: float = 1.0
+    min_adv_tl: float = 20_000_000.0
+    min_free_float: float = 0.25
+
+
+class OutlierGuard:
+    """MAD-based level clipping + daily change cap. BIST fat-tail robust."""
+
+    def __init__(self, cfg: OutlierGuardConfig) -> None:
+        self.cfg = cfg
+
+    def filter_series(self, series: pd.Series) -> pd.Series:
+        median = float(series.median())
+        mad = float((series - median).abs().median())
+        threshold = self.cfg.mad_threshold * mad
+
+        if mad == 0:
+            diff = series.diff().fillna(0.0)
+            capped = diff.clip(-self.cfg.daily_change_cap_pp, self.cfg.daily_change_cap_pp)
+            shifted = series.shift(1).fillna(series.iloc[0])
+            return shifted + capped
+
+        clipped = series.apply(
+            lambda x: median + float(np.sign(x - median)) * threshold
+            if abs(x - median) > threshold else x
+        )
+        diff = clipped.diff().fillna(0.0)
+        capped = diff.clip(-self.cfg.daily_change_cap_pp, self.cfg.daily_change_cap_pp)
+        shifted = clipped.shift(1).fillna(clipped.iloc[0])
+        return shifted + capped
+
+    def is_signal_eligible(self, adv_tl: float, free_float: float) -> bool:
+        return adv_tl >= self.cfg.min_adv_tl and free_float >= self.cfg.min_free_float
+
+
+# ---------------------------------------------------------------------------
+# l5_effective_weight — pipeline-gated weight (D-055 supplement)
+# ---------------------------------------------------------------------------
+
+def l5_effective_weight(
+    base_weight: float = 0.10,
+    pipeline_healthy: bool = True,
+    macro_regime: str = "BULL",
+) -> float:
+    """
+    Return the effective L5 weight for the engine composite.
+
+    Rules:
+    - Unhealthy pipeline (stale/soft-block) → 0.0 (fully excluded)
+    - BEAR regime → half weight (L5 cannot open new positions, only reduces sizing)
+    - BULL / NEUTRAL → base_weight (default 0.10)
+    """
+    if not pipeline_healthy:
+        return 0.0
+    if macro_regime == "BEAR":
+        return base_weight * 0.5
+    return base_weight
 
 
 class SmartMoneySignal:
