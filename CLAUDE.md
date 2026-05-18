@@ -49,6 +49,10 @@ python -m pytest tests/ -q --tb=short
   - `python -m pytest tests/ -q --tb=short`
   - Tüm 736 test pass olmalı (1 skipped).
 
+- **Direktif enforcement:** Direktifte ETKİLENEN DOSYALAR listesinde yer
+  almayan bir dosyaya dokunmadan önce Orchestrator'a sor ve onay al.
+  Kapsam kayması (scope creep) sessizce yapılmaz.
+
 ## Her Session Başında Oku (Builder Zorunlu)
 
 Builder başlangıcında şu dosyaları açıp gözden geçir:
