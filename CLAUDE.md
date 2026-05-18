@@ -47,7 +47,7 @@ python -m pytest tests/ -q --tb=short
   
 - **Her değişiklikten sonra pytest çalıştır, zero regression zorunlu.**
   - `python -m pytest tests/ -q --tb=short`
-  - Tüm 657 test pass olmalı (1 skipped).
+  - Tüm 736 test pass olmalı (1 skipped).
 
 ## Her Session Başında Oku (Builder Zorunlu)
 
