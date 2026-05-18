@@ -53,6 +53,12 @@ python -m pytest tests/ -q --tb=short
   almayan bir dosyaya dokunmadan önce Orchestrator'a sor ve onay al.
   Kapsam kayması (scope creep) sessizce yapılmaz.
 
+## Test Yazım Kuralları
+
+Test davranışı test eder, implementasyonu değil. Private metodlara
+(`_method`) doğrudan test yazılmaz. Refactor sonrası test kırılıyorsa
+bu test hatalı yazılmış demektir.
+
 ## Her Session Başında Oku (Builder Zorunlu)
 
 Builder başlangıcında şu dosyaları açıp gözden geçir:
