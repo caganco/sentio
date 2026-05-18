@@ -28,8 +28,9 @@ class TestScoreMacroWithoutLocalSignals:
         score = score_macro(macro_data)
         assert score.layer == "macro"
         assert 0.0 <= score.score <= 100.0
-        # New weight: 0.35 (macro layer weight in updated MASTER_WEIGHTS)
-        assert abs(score.weight - 0.35) < 1e-9
+        # Phase 4.5 (D-052): macro weight 0.35 -> 0.20 (less gatekeeping; L2
+        # now drives macro modulation instead of acting as a hard veto).
+        assert abs(score.weight - 0.20) < 1e-9
         assert score.source == "computed"
 
     def test_score_missing_assets(self):

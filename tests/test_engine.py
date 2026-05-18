@@ -219,9 +219,15 @@ class TestMacroLayer:
         mock_local.cds.score = 50.0
         mock_local.cds.confidence = 1.0
         mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
         with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
             ls = score_macro(MACRO_RISK_ON)
-            # 50% global*76.39 + 25% TCMB*50 + 25% CDS*50 = 38.19 + 12.5 + 12.5 = 63.19 > 50
+            # DXY absent → global_w=0.50; 50%*global + 25%*TCMB + 25%*CDS > 50
             assert ls.score > 50.0
 
     def test_neutral_near_50(self):
@@ -233,9 +239,15 @@ class TestMacroLayer:
         mock_local.cds.score = 50.0
         mock_local.cds.confidence = 1.0
         mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
         with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
             ls = score_macro(MACRO_NEUTRAL)
-            # 50% global*50 + 25% TCMB*50 + 25% CDS*50 = 25 + 12.5 + 12.5 = 50
+            # DXY absent → global_w=0.50; 50%*50 + 25%*50 + 25%*50 = 50
             assert ls.score == pytest.approx(50.0, abs=1.0)
 
     def test_empty_returns_missing(self):
@@ -262,10 +274,16 @@ class TestMacroLayer:
         mock_local.cds.score = 50.0
         mock_local.cds.confidence = 1.0
         mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
         with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
             ls = score_macro({"vix_score": -0.5, "usdtry_score": -0.3, "bist100_score": 0.4})
             assert ls.source == "computed"
-            # 50% global*62.5 + 25% TCMB*50 + 25% CDS*50 = 31.25 + 12.5 + 12.5 = 56.25 > 50
+            # DXY absent → global_w=0.50; 50%*global + 25%*TCMB + 25%*CDS > 50
             assert ls.score > 50.0
 
     def test_score_clamped_0_100(self):

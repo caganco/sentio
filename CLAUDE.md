@@ -36,7 +36,10 @@ python -m pytest tests/ -q --tb=short
   
 - **Yeni ağırlık ekleme/çıkarma engine.py + thresholds.py'i birlikte etkiler.**
   - Bir layer ağırlığı değiştirirsem, engine.py'deki composite formula da kontrol et.
-  - MASTER_WEIGHTS toplamı 0.85–1.05 aralığında olmalı (neutral fuzzing tolerance).
+  - MASTER_WEIGHTS **statik** toplamı 0.85–1.05 aralığında olmalı (Phase 4.5'te = 1.00).
+  - **Phase 4.5 adapt (DEC-009):** 0.78 hardcoded normalizer DEĞİL — L4/L5 confidence
+    scaling ile ortaya çıkan runtime tabanıdır. Dinamik normalizer korunur; efektif
+    Σ ∈ [0.78, 1.00]. Doğrulama: `src/utils/weight_validator.py`.
   
 - **LocalMacroSignals singleton pattern'i kırma.**
   - `cache_store.py`'deki `_MACRO_SINGLETON` üzerinden erişim yapılır.
@@ -44,7 +47,7 @@ python -m pytest tests/ -q --tb=short
   
 - **Her değişiklikten sonra pytest çalıştır, zero regression zorunlu.**
   - `python -m pytest tests/ -q --tb=short`
-  - Tüm 541+ test pass olmalı.
+  - Tüm 657 test pass olmalı (1 skipped).
 
 ## Her Session Başında Oku (Builder Zorunlu)
 
@@ -108,17 +111,20 @@ Context kayıp veya regresyon var, commit'e bakılır
 ```powershell
 # Commit öncesi veya haftada 1x çalıştır
 python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
-# Beklenen: "== 553 passed in ~40s =="
+# Beklenen: "== 736 passed, 1 skipped in ~45s ==" (D-052 Phase 4.5 sonrası)
 ```
 
 ### Quick Reference (Memorize)
 - **Constant single source:** `src/signals/thresholds.py`
 - **Signal engine:** `src/signals/engine.py` (no hardcoded thresholds)
-- **Composite formula:** `tech*0.20 + macro*0.35 + risk*0.05 + kap*0.15 + smart*0.20 + sent*0.05`
+- **Composite formula (Phase 4.5, D-052):** `L1 tech*0.25 + L2 macro*0.20 + L3 kap*0.30 + L4 sent*(0.12×conf) + L5 smart*(0.10×conf) + L6 risk*0.03`, dinamik normalizer (Σ ∈ [0.78,1.00], DEC-009)
+- **Conviction:** `(composite/100) × macro_mult`; ≥0.68 BUY-STRONG · 0.55-0.67 BUY-MEDIUM · <0.55 WATCH
+- **Macro gate:** L2≥60 → 1.0x · 45-59 → 0.8x · <45 → 0.0x (no entry)
+- **Staged TP:** TP1 %50 / TP2 %30 / TP3 %20
 - **Stop-loss:** entry × 0.92 (-8%)
 - **Profit target:** entry × 1.20 (+20%)
 - **Stop approach:** warning when price ≤ (stop × 1.03)
-- **Test count:** 553 pass (regression guard)
+- **Test count:** 736 pass, 1 skipped (regression guard, D-052 Phase 4.5)
 
 ---
 

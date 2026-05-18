@@ -19,9 +19,9 @@ from src.signals.models import (
     SIGNAL_ORDER,
     SignalResult,
 )
+from src.signals.conviction_validator import compute_conviction
 from src.signals.thresholds import (
     CONFLICT_THRESHOLD,
-    L5_SMART_MONEY_WEIGHT,
     MASTER_WEIGHTS,
     SIGNAL_THRESHOLDS,
 )
@@ -202,19 +202,23 @@ def compute_signal(
         weight=_w("risk"), detail=risk_ls.detail, source=risk_ls.source,
     )
 
-    # Sentiment layer (VADER) deactivated pending DistilBERT Phase 4.2.1
-    # Code kept intact for phase transition; weight=0.0 in thresholds.py
+    # L4 Sentiment — confidence-scaled at LayerScore creation (D-052, DEC-009).
+    # Effective weight = MASTER_WEIGHTS["sentiment"] (0.12) x layer confidence.
+    # SUSPENDED in production (no Turkish news source) → confidence=0.0 →
+    # effective weight 0.0 → zero contribution (emergent normalizer floor 0.78).
     sentiment_ls = score_sentiment(symbol)
     sentiment_ls = LayerScore(
         layer=sentiment_ls.layer, score=sentiment_ls.score, confidence=sentiment_ls.confidence,
-        weight=_w("sentiment"),  # Currently 0.0 — reweight distributed to smart_money
+        weight=_w("sentiment") * sentiment_ls.confidence,
         detail=sentiment_ls.detail, source=sentiment_ls.source,
     )
 
-    # Smart Money L5 (D-055 — Phase 4.5 progressive build)
-    # compute_l5_score() returns None when: no history, stale >48h, ADV ineligible, or <10 days.
-    # On None: weight=0 (completely excluded from composite — not 50.0 neutral contribution).
-    # On valid score: weight=L5_SMART_MONEY_WEIGHT (0.10), normalizer handles the rest.
+    # L5 Smart Money (D-055 — Phase 4.5 progressive build), confidence-scaled
+    # at LayerScore creation (D-052, DEC-009): effective weight =
+    # MASTER_WEIGHTS["smart_money"] (0.10) x layer confidence.
+    # compute_l5_score() returns None when: no history, stale >48h, ADV
+    # ineligible, or <10 days → confidence=0 → effective weight 0 (fully
+    # excluded; not a 50.0 neutral contribution). Data-collection until ~Gün 10.
     _l5_score = get_l5_layer().compute_l5_score(symbol)
     if _l5_score is None:
         smart_money_ls = LayerScore(
@@ -226,11 +230,12 @@ def compute_signal(
             source="stub",
         )
     else:
+        _l5_conf = 0.8
         smart_money_ls = LayerScore(
             layer="smart_money",
             score=round(_l5_score, 2),
-            confidence=0.8,
-            weight=L5_SMART_MONEY_WEIGHT,
+            confidence=_l5_conf,
+            weight=_w("smart_money") * _l5_conf,
             detail={"l5_score": _l5_score},
             source="computed",
         )
@@ -240,6 +245,14 @@ def compute_signal(
     ]
 
     weighted_sum = _compute_weighted_sum(layer_scores)
+
+    # Phase 4.5 (D-052) — derived conviction layer (SPEC_SIGNAL_CONVICTION_1).
+    # Engine's 0-100 scoring + L1/L2/L3 logic untouched; conviction is derived
+    # on top from the reweighted composite, modulated by L2 macro score.
+    conviction_score, conviction_tier = compute_conviction(
+        weighted_sum, macro_ls.score
+    )
+
     pre_conflict_signal = _score_to_signal(weighted_sum)
 
     final_signal, conflict = _apply_conflict_resolution(pre_conflict_signal, layer_scores)
@@ -267,9 +280,18 @@ def compute_signal(
         risk_off_trigger=risk_off_trigger,
         final_signal=final_signal,
         signal_summary=summary,
+        conviction_score=conviction_score,
+        conviction_tier=conviction_tier,
     )
 
-    return SignalResult(symbol=symbol, final_signal=final_signal, score=score, audit=audit)
+    return SignalResult(
+        symbol=symbol,
+        final_signal=final_signal,
+        score=score,
+        audit=audit,
+        conviction_score=conviction_score,
+        conviction_tier=conviction_tier,
+    )
 
 
 def compute_batch(

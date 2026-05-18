@@ -2,7 +2,7 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 15 May 2026  
+**Last Updated:** 16 May 2026  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -19,6 +19,9 @@
 | **DEC-004** | Report Token Optimization (≤600) | Efficiency | ✅ Implemented | 2026-05-11 | `src/reporting/report_generator.py` |
 | **DEC-005** | Signal Layer Weights (4-Layer Stack) | Signal Architecture | ✅ Implemented | 2026-05-10 | `src/signals/signal_combination.py`, `config.yaml` |
 | **DEC-006** | Kelly Criterion Position Sizing | Risk Management | 💡 Pending | TBD | `src/risk/kelly_criterion.py` |
+| **DEC-007** | Ruthless Alpha Philosophy — Remove Defensive Constraints | Signal Engine | ✅ Decided | 2026-05-16 | `src/signals/engine.py`, `src/signals/thresholds.py`, `tests/test_engine.py` |
+| **DEC-008** | VERDA Independence — L5 Core Decoupled from Vendor | Signal Architecture | ✅ Decided | 2026-05-18 | `src/signals/layers/smart_money_layer.py`, `tests/test_architecture.py` |
+| **DEC-009** | Phase 4.5 Normalizer — Emergent 0.78 Floor (not hardcoded) | Signal Engine | ✅ Decided | 2026-05-18 | `src/signals/thresholds.py`, `src/signals/engine.py`, `src/utils/weight_validator.py` |
 
 ---
 
@@ -30,9 +33,10 @@
 - [DEC-001](decisions/DEC-001.md) – KAP holiday handling + bulk queue
 - [DEC-002](decisions/DEC-002.md) – CDS fallback to iShares model
 
-**Signal Architecture** (2 implemented)
+**Signal Architecture** (3 implemented)
 - [DEC-003](decisions/DEC-003.md) – Correlation scoring per stock
 - [DEC-005](decisions/DEC-005.md) – Weight distribution (20%, 33%, 27%, 20%)
+- [DEC-007](decisions/DEC-007.md) – Conviction-based scoring (Phase 4.2.3)
 
 **Efficiency** (1 implemented)
 - [DEC-004](decisions/DEC-004.md) – Token budget optimization
@@ -44,6 +48,9 @@
 
 **✅ Implemented (5)**
 - DEC-001, DEC-002, DEC-003, DEC-004, DEC-005
+
+**✅ Decided (1)**
+- DEC-007
 
 **💡 Pending (1)**
 - DEC-006
@@ -83,16 +90,17 @@ grep -l "status: pending" docs/decisions/DEC-*.md
 
 ## DECISION METRICS
 
-**Current State (15 May 2026):**
+**Current State (16 May 2026):**
 
 | Metric | Count |
 |---|---|
-| Total Decisions | 6 |
-| Implemented | 5 (83%) |
-| Pending | 1 (17%) |
-| High Priority | 5 |
+| Total Decisions | 7 |
+| Implemented | 5 (71%) |
+| Decided | 1 (14%) |
+| Pending | 1 (14%) |
+| High Priority | 6 |
 | Data Source | 2 |
-| Signal Architecture | 2 |
+| Signal Architecture | 3 |
 | Efficiency | 1 |
 | Risk Management | 1 |
 
@@ -137,4 +145,4 @@ Tests: +N passing"
 
 **Owner:** Architect  
 **Maintained By:** Architect  
-**Last Review:** 15 May 2026
+**Last Review:** 16 May 2026

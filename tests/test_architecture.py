@@ -88,24 +88,29 @@ class TestThresholdsSingleSource:
 
 
 class TestWeightSumValid:
-    """Verify MASTER_WEIGHTS sum is in acceptable range."""
+    """Verify MASTER_WEIGHTS sum is in acceptable range.
+
+    Logic delegated to src.utils.weight_validator (D-052). The static sum stays
+    in [0.85, 1.05]; 0.78 is the emergent runtime floor, not the static sum.
+    """
 
     def test_weight_sum_valid(self):
-        """All layer weights must sum to 0.85–1.05 (neutral fuzzing tolerance)."""
-        total_weight = sum(MASTER_WEIGHTS.values())
+        """Static sum in band, no negative/zero active weights (sentiment may be base-weighted)."""
+        from src.utils.weight_validator import validate_master_weights
 
-        assert 0.85 <= total_weight <= 1.05, (
-            f"MASTER_WEIGHTS sum is {total_weight:.4f}, "
-            f"but must be in [0.85, 1.05]. "
-            f"Current weights: {MASTER_WEIGHTS}"
-        )
+        report = validate_master_weights()  # raises ValueError on violation
 
-        # Verify no negative weights; zero allowed for deactivated layers (e.g., sentiment)
-        for layer, weight in MASTER_WEIGHTS.items():
-            assert weight >= 0, f"Layer '{layer}' has negative weight: {weight}"
-            # Sentiment allowed to be 0 (deactivated pending DistilBERT Phase 4.2.1)
-            if layer != "sentiment":
-                assert weight > 0, f"Active layer '{layer}' has non-positive weight: {weight}"
+        assert 0.85 <= report["static_sum"] <= 1.05, report
+        # Emergent normalizer floor is the documented 0.78 (DEC-009).
+        assert abs(report["emergent_floor"] - 0.78) < 1e-9, report
+
+    def test_weight_sum_validator_rejects_bad_weights(self, monkeypatch):
+        """Validator must raise when the static sum leaves the safety band."""
+        import src.utils.weight_validator as wv
+
+        monkeypatch.setattr(wv, "MASTER_WEIGHTS", {"technical": 2.0, "macro": 0.5})
+        with pytest.raises(ValueError, match="static sum"):
+            wv.validate_master_weights()
 
 
 class TestSingletonPattern:

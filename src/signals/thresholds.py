@@ -1,12 +1,31 @@
 """All threshold constants for the Signal Engine. No magic numbers elsewhere."""
 
+# -----------------------------------------------------------------------------
+# PHASE 4.5 LAYER MAPPING (D-052) -- engine internal name <-> SPEC L# number.
+# Verified against SPEC_SIGNAL_CONVICTION_1.md (l.75-77, 129-131, 283-291) and
+# OS_STATE.md (l.87-93). DO NOT reorder without re-verifying both sources.
+#
+#   engine name   SPEC   weight   runtime            note
+#   -----------   ----   ------   ----------------   -------------------------
+#   technical     L1     0.25     fixed              -
+#   macro         L2     0.20     fixed              also drives macro modulation
+#   kap           L3     0.30     fixed              -
+#   sentiment     L4     0.12     x l4_confidence    SUSPENDED -> conf=0 -> 0 contrib
+#   smart_money   L5     0.10     x l5_confidence    data-collection, conf~=0 early
+#   risk          L6     0.03     fixed              signal-only (not pos sizing)
+#
+# Static sum = 1.00 (stays in architecture-safety band [0.85, 1.05]).
+# Effective runtime Sigma in [0.78, 1.00] via L4/L5 confidence scaling at
+# LayerScore creation (engine.py). The 0.78 floor is the EMERGENT normalizer
+# -- see docs/decisions/DEC-009.
+# -----------------------------------------------------------------------------
 MASTER_WEIGHTS: dict[str, float] = {
-    "technical": round(0.20 / 1.00, 10),   # 0.2000 (unchanged)
-    "macro":     round(0.35 / 1.00, 10),   # 0.3500 (unchanged)
-    "kap":       round(0.15 / 1.00, 10),   # 0.1500 (unchanged)
-    "risk":      round(0.05 / 1.00, 10),   # 0.0500 (unchanged)
-    "smart_money": round(0.25 / 1.00, 10), # 0.2500 (was 0.20, +0.05 from sentiment)
-    "sentiment": round(0.00 / 1.00, 10),   # 0.0000 (deactivated, awaiting DistilBERT Phase 4.2.1)
+    "technical": round(0.25 / 1.00, 10),   # L1 0.2500 (Phase 4.5: was 0.20)
+    "macro":     round(0.20 / 1.00, 10),   # L2 0.2000 (Phase 4.5: was 0.35, less gatekeeping)
+    "kap":       round(0.30 / 1.00, 10),   # L3 0.3000 (Phase 4.5: was 0.15, events matter more)
+    "sentiment": round(0.12 / 1.00, 10),   # L4 0.1200 (× l4_confidence; SUSPENDED → 0 contrib)
+    "smart_money": round(0.10 / 1.00, 10), # L5 0.1000 (× l5_confidence; was 0.25)
+    "risk":      round(0.03 / 1.00, 10),   # L6 0.0300 (Phase 4.5: was 0.05, signal-only)
 }
 
 SIGNAL_THRESHOLDS: dict[str, float] = {
@@ -229,3 +248,70 @@ SHORT_INTEREST_STALE: int = 10        # days — no update → neutral fallback
 
 # L3-L5 covariance dampening (D-058)
 L5_KAP_OVERLAP_DAMP: float = 0.6      # Dampening factor when L3 KAP + L5 short overlap
+
+# =============================================================================
+# PHASE 4.5 -- RUTHLESS ALPHA (D-052). SPEC_SIGNAL_CONVICTION_1 /
+# POSITION_SIZING_2 / MACRO_REGIME_GATE_2 / STAGED_TP_1.
+# Single source of truth -- no magic numbers elsewhere.
+# =============================================================================
+
+# --- Conviction tiers (SPEC_SIGNAL_CONVICTION_1) ---
+# conviction_score (0-1) = (composite_0_100 / 100) * macro_multiplier, clamp 1.0.
+# Tiers authoritative per task criteria + SPEC Sections 1.2/3.3/5.1/10.
+CONVICTION_STRONG: float = 0.68       # >= -> BUY-STRONG
+CONVICTION_MEDIUM: float = 0.55       # 0.55-0.67 -> BUY-MEDIUM; < -> WATCH (entry tiers)
+# Position-sizing lifecycle boundaries (SPEC_POSITION_SIZING_2 1.2):
+CONVICTION_WEAK: float = 0.45         # 0.45-0.54 -> BUY-WEAK watchlist
+CONVICTION_COLLAPSE: float = 0.35     # 0.35-0.44 -> HOLD; < -> SELL/forced staged exit
+
+# Macro modulation multiplier (L2 macro score on 0-100 engine scale).
+CONVICTION_MACRO_BULL_MIN: float = 65.0    # L2 ≥ 65 → ×1.2
+CONVICTION_MACRO_NEUTRAL_MIN: float = 50.0  # L2 ≥ 50 → ×1.0; < 50 → ×0.85
+CONVICTION_MACRO_MULT_BULL: float = 1.2
+CONVICTION_MACRO_MULT_NEUTRAL: float = 1.0
+CONVICTION_MACRO_MULT_BEAR: float = 0.85
+
+# Emergent runtime normalizer floor (DEC-009). Dynamic normalizer preserved;
+# this is the documented floor when L4 (suspended) + L5 (conf≈0) → Σ = 0.78.
+RUNTIME_NORMALIZER_FLOOR: float = 0.78
+# Static MASTER_WEIGHTS sum must stay within this architecture-safety band.
+MASTER_WEIGHTS_SUM_MIN: float = 0.85
+MASTER_WEIGHTS_SUM_MAX: float = 1.05
+
+# --- Macro regime gate (SPEC_MACRO_REGIME_GATE_2) ---
+# L2 macro score (0-100 engine scale) → position sizing multiplier.
+# Task criteria authoritative: flat 0.8 in NEUTRAL (no interpolation).
+MACRO_GATE_BULL_MIN: float = 60.0      # L2 ≥ 60 → BULL, 1.0×
+MACRO_GATE_NEUTRAL_MIN: float = 45.0   # 45 ≤ L2 < 60 → NEUTRAL, 0.8×; < 45 → BEAR, 0.0×
+MACRO_GATE_SCALING_BULL: float = 1.0
+MACRO_GATE_SCALING_NEUTRAL: float = 0.8
+MACRO_GATE_SCALING_BEAR: float = 0.0
+
+# --- Position sizing (SPEC_POSITION_SIZING_2) ---
+POSITION_SIZE_STRONG: float = 0.325    # 32.5% base per BUY-STRONG
+POSITION_SIZE_MEDIUM: float = 0.175    # 17.5% base per BUY-MEDIUM
+MAX_POSITIONS_STRONG: int = 4
+MAX_POSITIONS_MEDIUM: int = 2
+MAX_POSITIONS_TOTAL: int = 6
+MAX_SECTOR_CONCENTRATION: float = 0.40  # Single sector cap
+MAX_DRAWDOWN_HARD_STOP: float = 0.15    # Portfolio DD → liquidate / pause entries
+
+# --- Staged take-profit (SPEC_STAGED_TP_1) ---
+TP1_PCT_EXIT: float = 0.50             # First resistance
+TP2_PCT_EXIT: float = 0.30             # Fib 0.618
+TP3_PCT_EXIT: float = 0.20             # Trailing / trend break
+ATR_TP1_MULTIPLE: float = 1.5          # Fallback when no detected levels
+ATR_TP2_MULTIPLE: float = 3.0
+ATR_TP3_MULTIPLE: float = 5.0
+TP_PIVOT_LOOKBACK: int = 20
+TP_SWING_HIGH_LOOKBACK: int = 60
+TP_FIB_LOOKBACK: int = 252
+TP_MA200_LOOKBACK: int = 200
+TP_CONFIDENCE_FLOOR: float = 0.6       # confidence = 0.6 + overlap × 0.15
+TP_CONFIDENCE_OVERLAP_BONUS: float = 0.15
+TP3_TRAIL_BULL: float = 0.02           # Trailing-stop % by regime
+TP3_TRAIL_NEUTRAL: float = 0.03
+TP3_TRAIL_BEAR: float = 0.02
+TP2_DAYS_HOLD: int = 3                 # Limit not filled → lower price
+TP3_DAYS_HOLD: int = 10                # Max hold before TP3 review
+CONVICTION_COLLAPSE_HOLD_HOURS: int = 24  # Recovery window before TP2+TP3 force-close

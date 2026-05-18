@@ -103,8 +103,11 @@ class TestSentimentIntegration:
         from src.signals.thresholds import MASTER_WEIGHTS
 
         assert "sentiment" in MASTER_WEIGHTS
-        # Sentiment deactivated (0.0) pending DistilBERT Phase 4.2.1; weight redistributed to smart_money
-        assert MASTER_WEIGHTS["sentiment"] == 0.0
+        # Phase 4.5 (D-052, DEC-009): sentiment (L4) base weight 0.12, but it is
+        # confidence-scaled at LayerScore creation in engine.py. SUSPENDED in
+        # production (no Turkish news source) -> confidence 0.0 -> effective
+        # weight 0.0 (zero contribution; emergent normalizer floor 0.78).
+        assert MASTER_WEIGHTS["sentiment"] == 0.12
 
     def test_all_6_layers_in_signal(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):

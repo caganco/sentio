@@ -48,6 +48,10 @@ class AuditTrail:
     risk_off_trigger: str | None
     final_signal: FinalSignal
     signal_summary: str
+    # Phase 4.5 (D-052) — derived conviction layer (SPEC_SIGNAL_CONVICTION_1).
+    # Defaults keep all pre-4.5 constructors valid.
+    conviction_score: float = 0.0          # [0,1] post macro modulation
+    conviction_tier: str = "WATCH"         # BUY-STRONG | BUY-MEDIUM | WATCH
 
 
 @dataclass(frozen=True)
@@ -56,6 +60,9 @@ class SignalResult:
     final_signal: FinalSignal
     score: float      # WeightedSum (0-100)
     audit: AuditTrail
+    # Phase 4.5 (D-052) — surfaced from audit for downstream sizing/strategist.
+    conviction_score: float = 0.0          # [0,1]
+    conviction_tier: str = "WATCH"
 
 
 @dataclass(frozen=True)

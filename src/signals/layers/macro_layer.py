@@ -70,7 +70,14 @@ def score_macro(macro_data: dict) -> LayerScore:
         local_signals = LocalMacroSignals()
         local_result = local_signals.score()
 
-        # Composite: 50% global + 25% TCMB + 25% CDS + 0% foreign (stub)
+        # Gap 3: DXY weight is redistributed to global_signals when DXY data
+        # is absent (confidence=0) so the total effective weight stays at 1.0.
+        dxy_conf = local_result.dxy.confidence
+        global_w = MACRO_WEIGHTS_COMPOSITE["global_signals"]
+        if dxy_conf == 0.0:
+            global_w += MACRO_WEIGHTS_COMPOSITE["dxy"]
+
+        global_contrib = global_score * global_w
         tcmb_contrib = (
             local_result.tcmb.score
             * local_result.tcmb.confidence
@@ -81,17 +88,20 @@ def score_macro(macro_data: dict) -> LayerScore:
             * local_result.cds.confidence
             * MACRO_WEIGHTS_COMPOSITE["cds"]
         )
-        global_contrib = global_score * MACRO_WEIGHTS_COMPOSITE["global_signals"]
+        dxy_contrib = (
+            local_result.dxy.score
+            * dxy_conf
+            * MACRO_WEIGHTS_COMPOSITE["dxy"]
+        )
 
-        final_score = global_contrib + tcmb_contrib + cds_contrib
+        final_score = global_contrib + tcmb_contrib + cds_contrib + dxy_contrib
         final_score = max(0.0, min(100.0, final_score))
 
-        # Confidence: min of components
-        min_conf = min(
-            confidence,
-            local_result.tcmb.confidence,
-            local_result.cds.confidence,
-        )
+        # Confidence: min of components with data (exclude absent DXY)
+        conf_components = [confidence, local_result.tcmb.confidence, local_result.cds.confidence]
+        if dxy_conf > 0.0:
+            conf_components.append(dxy_conf)
+        min_conf = min(conf_components)
 
         detail["local_macro"] = {
             "tcmb": {
@@ -103,6 +113,16 @@ def score_macro(macro_data: dict) -> LayerScore:
                 "score": round(local_result.cds.score, 4),
                 "conf": round(local_result.cds.confidence, 4),
                 "msg": local_result.cds.audit_msg,
+            },
+            "dxy": {
+                "score": round(local_result.dxy.score, 4),
+                "conf": round(dxy_conf, 4),
+                "msg": local_result.dxy.audit_msg,
+            },
+            "tl_bond_proxy": {
+                "score": round(local_result.tl_bond_proxy.score, 4),
+                "implied_yield": local_result.tl_bond_proxy.raw_value,
+                "msg": local_result.tl_bond_proxy.audit_msg,
             },
         }
         detail["global_score"] = round(global_score, 4)
