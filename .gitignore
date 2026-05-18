@@ -13,3 +13,13 @@ venv/
 *.egg-info/
 dist/
 build/
+
+# D-062 G-04: root temp/build artifacts
+PHASE_4_2_*_STATUS.txt
+phase_4_2_*_output.txt
+d_033_validation*.txt
+test_output.txt
+test_results*.txt
+backtest_output.log
+chat.html
+vader_accuracy_results.txt
