@@ -3,6 +3,7 @@
 import logging
 from src.signals.models import LayerScore
 from src.signals.sentiment.sentiment_signal import SentimentSignal
+from src.signals.thresholds import MASTER_WEIGHTS
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def score_sentiment(symbol: str, days: int = 7) -> LayerScore:
             layer="sentiment",
             score=score,
             confidence=confidence,
-            weight=0.25,  # Will be overridden by engine
+            weight=MASTER_WEIGHTS["sentiment"],  # base; engine confidence-scales
             detail=detail,
             source=source,
         )
@@ -55,7 +56,7 @@ def score_sentiment(symbol: str, days: int = 7) -> LayerScore:
             layer="sentiment",
             score=50.0,  # neutral
             confidence=0.0,
-            weight=0.25,
+            weight=MASTER_WEIGHTS["sentiment"],
             detail={"error": str(e)},
             source="missing",
         )
