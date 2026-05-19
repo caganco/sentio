@@ -35,13 +35,36 @@ class TestScoreMacroWithoutLocalSignals:
 
     def test_score_missing_assets(self):
         """Missing assets -> confidence 0.6."""
+        from unittest.mock import MagicMock, patch
+
+        # Mock LocalMacroSignals so the test does not depend on the
+        # git-ignored YAML macro fallback (absent on CI → tcmb/cds
+        # confidence 0.0, which would collapse the min()). Local
+        # confidence pinned to 1.0; assertion still checks min() picks
+        # the global 0.6 (missing assets).
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
+
         macro_data = {
             "USDTRY": -0.2,
             "VIX": -0.3,
         }
-        score = score_macro(macro_data)
-        assert score.confidence == 0.6
-        assert "missing_assets" in score.detail
+
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
+            score = score_macro(macro_data)
+            assert score.confidence == 0.6
+            assert "missing_assets" in score.detail
 
     def test_score_all_missing(self):
         """All assets missing -> confidence 0.0, score 50.0."""
