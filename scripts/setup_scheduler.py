@@ -62,7 +62,13 @@ def create_task() -> None:
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
     except OSError as exc:
         # Never let the password reach a traceback — re-raise with masked argv.
         print("HATA: schtasks calistirilamadi:", exc.strerror or str(exc))
@@ -81,7 +87,8 @@ def create_task() -> None:
     else:
         # stderr from schtasks does not echo the /RP value; still, only print
         # the masked command for context — never the raw argv.
-        print("HATA:", result.stderr.strip())
+        stderr_text = result.stderr or ""
+        print("HATA:", stderr_text.strip())
         print("  Komut (maskeli):", " ".join(_mask_cmd(cmd)))
         print("  Not: Administrator PowerShell'den calistirildigindan emin olun.")
         sys.exit(1)
@@ -90,21 +97,28 @@ def create_task() -> None:
 def delete_task() -> None:
     result = subprocess.run(
         ["schtasks", "/Delete", "/F", "/TN", TASK_NAME],
-        capture_output=True, text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
     )
     if result.returncode == 0:
         print(f"Gorev silindi: {TASK_NAME}")
     else:
-        print("HATA:", result.stderr.strip())
+        stderr_text = result.stderr or ""
+        print("HATA:", stderr_text.strip())
 
 
 def query_task() -> None:
     result = subprocess.run(
         ["schtasks", "/Query", "/TN", TASK_NAME, "/FO", "LIST"],
-        capture_output=True, text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
     )
     if result.returncode == 0:
-        print(result.stdout)
+        print(result.stdout or "")
     else:
         print(f"Gorev bulunamadi: {TASK_NAME}")
 
