@@ -24,6 +24,7 @@
 | **DEC-009** | Phase 4.5 Normalizer — Emergent 0.78 Floor (not hardcoded) | Signal Engine | ✅ Decided | 2026-05-18 | `src/signals/thresholds.py`, `src/signals/engine.py`, `src/utils/weight_validator.py` |
 | **DEC-010** | Strategist Advisory Boundary — LLM Output is Read-Only Narrative | Signal Architecture | ✅ Decided | 2026-05-19 | `strategist.py`, `engine.py` |
 | **DEC-011** | src/scrapers/ — Financial-Statement Parser Intentionally Preserved (Not Wired) | Signal Architecture | ✅ Decided | 2026-05-19 | `src/scrapers/` |
+| **DEC-012** | Git History Scrub — Personal Portfolio Data | Security/Release | ✅ Decided | 2026-05-19 | `config.yaml` |
 
 ---
 
