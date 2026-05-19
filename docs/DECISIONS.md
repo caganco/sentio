@@ -3,6 +3,7 @@
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
 **Last Updated:** 19 May 2026  
+**Total Decisions:** 12 karar (DEC-001..DEC-012)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -53,13 +54,16 @@
 **Risk Management** (1 implemented)
 - [DEC-006](decisions/DEC-006.md) – Position sizing (Kelly Criterion, `src/risk/kelly.py`)
 
+**Security / Release** (1)
+- [DEC-012](decisions/DEC-012-git-history-scrub.md) – Git history scrub (personal portfolio data; public-release blocker, Cagan manual)
+
 ### By Status
 
 **✅ Implemented (6)**
 - DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006
 
-**✅ Decided (5)**
-- DEC-007, DEC-008, DEC-009, DEC-010, DEC-011
+**✅ Decided (6)**
+- DEC-007, DEC-008, DEC-009, DEC-010, DEC-011, DEC-012
 
 **💡 Pending (0)**
 - (none)
@@ -103,15 +107,16 @@ grep -l "status: pending" docs/decisions/DEC-*.md
 
 | Metric | Count |
 |---|---|
-| Total Decisions | 11 |
-| Implemented | 6 (55%) |
-| Decided | 5 (45%) |
+| Total Decisions | 12 |
+| Implemented | 6 (50%) |
+| Decided | 6 (50%) |
 | Pending | 0 (0%) |
 | Data Sources | 2 |
 | Signal Architecture | 5 |
 | Signal Engine | 2 |
 | Efficiency | 1 |
 | Risk Management | 1 |
+| Security / Release | 1 |
 
 ---
 
