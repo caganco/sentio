@@ -166,6 +166,12 @@ def compute_signal(
 
     weights = dict(MASTER_WEIGHTS)
     if weight_override:
+        unknown_keys = set(weight_override) - set(weights)
+        if unknown_keys:
+            raise ValueError(
+                f"weight_override içinde bilinmeyen key'ler: {unknown_keys}. "
+                f"Geçerli key'ler: {set(weights)}"
+            )
         total = sum(weight_override.values())
         if total == 0:
             raise ValueError("weight_override values sum to 0")

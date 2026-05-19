@@ -557,6 +557,16 @@ class TestComputeSignal:
                            weight_override=overrides)
         assert isinstance(r, SignalResult)
 
+    def test_weight_override_rejects_unknown_keys(self):
+        with pytest.raises(ValueError, match="bilinmeyen key"):
+            compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], AS_OF,
+                           weight_override={"unknown_layer": 0.5})
+
+    def test_weight_override_known_keys_accepted(self):
+        r = compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], AS_OF,
+                           weight_override={"technical": 1.0})
+        assert isinstance(r, SignalResult)
+
     def test_all_layers_confidence_zero_gives_hold(self):
         # Empty data everywhere -> all layers near 50 -> HOLD
         r = compute_signal("EMPTY", {}, {}, [], AS_OF)
