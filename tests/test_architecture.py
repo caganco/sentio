@@ -86,6 +86,25 @@ class TestThresholdsSingleSource:
                         f"Import from MASTER_WEIGHTS instead."
                     )
 
+    def test_no_hardcoded_weights_in_any_layer(self):
+        """src/signals/layers/*_layer.py must not hardcode a non-zero weight.
+
+        A `weight=0.0` neutral/disabled stub does not bypass MASTER_WEIGHTS
+        (the layer contributes nothing); a real literal like 0.20 does. Only
+        non-zero literals are violations — import from MASTER_WEIGHTS instead.
+        """
+        layers_dir = Path(__file__).parent.parent / "src" / "signals" / "layers"
+        pattern = re.compile(r"\bweight\s*=\s*(0\.\d+)")
+        violations = []
+        for f in layers_dir.glob("*_layer.py"):
+            source = f.read_text(encoding="utf-8")
+            if any(float(v) != 0.0 for v in pattern.findall(source)):
+                violations.append(f.name)
+        assert not violations, (
+            f"Şu layer dosyaları hardcoded weight içeriyor: {violations}. "
+            f"MASTER_WEIGHTS'ten import et."
+        )
+
 
 class TestWeightSumValid:
     """Verify MASTER_WEIGHTS sum is in acceptable range.
@@ -172,6 +191,39 @@ class TestL5VerdaIndependence:
                 assert "verda" not in source.lower(), (
                     f"{fpath} contains 'verda' reference — L5 core must be VERDA-free"
                 )
+
+
+class TestBacktestEngineIntegrity:
+    """Backtest engine must not bypass MASTER_WEIGHTS or swallow errors."""
+
+    def test_no_hardcoded_weights_in_backtest_engine(self):
+        """src/backtest/engine.py MASTER_WEIGHTS bypass etmemeli."""
+        path = Path(__file__).parent.parent / "src" / "backtest" / "engine.py"
+        source = path.read_text(encoding="utf-8")
+        pattern = re.compile(r"(?<!\w)(0\.\d{2})\s*[\+\*].*score", re.MULTILINE)
+        matches = pattern.findall(source)
+        assert not matches, (
+            f"backtest/engine.py hardcoded weight literal içeriyor: {matches}. "
+            f"MASTER_WEIGHTS'ten import et."
+        )
+
+    def test_backtest_engine_imports_master_weights(self):
+        """backtest/engine.py MASTER_WEIGHTS'i thresholds.py'den import etmeli."""
+        path = Path(__file__).parent.parent / "src" / "backtest" / "engine.py"
+        source = path.read_text(encoding="utf-8")
+        assert "MASTER_WEIGHTS" in source, (
+            "backtest/engine.py MASTER_WEIGHTS import etmiyor — "
+            "thresholds.py'den import ekle."
+        )
+
+    def test_no_bare_except_in_backtest(self):
+        """backtest/engine.py bare except bloğu içermemeli."""
+        path = Path(__file__).parent.parent / "src" / "backtest" / "engine.py"
+        source = path.read_text(encoding="utf-8")
+        assert (
+            "except Exception:\n        return" not in source
+            and "except:\n" not in source
+        ), "backtest/engine.py bare except bloğu içeriyor. Logger ile logla."
 
 
 pytestmark = pytest.mark.baseline
