@@ -15,12 +15,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv("ANTHROPIC_API_KEY")
-if not API_KEY:
-    print("HATA: ANTHROPIC_API_KEY bulunamadı.")
-    sys.exit(1)
+_CLIENT: anthropic.Anthropic | None = None
 
-client = anthropic.Anthropic(api_key=API_KEY)
+
+def _get_client() -> anthropic.Anthropic:
+    """Lazily build the Anthropic client.
+
+    The API key is checked on first use rather than at import time, so that
+    pytest collection / module import does not call sys.exit(1) when the
+    secret is absent (e.g. CI Tier 1+2 jobs without ANTHROPIC_API_KEY).
+    """
+    global _CLIENT
+    if _CLIENT is None:
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            print("HATA: ANTHROPIC_API_KEY bulunamadı.")
+            sys.exit(1)
+        _CLIENT = anthropic.Anthropic(api_key=api_key)
+    return _CLIENT
 
 MODEL_ANALYST  = "claude-opus-4-6"   # strategic decisions — Opus quality
 MODEL_AUDITOR  = "claude-haiku-4-5"  # rule-based risk check — Haiku sufficient
@@ -327,7 +339,7 @@ def call_analyst(briefing_text: str, compact: bool = False) -> str:
         print(f"  [CACHE HIT | mode: {mode_label} | key: {key}]")
         return cached
 
-    response = client.messages.create(
+    response = _get_client().messages.create(
         model=MODEL_ANALYST,
         max_tokens=max_tok,
         system=system,
@@ -362,7 +374,7 @@ def call_auditor(analyst_report: str, compact_prompt: str | None = None) -> str:
         print(f"  [CACHE HIT | key: {key}]")
         return cached
 
-    response = client.messages.create(
+    response = _get_client().messages.create(
         model=MODEL_AUDITOR,
         max_tokens=max_tok,
         system=system,
