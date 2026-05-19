@@ -1,54 +1,41 @@
 """Windows Task Scheduler kurulumu — Görev Zamanlayıcı'ya günlük 09:00 görevi ekler.
 
-ÖNEMLI: `create` komutu **Administrator PowerShell**'den çalıştırılmalıdır
-(`schtasks /Create /RL HIGHEST` yükseltilmiş izin gerektirir). Çalıştırıldığında
-mevcut Windows kullanıcısının **hesap şifresi sorulacaktır** (getpass — gizli
-giriş, ekrana yazılmaz). Şifre yalnızca schtasks'a subprocess argümanı olarak
-geçer; hiçbir log, print veya hata çıktısında açık görünmez (maskelenir).
+"Run only when user is logged on" modu: `/RU` ve `/RP` verilmez; görev mevcut
+oturum açmış kullanıcı bağlamında çalışır, **şifre gerekmez**. Microsoft Account
+ortamlarında yerel hesap şifresi olmadığından bu mod zorunludur. `/RL HIGHEST`
+korunur (en yüksek yetkiyle çalışır); kurulum yine de Administrator
+PowerShell'den yapılmalıdır.
 """
-import getpass
 import subprocess
 import sys
 from pathlib import Path
+
+# schtasks emits localized (Turkish) text; the default Windows console codec
+# (cp1254) can't encode the U+FFFD replacement chars that errors="replace"
+# produces, crashing every print on the failure path. Force UTF-8 output.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
 
 ROOT = Path(__file__).parent.parent.resolve()
 PYTHON = sys.executable
 SCRIPT = ROOT / "scripts" / "daily_update.py"
 TASK_NAME = "BIST_DailyUpdate"
 
-# Sentinel used when rendering the schtasks command for diagnostics so the
-# real password is never written to stdout/stderr/logs.
-_PW_MASK = "****"
-
-
-def _mask_cmd(cmd: list[str]) -> list[str]:
-    """Return a copy of the schtasks argv with the /RP value replaced by a mask."""
-    masked = list(cmd)
-    try:
-        rp_idx = masked.index("/RP")
-        masked[rp_idx + 1] = _PW_MASK
-    except (ValueError, IndexError):
-        pass
-    return masked
-
 
 def create_task() -> None:
-    """Register the daily task to run as the current user (service mode).
+    """Register the daily task in "run only when user is logged on" mode.
 
-    Run this from an **Administrator PowerShell** — `/RL HIGHEST` needs
-    elevation. The current user's Windows account password is requested
-    interactively via getpass (hidden input). It is never stored, logged,
-    or echoed; only passed to schtasks and masked in any diagnostic output.
+    No `/RU` / `/RP` is passed — schtasks registers the task under the current
+    interactive user with no stored credentials, so **no password is
+    requested**. Required for Microsoft Account environments (no local account
+    password exists). `/RL HIGHEST` is kept; run from an Administrator
+    PowerShell so the highest-privilege registration succeeds.
     """
-    run_as_user = getpass.getuser()
-    print(f"Gorev '{TASK_NAME}' kullanici '{run_as_user}' altinda olusturulacak.")
+    print(f"Gorev '{TASK_NAME}' olusturuluyor (run-only-when-logged-on, sifresiz).")
     print("Bu komut Administrator PowerShell'den calistirilmalidir.")
-    password = getpass.getpass(
-        f"'{run_as_user}' Windows hesap sifresi (giris gizli): "
-    )
-    if not password:
-        print("HATA: Sifre bos — gorev olusturulamadi.")
-        sys.exit(1)
 
     # Pin the task's working directory to the project root. Task Scheduler
     # otherwise launches in %SystemRoot%\System32, where relative paths
@@ -67,8 +54,6 @@ def create_task() -> None:
         "/SC", "DAILY",
         "/ST", "09:00",
         "/RL", "HIGHEST",
-        "/RU", run_as_user,
-        "/RP", password,
     ]
 
     try:
@@ -80,26 +65,19 @@ def create_task() -> None:
             check=False,
         )
     except OSError as exc:
-        # Never let the password reach a traceback — re-raise with masked argv.
         print("HATA: schtasks calistirilamadi:", exc.strerror or str(exc))
         sys.exit(1)
-    finally:
-        # Drop the plaintext password from memory as soon as the call returns.
-        del password
-        cmd[cmd.index("/RP") + 1] = _PW_MASK
 
     if result.returncode == 0:
         print(f"Gorev olusturuldu: {TASK_NAME}")
-        print(f"  Kullanici : {run_as_user}")
         print(f"  Python    : {PYTHON}")
         print(f"  Script    : {SCRIPT}")
-        print(f"  Zaman     : Her gun 09:00 (service mode, /RL HIGHEST)")
+        print(f"  Mod       : Run only when user is logged on (sifresiz)")
+        print(f"  Zaman     : Her gun 09:00 (/RL HIGHEST)")
     else:
-        # stderr from schtasks does not echo the /RP value; still, only print
-        # the masked command for context — never the raw argv.
         stderr_text = result.stderr or ""
         print("HATA:", stderr_text.strip())
-        print("  Komut (maskeli):", " ".join(_mask_cmd(cmd)))
+        print("  Komut:", " ".join(cmd))
         print("  Not: Administrator PowerShell'den calistirildigindan emin olun.")
         sys.exit(1)
 
