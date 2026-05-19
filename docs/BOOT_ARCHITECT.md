@@ -117,7 +117,7 @@ Market Narrative + Trading Decisions
 - `docs/BOOT_ORCHESTRATOR.md` ← Strategic decisions, directives
 - `docs/BOOT_ARCHITECT.md` ← This file (architecture review, SPEC design)
 - `docs/BOOT_STRATEGIST.md` ← Agent initialization, report schema
-- `docs/OS_STATE.md` ← Current system state (auto-updated every 6h)
+- `OS_STATE.md` ← Current system state (auto-updated every 6h)
 - `docs/SPECS/INDEX.md` ← Manifest of all 8 completed specs
 - `docs/SPECS/SPEC_*.md` ← Each feature spec (detailed)
 - `docs/PROJECT/MASTERPLAN.md` ← Phase timeline, roadmap

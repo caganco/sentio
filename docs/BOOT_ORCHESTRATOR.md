@@ -96,7 +96,7 @@ Institutional-grade BIST trading OS. Methodology: Druckenmiller (Macro → Secto
 | **Orchestrator boot** | `docs/BOOT_ORCHESTRATOR.md` | You | Manual, weekly |
 | **Architect boot** | `docs/BOOT_ARCHITECT.md` | Architect | Manual, when spec completes |
 | **Strategist boot** | `docs/BOOT_STRATEGIST.md` | Architect | Manual, ~monthly |
-| **Current system state** | `docs/OS_STATE.md` | daily_update.py | Auto, every 6h |
+| **Current system state** | `OS_STATE.md` | daily_update.py | Auto, every 6h |
 | **Spec manifest** | `docs/SPECS/INDEX.md` | You | Manual, with each SPEC |
 | **Roadmap** | `docs/PROJECT/MASTERPLAN.md` | You | Manual, quarterly |
 | **All specs** | `docs/SPECS/SPEC_*.md` | Architect | Per spec |
@@ -280,7 +280,7 @@ Risk: [Main downside scenario]
 
 **First decision in new session:**
 1. Read this file (BOOT_ORCHESTRATOR.md) ← You're here ✅
-2. Check `docs/OS_STATE.md` for latest macro + portfolio state
+2. Check `OS_STATE.md` for latest macro + portfolio state
 3. Check `docs/SPECS/INDEX.md` to see which specs are completed
 4. Run: `python -m pytest tests/ -q` (verify zero regression)
 5. Make strategic decision or generate directive
@@ -298,7 +298,7 @@ Deadline: EOD.
 
 ## 12. REFERENCES
 
-- **System State:** `docs/OS_STATE.md` (auto-updated every 6h)
+- **System State:** `OS_STATE.md` (auto-updated every 6h)
 - **Spec Index:** `docs/SPECS/INDEX.md` (all 8 specs listed)
 - **Roadmap:** `docs/PROJECT/MASTERPLAN.md` (phase timeline)
 - **Error Guide:** `docs/RUNBOOK/ERROR_HANDLING.md` (fallback chains)

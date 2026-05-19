@@ -110,7 +110,7 @@
 
 ## 4. MACRO CONTEXT (Current, from OS_STATE.md)
 
-**Auto-loaded from `docs/OS_STATE.md` before agent runs:**
+**Auto-loaded from `OS_STATE.md` before agent runs:**
 
 | Metric | Value | Status | Last Update |
 |--------|-------|--------|-------------|
@@ -383,7 +383,7 @@ Proceed with portfolio narrative using stale signals
 
 **If OS_STATE.md is missing:**
 1. Halt execution
-2. Generate error: "docs/OS_STATE.md not found — run daily_update.py first"
+2. Generate error: "OS_STATE.md not found — run daily_update.py first"
 3. Require manual restart after fixing
 
 **If system prompt file is missing:**
@@ -396,7 +396,7 @@ Proceed with portfolio narrative using stale signals
 ## 16. REFERENCES
 
 - **System Prompt:** `agents/prompts/strategist_system_prompt.txt`
-- **Current State:** `docs/OS_STATE.md` (auto-loaded)
+- **Current State:** `OS_STATE.md` (auto-loaded)
 - **Methodology:** Druckenmiller (Macro → Sector → Stock → Timing)
 - **Architecture:** docs/BOOT_ORCHESTRATOR.md (system overview)
 - **Error Handling:** docs/RUNBOOK/ERROR_HANDLING.md

@@ -12,7 +12,7 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-OS_STATE_PATH = Path(__file__).parent.parent.parent / "docs" / "OS_STATE.md"
+OS_STATE_PATH = Path(__file__).parent.parent.parent / "OS_STATE.md"
 
 
 class OSStateManager:
