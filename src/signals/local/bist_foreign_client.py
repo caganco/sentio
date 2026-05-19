@@ -30,7 +30,14 @@ class BistForeignOwnershipClient:
     # produced "No valid series found"; TCMB also migrated the REST host
     # (old path now serves the EVDS web SPA). Try the documented post-2024
     # endpoint with this list, then the YAML/cache fallback (DEC-002 pattern).
+    # D-089 Research Agent: BIST foreign-share series live in the EVDS2
+    # "bie_mkbrgn" datagroup. Exact codes resolvable via the serieMarket
+    # browser:
+    #   https://evds2.tcmb.gov.tr/index.php?/evds/serieMarket/...bie_mkbrgn/
+    # bie_mkbrgn-derived candidates are tried first, then the legacy codes.
     _EVDS_FOREIGN_SERIES = (
+        "TP.MKBRGN.A",         # bie_mkbrgn: foreign ownership ratio (equities)
+        "TP.MKBRGN.EU",        # bie_mkbrgn: foreign holdings (alt unit)
         "TP.HVYNBNK.Y",        # foreign ownership share (equities)
         "TP.HSDB.Y",           # foreign holdings — equities
         "TP.DNYBNK.ADBK",      # legacy spec'd candidate
