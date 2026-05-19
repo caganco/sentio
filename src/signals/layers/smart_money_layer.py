@@ -639,6 +639,24 @@ class SmartMoneyL5:
     # Main entry point
     # ------------------------------------------------------------------
 
+    def get_l5_n_days(
+        self, symbol: str, parquet_path: Path | None = None
+    ) -> int:
+        """Distinct trading days of usable L5 history for ``symbol``.
+
+        Drives the engine's progressive L5 confidence ladder (DEC-013).
+        Returns 0 when no usable history exists (missing/stale parquet, or
+        the symbol is absent) — mirrors ``compute_l5_score``'s None-history
+        gate so confidence stays 0.0 in that case.
+        """
+        if parquet_path is None:
+            parquet_path = self.DEFAULT_PARQUET_PATH
+
+        df = self._load_history(parquet_path)
+        if df is None:
+            return 0
+        return int(df[df["symbol"] == symbol]["date"].nunique())
+
     def compute_l5_score(
         self,
         symbol: str,

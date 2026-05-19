@@ -424,6 +424,57 @@ class TestSmartMoneyStub:
 
 
 # ---------------------------------------------------------------------------
+# test_l5_progressive_confidence (DEC-013)
+# ---------------------------------------------------------------------------
+
+class TestL5ProgressiveConfidence:
+    """DEC-013 — three-phase L5 confidence ladder driven by n_days.
+
+    compute_l5_score() already gates <SMART_MONEY_MOMENTUM_DAYS to None, so
+    these tests exercise the engine ladder directly by feeding a non-None
+    score with a controlled n_days for each phase.
+    """
+
+    def _smart_money_ls(self, n_days: int):
+        from unittest.mock import MagicMock, patch
+        mock_l5 = MagicMock()
+        mock_l5.compute_l5_score.return_value = 65.0
+        mock_l5.get_l5_n_days.return_value = n_days
+        with patch("src.signals.engine.get_l5_layer", return_value=mock_l5):
+            r = compute_signal("TEST", TECH_NEUTRAL, MACRO_NEUTRAL, [], AS_OF)
+        return [ls for ls in r.audit.layer_scores if ls.layer == "smart_money"][0]
+
+    def test_phase1_day_1_9_confidence_zero(self):
+        """Day 1–9: confidence stays 0.0 (unchanged contract)."""
+        ls = self._smart_money_ls(n_days=5)
+        assert ls.confidence == 0.0
+        assert ls.weight == 0.0
+
+    def test_phase2_day_10_19_confidence_half(self):
+        """Day 10–19 (momentum-only): new 0.5 confidence."""
+        ls = self._smart_money_ls(n_days=12)
+        assert ls.confidence == 0.5
+        assert ls.weight == pytest.approx(MASTER_WEIGHTS["smart_money"] * 0.5)
+
+    def test_phase3_day_20plus_confidence_full(self):
+        """Day 20+ (percentile+momentum): prior flat 0.8 preserved."""
+        ls = self._smart_money_ls(n_days=25)
+        assert ls.confidence == 0.8
+        assert ls.weight == pytest.approx(MASTER_WEIGHTS["smart_money"] * 0.8)
+
+    def test_l5_none_still_zero_confidence(self):
+        """Backward compatible: None score → confidence 0.0 (unchanged)."""
+        from unittest.mock import MagicMock, patch
+        mock_l5 = MagicMock()
+        mock_l5.compute_l5_score.return_value = None
+        with patch("src.signals.engine.get_l5_layer", return_value=mock_l5):
+            r = compute_signal("TEST", TECH_NEUTRAL, MACRO_NEUTRAL, [], AS_OF)
+        ls = [x for x in r.audit.layer_scores if x.layer == "smart_money"][0]
+        assert ls.confidence == 0.0
+        assert ls.weight == 0.0
+
+
+# ---------------------------------------------------------------------------
 # test_risk_layer
 # ---------------------------------------------------------------------------
 

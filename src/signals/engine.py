@@ -24,6 +24,8 @@ from src.signals.thresholds import (
     CONFLICT_THRESHOLD,
     MASTER_WEIGHTS,
     SIGNAL_THRESHOLDS,
+    SMART_MONEY_FULL_COMPOSITE_DAYS,
+    SMART_MONEY_MOMENTUM_DAYS,
 )
 
 logger = logging.getLogger(__name__)
@@ -236,13 +238,25 @@ def compute_signal(
             source="stub",
         )
     else:
-        _l5_conf = 0.8
+        # Progressive L5 confidence ladder (DEC-013). compute_l5_score()
+        # already returns None for <SMART_MONEY_MOMENTUM_DAYS, so a non-None
+        # score means n_days >= 10. Confidence ramps with history maturity:
+        #   Day 10–19 (momentum-only)      → 0.5
+        #   Day 20+   (percentile+momentum)→ 0.8 (prior flat value preserved)
+        # Phase boundaries imported from thresholds.py (no hardcode).
+        _l5_n_days = get_l5_layer().get_l5_n_days(symbol)
+        if _l5_n_days >= SMART_MONEY_FULL_COMPOSITE_DAYS:
+            _l5_conf = 0.8
+        elif _l5_n_days >= SMART_MONEY_MOMENTUM_DAYS:
+            _l5_conf = 0.5
+        else:
+            _l5_conf = 0.0
         smart_money_ls = LayerScore(
             layer="smart_money",
             score=round(_l5_score, 2),
             confidence=_l5_conf,
             weight=_w("smart_money") * _l5_conf,
-            detail={"l5_score": _l5_score},
+            detail={"l5_score": _l5_score, "l5_n_days": _l5_n_days},
             source="computed",
         )
 
