@@ -37,7 +37,7 @@ class OSStateManager:
             return {}
 
         try:
-            with open(self.path, "r") as f:
+            with open(self.path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Extract YAML blocks between ```yaml ... ```
@@ -273,7 +273,7 @@ class OSStateManager:
 
             # Atomic write (write to temp, then move)
             temp_path = self.path.with_suffix(".tmp")
-            with open(temp_path, "w") as f:
+            with open(temp_path, "w", encoding="utf-8") as f:
                 f.write(content)
 
             temp_path.replace(self.path)
