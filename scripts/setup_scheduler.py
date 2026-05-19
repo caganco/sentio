@@ -11,7 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.resolve()
 PYTHON = sys.executable
 SCRIPT = ROOT / "scripts" / "daily_update.py"
 TASK_NAME = "BIST_DailyUpdate"
@@ -50,10 +50,20 @@ def create_task() -> None:
         print("HATA: Sifre bos — gorev olusturulamadi.")
         sys.exit(1)
 
+    # Pin the task's working directory to the project root. Task Scheduler
+    # otherwise launches in %SystemRoot%\System32, where relative paths
+    # (config.yaml, positions.yaml, parquet snapshots) resolve wrong and the
+    # run fails. `cmd /c cd /d "<root>" && ...` fixes the CWD before Python
+    # starts. Paths are quoted to tolerate spaces.
+    tr_value = (
+        f'cmd /c cd /d "{ROOT}" && '
+        f'"{PYTHON}" "{SCRIPT}" --scan --generate-report'
+    )
+
     cmd = [
         "schtasks", "/Create", "/F",
         "/TN", TASK_NAME,
-        "/TR", f'"{PYTHON}" "{SCRIPT}" --scan --generate-report',
+        "/TR", tr_value,
         "/SC", "DAILY",
         "/ST", "09:00",
         "/RL", "HIGHEST",
