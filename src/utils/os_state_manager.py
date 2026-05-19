@@ -6,7 +6,7 @@ Called by daily_update.py every 6 hours.
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 
@@ -26,7 +26,7 @@ class OSStateManager:
         """
         self.path = os_state_path or OS_STATE_PATH
 
-    def load(self) -> Dict[str, Any]:
+    def load(self) -> dict[str, Any]:
         """Load current OS_STATE.md as dict.
 
         Returns:
@@ -199,7 +199,7 @@ class OSStateManager:
             logger.error(f"Failed to check staleness: {e}")
             return "CRITICAL"
 
-    def _save(self, state: Dict[str, Any]) -> None:
+    def _save(self, state: dict[str, Any]) -> None:
         """Save state to OS_STATE.md (internal).
 
         Args:

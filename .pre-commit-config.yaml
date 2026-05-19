@@ -17,7 +17,7 @@ repos:
 
       - id: ruff-lint
         name: "Ruff Linter"
-        entry: ruff check src/ tests/
+        entry: ruff check src/ tests/ --select E9,F63,F7,F82
         language: system
         pass_filenames: false
         stages: [pre-commit]

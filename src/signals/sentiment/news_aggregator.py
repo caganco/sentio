@@ -4,7 +4,6 @@ import json
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class NewsAggregator:
         self.cache = self._load_cache()
         self.cache_ttl = 12 * 3600  # 12 hours in seconds
 
-    def _load_cache(self) -> Dict:
+    def _load_cache(self) -> dict:
         if not self.cache_file.exists():
             return {}
         try:
@@ -50,7 +49,7 @@ class NewsAggregator:
         age = datetime.now().timestamp() - cached["timestamp"]
         return age < self.cache_ttl
 
-    def fetch_news(self, ticker: str, days: int = 7) -> List[Dict]:
+    def fetch_news(self, ticker: str, days: int = 7) -> list[dict]:
         """
         Fetch news articles for ticker via YahooFinance.
 
@@ -80,7 +79,7 @@ class NewsAggregator:
 
         return articles
 
-    def _fetch_yahoo_news(self, ticker: str, days: int) -> List[Dict]:
+    def _fetch_yahoo_news(self, ticker: str, days: int) -> list[dict]:
         """Fetch news from YahooFinance for a BIST ticker."""
         try:
             import yfinance as yf
@@ -98,7 +97,7 @@ class NewsAggregator:
             logger.warning(f"{ticker}: YahooFinance fetch failed: {e}")
             return []
 
-        articles: List[Dict] = []
+        articles: list[dict] = []
         for item in raw_news:
             try:
                 pub_ts = item.get("providerPublishTime") or item.get("publishTime") or 0
@@ -145,7 +144,7 @@ class NewsAggregator:
 
         return articles
 
-    def aggregate_sentiment(self, articles: List[Dict], analyzer) -> Dict:
+    def aggregate_sentiment(self, articles: list[dict], analyzer) -> dict:
         """
         Calculate aggregate sentiment from articles with recency weighting.
 
