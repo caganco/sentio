@@ -6,7 +6,7 @@ All network I/O goes through a single Kap() context manager session.
 
 import logging
 import time
-from datetime import date, timedelta
+from datetime import date
 
 from kap_client import Kap
 from kap_client.exceptions import CompanyNotFoundError, KapError, RateLimitError

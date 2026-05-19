@@ -1,29 +1,29 @@
 """Tests for src/signals/engine.py and all signal layers."""
 
-import pytest
 from datetime import date
 
+import pytest
+
 from src.signals.engine import (
-    _score_to_signal,
     _compute_weighted_sum,
-    compute_signal,
-    compute_batch,
+    _score_to_signal,
     build_signal_context_for_orchestrator,
+    compute_batch,
+    compute_signal,
 )
-from src.signals.models import LayerScore, SignalResult, SIGNAL_ORDER
-from src.signals.thresholds import (
-    MASTER_WEIGHTS,
-    SIGNAL_THRESHOLDS,
-    CONFLICT_THRESHOLD,
-    RISK_OFF_CONDITIONS,
-)
-from src.signals.layers.technical_layer import score_technical
-from src.signals.layers.macro_layer import score_macro
 from src.signals.layers.kap_layer import score_kap
+from src.signals.layers.macro_layer import score_macro
+from src.signals.layers.risk_layer import detect_regime, score_risk
 from src.signals.layers.sentiment_layer import score_sentiment
 from src.signals.layers.smartmoney_layer import score_smartmoney
-from src.signals.layers.risk_layer import score_risk, detect_regime
-
+from src.signals.layers.technical_layer import score_technical
+from src.signals.models import SIGNAL_ORDER, LayerScore, SignalResult
+from src.signals.thresholds import (
+    CONFLICT_THRESHOLD,
+    MASTER_WEIGHTS,
+    RISK_OFF_CONDITIONS,
+    SIGNAL_THRESHOLDS,
+)
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
@@ -211,7 +211,7 @@ class TestTechnicalLayer:
 class TestMacroLayer:
 
     def test_risk_on_above_neutral(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         mock_local = MagicMock()
         mock_local.tcmb.score = 50.0
         mock_local.tcmb.confidence = 1.0
@@ -231,7 +231,7 @@ class TestMacroLayer:
             assert ls.score > 50.0
 
     def test_neutral_near_50(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         mock_local = MagicMock()
         mock_local.tcmb.score = 50.0
         mock_local.tcmb.confidence = 1.0
@@ -266,7 +266,7 @@ class TestMacroLayer:
         assert ls.confidence == 1.0
 
     def test_vix_score_key_accepted(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         mock_local = MagicMock()
         mock_local.tcmb.score = 50.0
         mock_local.tcmb.confidence = 1.0

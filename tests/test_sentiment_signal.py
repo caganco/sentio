@@ -1,11 +1,11 @@
 """Tests for sentiment signal integration."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.signals.sentiment.sentiment_signal import SentimentSignal
-
 
 # ---------------------------------------------------------------------------
 # Helpers

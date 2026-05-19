@@ -5,7 +5,6 @@ import logging
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from io import StringIO
-from typing import Optional
 
 import pandas as pd
 import requests
@@ -33,7 +32,7 @@ class BISTDataStoreConnector:
         self._stale_days = stale_days
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": "Mozilla/5.0"})
-        self._last_fetch: Optional[datetime] = None
+        self._last_fetch: datetime | None = None
         self._cache: dict[str, float] = {}
 
     def fetch_weekly_csv(self, week: date) -> pd.DataFrame:

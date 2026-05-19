@@ -1,11 +1,12 @@
 """Smart Money client: Institutional flow data from Borsa Istanbul and fallback sources."""
 import json
 import logging
-from datetime import datetime, timedelta
+import time
+from datetime import datetime
 from pathlib import Path
+
 import requests
 from bs4 import BeautifulSoup
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class BorsaSettlementClient:
         try:
             # Construct URL for settlement report
             # Example: https://www.borsaistanbul.com/...settlement-report-2026-05-14
-            url = f"https://www.borsaistanbul.com/en/markets-data-services/reports/settlement-reports"
+            url = "https://www.borsaistanbul.com/en/markets-data-services/reports/settlement-reports"
 
             # For now, return mock data (actual scraping would require parsing HTML/PDF)
             # In production, implement actual PDF/HTML parsing via pdfplumber or BeautifulSoup

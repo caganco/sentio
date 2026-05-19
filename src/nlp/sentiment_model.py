@@ -7,7 +7,6 @@ FinBERT: Trained on financial news corpus (3.4B financial texts).
 """
 import logging
 import time
-from typing import Optional
 
 import numpy as np
 
@@ -28,7 +27,7 @@ class FinBERTSentimentModel:
     def __init__(
         self,
         model_name: str = "ProsusAI/finbert",
-        cache_dir: Optional[str] = None,
+        cache_dir: str | None = None,
         device: str = "cpu",
     ):
         """Initialize FinBERT sentiment model.
@@ -344,8 +343,8 @@ if __name__ == "__main__":
     print(f"  P95: {latency_stats['p95_ms']:.2f}ms")
     print(f"  Samples: {latency_stats['samples']}")
     if latency_stats['p95_ms'] < 500:
-        print(f"  [PASS] <500ms target achieved")
+        print("  [PASS] <500ms target achieved")
     else:
-        print(f"  [FAIL] >500ms target exceeded")
+        print("  [FAIL] >500ms target exceeded")
 
     print("\n" + "="*80)

@@ -7,10 +7,10 @@ Katman 3 — Boş placeholder: Her şey başarısız olursa loglama
 import logging
 import time
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
-from typing import Literal, Optional
+from typing import Literal
 from urllib.parse import urlparse
 
 import requests
@@ -240,7 +240,7 @@ def _parse_rss_date(date_str: str) -> datetime:
         return datetime.now(timezone.utc)
 
 
-def _fetch_gnews(ticker: str, company_name: Optional[str] = None) -> list[dict]:
+def _fetch_gnews(ticker: str, company_name: str | None = None) -> list[dict]:
     """Google News RSS üzerinden son 24 saatteki haberleri çeker."""
     query_terms = [ticker]
     if company_name:
@@ -357,7 +357,6 @@ def fetch_kap_news(
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    import json
     import sys
 
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")

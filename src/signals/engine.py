@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from datetime import date, datetime, timezone
 
+from src.signals.conviction_validator import compute_conviction
 from src.signals.layers.kap_layer import score_kap
 from src.signals.layers.macro_layer import score_macro
 from src.signals.layers.risk_layer import detect_regime, score_risk
@@ -11,15 +12,14 @@ from src.signals.layers.sentiment_layer import score_sentiment
 from src.signals.layers.smart_money_layer import get_l5_layer
 from src.signals.layers.technical_layer import score_technical
 from src.signals.models import (
+    SIGNAL_ORDER,
     AuditTrail,
     ConflictInfo,
     FinalSignal,
     LayerScore,
     MacroRegime,
-    SIGNAL_ORDER,
     SignalResult,
 )
-from src.signals.conviction_validator import compute_conviction
 from src.signals.thresholds import (
     CONFLICT_THRESHOLD,
     MASTER_WEIGHTS,

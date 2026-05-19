@@ -1,7 +1,6 @@
 """KAP data caching with TTL and fallback policy on downtime."""
 import logging
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ class KAPCacheManager:
         self.cache: dict[str, dict] = {}  # {ticker: {data, timestamp, source}}
         self.last_fetch_status = "unknown"
         self.consecutive_failures = 0
-        self.downtime_start_time: Optional[datetime] = None
+        self.downtime_start_time: datetime | None = None
 
     def is_downtime(self) -> bool:
         """Check if system is in downtime mode."""
@@ -165,7 +164,7 @@ class KAPCacheManager:
             "error": "No cached data available",
         }
 
-    def clear_cache(self, ticker: Optional[str] = None) -> None:
+    def clear_cache(self, ticker: str | None = None) -> None:
         """
         Clear cache for a ticker or all tickers.
 

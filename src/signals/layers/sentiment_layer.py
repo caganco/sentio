@@ -1,6 +1,7 @@
 """Sentiment signal layer for signal engine."""
 
 import logging
+
 from src.signals.models import LayerScore
 from src.signals.sentiment.sentiment_signal import SentimentSignal
 from src.signals.thresholds import MASTER_WEIGHTS

@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,6 @@ from src.signals.thresholds import (
     L5_FOREIGN_WEIGHT,
     L5_KAP_OVERLAP_DAMP,
     L5_SHORT_INT_WEIGHT,
-    L5_SMART_MONEY_WEIGHT,
     SHORT_INTEREST_HIGH,
     SMART_MONEY_ADV_MIN_TL,
     SMART_MONEY_FULL_COMPOSITE_DAYS,
@@ -31,7 +30,9 @@ from src.signals.thresholds import (
 )
 
 if TYPE_CHECKING:
-    from src.signals.layers.connectors.smart_money_connector import SmartMoneyConnectorBase
+    from src.signals.layers.connectors.smart_money_connector import (
+        SmartMoneyConnectorBase,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -255,7 +256,7 @@ class SmartMoneyLayer:
 
     def calculate_3day_trend(
         self, ticker: str, daily_flows: list[dict]
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """
         Calculate 3-day rolling average of institutional flows.
 
@@ -308,7 +309,7 @@ class SmartMoneyLayer:
         self,
         ticker: str,
         technical_score: float,
-        institutional_flow_3day: Optional[dict]
+        institutional_flow_3day: dict | None
     ) -> tuple[bool, str]:
         """
         Detect bull trap: strong technical + 3 days institutional selling.
@@ -451,7 +452,7 @@ class SmartMoneyL5:
         self,
         connector: SmartMoneyConnectorBase,
         date_str: str,
-        parquet_path: Optional[Path] = None,
+        parquet_path: Path | None = None,
     ) -> bool:
         """
         Fetch screener snapshot and append to parquet.
@@ -512,7 +513,7 @@ class SmartMoneyL5:
     # Read / stale check
     # ------------------------------------------------------------------
 
-    def _load_history(self, parquet_path: Path) -> Optional[pd.DataFrame]:
+    def _load_history(self, parquet_path: Path) -> pd.DataFrame | None:
         """
         Load parquet history. Returns None if:
         - File missing (no data written yet)
@@ -593,7 +594,7 @@ class SmartMoneyL5:
     # Momentum score (Day 10+)
     # ------------------------------------------------------------------
 
-    def compute_momentum_score(self, symbol: str, df: pd.DataFrame) -> Optional[float]:
+    def compute_momentum_score(self, symbol: str, df: pd.DataFrame) -> float | None:
         """
         10-day momentum: Δforeign_ratio over last SMART_MONEY_MOMENTUM_DAYS → [0, 100].
 
@@ -617,7 +618,7 @@ class SmartMoneyL5:
     # Percentile score (Day 20+)
     # ------------------------------------------------------------------
 
-    def compute_percentile_score(self, symbol: str, df: pd.DataFrame) -> Optional[float]:
+    def compute_percentile_score(self, symbol: str, df: pd.DataFrame) -> float | None:
         """
         Rolling SMART_MONEY_PERCENTILE_WINDOW-day percentile rank of current
         foreign_ratio → [0, 100].
@@ -641,11 +642,11 @@ class SmartMoneyL5:
     def compute_l5_score(
         self,
         symbol: str,
-        parquet_path: Optional[Path] = None,
-        short_interest_score: Optional[float] = None,
-        short_ratio: Optional[float] = None,
+        parquet_path: Path | None = None,
+        short_interest_score: float | None = None,
+        short_ratio: float | None = None,
         kap_has_short_event: bool = False,
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         Progressive L5 score for a single symbol (D-055/D-058).
 
@@ -724,7 +725,7 @@ class SmartMoneyL5:
 
 
 # Module-level singleton used by engine.py
-_l5_singleton: Optional[SmartMoneyL5] = None
+_l5_singleton: SmartMoneyL5 | None = None
 
 
 def get_l5_layer() -> SmartMoneyL5:

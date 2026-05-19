@@ -1,18 +1,20 @@
 """Tests for macro signals module."""
-import pytest
 import json
-import pandas as pd
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pandas as pd
+import pytest
+
 from src.signals.macro_signals import (
-    MacroSignal,
     SYMBOL_VOLATILITY_PROFILES,
-    get_symbol_scale,
-    score_macro_component,
+    MacroSignal,
     calculate_macro_environment_score,
     detect_regime,
     generate_macro_signal,
+    get_symbol_scale,
     save_signal_json,
+    score_macro_component,
 )
 
 TEST_DB = "data/test_macro_signals.db"

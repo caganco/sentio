@@ -1,12 +1,12 @@
 """Tests for news aggregation and sentiment aggregation."""
 
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.signals.sentiment.news_aggregator import NewsAggregator
 from src.signals.sentiment.vader_analyzer import VaderSentimentAnalyzer
-
 
 # ---------------------------------------------------------------------------
 # Helpers

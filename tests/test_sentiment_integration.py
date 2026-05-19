@@ -1,12 +1,12 @@
 """Integration tests for sentiment layer with signal engine."""
 
-import pytest
 from datetime import date, datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from src.signals.engine import compute_signal, compute_batch
+import pytest
+
+from src.signals.engine import compute_batch, compute_signal
 from src.signals.layers.sentiment_layer import score_sentiment
-
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from src.signals.local import LocalMacroCache, BistForeignOwnershipClient
+from src.signals.local import BistForeignOwnershipClient, LocalMacroCache
 
 
 @pytest.fixture

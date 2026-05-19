@@ -1,7 +1,6 @@
 """Queue for KAP disclosures. Prevents rate limiting on bulk events."""
 import logging
 import time
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 

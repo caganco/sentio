@@ -1,7 +1,8 @@
 """Tests for orchestrator.generate_decisions_file — SPEC 2."""
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 
 from agents.orchestrator import generate_decisions_file
 

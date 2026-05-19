@@ -1,6 +1,9 @@
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+exclude = ["scripts/", "agents/"]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -13,7 +16,6 @@ ignore = [
     "E501",  # line too long (handled by formatter)
     "B008",  # do not perform function calls in defaults
 ]
-exclude = ["scripts/", "agents/"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["F401", "F811"]

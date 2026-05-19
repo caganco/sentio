@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from src.signals.models import LayerScore
 from src.signals.thresholds import (
-    MASTER_WEIGHTS,
     MA_SCORES,
+    MASTER_WEIGHTS,
     PROXIMITY_HIGH_SCORE,
     PROXIMITY_HIGH_THRESHOLD,
     PROXIMITY_LOW_SCORE,

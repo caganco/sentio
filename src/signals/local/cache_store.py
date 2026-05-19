@@ -3,7 +3,6 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 
 class LocalMacroCache:
@@ -51,9 +50,18 @@ class LocalMacroCache:
                 UNIQUE(week_ending_date)
             );
 
+            CREATE TABLE IF NOT EXISTS dxy_data (
+                id INTEGER PRIMARY KEY,
+                data_date TEXT NOT NULL UNIQUE,
+                close REAL NOT NULL,
+                weekly_change_pct REAL NOT NULL,
+                fetched_at TEXT NOT NULL
+            );
+
             CREATE INDEX IF NOT EXISTS idx_tcmb_date ON tcmb_decisions(decision_date);
             CREATE INDEX IF NOT EXISTS idx_cds_date ON cds_data(data_date);
             CREATE INDEX IF NOT EXISTS idx_foreign_date ON bist_foreign_weekly(week_ending_date);
+            CREATE INDEX IF NOT EXISTS idx_dxy_date ON dxy_data(data_date);
             """)
 
     @contextmanager
@@ -71,8 +79,8 @@ class LocalMacroCache:
         self,
         decision_date: str,
         decision_type: str,
-        rate_before: Optional[float] = None,
-        rate_after: Optional[float] = None,
+        rate_before: float | None = None,
+        rate_after: float | None = None,
         source: str = "web_scrape",
         confidence: float = 1.0,
     ):
@@ -95,13 +103,21 @@ class LocalMacroCache:
                 ),
             )
 
-    def get_latest_tcmb(self) -> Optional[dict]:
+    def get_latest_tcmb(self) -> dict | None:
         """Get latest TCMB decision."""
         with self._conn() as conn:
             row = conn.execute(
                 "SELECT * FROM tcmb_decisions ORDER BY decision_date DESC LIMIT 1"
             ).fetchone()
             return dict(row) if row else None
+
+    def get_tcmb_history(self, n: int = 15) -> list[dict]:
+        """Get last n TCMB decisions ordered most-recent-first."""
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT * FROM tcmb_decisions ORDER BY decision_date DESC LIMIT ?", (n,)
+            ).fetchall()
+            return [dict(row) for row in rows]
 
     def store_cds(
         self,
@@ -121,7 +137,7 @@ class LocalMacroCache:
                 (data_date, cds_bps, source, confidence, datetime.utcnow().isoformat()),
             )
 
-    def get_latest_cds(self) -> Optional[dict]:
+    def get_latest_cds(self) -> dict | None:
         """Get latest CDS data."""
         with self._conn() as conn:
             row = conn.execute(
@@ -133,7 +149,7 @@ class LocalMacroCache:
         self,
         week_ending_date: str,
         foreign_ownership_pct: float,
-        pct_change_weekly: Optional[float] = None,
+        pct_change_weekly: float | None = None,
         source: str = "evds_api",
         confidence: float = 0.9,
     ):
@@ -155,7 +171,7 @@ class LocalMacroCache:
                 ),
             )
 
-    def get_latest_bist_foreign(self) -> Optional[dict]:
+    def get_latest_bist_foreign(self) -> dict | None:
         """Get latest BIST foreign ownership weekly."""
         with self._conn() as conn:
             row = conn.execute(
@@ -171,10 +187,36 @@ class LocalMacroCache:
             ).fetchall()
             return [dict(row) for row in rows]
 
+    def store_dxy(
+        self,
+        data_date: str,
+        close: float,
+        weekly_change_pct: float,
+    ):
+        """Store DXY snapshot (idempotent, one row per date)."""
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO dxy_data
+                (data_date, close, weekly_change_pct, fetched_at)
+                VALUES (?, ?, ?, ?)
+                """,
+                (data_date, close, weekly_change_pct, datetime.utcnow().isoformat()),
+            )
+
+    def get_latest_dxy(self) -> dict | None:
+        """Get latest DXY snapshot."""
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM dxy_data ORDER BY data_date DESC LIMIT 1"
+            ).fetchone()
+            return dict(row) if row else None
+
     def load_from_yaml_fallback(self, yaml_path: str = "src/signals/local/data/local_macro_fallback.yaml") -> None:
         """Load fallback data from YAML into cache (idempotent)."""
-        import yaml
         from pathlib import Path
+
+        import yaml
 
         fallback_file = Path(yaml_path)
         if not fallback_file.exists():

@@ -1,12 +1,12 @@
 import sqlite3
-import pandas as pd
-import yfinance as yf
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
-from src.utils.logger import setup_logger
+import pandas as pd
+import yfinance as yf
+
 from src.utils.config import get_db_path
+from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

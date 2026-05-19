@@ -10,7 +10,8 @@ def pytest_collection_modifyitems(items):
         if any(kw in item.nodeid for kw in [
             "test_kap", "test_kelly", "test_sentiment", "test_engine",
             "test_macro", "test_technical", "test_local_macro", "test_cds",
-            "test_strategist", "test_bist_fetch", "test_tcmb_fetch"
+            "test_strategist", "test_bist_fetch", "test_tcmb_fetch",
+            "test_backtest",
         ]):
             item.add_marker(pytest.mark.baseline)
 

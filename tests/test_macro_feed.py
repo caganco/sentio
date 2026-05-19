@@ -1,15 +1,16 @@
-import pytest
-import pandas as pd
-from pathlib import Path
-from datetime import datetime
 import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+import pandas as pd
+import pytest
 
 from src.data.macro_feed import (
-    fetch_macro_snapshot,
     fetch_macro_history,
-    save_to_db,
-    load_from_db,
+    fetch_macro_snapshot,
     get_latest_snapshot,
+    load_from_db,
+    save_to_db,
 )
 from src.data.macro_scheduler import run_daily_update
 

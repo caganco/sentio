@@ -1,6 +1,5 @@
 import logging
 import sys
-from pathlib import Path
 
 from src.utils.config import ROOT_DIR, get_log_level
 

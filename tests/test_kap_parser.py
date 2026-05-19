@@ -6,14 +6,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from src.data.kap_parser import (
-    KapEvent,
     EventCategory,
+    KapEvent,
     classify_category,
     extract_structured_data,
     parse_all,
     parse_disclosure,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

@@ -10,12 +10,11 @@ Integration points:
 """
 import logging
 from datetime import date
-from typing import Optional
 
 from src.data.bist_calendar import BISTCalendar
-from src.data.kap_queue import KAPDisclosureQueue
 from src.data.kap_cache_manager import KAPCacheManager
 from src.data.kap_fetcher import fetch_all_symbols
+from src.data.kap_queue import KAPDisclosureQueue
 
 logger = logging.getLogger(__name__)
 

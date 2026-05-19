@@ -1,9 +1,6 @@
 """CDS client with fallback chain: primary (scraping) → secondary (iShares proxy) → cache."""
 import logging
 from datetime import datetime
-from typing import Optional
-
-import requests
 
 from .cache_store import LocalMacroCache
 from .cds_client import CDSClient
@@ -70,7 +67,7 @@ class CDSFallbackClient:
         logger.error("CDS: All sources failed, no recent cache")
         return False
 
-    def _estimate_cds_via_ishares(self) -> Optional[float]:
+    def _estimate_cds_via_ishares(self) -> float | None:
         """
         Estimate Turkey 5Y CDS using iShares TUR + macro model.
 
@@ -103,7 +100,7 @@ class CDSFallbackClient:
 
         return cds_est
 
-    def _get_usd_try(self) -> Optional[float]:
+    def _get_usd_try(self) -> float | None:
         """Fetch USD/TRY exchange rate via yfinance."""
         try:
             import yfinance as yf
@@ -116,7 +113,7 @@ class CDSFallbackClient:
             logger.warning(f"Failed to fetch USD/TRY: {e}")
             return None
 
-    def _get_vix(self) -> Optional[float]:
+    def _get_vix(self) -> float | None:
         """Fetch VIX index via yfinance."""
         try:
             import yfinance as yf
@@ -129,7 +126,7 @@ class CDSFallbackClient:
             logger.warning(f"Failed to fetch VIX: {e}")
             return None
 
-    def _get_tur_etf_return(self) -> Optional[float]:
+    def _get_tur_etf_return(self) -> float | None:
         """Fetch iShares TUR ETF 1-day return."""
         try:
             import yfinance as yf
@@ -157,7 +154,7 @@ class CDSFallbackClient:
             "usd_try_baseline": 30.0,  # Reference FX level
         }
 
-    def get_latest_cds(self) -> Optional[dict]:
+    def get_latest_cds(self) -> dict | None:
         """Get latest CDS data from cache."""
         return self.cache.get_latest_cds()
 

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
@@ -82,7 +82,7 @@ def calculate_alpha(
 
 def summarize(
     engine: "BacktestEngine",
-    benchmark_series: Optional[pd.Series] = None,
+    benchmark_series: pd.Series | None = None,
 ) -> dict[str, Any]:
     """Aggregate all backtest metrics into a summary dict with pass/fail evaluation."""
     trades = engine.trades
@@ -145,7 +145,7 @@ def summarize(
 def run_kelly_sensitivity(
     price_data: dict,
     macro_ts: pd.DataFrame,
-    benchmark_series: Optional[pd.Series],
+    benchmark_series: pd.Series | None,
     base_kwargs: dict,
     kelly_fractions: tuple = (0.1, 0.25, 0.5, 1.0),
 ) -> dict[str, Any]:

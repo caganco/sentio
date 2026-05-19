@@ -1,6 +1,7 @@
 """Tests for CDS fallback chain (SPEC_CDS_2)."""
-import pytest
 from datetime import datetime
+
+import pytest
 
 from src.signals.local.cache_store import LocalMacroCache
 from src.signals.local.cds_fallback import CDSFallbackClient

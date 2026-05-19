@@ -1,11 +1,12 @@
 """Tests for KAP scraper source-type tagging — SPEC 3."""
-import pytest
 from datetime import datetime, timezone
 
+import pytest
+
 from src.data.kap_scraper import (
-    NewsItem,
     KAP_OFFICIAL_DOMAINS,
     NEWS_MEDIA_DOMAINS,
+    NewsItem,
     classify_source_type,
     parse_rss_item,
 )

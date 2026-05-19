@@ -2,7 +2,6 @@
 import logging
 import os
 from datetime import datetime, timedelta
-from typing import Optional
 
 import requests
 
@@ -10,6 +9,7 @@ from ..models import LocalMacroSignal
 from ..thresholds import (
     TCMB_DECISION_MAP,
     TCMB_STALE_DAYS,
+    TCMB_TREND_SCORES,
 )
 from .cache_store import LocalMacroCache
 
@@ -22,13 +22,81 @@ class TCMBClient:
     def __init__(self, cache: LocalMacroCache):
         self.cache = cache
 
-    def get_latest_decision(self) -> Optional[dict]:
+    def get_latest_decision(self) -> dict | None:
         """Get latest TCMB decision from cache."""
         return self.cache.get_latest_tcmb()
 
     def interpret_decision(self, decision_type: str) -> float:
         """Convert decision type to signal score (0-100)."""
         return TCMB_DECISION_MAP.get(decision_type, 50.0)
+
+    def calculate_trend(self) -> dict:
+        """Analyze rate direction trend from recent TCMB decisions.
+
+        Returns dict with keys:
+            category (str): one of cutting_cycle / easing / holding /
+                            tightening / hiking_cycle / unknown
+            delta_3m, delta_6m, delta_12m (float|None): rate_after deltas
+                over the respective rolling windows (positive = tightening).
+        """
+        history = self.cache.get_tcmb_history(n=15)
+        if not history:
+            return {"category": "unknown", "delta_3m": None, "delta_6m": None, "delta_12m": None}
+
+        # --- Inflection detection ---
+        # history[0] = most recent; history[1] = one before
+        last_type = history[0]["decision_type"]
+
+        if len(history) >= 2:
+            prev_type = history[1]["decision_type"]
+            if last_type == "cut" and prev_type == "hike":
+                category = "cutting_cycle"
+            elif last_type == "hike" and prev_type == "cut":
+                category = "hiking_cycle"
+            elif last_type == "cut":
+                category = "easing"
+            elif last_type == "hike":
+                category = "tightening"
+            else:
+                # hold — inherit direction from prior non-hold decision
+                category = "holding"
+                for h in history[1:]:
+                    if h["decision_type"] in ("cut", "hike"):
+                        category = "easing" if h["decision_type"] == "cut" else "tightening"
+                        break
+        else:
+            if last_type == "cut":
+                category = "easing"
+            elif last_type == "hike":
+                category = "tightening"
+            else:
+                category = "holding"
+
+        # --- Rate deltas ---
+        latest_rate = history[0].get("rate_after")
+        now = datetime.utcnow()
+
+        def _delta_for_months(months: int) -> float | None:
+            if latest_rate is None:
+                return None
+            cutoff = now - timedelta(days=months * 30)
+            candidates = [
+                h for h in history[1:]
+                if h.get("rate_after") is not None
+                and datetime.fromisoformat(h["decision_date"]) <= cutoff
+            ]
+            if not candidates:
+                return None
+            # Pick the decision closest to the cutoff date
+            ref_rate = candidates[0]["rate_after"]
+            return round(latest_rate - ref_rate, 4)
+
+        return {
+            "category": category,
+            "delta_3m":  _delta_for_months(3),
+            "delta_6m":  _delta_for_months(6),
+            "delta_12m": _delta_for_months(12),
+        }
 
     def fetch_and_store(self) -> bool:
         """
@@ -162,7 +230,9 @@ class TCMBClient:
             confidence = 0.7
             freshness = "stale"
 
-        score = self.interpret_decision(decision["decision_type"])
+        base_score = self.interpret_decision(decision["decision_type"])
+        trend = self.calculate_trend()
+        score = TCMB_TREND_SCORES.get(trend["category"], base_score)
 
         return LocalMacroSignal(
             component="tcmb",
@@ -174,6 +244,7 @@ class TCMBClient:
             audit_msg=(
                 f"Decision: {decision['decision_type']} "
                 f"on {decision_date_str} "
-                f"(age: {age_days}d, conf: {confidence})"
+                f"(age: {age_days}d, conf: {confidence}, "
+                f"trend: {trend['category']}, score: {score})"
             ),
         )

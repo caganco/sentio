@@ -3,8 +3,8 @@
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 from pathlib import Path
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,6 @@ class NewsAggregator:
                 pub_ts = item.get("providerPublishTime") or item.get("publishTime") or 0
                 # yfinance >=0.2 wraps content inside item["content"]
                 if not pub_ts and isinstance(item.get("content"), dict):
-                    import time as _time
                     pub_date_str = item["content"].get("pubDate", "")
                     if pub_date_str:
                         try:

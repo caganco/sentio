@@ -4,7 +4,6 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +90,7 @@ class StrategistAgent:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = _DEFAULT_MODEL,
         system_prompt_path: str = _DEFAULT_SYSTEM_PROMPT_PATH,
         timeout: int = _DEFAULT_TIMEOUT,

@@ -3,7 +3,12 @@ from __future__ import annotations
 
 from src.signals.local_macro_signals import LocalMacroSignals
 from src.signals.models import LayerScore
-from src.signals.thresholds import ASSET_DIRECTIONS, LOCAL_MACRO_ENABLED, MACRO_WEIGHTS_COMPOSITE, MASTER_WEIGHTS
+from src.signals.thresholds import (
+    ASSET_DIRECTIONS,
+    LOCAL_MACRO_ENABLED,
+    MACRO_WEIGHTS_COMPOSITE,
+    MASTER_WEIGHTS,
+)
 
 
 def score_macro(macro_data: dict) -> LayerScore:

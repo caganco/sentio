@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 import pandas as pd
 
@@ -30,9 +29,9 @@ class PositionAnalysis:
     unrealized_pnl_pct: float
     stop_loss_price: float
     profit_target_price: float
-    rsi: Optional[float]
-    ma20: Optional[float]
-    ma50: Optional[float]
+    rsi: float | None
+    ma20: float | None
+    ma50: float | None
     alerts: list[PositionAlert] = field(default_factory=list)
 
 

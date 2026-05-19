@@ -1,8 +1,7 @@
 """YahooNewsFetcher: Fetch real financial news for BIST tickers from YahooFinance."""
 import logging
 import time
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -229,7 +228,7 @@ if __name__ == "__main__":
             print(f"    Latest: {articles[0]['title'][:60]}...")
 
     stats = fetcher.get_stats()
-    print(f"\nStatistics:")
+    print("\nStatistics:")
     print(f"  Total attempts: {stats['total_attempts']}")
     print(f"  Successful: {stats['successful']}")
     print(f"  Failed: {stats['failed']}")

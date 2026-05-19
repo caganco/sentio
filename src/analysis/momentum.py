@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from src.analysis.technicals import calculate_rsi
 from src.utils.logger import setup_logger

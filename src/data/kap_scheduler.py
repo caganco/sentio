@@ -80,9 +80,7 @@ def run_daily_kap_pipeline(
     # Resolve output dir relative to project root if not absolute
     output_path = Path(output_dir)
     if not output_path.is_absolute():
-        from src.utils.config import load_config as _lc
         from pathlib import Path as _P
-        import os
         project_root = _P(__file__).parent.parent.parent
         output_path = project_root / output_dir
 

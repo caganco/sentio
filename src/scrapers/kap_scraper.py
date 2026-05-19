@@ -1,5 +1,4 @@
 import json
-import logging
 import time
 from datetime import datetime
 from pathlib import Path
@@ -8,19 +7,19 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from src.utils.logger import setup_logger
 from src.scrapers.kap_models import (
     FinancialDisclosure,
-    SpecialDisclosure,
     FinancialTables,
+    SpecialDisclosure,
 )
 from src.scrapers.kap_parser import (
-    parse_balance_sheet,
-    parse_income_statement,
-    parse_cash_flow,
-    parse_special_disclosure,
     detect_currency_unit,
+    parse_balance_sheet,
+    parse_cash_flow,
+    parse_income_statement,
+    parse_special_disclosure,
 )
+from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

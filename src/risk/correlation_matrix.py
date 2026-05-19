@@ -7,7 +7,6 @@ Independent module: does NOT modify signal layers or Kelly Criterion. Kelly
 adjustment / sector limits are Week 2 scope and intentionally not implemented here.
 """
 import logging
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -44,7 +43,7 @@ class CorrelationMatrix:
         """
         self.window_days = window_days
         self.min_samples = min_samples
-        self._matrix: Optional[pd.DataFrame] = None
+        self._matrix: pd.DataFrame | None = None
         self._confidence: dict[str, float] = {}
         self._stocks: list[str] = []
 

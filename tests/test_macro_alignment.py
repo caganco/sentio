@@ -1,7 +1,8 @@
 """Tests for macro alignment calculator (SPEC_M_1)."""
 import json
-import pytest
 from pathlib import Path
+
+import pytest
 
 from src.signals.macro_alignment import MacroAlignmentCalculator
 

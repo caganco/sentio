@@ -3,11 +3,10 @@
 Maintains docs/OS_STATE.md with current system state (macro, portfolio, health).
 Called by daily_update.py every 6 hours.
 """
-import json
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import yaml
 
@@ -19,7 +18,7 @@ OS_STATE_PATH = Path(__file__).parent.parent.parent / "docs" / "OS_STATE.md"
 class OSStateManager:
     """Manages OS_STATE.md auto-updates."""
 
-    def __init__(self, os_state_path: Optional[Path] = None):
+    def __init__(self, os_state_path: Path | None = None):
         """Initialize manager.
 
         Args:
@@ -83,12 +82,12 @@ class OSStateManager:
 
     def update_macro_data(
         self,
-        usd_try: Optional[float] = None,
-        brent: Optional[float] = None,
-        vix: Optional[float] = None,
-        cds_bps: Optional[float] = None,
-        cds_source: Optional[str] = None,
-        bist100: Optional[float] = None,
+        usd_try: float | None = None,
+        brent: float | None = None,
+        vix: float | None = None,
+        cds_bps: float | None = None,
+        cds_source: str | None = None,
+        bist100: float | None = None,
     ) -> None:
         """Update macro data section.
 
@@ -169,7 +168,7 @@ class OSStateManager:
         self._save(state)
         logger.info(f"OS_STATE health updated: {source} = {status}")
 
-    def check_staleness(self) -> Optional[str]:
+    def check_staleness(self) -> str | None:
         """Check if OS_STATE is stale.
 
         Returns:

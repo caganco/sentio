@@ -1,8 +1,7 @@
 """BIST foreign ownership weekly (macro context only)."""
 import logging
 import os
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 import requests
 
@@ -23,7 +22,7 @@ class BistForeignOwnershipClient:
     def __init__(self, cache: LocalMacroCache):
         self.cache = cache
 
-    def get_latest_weekly(self) -> Optional[dict]:
+    def get_latest_weekly(self) -> dict | None:
         """Get latest BIST foreign ownership weekly data."""
         return self.cache.get_latest_bist_foreign()
 

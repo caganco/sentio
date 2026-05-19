@@ -1,7 +1,9 @@
-import pytest
 from datetime import datetime
-from src.scrapers.kap_scraper import KAPScraper
+
+import pytest
+
 from src.scrapers.kap_parser import normalize_value
+from src.scrapers.kap_scraper import KAPScraper
 
 
 class TestNormalizeValue:

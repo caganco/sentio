@@ -5,6 +5,7 @@ from datetime import date
 from unittest.mock import MagicMock, patch
 
 import pytest
+from kap_client.exceptions import CompanyNotFoundError, KapError, RateLimitError
 
 from src.data.kap_fetcher import (
     _disclosure_to_dict,
@@ -12,8 +13,6 @@ from src.data.kap_fetcher import (
     fetch_attachments_for_disclosure,
     fetch_disclosures_for_symbol,
 )
-from kap_client.exceptions import CompanyNotFoundError, KapError, RateLimitError
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

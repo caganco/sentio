@@ -11,7 +11,6 @@ import pytest
 from src.data.kap_parser import KapEvent
 from src.data.kap_scheduler import write_kap_json
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

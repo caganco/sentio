@@ -1,5 +1,4 @@
 import time
-from typing import Optional
 
 import pandas as pd
 import yfinance as yf
@@ -14,7 +13,7 @@ _BACKOFF_BASE = 2.0
 _BATCH_SIZE = 60  # yfinance handles up to ~100 symbols reliably in one call
 
 
-def fetch_bist_stock(ticker: str, period: str = "1y") -> Optional[pd.DataFrame]:
+def fetch_bist_stock(ticker: str, period: str = "1y") -> pd.DataFrame | None:
     """Fetch OHLCV data for a single BIST stock with retry logic."""
     for attempt in range(1, _MAX_RETRIES + 1):
         try:

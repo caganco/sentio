@@ -1,8 +1,7 @@
 """CDS spreads (Turkey 5Y) client."""
 import logging
 import re
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
@@ -12,6 +11,9 @@ from ..thresholds import (
     CDS_SCORES,
     CDS_STALE_DAYS,
     CDS_THRESHOLDS,
+    TL_BOND_PROXY_BASE_YIELD,
+    TL_BOND_PROXY_SCORES,
+    TL_BOND_PROXY_THRESHOLDS,
 )
 from .cache_store import LocalMacroCache
 
@@ -24,7 +26,7 @@ class CDSClient:
     def __init__(self, cache: LocalMacroCache):
         self.cache = cache
 
-    def get_latest_cds(self) -> Optional[dict]:
+    def get_latest_cds(self) -> dict | None:
         """Get latest CDS data from cache."""
         return self.cache.get_latest_cds()
 
@@ -165,5 +167,67 @@ class CDSClient:
                 f"CDS {cds_bps:.1f} bps ({risk_level}) "
                 f"from {cds_date_str} "
                 f"(age: {age_days}d, conf: {confidence})"
+            ),
+        )
+
+    def get_tl_bond_proxy(self) -> LocalMacroSignal:
+        """CDS-based implied TL bond yield proxy (Gap 4 — SPEC_L2_ENHANCEMENT_1).
+
+        Formula: implied_tl_yield (%) = TL_BOND_PROXY_BASE_YIELD + cds_bps / 100
+        Example: base=4.5%, CDS=300bps → implied=7.5% → medium bucket → score=50.
+
+        Phase 5: Replace with native TL yields (ICDP/MINT data integration).
+        """
+        cds_data = self.get_latest_cds()
+        if not cds_data:
+            return LocalMacroSignal(
+                component="tl_bond_proxy",
+                score=50.0,
+                confidence=0.0,
+                raw_value=None,
+                last_update=None,
+                data_freshness="missing",
+                audit_msg="No CDS data — TL bond proxy unavailable",
+            )
+
+        cds_date_str = cds_data["data_date"]
+        cds_datetime = datetime.fromisoformat(cds_date_str)
+        age_days = (datetime.utcnow() - cds_datetime).days
+
+        if age_days <= CDS_STALE_DAYS:
+            confidence = 1.0
+            freshness = "fresh"
+        elif age_days <= 5:
+            confidence = 0.8
+            freshness = "stale"
+        else:
+            confidence = 0.4
+            freshness = "very_stale"
+
+        cds_bps = cds_data["cds_bps"]
+        implied_yield = round(TL_BOND_PROXY_BASE_YIELD + cds_bps / 100.0, 4)
+
+        if implied_yield < TL_BOND_PROXY_THRESHOLDS["low"]:
+            bucket = "low"
+        elif implied_yield < TL_BOND_PROXY_THRESHOLDS["medium"]:
+            bucket = "medium"
+        elif implied_yield < TL_BOND_PROXY_THRESHOLDS["high"]:
+            bucket = "high"
+        else:
+            bucket = "extreme"
+
+        proxy_score = TL_BOND_PROXY_SCORES[bucket]
+
+        return LocalMacroSignal(
+            component="tl_bond_proxy",
+            score=proxy_score,
+            confidence=confidence,
+            raw_value=implied_yield,   # implied_tl_real_rate in %
+            last_update=cds_date_str,
+            data_freshness=freshness,
+            audit_msg=(
+                f"implied_tl_yield={implied_yield:.2f}% "
+                f"(CDS={cds_bps:.1f}bps, bucket={bucket}) "
+                f"score={proxy_score} conf={confidence}"
             ),
         )

@@ -1,11 +1,12 @@
-import schedule
 import time
 from datetime import datetime
 from pathlib import Path
 
-from src.utils.logger import setup_logger
-from src.utils.config import get_db_path
+import schedule
+
 from src.data.macro_feed import fetch_macro_snapshot, save_to_db
+from src.utils.config import get_db_path
+from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

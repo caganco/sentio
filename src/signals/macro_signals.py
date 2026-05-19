@@ -1,14 +1,13 @@
 """Macro signals: Risk regime detection and macro environment scoring."""
 import json
-import pandas as pd
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass
+from datetime import timezone
 from pathlib import Path
 from typing import Literal
 
-from src.utils.logger import setup_logger
+from src.data.macro_feed import get_latest_snapshot, load_from_db
 from src.utils.config import get_db_path
-from src.data.macro_feed import load_from_db, get_latest_snapshot
+from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

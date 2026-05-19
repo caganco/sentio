@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from src.signals.local import LocalMacroCache, CDSClient
+from src.signals.local import CDSClient, LocalMacroCache
 
 
 @pytest.fixture
