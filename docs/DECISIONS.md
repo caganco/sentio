@@ -2,7 +2,7 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 16 May 2026  
+**Last Updated:** 19 May 2026  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -13,12 +13,12 @@
 
 | ID | Title | Area | Status | Date | Affects |
 |---|---|---|---|---|---|
-| **DEC-001** | KAP Edge Cases & Holiday Handling | Data Sources | ✅ Implemented | 2026-05-14 | `src/data/kap.py`, `tests/test_kap.py` |
+| **DEC-001** | KAP Edge Cases & Holiday Handling | Data Sources | ✅ Implemented | 2026-05-14 | `src/data/kap_parser.py`, `src/data/kap_scraper.py` |
 | **DEC-002** | CDS iShares Proxy Fallback | Data Sources | ✅ Implemented | 2026-05-13 | `src/data/macro.py`, `tests/test_cds.py` |
-| **DEC-003** | Macro-Equity Correlation Layer | Signal Architecture | ✅ Implemented | 2026-05-12 | `src/signals/layer2_macro.py` |
-| **DEC-004** | Report Token Optimization (≤600) | Efficiency | ✅ Implemented | 2026-05-11 | `src/reporting/report_generator.py` |
-| **DEC-005** | Signal Layer Weights (4-Layer Stack) | Signal Architecture | ✅ Implemented | 2026-05-10 | `src/signals/signal_combination.py`, `config.yaml` |
-| **DEC-006** | Kelly Criterion Position Sizing | Risk Management | 💡 Pending | TBD | `src/risk/kelly_criterion.py` |
+| **DEC-003** | Macro-Equity Correlation Layer | Signal Architecture | ✅ Implemented | 2026-05-12 | `src/signals/layers/macro_layer.py` |
+| **DEC-004** | Report Token Optimization (≤600) | Efficiency | ✅ Implemented | 2026-05-11 | `src/reports/daily_report.py`, `src/reports/templates/` |
+| **DEC-005** | Signal Layer Weights (4-Layer Stack) | Signal Architecture | ✅ Implemented | 2026-05-10 | `src/signals/engine.py`, `src/signals/thresholds.py`, `config.yaml` |
+| **DEC-006** | Kelly Criterion Position Sizing | Risk Management | ✅ Implemented | 2026-05-19 | `src/risk/kelly.py` |
 | **DEC-007** | Ruthless Alpha Philosophy — Remove Defensive Constraints | Signal Engine | ✅ Decided | 2026-05-16 | `src/signals/engine.py`, `src/signals/thresholds.py`, `tests/test_engine.py` |
 | **DEC-008** | VERDA Independence — L5 Core Decoupled from Vendor | Signal Architecture | ✅ Decided | 2026-05-18 | `src/signals/layers/smart_money_layer.py`, `tests/test_architecture.py` |
 | **DEC-009** | Phase 4.5 Normalizer — Emergent 0.78 Floor (not hardcoded) | Signal Engine | ✅ Decided | 2026-05-18 | `src/signals/thresholds.py`, `src/signals/engine.py`, `src/utils/weight_validator.py` |
@@ -35,27 +35,33 @@
 - [DEC-001](decisions/DEC-001.md) – KAP holiday handling + bulk queue
 - [DEC-002](decisions/DEC-002.md) – CDS fallback to iShares model
 
-**Signal Architecture** (3 implemented)
+**Signal Architecture** (5)
 - [DEC-003](decisions/DEC-003.md) – Correlation scoring per stock
-- [DEC-005](decisions/DEC-005.md) – Weight distribution (20%, 33%, 27%, 20%)
-- [DEC-007](decisions/DEC-007.md) – Conviction-based scoring (Phase 4.2.3)
+- [DEC-005](decisions/DEC-005.md) – Weight distribution
+- [DEC-008](decisions/DEC-008-verda-independence.md) – L5 VERDA independence
+- [DEC-010](decisions/DEC-010-strategist-advisory-boundary.md) – Strategist advisory boundary
+- [DEC-011](decisions/DEC-011-scrapers-reserved.md) – src/scrapers/ reserved
+
+**Signal Engine** (2)
+- [DEC-007](decisions/DEC-007.md) – Ruthless Alpha philosophy
+- [DEC-009](decisions/DEC-009-phase-45-normalizer-derivation.md) – Emergent 0.78 normalizer floor
 
 **Efficiency** (1 implemented)
 - [DEC-004](decisions/DEC-004.md) – Token budget optimization
 
-**Risk Management** (1 pending)
-- [DEC-006](decisions/DEC-006.md) – Position sizing (Kelly Criterion)
+**Risk Management** (1 implemented)
+- [DEC-006](decisions/DEC-006.md) – Position sizing (Kelly Criterion, `src/risk/kelly.py`)
 
 ### By Status
 
-**✅ Implemented (5)**
-- DEC-001, DEC-002, DEC-003, DEC-004, DEC-005
+**✅ Implemented (6)**
+- DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006
 
-**✅ Decided (1)**
-- DEC-007
+**✅ Decided (5)**
+- DEC-007, DEC-008, DEC-009, DEC-010, DEC-011
 
-**💡 Pending (1)**
-- DEC-006
+**💡 Pending (0)**
+- (none)
 
 ---
 
@@ -64,9 +70,9 @@
 ### Find decisions affecting a file:
 
 ```bash
-# Example: What decisions affect src/signals/signal_combination.py?
-grep -r "signal_combination.py" docs/decisions/DEC-*.md
-# Answer: DEC-005
+# Example: What decisions affect src/signals/engine.py?
+grep -r "engine.py" docs/decisions/DEC-*.md
+# Answer: DEC-005, DEC-007, DEC-009
 ```
 
 ### Search by area:
@@ -92,17 +98,17 @@ grep -l "status: pending" docs/decisions/DEC-*.md
 
 ## DECISION METRICS
 
-**Current State (16 May 2026):**
+**Current State (19 May 2026):**
 
 | Metric | Count |
 |---|---|
-| Total Decisions | 7 |
-| Implemented | 5 (71%) |
-| Decided | 1 (14%) |
-| Pending | 1 (14%) |
-| High Priority | 6 |
-| Data Source | 2 |
-| Signal Architecture | 3 |
+| Total Decisions | 11 |
+| Implemented | 6 (55%) |
+| Decided | 5 (45%) |
+| Pending | 0 (0%) |
+| Data Sources | 2 |
+| Signal Architecture | 5 |
+| Signal Engine | 2 |
 | Efficiency | 1 |
 | Risk Management | 1 |
 
@@ -147,4 +153,4 @@ Tests: +N passing"
 
 **Owner:** Architect  
 **Maintained By:** Architect  
-**Last Review:** 16 May 2026
+**Last Review:** 19 May 2026
