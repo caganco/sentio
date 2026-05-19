@@ -3,7 +3,9 @@ import argparse
 import json
 import sys
 from datetime import date as _date
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -23,9 +25,9 @@ from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.risk.kelly import KellySizer
 from src.risk.drawdown import DrawdownTracker
-from src.signals.layers.smart_money_layer import SmartMoneyLayer
+from src.signals.layers.smart_money_layer import get_l5_layer
+from src.signals.layers.connectors.smart_money_connector import IsYatirimScreenerConnector
 from src.signals.sentiment.sentiment_signal import SentimentSignal
-from src.data.smart_money_client import BorsaSettlementClient, SmartMoneyCache
 from src.utils.config import load_config
 from src.utils.logger import setup_logger
 from src.utils.os_state_manager import OSStateManager
@@ -135,6 +137,23 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         cds_ok,
         bist_ok,
     )
+
+    # L5 Smart Money screener fetch (D-056)
+    logger.info("Fetching L5 Smart Money screener data (İş Yatırım)...")
+    # BIST trading-day label: explicit Europe/Istanbul date so the parquet
+    # `date` field stays consistent with the UTC `written_at` stamp regardless
+    # of run hour or local clock (D-074 fix B).
+    _today_str = datetime.now(ZoneInfo("Europe/Istanbul")).date().isoformat()
+    try:
+        _l5_connector = IsYatirimScreenerConnector()
+        _l5_ok = get_l5_layer().write_daily_snapshot(_l5_connector, _today_str)
+        logger.info(
+            "SmartMoneyL5 screener: %s (%s)",
+            "written" if _l5_ok else "FAILED — check ALERT logs",
+            _today_str,
+        )
+    except Exception as _exc:
+        logger.error("SmartMoneyL5 screener fetch error (graceful): %s", _exc)
 
     config = load_config()
     positions = config.get("portfolio", {}).get("positions", [])
@@ -262,20 +281,8 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         except Exception as e:
             logger.warning("Sentiment batch failed: %s", e)
 
-        # --- Smart Money (Layer 5) batch for portfolio positions ---
-        institutional_flows: dict = {}
-        smart_money_cache = SmartMoneyCache()
-        try:
-            borsa_client = BorsaSettlementClient()
-            borsa_flows = borsa_client.fetch_settlement_report()
-            logger.info("Smart Money: Fetched institutional flows for %d tickers", len(borsa_flows))
-
-            # Store in cache and prepare for analysis
-            for ticker, flow in borsa_flows.items():
-                smart_money_cache.update_flow(ticker, flow.get("net_pct", 0.0))
-                institutional_flows[ticker] = flow
-        except Exception as e:
-            logger.warning("Smart Money: Institutional flow fetch failed: %s", e)
+        # L5 Smart Money scores are read from parquet (written in pre-market step above).
+        # Per-ticker lookup happens inline below during portfolio position assembly.
 
         portfolio_data = []
         kelly_sizer = KellySizer(portfolio_value_pct=100.0, kelly_fraction=0.25)
@@ -333,25 +340,13 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "source": sent.get("source"),
                 }
 
-            # Add smart money data if available
-            if a.ticker in institutional_flows:
-                sm_layer = SmartMoneyLayer()
-                inst_flow = institutional_flows[a.ticker]
-                smart_money_signal = sm_layer.calculate_score(a.ticker, inst_flow)
-
-                # Calculate 3-day trend if available
-                daily_flows = smart_money_cache.get_history(a.ticker)
-                trend = None
-                if len(daily_flows) >= 3:
-                    trend = sm_layer.calculate_3day_trend(a.ticker, [{"net_pct": pct} for pct in daily_flows[-3:]])
-
+            # L5 Smart Money score (foreign ratio from İş Yatırım screener)
+            _l5_pos_score = get_l5_layer().compute_l5_score(a.ticker)
+            if _l5_pos_score is not None:
                 position["smart_money"] = {
-                    "score": round(smart_money_signal.score, 3),
-                    "confidence": round(smart_money_signal.confidence, 2),
-                    "institutional_net_pct": round(smart_money_signal.institutional_net_pct * 100, 2),
-                    "trend": trend["direction"] if trend else None,
-                    "trend_3day_avg_pct": round(trend["avg_3day"] * 100, 2) if trend else None,
-                    "source": smart_money_signal.source,
+                    "l5_score": round(_l5_pos_score, 2),
+                    "confidence": 0.8,
+                    "source": "isyatirim_screener_l5",
                 }
 
             # Add macro alignment if all macro data available
@@ -562,6 +557,10 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         _write_daily_report(report_path, briefing, strategist_notes)
         print(f"  Strategist: {report_path}\n")
 
+    # --- Forward Test Log (for live validation against backtest) ---
+    if scan:
+        _write_forward_test_log(briefing, drawdown_tracker)
+
     # --- Auto-update OS_STATE.md ---
     try:
         os_state = OSStateManager()
@@ -571,6 +570,49 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         logger.warning(f"OS_STATE.md update failed: {e}")
 
     logger.info("=== BIST Daily Update Complete ===")
+
+
+# ── Forward Test Log ────────────────────────────────────────────────────────
+
+def _write_forward_test_log(briefing: dict, drawdown_tracker) -> None:
+    """Write daily forward test snapshot to reports/forward_test/YYYY-MM-DD.json.
+
+    Captures portfolio state and signal environment for live-vs-backtest comparison.
+    """
+    try:
+        today_str = briefing.get("date", str(_date.today()))
+        log_dir = Path(__file__).parent.parent / "reports" / "forward_test"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / f"{today_str}.json"
+
+        portfolio_value = briefing.get("portfolio_drawdown", {}).get("current_value", 0)
+        initial_value = briefing.get("portfolio_drawdown", {}).get("peak_value", portfolio_value)
+        return_pct = (portfolio_value - initial_value) / initial_value if initial_value > 0 else 0.0
+
+        forward_log = {
+            "date": today_str,
+            "portfolio_value": round(portfolio_value, 2),
+            "return_pct": round(return_pct * 100, 2),
+            "max_dd_pct": round(briefing.get("portfolio_drawdown", {}).get("drawdown_pct", 0.0), 2),
+            "circuit_breaker": briefing.get("portfolio_drawdown", {}).get("circuit_breaker_triggered", False),
+            "portfolio_mode": briefing.get("portfolio_drawdown", {}).get("mode", "NORMAL"),
+            "positions": {
+                p["ticker"]: {
+                    "qty": p.get("quantity"),
+                    "avg_cost": p.get("avg_cost"),
+                    "current_price": p.get("current_price"),
+                    "unrealized_pnl_pct": p.get("unrealized_pnl_pct"),
+                }
+                for p in briefing.get("portfolio", [])
+            },
+            "macro_regime": briefing.get("macro_snapshot", {}).get("regime", "N/A"),
+            "macro_score": briefing.get("macro_snapshot", {}).get("macro_environment_score", None),
+        }
+
+        log_path.write_text(json.dumps(forward_log, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info(f"Forward test log: {log_path}")
+    except Exception as exc:
+        logger.warning(f"Forward test log write failed: {exc}")
 
 
 # ── Printers ────────────────────────────────────────────────────────────────

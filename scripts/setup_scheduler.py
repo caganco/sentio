@@ -17,6 +17,8 @@ def create_task() -> None:
         "/SC", "DAILY",
         "/ST", "09:00",
         "/RL", "HIGHEST",
+        "/RU", "SYSTEM",
+        "/IT",
     ]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode == 0:

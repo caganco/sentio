@@ -1,7 +1,7 @@
 # BIST OS — System State
 **Last Updated:** 19 Mayıs 2026
-**Session:** Orchestrator — D-062..D-070 Closure (CI/CD green)
-**Repo:** github.com/raypun78/bist-trading-system
+**Session:** Orchestrator — D-062..D-070 + CI/CD Green + Public Release Prep
+**Repo:** github.com/raypun78/bist-trading-system (private — public release bekliyor)
 
 ---
 
@@ -9,16 +9,18 @@
 - **Overall Status:** ✅ PRODUCTION-READY
 - **Test Coverage:** 742 passing (1 skipped)
 - **Regression Guard:** ✅ Zero regression
-- **CI/CD:** ✅ GitHub Actions tam yeşil (4-job pipeline: architecture / integration / lint / full-regression)
+- **CI/CD:** ✅ GitHub Actions tam yeşil (4-job: architecture / integration / lint / full-regression)
+- **Pre-commit Hook:** ✅ Aktif (Tier 1+2 + ruff, commit blocker)
 - **README.md + ARCHITECTURE.md:** ✅ eklendi (df869ae)
-- **LICENSE:** ✅ MIT
-- **positions.yaml:** ✅ git-ignored (kişisel portföy verisi config.yaml'dan ayrıldı, G-2 / 2e2392e)
+- **LICENSE:** ✅ MIT (1afd2d0)
+- **positions.yaml:** ✅ git-ignored (G-2 / 2e2392e)
+- **Git History Scrub:** ⏳ PENDING — DEC-012 / public yapmadan önce Cagan yapacak
 - **Risk-Free Rate:** %42 (TCMB politika faizi)
 - **Sharpe (RF %42):** -5.21 — alpha problemi, weight değil (L4/L5 henüz katkı yapmıyor)
 - **Bootstrap System:** ✅ Tiered (Tier 1+2: 2.2s, Tier 3: ~45s)
-- **Architecture Safety:** ✅ Enforced
+- **Architecture Safety:** ✅ Enforced + genişletildi (backtest/engine.py scope'a eklendi)
 - **Signal Alerting:** ✅ Live
-- **Decision Log:** ✅ Active (9 karar)
+- **Decision Log:** ✅ Active (12 karar — DEC-001..DEC-012)
 - **Token Efficiency:** ✅ Optimized
 - **Phase 4.5:** ✅ PRODUCTION (D-052 tamamlandı, 18 Mayıs 2026)
 
@@ -33,43 +35,37 @@
 | KCHOL | 81 | 188.83 |
 | ENERY | 1543 | 9.07 |
 
-**Fonlar:** DFI 12310, DVT 4578, PHE 7097
-**Not:** TAVHL çıkarıldı (artık portföyde değil).
+**Fonlar:** DFI 12310 adet, DVT 4578 adet, PHE 7097 adet
+**Not:** TAVHL çıkarıldı. KCHOL ve ENERY bu session'da eklendi.
 
 ---
 
 ### TEST SUITE STATUS
 - **Total Tests:** 742 passing (1 skipped) ✅
 - **Zero Regression:** ✅ Confirmed
+- **Recent Additions (D-062..D-063):**
+  - 4 test: TestBacktestEngineIntegrity (architecture scope genişletme)
+  - 2 test: weight_override unknown key validation (G-19)
 - **Recent Additions (D-052):**
   - 32 test: conviction_validator + macro_regime_gate
   - 20 test: position_sizer_v2
   - 16 test: technical_level_detector + staged_exit_manager
   - 1 test: weight_validator (test_architecture.py refactor)
-  - 2 recalibration (golden-drift, regression değil):
-    - test_macro_layer.py: 0.35 → 0.20 (Phase 4.5 L2 weight)
-    - test_sentiment_integration.py: 0.0 → 0.12 (base weight, conf-scaling ayrı)
-- **Önceki eklemeler:**
-  - 16 correlation matrix tests (D-036)
-  - 3 foreign flows weighting tests (D-037)
-  - 34 new tests: D-041 (TCMB trend, DXY, TL bond proxy)
-  - 20 smart money layer tests (D-055)
-  - 15 smart money supplement tests (D-055 supplement)
-  - 1 architecture test: test_l5_no_verda_dependency (D-059)
-  - 9 short interest tests: D-058 (8 planned + 1 normalizer bonus)
-- **CLAUDE.md:** ✅ test count 736 güncellendi (D-052)
+- **CLAUDE.md:** ✅ test count 742 güncellendi (D-062)
 
 ---
 
 ### AGENT PARAMETRELERI (STANDART)
 
-| Agent | Model | Thinking | Effort | Plan Mode |
-|-------|-------|----------|--------|-----------|
-| Architect | claude-sonnet-4-20250514 | ON | High | ON |
-| Builder | claude-sonnet-4-20250514 | ON | Medium | OFF |
-| Analyst | claude-sonnet-4-20250514 | OFF | Low | OFF |
-| Auditor | claude-sonnet-4-20250514 | ON | High | ON |
-| Efficiency | claude-sonnet-4-20250514 | OFF | Low | OFF |
+| Agent | Model | Thinking | Effort | Plan Mode | Platform |
+|-------|-------|----------|--------|-----------|----------|
+| Architect | claude-sonnet-4-6 | ON | High | ON | Cowork (ayrı proje: "BIST OS — Architect") |
+| Builder | claude-sonnet-4-20250514 | ON | Medium | OFF | Claude Code |
+| Analyst | claude-sonnet-4-20250514 | OFF | Low | OFF | — |
+| Auditor | claude-sonnet-4-20250514 | ON | High | ON | — |
+| Efficiency | claude-sonnet-4-20250514 | OFF | Low | OFF | — |
+
+**Architect Output Protocol:** ARTEFAKT (Builder'a) + ORCHESTRATOR NOTES (Orchestrator'a) ayrımı zorunlu.
 
 ---
 
@@ -80,32 +76,18 @@
 | D-021 | Builder | Exit mechanisms optimization | ⏸️ SUSPENDED (Phase 4.5 staged TP ile obsolete) |
 | D-023 | Builder | VERDA application | ✅ SENT — yanıt bekleniyor |
 | D-024 | Builder | Matriks AKD inquiry | ✅ RESPONSE RECEIVED — fiyat teklifi bekleniyor |
-| D-036 | Builder | Correlation Matrix implementation | ✅ CLOSED (3a0883c) |
-| D-037 | Builder | Foreign Flows %20 aktif | ✅ CLOSED (b97f5b9) |
-| D-038 | Builder | Sharpe recalibration RF %42 | ✅ CLOSED (b97f5b9) |
-| D-039 | Architect | VIOP feasibility | ✅ CLOSED |
-| D-040 | Architect | SPEC_VIOP_SIGNAL_1 | ✅ CLOSED |
-| D-041 | Builder | L2 Gap 2-4 implementation | ✅ CLOSED |
-| D-042 | Builder | CLAUDE.md + memory test count 622 güncelleme | ✅ CLOSED |
-| D-043 | Builder | Backtest dosyaları özeti | ✅ CLOSED |
-| D-044 | Builder | Macro layer backtest etkisi analizi | ✅ CLOSED |
-| D-045 | Builder | Macro-gated entry implementation | ✅ CLOSED |
-| D-046 | Builder | Macro-gated backtest çalıştırma | ✅ CLOSED |
-| D-047 | Builder | Audit trail export + analizi | ✅ CLOSED |
-| D-048 | Builder | Real alpha (BIST100 benchmark) hesabı | ✅ CLOSED |
-| D-049 | Builder | Baseline comparison (naive B&H, tech-only, macro-gated) | ✅ CLOSED |
-| D-050 | Builder | Bear market backtest (Aug-Oct 2024) | ✅ CLOSED |
-| D-051 | Architect | Phase 4.5 Ruthless Alpha — 5 SPEC tasarımı + revizyon | ✅ CLOSED |
-| D-052 | Builder | Phase 4.5 implementation | ✅ CLOSED (commit bekliyor — onaylandı) |
-| D-053 | Builder | 5 Phase 4.5 SPEC master'a commit | ✅ CLOSED (ad8e254) |
-| D-054 | Builder | DEC-007 Ruthless Alpha decision log | ✅ CLOSED |
-| D-055 | Builder | L5 Smart Money implementation | ✅ CLOSED (83c4aac + e1a2e73) |
-| D-056 | Builder | L5 pipeline entegrasyonu + parquet DB | ✅ CLOSED |
-| D-057 | Builder | CLAUDE.md test count 657 güncelle | ✅ CLOSED |
-| D-058 | Builder | Short interest L5 sub-signal | ✅ CLOSED (b0c9aae) |
-| D-059 | Builder | L5 VERDA dependency cut | ✅ CLOSED (b0c9aae) |
-| D-060 | Builder | docs/OS_STATE.md sil, root tek kaynak | ⏳ PENDING |
-| D-062..D-070 | Builder | CI/CD yeşillendirme, untracked modül commit, deps, lazy API key, portföy ayrıştırma, README/ARCHITECTURE, DECISIONS refresh | ✅ CLOSED |
+| D-036..D-059 | Builder/Architect | Çeşitli implementation'lar | ✅ CLOSED |
+| D-060 | Builder | docs/OS_STATE.md sil, root tek kaynak | ✅ CLOSED (eb9342b) |
+| D-061 | Architect | Comprehensive Project Hygiene Audit | ✅ CLOSED (AUDIT_REPORT_001.md) |
+| D-062 | Builder | Sprint 1: Quick wins + guardrails | ✅ CLOSED |
+| D-063 | Builder | Sprint 2: Architecture safety + CI/CD | ✅ CLOSED |
+| D-064 | Builder | DEC-010 commit | ✅ CLOSED (e1dab3d) |
+| D-065 | Builder | Ruff/CI cleanup | ✅ CLOSED |
+| D-066 | Builder | Sprint 3: D-060 + scrapers | ✅ CLOSED |
+| D-067 | Builder | Sprint 4: C-1 fix + DECISIONS + positions defer | ✅ CLOSED (3592ec8) |
+| D-068 | Architect | README + Mimari Diyagram | ✅ CLOSED (df869ae) |
+| D-069 | Builder | G-2 Positions Anonymization | ✅ CLOSED (2e2392e) |
+| D-070 | Builder | DECISIONS metrics + OS_STATE güncelle | ✅ CLOSED (6169e1f) |
 
 ---
 
@@ -117,7 +99,7 @@
 | L2 Macro | ✅ LIVE | 0.20 weight; DXY 0.25, global_signals 0.25, foreign flows aktif, TL bond proxy stub |
 | L3 KAP | ✅ LIVE | 0.30 weight (Phase 4.5) |
 | L4 Sentiment | ⏸️ SUSPENDED | 0.12×conf; conf=0 → katkı=0. FinBERT hazır (78%), haber kaynağı yok |
-| L5 Smart Money | ⏳ DATA COLLECTION | Gün 3 (18 Mayıs). Core: foreign(0.70)+short_interest(0.30). Gün 10: momentum live (~26 Mayıs). Gün 20: full composite (~5 Haziran) |
+| L5 Smart Money | ⏳ DATA COLLECTION | Gün 3 (19 Mayıs; gerçek başlangıç 17 Mayıs, 16 Mayıs miss). Core: foreign(0.70)+short_interest(0.30). Gün 10: momentum live (~28 Mayıs). Gün 20: full composite (~7 Haziran) |
 | L5b VIOP | 📋 SPEC HAZIR | Phase 4.4b — VERDA yanıtı bekleniyor |
 | L6 Risk/Kelly | ✅ LIVE | 0.03 fixed weight (signal katkısı, position sizing değil) |
 | Correlation Matrix | ✅ IMPLEMENTED | master'da, Kelly entegrasyonu Phase 4.3 |
@@ -164,24 +146,28 @@ Statik Σ = 1.00 | Runtime Σ ∈ [0.78, 1.00]
 
 **Max Drawdown:** %15 hard stop
 
-**Yeni Modüller (D-052):**
-- src/signals/conviction_validator.py
-- src/signals/macro_regime_gate.py
-- src/utils/weight_validator.py
-- src/risk/position_sizer_v2.py
-- src/risk/technical_level_detector.py
-- src/order_engine/staged_exit_manager.py
-- agents/prompts/strategist_system_prompt.txt (v2.0)
-- agents/prompts/strategist_config.json
+---
+
+### SELF-ENFORCING QUALITY LAYER (D-062..D-063)
+
+| Katman | Durum | Detay |
+|--------|-------|-------|
+| Pre-commit hook | ✅ Aktif | Tier 1+2 + ruff (E9/F63/F7/F82) her commit'te |
+| Architecture tests | ✅ Genişletildi | TestBacktestEngineIntegrity dahil — backtest kör noktası kapatıldı |
+| GitHub Actions CI | ✅ Yeşil | 4-job pipeline: architecture → integration → lint → full-regression |
+| weight_override validation | ✅ Aktif | Unknown key → ValueError |
+| MASTER_WEIGHTS tek kaynak | ✅ Enforce | thresholds.py + architecture test guard |
+| Lokal ↔ CI ruff tutarlılığı | ✅ | --select E9,F63,F7,F82 (ikisi aynı ruleset) |
 
 ---
 
 ### L5 SMART MONEY — PROGRESSIVE BUILD TAKVİMİ
-- **Gün 1 (16 Mayıs):** ✅ Parquet DB başladı — 591 sembol, daily_screener.parquet
-- **Gün 2 (17 Mayıs):** ✅ Short interest sub-signal eklendi (D-058). VERDA bağımlılığı kesildi (D-059)
-- **Gün 3 (18 Mayıs):** ✅ Phase 4.5 engine entegrasyonu (D-052) — L5 conf-scaling aktif
-- **Gün 10 (~26 Mayıs):** Momentum sinyali live (10-day foreign ratio change), weight=0.07 aktif
-- **Gün 20 (~5 Haziran):** Full composite (60% percentile + 40% momentum)
+- **⚠️ 16 Mayıs:** ❌ Snapshot MISS — scheduler logon failure (0x80070520), hiç çalışmadı. Gerçek başlangıç 17 Mayıs (D-074 diagnostic).
+- **Gün 1 (17 Mayıs):** ✅ Parquet DB başladı — 591 sembol, daily_screener.parquet. Short interest sub-signal (D-058), VERDA bağımlılığı kesildi (D-059)
+- **Gün 2 (18 Mayıs):** ✅ Phase 4.5 engine entegrasyonu (D-052) — L5 conf-scaling aktif
+- **Gün 3 (19 Mayıs):** ✅ CI/CD kuruldu, backtest C-1 fix, untracked modüller commit. Snapshot scheduler fix (D-074: /RU SYSTEM + Istanbul TZ date)
+- **Gün 10 (~28 Mayıs):** Momentum sinyali live (10-day foreign ratio change), weight=0.07 aktif
+- **Gün 20 (~7 Haziran):** Full composite (60% percentile + 40% momentum)
 - **Gün 70+ (~Ağustos):** L2 vs L5 korelasyon ölçümü → corr < 0.5 ise weight 0.10×conf'a yükselt
 - **Veri kaynağı:** İş Yatırım screener criterion 40 + BIST DataStore haftalık CSV
 - **Finnet geçiş kriteri:** AUM ≥ 5M TL VE L5 ≥ 1.5% yıllık alpha katkısı
@@ -238,37 +224,6 @@ KAP Overlap Guard:
 
 ---
 
-### STRATEGIST PROMPT FORMAT (v2.0 — Phase 4.5)
-Her pozisyon önerisi zorunlu alanlar:
-- **ACTION:** BUY-STRONG / BUY-MEDIUM / SELL / HOLD / WATCH
-- **CONVICTION:** [0.00-1.00] score
-- **PRICE:** TL amount veya "piyasa"
-- **POSITION_SIZE:** % (conviction tier'a göre)
-- **TP1/TP2/TP3:** teknik seviyeler
-- **STOP:** destek seviyesi
-- **OVERRIDE_CONDITION:** Kararı tersine çevirecek koşul
-
-Location: agents/prompts/strategist_system_prompt.txt (v2.0)
-Config: agents/prompts/strategist_config.json
-
----
-
-### BOOTSTRAP SYSTEM
-- **Status:** ✅ ACTIVE + TIERED
-- **Tier 1 — Architecture:** 7 test, ~1s, her bootstrap
-- **Tier 2 — Integration:** 29 test, ~2s, her bootstrap
-- **Tier 3 — Full Regression:** 736 test, ~45s, commit öncesi / haftalık
-- **Daily bootstrap süresi:** ~2.2 saniye (Tier 1+2)
-- **Trigger komutu:** "Dependency map aktif, bootstrap başla"
-- **Files:**
-  - docs/DEPENDENCY_MAP.md — Master dependency graph
-  - docs/DECISIONS.md — Decision log index
-  - CLAUDE.md — Session Bootstrap (5-step + tiered protocol)
-  - memory/bootstrap_system.md — Protocol documentation
-- **OS_STATE:** Root `OS_STATE.md` tek kaynak. `docs/OS_STATE.md` D-060 ile silinecek.
-
----
-
 ### DECISION LOG SYSTEM
 - **Status:** ✅ ACTIVE
 - **Location:** docs/decisions/
@@ -278,21 +233,35 @@ Config: agents/prompts/strategist_config.json
   - DEC-003: Macro-Equity Correlation ✅
   - DEC-004: Report Token Optimization ✅
   - DEC-005: Signal Layer Weights ✅
-  - DEC-006: Kelly Criterion 🟡 PENDING (Haziran 2026)
+  - DEC-006: Kelly Criterion ✅ (src/risk/kelly.py mevcut)
   - DEC-007: Ruthless Alpha Philosophy ✅ (D-054, 16 Mayıs 2026)
   - DEC-008: VERDA Bağımsızlık Kararı ✅ (D-052, 18 Mayıs 2026)
   - DEC-009: Phase 4.5 Normalizer Derivation ✅ (D-052, 18 Mayıs 2026)
+  - DEC-010: Strategist Advisory Boundary ✅ (D-064, 19 Mayıs 2026)
+  - DEC-011: src/scrapers/ Reserved for L3 ✅ (19 Mayıs 2026)
+  - DEC-012: Git History Scrub ✅ DECIDED — ⏳ execution pending (public release öncesi)
 
 ---
 
 ### ARCHITECTURE SAFETY
 - **Threshold Centralization:** ✅ All constants imported from thresholds.py
-- **Weight Integrity:** ✅ MASTER_WEIGHTS statik Σ=1.00, [0.85,1.05] band, weight_validator.py enforce ediyor
-- **Runtime Normalizer:** ✅ Emergent floor 0.78 (L4/L5 conf=0), dynamic — hardcoded değil (DEC-009)
+- **Weight Integrity:** ✅ MASTER_WEIGHTS statik Σ=1.00, [0.85,1.05] band
+- **Runtime Normalizer:** ✅ Emergent floor 0.78 (DEC-009)
 - **Singleton Protection:** ✅ LocalMacroSignals enforced single-instance pattern
-- **Design Enforcement:** 7 architecture tests (Tier 1)
+- **Design Enforcement:** Tier 1 architecture tests (TestBacktestEngineIntegrity dahil)
 - **Health Check:** .\scripts\arch_health_check.ps1 haftalık
 - **L5 VERDA-free guarantee:** ✅ Tier 1'de her bootstrap'te kontrol edilir
+
+---
+
+### BOOTSTRAP SYSTEM
+- **Status:** ✅ ACTIVE + TIERED
+- **Tier 1 — Architecture:** ~10 test, ~1s, her bootstrap
+- **Tier 2 — Integration:** 29 test, ~2s, her bootstrap
+- **Tier 3 — Full Regression:** 742 test, ~45s, commit öncesi / haftalık
+- **Daily bootstrap süresi:** ~2.2 saniye (Tier 1+2)
+- **Trigger komutu:** "Dependency map aktif, bootstrap başla"
+- **OS_STATE:** Root `OS_STATE.md` tek kaynak (docs/OS_STATE.md D-060 ile silindi ✅)
 
 ---
 
@@ -303,7 +272,6 @@ Config: agents/prompts/strategist_config.json
 - **TP3:** %20 çıkış — trailing stop
 - **Stop-loss:** -8% below entry
 - **Forced exit:** conviction < 0.35 | macro BULL→BEAR | DD > %15
-- **D-021 (Exit optimization):** ⏸️ SUSPENDED — Phase 4.5 staged TP ile obsolete
 
 ---
 
@@ -323,7 +291,15 @@ Config: agents/prompts/strategist_config.json
 | Tech-only | 0.00% | 0 |
 | Macro-gated | 0.00% | 0 |
 
-**Tanı:** L4/L5 = 0 katkı → alpha üretilemiyor. Mimari doğru. L5 Gün 20 (~5 Haziran) itibariyle backtest'e katkı başlar.
+**Tanı:** L4/L5 = 0 katkı → alpha üretilemiyor. Mimari doğru. L5 Gün 20 (~7 Haziran) itibariyle backtest'e katkı başlar.
+
+---
+
+### CAGAN MANUEL LİSTESİ
+1. **GitHub Secret: ANTHROPIC_API_KEY** — github.com/raypun78/bist-trading-system → Settings → Secrets → Actions
+2. **GitHub Secret: EVDS_API_KEY** — aynı yerden
+3. **DEC-012 Git History Scrub** — public yapmadan hemen önce, DEC-012 adımlarını takip et (irreversible, human-only)
+4. **Repo Public** — scrub tamamlandıktan sonra
 
 ---
 
@@ -341,14 +317,13 @@ Config: agents/prompts/strategist_config.json
 | SPEC_MACRO_REGIME_GATE_2 | ✅ master'da + PRODUCTION | D-052 ile implement edildi |
 | SPEC_STAGED_TP_1 | ✅ master'da + PRODUCTION | D-052 ile implement edildi |
 | SPEC_STRATEGIST_2 | ✅ master'da + PRODUCTION | D-052 ile implement edildi |
-| SPEC_L5_SHORT_INTEREST_1 | ✅ master'da | D-058 ile eklendi (b0c9aae) |
+| SPEC_L5_SHORT_INTEREST_1 | ✅ master'da | D-058 ile eklendi |
 
 ---
 
 ### SIGNAL ALERTING SYSTEM
 - **Stop-Loss Approach Warning:** ✅ Active
   - Threshold: STOP_APPROACH_BUFFER = 0.03 (3% warning zone)
-  - Triggers when: price <= (entry_price * 0.92 * 1.03)
   - Format: "⚠️ SYMBOL STOP_APPROACHING — Stop: X.XX TL, Mevcut: Y.YY TL, Mesafe: %Z.Z"
   - Module: src/portfolio/monitor.py
   - Tests: 7 coverage tests
@@ -359,18 +334,22 @@ Config: agents/prompts/strategist_config.json
 
 | Priority | Task | Notes |
 |----------|------|-------|
-| 🔴 HIGH | D-060: docs/OS_STATE.md sil | Root tek kaynak — git rm docs/OS_STATE.md |
+| 🔴 HIGH | DEC-012 Git History Scrub | Public release öncesi — Cagan manuel, irreversible |
+| 🔴 HIGH | Repo Public Yap | Scrub sonrası — BIST BT başvurusu |
 | 🔴 HIGH | L5b VIOP build | VERDA yanıtı bekleniyor. SPEC_VIOP_SIGNAL_1 hazır |
-| 🟠 MED | L5 momentum doğrulama (~26 Mayıs) | Gün 10'da engine score=None değil mi kontrol et |
+| 🟠 MED | L5 momentum doğrulama (~28 Mayıs) | Gün 10'da engine score=None değil mi kontrol et |
 | 🟠 MED | Matriks AKD fiyat teklifi | ~60 sembol, gün sonu — fiyat gelince vendor kararı |
+| 🟠 MED | Gemini slippage formülü cevabı | BIST için lineer/√V/Almgren-Chriss önerisi bekleniyor |
+| 🟠 MED | DECISIONS.md metrics 11→12 | DEC-012 eklendi, By Area/Status/Metrics güncellenmedi |
 | 🟠 MED | Correlation Matrix → Kelly entegrasyonu | Phase 4.3 |
 | 🟠 MED | Broker API | Temmuz |
 | 🟠 MED | SPEC_KELLY_1 implement | Finnet sonrası |
-| 🟠 MED | Finnet/Matriks RFP | Haziran — vendor seçimi için 3 soru hazır |
+| 🟠 MED | Finnet/Matriks RFP | Haziran — vendor seçimi |
 | 🟡 LOW | BISTDataStoreConnector gerçek endpoint | CSV URL kesinleşince güncelle |
 | 🟡 LOW | L2 vs L5 korelasyon ölçümü | Gün 70+ (~Ağustos) |
 | 🟡 LOW | Turkish BERT | FinBERT Phase 5 upgrade |
 | 🟡 LOW | TL Bond Yields native | Phase 5 (ICDP/MINT) |
 | 🟡 LOW | VaR modeli | Ağustos |
+| 🟡 LOW | Slippage modeli | Phase 5+ (Almgren-Chriss) — Gemini cevabı bekleniyor |
 
 ---
