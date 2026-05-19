@@ -257,13 +257,43 @@ class TestMacroLayer:
         assert ls.confidence == 0.0
 
     def test_partial_assets_lower_confidence(self):
-        ls = score_macro({"USDTRY": -0.5, "VIX": -0.3})
-        assert ls.confidence == 0.6
+        from unittest.mock import MagicMock, patch
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
+            ls = score_macro({"USDTRY": -0.5, "VIX": -0.3})
+            assert ls.confidence == 0.6
 
     def test_all_assets_full_confidence(self):
-        full = {**MACRO_RISK_ON, "EURTRY": -0.3, "GOLD": -0.2}
-        ls = score_macro(full)
-        assert ls.confidence == 1.0
+        from unittest.mock import MagicMock, patch
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
+            full = {**MACRO_RISK_ON, "EURTRY": -0.3, "GOLD": -0.2}
+            ls = score_macro(full)
+            assert ls.confidence == 1.0
 
     def test_vix_score_key_accepted(self):
         from unittest.mock import MagicMock, patch

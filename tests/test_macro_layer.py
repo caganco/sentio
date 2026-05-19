@@ -100,19 +100,33 @@ class TestScoreMacroWithLocalSignals:
         if not LOCAL_MACRO_ENABLED:
             pytest.skip("LOCAL_MACRO_ENABLED=False")
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            cache = LocalMacroCache(db_path=str(Path(tmpdir) / "test.db"))
-            today = datetime.utcnow().date().isoformat()
+        from unittest.mock import MagicMock, patch
 
-            # Fresh local data
-            cache.store_tcmb(decision_date=today, decision_type="hike")
-            cache.store_cds(data_date=today, cds_bps=300.0)
+        # Mock LocalMacroSignals so the test does not depend on the
+        # git-ignored YAML macro fallback (absent on CI → tcmb/cds
+        # confidence 0.0, which would collapse the min()). Local
+        # confidence pinned to 1.0; assertion still checks min() picks
+        # the global 0.6 (missing assets).
+        mock_local = MagicMock()
+        mock_local.tcmb.score = 50.0
+        mock_local.tcmb.confidence = 1.0
+        mock_local.tcmb.audit_msg = "mocked"
+        mock_local.cds.score = 50.0
+        mock_local.cds.confidence = 1.0
+        mock_local.cds.audit_msg = "mocked"
+        mock_local.dxy.score = 50.0
+        mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.dxy.audit_msg = "mocked"
+        mock_local.tl_bond_proxy.score = 50.0
+        mock_local.tl_bond_proxy.raw_value = None
+        mock_local.tl_bond_proxy.audit_msg = "mocked"
 
-            # Global signals with missing assets
-            macro_data = {
-                "USDTRY": -0.2,
-            }
+        # Global signals with missing assets
+        macro_data = {
+            "USDTRY": -0.2,
+        }
 
+        with patch("src.signals.layers.macro_layer.LocalMacroSignals", return_value=MagicMock(score=MagicMock(return_value=mock_local))):
             score = score_macro(macro_data)
             # Confidence should be min of global (0.6 due to missing assets) and local (1.0)
             assert score.confidence == 0.6
