@@ -7,7 +7,7 @@
 
 ### SYSTEM READINESS
 - **Overall Status:** ✅ PRODUCTION-READY
-- **Test Coverage:** 742 passing (1 skipped)
+- **Test Coverage:** 746 passing (1 skipped)
 - **Regression Guard:** ✅ Zero regression
 - **CI/CD:** ✅ GitHub Actions tam yeşil (4-job: architecture / integration / lint / full-regression)
 - **Pre-commit Hook:** ✅ Aktif (Tier 1+2 + ruff, commit blocker)
@@ -41,7 +41,7 @@
 ---
 
 ### TEST SUITE STATUS
-- **Total Tests:** 742 passing (1 skipped) ✅
+- **Total Tests:** 746 passing (1 skipped) ✅
 - **Zero Regression:** ✅ Confirmed
 - **Recent Additions (D-062..D-063):**
   - 4 test: TestBacktestEngineIntegrity (architecture scope genişletme)
@@ -258,7 +258,7 @@ KAP Overlap Guard:
 - **Status:** ✅ ACTIVE + TIERED
 - **Tier 1 — Architecture:** ~10 test, ~1s, her bootstrap
 - **Tier 2 — Integration:** 29 test, ~2s, her bootstrap
-- **Tier 3 — Full Regression:** 742 test, ~45s, commit öncesi / haftalık
+- **Tier 3 — Full Regression:** 746 test, ~45s, commit öncesi / haftalık
 - **Daily bootstrap süresi:** ~2.2 saniye (Tier 1+2)
 - **Trigger komutu:** "Dependency map aktif, bootstrap başla"
 - **OS_STATE:** Root `OS_STATE.md` tek kaynak (docs/OS_STATE.md D-060 ile silindi ✅)

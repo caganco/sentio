@@ -3,7 +3,7 @@
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
 **Last Updated:** 19 May 2026  
-**Total Decisions:** 12 karar (DEC-001..DEC-012)  
+**Total Decisions:** 13 karar (DEC-001..DEC-013)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -26,6 +26,7 @@
 | **DEC-010** | Strategist Advisory Boundary — LLM Output is Read-Only Narrative | Signal Architecture | ✅ Decided | 2026-05-19 | `strategist.py`, `engine.py` |
 | **DEC-011** | src/scrapers/ — Financial-Statement Parser Intentionally Preserved (Not Wired) | Signal Architecture | ✅ Decided | 2026-05-19 | `src/scrapers/` |
 | **DEC-012** | Git History Scrub — Personal Portfolio Data | Security/Release | ✅ Decided | 2026-05-19 | `config.yaml` |
+| **DEC-013** | L5 Progressive Confidence Ramp (flat 0.8 → 3-phase ladder) | Signal Engine | ✅ Implemented | 2026-05-19 | `src/signals/engine.py`, `src/signals/layers/smart_money_layer.py` |
 
 ---
 
@@ -44,9 +45,10 @@
 - [DEC-010](decisions/DEC-010-strategist-advisory-boundary.md) – Strategist advisory boundary
 - [DEC-011](decisions/DEC-011-scrapers-reserved.md) – src/scrapers/ reserved
 
-**Signal Engine** (2)
+**Signal Engine** (3)
 - [DEC-007](decisions/DEC-007.md) – Ruthless Alpha philosophy
 - [DEC-009](decisions/DEC-009-phase-45-normalizer-derivation.md) – Emergent 0.78 normalizer floor
+- [DEC-013](decisions/DEC-013-l5-progressive-confidence.md) – L5 progressive confidence ramp (3-phase ladder)
 
 **Efficiency** (1 implemented)
 - [DEC-004](decisions/DEC-004.md) – Token budget optimization
@@ -59,8 +61,8 @@
 
 ### By Status
 
-**✅ Implemented (6)**
-- DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006
+**✅ Implemented (7)**
+- DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-013
 
 **✅ Decided (6)**
 - DEC-007, DEC-008, DEC-009, DEC-010, DEC-011, DEC-012
@@ -107,13 +109,13 @@ grep -l "status: pending" docs/decisions/DEC-*.md
 
 | Metric | Count |
 |---|---|
-| Total Decisions | 12 |
-| Implemented | 6 (50%) |
-| Decided | 6 (50%) |
+| Total Decisions | 13 |
+| Implemented | 7 (54%) |
+| Decided | 6 (46%) |
 | Pending | 0 (0%) |
 | Data Sources | 2 |
 | Signal Architecture | 5 |
-| Signal Engine | 2 |
+| Signal Engine | 3 |
 | Efficiency | 1 |
 | Risk Management | 1 |
 | Security / Release | 1 |

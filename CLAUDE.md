@@ -47,7 +47,7 @@ python -m pytest tests/ -q --tb=short
   
 - **Her değişiklikten sonra pytest çalıştır, zero regression zorunlu.**
   - `python -m pytest tests/ -q --tb=short`
-  - Tüm 736 test pass olmalı (1 skipped).
+  - Tüm 746 test pass olmalı (1 skipped).
 
 - **Direktif enforcement:** Direktifte ETKİLENEN DOSYALAR listesinde yer
   almayan bir dosyaya dokunmadan önce Orchestrator'a sor ve onay al.
@@ -121,7 +121,7 @@ Context kayıp veya regresyon var, commit'e bakılır
 ```powershell
 # Commit öncesi veya haftada 1x çalıştır
 python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
-# Beklenen: "== 736 passed, 1 skipped in ~45s ==" (D-052 Phase 4.5 sonrası)
+# Beklenen: "== 746 passed, 1 skipped in ~45s ==" (D-086 L5 ladder sonrası)
 ```
 
 ### Quick Reference (Memorize)
@@ -134,7 +134,7 @@ python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
 - **Stop-loss:** entry × 0.92 (-8%)
 - **Profit target:** entry × 1.20 (+20%)
 - **Stop approach:** warning when price ≤ (stop × 1.03)
-- **Test count:** 736 pass, 1 skipped (regression guard, D-052 Phase 4.5)
+- **Test count:** 746 pass, 1 skipped (regression guard, D-086 L5 ladder)
 
 ---
 
