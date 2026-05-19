@@ -6,18 +6,18 @@ repos:
         entry: python -m pytest tests/test_architecture.py -q --tb=short
         language: system
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
       - id: tier2-integration-tests
         name: "Tier 2 — Integration Tests"
         entry: python -m pytest tests/test_backtest.py tests/test_signal_alert.py -q --tb=short
         language: system
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
       - id: ruff-lint
         name: "Ruff Linter"
         entry: ruff check src/ tests/
         language: system
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
