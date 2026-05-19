@@ -98,67 +98,123 @@ class TCMBClient:
             "delta_12m": _delta_for_months(12),
         }
 
-    def fetch_and_store(self) -> bool:
+    # EVDS policy-rate series candidates. The legacy codes silently changed;
+    # TCMB also migrated the REST host (the old path now serves the EVDS web
+    # SPA). We try the documented post-2024 endpoint with this expanded list,
+    # then fall back to the YAML/cache value (DEC-002 fallback-chain pattern).
+    _EVDS_POLICY_SERIES = (
+        "TP.APIFON4",          # 1-week repo / weighted avg cost of CB funding
+        "TP.PY.P01",           # policy (1-week repo) rate
+        "TP.FAIZ.PYUVDL",      # late-liquidity / policy corridor
+        "TP.MK.IE.BSP",        # legacy code (kept last for compatibility)
+    )
+    # Documented endpoint after the 05/04/2024 change: query string starts
+    # with "?series=" (no "?" -> server returns the SPA HTML), key in header.
+    _EVDS_BASE = "https://evds2.tcmb.gov.tr/service/evds/"
+
+    @staticmethod
+    def _extract_value(obs: dict) -> float | None:
+        """Pull the numeric series column from an EVDS item.
+
+        EVDS names the value column after the series code (dots -> underscores),
+        not "Birimi". Pick the first numeric, non-metadata field generically.
         """
-        Fetch latest TCMB policy decision from EVDS API.
+        for key, val in obs.items():
+            if key in ("Tarih", "UNIXTIME", "YEARWEEK"):
+                continue
+            try:
+                return float(val)
+            except (TypeError, ValueError):
+                continue
+        return None
 
-        EVDS v3 correct format:
-        - URL: https://evds3.tcmb.gov.tr/igmevdsms-dis/series=SERI_KODU&startDate=dd-mm-yyyy&endDate=dd-mm-yyyy&type=json
-        - API key in header: {"key": "..."}
-        - Date format: dd-mm-yyyy
+    def _fallback_ok(self, context: str) -> bool:
+        """Graceful degradation: succeed if YAML/cache already has a decision.
 
-        Returns: True if success, False if failed (logged)
+        daily_update.py calls cache.load_from_yaml_fallback() before fetch, so
+        when the live EVDS API is unreachable/migrated we still have a usable
+        macro signal. Mirrors the CDS primary->proxy->cache chain (DEC-002).
+        """
+        latest = self.cache.get_latest_tcmb()
+        if latest:
+            logger.info(
+                f"TCMBClient.fetch_and_store: {context} — using YAML/cache "
+                f"fallback ({latest.get('decision_type')} on "
+                f"{latest.get('decision_date')})"
+            )
+            return True
+        logger.error(
+            f"TCMBClient.fetch_and_store: {context} and no fallback in cache"
+        )
+        return False
+
+    def fetch_and_store(self) -> bool:
+        """Fetch the latest TCMB policy decision from the EVDS API.
+
+        Tries the documented post-2024 EVDS endpoint
+        (``GET /service/evds/?series=<code>...``, API key in the ``key``
+        header) across an expanded series list. If the live API is
+        unavailable (TCMB-side migration now serves an HTML SPA, network
+        error, non-JSON, or HTTP error), gracefully degrades to the
+        YAML/cache fallback.
+
+        Returns: True if a live fetch *or* the fallback yields a decision.
         """
         api_key = os.getenv("EVDS_API_KEY")
         if not api_key:
-            logger.error("TCMBClient.fetch_and_store: EVDS_API_KEY env var not set")
-            return False
+            return self._fallback_ok("EVDS_API_KEY env var not set")
 
-        try:
-            # EVDS v3 endpoint for TP.MK.IE.BSP (policy rate change series)
-            # Endpoint: https://evds3.tcmb.gov.tr/igmevdsms-dis/
-            # API key in header: {"key": "..."}
-            # Date format: dd-mm-yyyy (per TCMB docs, returns 400 but progresses)
-            # Note: Endpoint currently in development/migration; fallback YAML active
-            start_date = "01-01-2020"
-            end_date = datetime.utcnow().strftime("%d-%m-%Y")
+        start_date = "01-01-2020"
+        end_date = datetime.utcnow().strftime("%d-%m-%Y")
 
+        for series in self._EVDS_POLICY_SERIES:
             url = (
-                "https://evds3.tcmb.gov.tr/igmevdsms-dis/series=TP.MK.IE.BSP"
+                f"{self._EVDS_BASE}?series={series}"
                 f"&startDate={start_date}&endDate={end_date}&type=json"
             )
-            headers = {"key": api_key}
-            resp = requests.get(url, headers=headers, timeout=5)
+            try:
+                resp = requests.get(url, headers={"key": api_key}, timeout=5)
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"TCMBClient: {series} network error: {e}")
+                continue
 
             if resp.status_code != 200:
-                logger.error(
-                    f"TCMBClient.fetch_and_store: HTTP {resp.status_code}: {resp.text[:200]}"
+                logger.warning(
+                    f"TCMBClient: {series} HTTP {resp.status_code}"
                 )
-                return False
+                continue
 
-            data = resp.json()
-            if "data" not in data or not data["data"]:
-                logger.error(
-                    "TCMBClient.fetch_and_store: Empty or missing 'data' field in response"
+            # The migrated host serves the EVDS web SPA (HTML) for every
+            # path, so .json() raises on a non-API response. Treat any
+            # non-JSON body as "API unavailable" and move on.
+            try:
+                data = resp.json()
+            except ValueError:
+                logger.warning(
+                    f"TCMBClient: {series} non-JSON body — EVDS API "
+                    f"likely migrated"
                 )
-                return False
+                continue
 
-            observations = data["data"]
+            observations = data.get("items") or data.get("data") or []
             if len(observations) < 2:
-                logger.error(
-                    f"TCMBClient.fetch_and_store: Insufficient historical data ({len(observations)} points)"
+                logger.warning(
+                    f"TCMBClient: {series} insufficient data "
+                    f"({len(observations)} points)"
                 )
-                return False
+                continue
 
-            # Sort by date descending, take latest 2
             observations_sorted = sorted(
-                observations, key=lambda x: x["Tarih"], reverse=True
+                observations, key=lambda x: x.get("Tarih", ""), reverse=True
             )
-            current = float(observations_sorted[0]["Birimi"])
-            previous = float(observations_sorted[1]["Birimi"])
-            decision_date = observations_sorted[0]["Tarih"]
+            current = self._extract_value(observations_sorted[0])
+            previous = self._extract_value(observations_sorted[1])
+            if current is None or previous is None:
+                logger.warning(
+                    f"TCMBClient: {series} no numeric value column"
+                )
+                continue
 
-            # Determine decision type
             if current > previous:
                 decision_type = "hike"
             elif current < previous:
@@ -166,35 +222,21 @@ class TCMBClient:
             else:
                 decision_type = "hold"
 
-            # Store in cache
             self.cache.store_tcmb(
-                decision_date=decision_date,
+                decision_date=observations_sorted[0]["Tarih"],
                 decision_type=decision_type,
                 rate_before=previous,
                 rate_after=current,
-                source="evds_api",
+                source=f"evds_api_{series}",
                 confidence=1.0,
             )
-
             logger.info(
-                f"TCMBClient.fetch_and_store: Success — {decision_type} at {current}% (was {previous}%)"
+                f"TCMBClient.fetch_and_store: Success (series={series}) — "
+                f"{decision_type} at {current}% (was {previous}%)"
             )
             return True
 
-        except requests.exceptions.Timeout:
-            logger.error("TCMBClient.fetch_and_store: Request timeout (5s)")
-            return False
-        except requests.exceptions.RequestException as e:
-            logger.error(f"TCMBClient.fetch_and_store: Network error: {e}")
-            return False
-        except (KeyError, ValueError, TypeError) as e:
-            logger.error(f"TCMBClient.fetch_and_store: Parse error: {e}")
-            return False
-        except Exception as e:
-            logger.error(
-                f"TCMBClient.fetch_and_store failed: {e.__class__.__name__}: {str(e)}"
-            )
-            return False
+        return self._fallback_ok("EVDS live API unavailable")
 
     def score(self) -> LocalMacroSignal:
         """

@@ -26,96 +26,137 @@ class BistForeignOwnershipClient:
         """Get latest BIST foreign ownership weekly data."""
         return self.cache.get_latest_bist_foreign()
 
-    def fetch_and_store(self) -> bool:
-        """
-        Fetch BIST foreign ownership weekly data from EVDS API.
+    # Expanded BIST foreign-ownership series candidates. The legacy codes
+    # produced "No valid series found"; TCMB also migrated the REST host
+    # (old path now serves the EVDS web SPA). Try the documented post-2024
+    # endpoint with this list, then the YAML/cache fallback (DEC-002 pattern).
+    _EVDS_FOREIGN_SERIES = (
+        "TP.HVYNBNK.Y",        # foreign ownership share (equities)
+        "TP.HSDB.Y",           # foreign holdings — equities
+        "TP.DNYBNK.ADBK",      # legacy spec'd candidate
+        "TP.DNYBNK",           # legacy alt
+        "TP.YBNK.ADBK",        # legacy alt
+    )
+    _EVDS_BASE = "https://evds2.tcmb.gov.tr/service/evds/"
 
-        Series ID: TP.DNYBNK.ADBK (TBD: confirm if not found)
-        Returns: True if success, False if failed (logged)
+    @staticmethod
+    def _extract_value(obs: dict) -> float | None:
+        """Pull the numeric series column (named after the series code, not
+        "Birimi") from an EVDS item, skipping metadata fields."""
+        for key, val in obs.items():
+            if key in ("Tarih", "UNIXTIME", "YEARWEEK"):
+                continue
+            try:
+                return float(val)
+            except (TypeError, ValueError):
+                continue
+        return None
+
+    def _fallback_ok(self, context: str) -> bool:
+        """Succeed if YAML/cache already holds a foreign-ownership record.
+
+        daily_update.py runs cache.load_from_yaml_fallback() first, so a
+        migrated/unreachable live API still leaves a usable macro signal
+        (CDS primary->proxy->cache analogue, DEC-002)."""
+        latest = self.cache.get_latest_bist_foreign()
+        if latest:
+            logger.info(
+                f"BistForeignClient.fetch_and_store: {context} — using "
+                f"YAML/cache fallback ({latest.get('foreign_ownership_pct')}% "
+                f"@ {latest.get('week_ending_date')})"
+            )
+            return True
+        logger.error(
+            f"BistForeignClient.fetch_and_store: {context} and no fallback "
+            f"in cache"
+        )
+        return False
+
+    def fetch_and_store(self) -> bool:
+        """Fetch BIST foreign ownership weekly data from the EVDS API.
+
+        Tries the documented post-2024 EVDS endpoint
+        (``GET /service/evds/?series=<code>...``, API key in the ``key``
+        header) across an expanded series list. On live-API unavailability
+        (migrated host serving HTML SPA, network error, non-JSON, HTTP
+        error), gracefully degrades to the YAML/cache fallback.
+
+        Returns: True if a live fetch *or* the fallback yields a record.
         """
         api_key = os.getenv("EVDS_API_KEY")
         if not api_key:
-            logger.error(
-                "BistForeignClient.fetch_and_store: EVDS_API_KEY env var not set"
+            return self._fallback_ok("EVDS_API_KEY env var not set")
+
+        start_date = "01-01-2020"
+        end_date = datetime.utcnow().strftime("%d-%m-%Y")
+
+        for series_id in self._EVDS_FOREIGN_SERIES:
+            url = (
+                f"{self._EVDS_BASE}?series={series_id}"
+                f"&startDate={start_date}&endDate={end_date}&type=json"
             )
-            return False
+            try:
+                resp = requests.get(url, headers={"key": api_key}, timeout=5)
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"BistForeignClient: {series_id} network error: {e}")
+                continue
 
-        # Try multiple potential series IDs for BIST foreign ownership
-        series_ids = [
-            "TP.DNYBNK.ADBK",  # Primary candidate (spec'd)
-            "TP.DNYBNK",  # Alternative
-            "TP.YBNK.ADBK",  # Alternative
-        ]
-
-        try:
-            for series_id in series_ids:
-                # EVDS v3 endpoint for BIST foreign ownership weekly
-                # Endpoint: https://evds3.tcmb.gov.tr/igmevdsms-dis/
-                # API key in header: {"key": "..."}
-                # Date format: dd-mm-yyyy
-                # Note: Endpoint currently in development/migration; fallback YAML active
-                start_date = "01-01-2020"
-                end_date = datetime.utcnow().strftime("%d-%m-%Y")
-
-                url = (
-                    f"https://evds3.tcmb.gov.tr/igmevdsms-dis/series={series_id}"
-                    f"&startDate={start_date}&endDate={end_date}&type=json"
+            if resp.status_code != 200:
+                logger.warning(
+                    f"BistForeignClient: {series_id} HTTP {resp.status_code}"
                 )
-                headers = {"key": api_key}
-                resp = requests.get(url, headers=headers, timeout=5)
+                continue
 
-                if resp.status_code == 200:
-                    data = resp.json()
-                    if "data" in data and data["data"]:
-                        observations = data["data"]
-                        # Sort by date, take latest
-                        observations_sorted = sorted(
-                            observations, key=lambda x: x["Tarih"], reverse=True
-                        )
-                        latest = observations_sorted[0]
-                        week_ending_date = latest["Tarih"]
-                        foreign_pct = float(latest["Birimi"])
+            # Migrated host serves the EVDS web SPA (HTML) for every path,
+            # so .json() raises on a non-API response. Treat any non-JSON
+            # body as "API unavailable" and move on.
+            try:
+                data = resp.json()
+            except ValueError:
+                logger.warning(
+                    f"BistForeignClient: {series_id} non-JSON body — EVDS "
+                    f"API likely migrated"
+                )
+                continue
 
-                        # Calculate weekly change if we have 2+ points
-                        pct_change = 0.0
-                        if len(observations_sorted) >= 2:
-                            previous = float(observations_sorted[1]["Birimi"])
-                            pct_change = foreign_pct - previous
+            observations = data.get("items") or data.get("data") or []
+            if not observations:
+                logger.warning(
+                    f"BistForeignClient: {series_id} empty data"
+                )
+                continue
 
-                        self.cache.store_bist_foreign(
-                            week_ending_date=week_ending_date,
-                            foreign_ownership_pct=foreign_pct,
-                            pct_change_weekly=pct_change,
-                            source=f"evds_api_{series_id}",
-                            confidence=0.9,
-                        )
-
-                        logger.info(
-                            f"BistForeignClient.fetch_and_store: Success (series={series_id}) — "
-                            f"Foreign ownership {foreign_pct:.2f}% (change: {pct_change:+.2f}%)"
-                        )
-                        return True
-
-            # No series ID worked
-            logger.error(
-                f"BistForeignClient.fetch_and_store: No valid series found. Tried: {series_ids}"
+            observations_sorted = sorted(
+                observations, key=lambda x: x.get("Tarih", ""), reverse=True
             )
-            return False
+            foreign_pct = self._extract_value(observations_sorted[0])
+            if foreign_pct is None:
+                logger.warning(
+                    f"BistForeignClient: {series_id} no numeric value column"
+                )
+                continue
 
-        except requests.exceptions.Timeout:
-            logger.error("BistForeignClient.fetch_and_store: Request timeout (5s)")
-            return False
-        except requests.exceptions.RequestException as e:
-            logger.error(f"BistForeignClient.fetch_and_store: Network error: {e}")
-            return False
-        except (KeyError, ValueError, TypeError) as e:
-            logger.error(f"BistForeignClient.fetch_and_store: Parse error: {e}")
-            return False
-        except Exception as e:
-            logger.error(
-                f"BistForeignClient.fetch_and_store failed: {e.__class__.__name__}: {str(e)}"
+            pct_change = 0.0
+            if len(observations_sorted) >= 2:
+                prev = self._extract_value(observations_sorted[1])
+                if prev is not None:
+                    pct_change = foreign_pct - prev
+
+            self.cache.store_bist_foreign(
+                week_ending_date=observations_sorted[0]["Tarih"],
+                foreign_ownership_pct=foreign_pct,
+                pct_change_weekly=pct_change,
+                source=f"evds_api_{series_id}",
+                confidence=0.9,
             )
-            return False
+            logger.info(
+                f"BistForeignClient.fetch_and_store: Success "
+                f"(series={series_id}) — Foreign ownership "
+                f"{foreign_pct:.2f}% (change: {pct_change:+.2f}%)"
+            )
+            return True
+
+        return self._fallback_ok("EVDS live API unavailable")
 
     def weekly_change_to_score(self, weekly_pct_change: float) -> float:
         """
