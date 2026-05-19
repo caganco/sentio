@@ -1,5 +1,6 @@
 .env
 *.db
+positions.yaml
 logs/*.log
 reports/*.md
 reports/*.html
