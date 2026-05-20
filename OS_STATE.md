@@ -1,9 +1,26 @@
 # BIST OS — System State
-**Last Updated:** 19 Mayıs 2026
+**Last Updated:** 20 Mayıs 2026
 **Session:** Orchestrator — D-062..D-070 + CI/CD Green + Public Release Prep
 **Repo:** github.com/raypun78/bist-trading-system (private — public release bekliyor)
 
 ---
+
+OS_STATE.md — CRITIC BACKLOG SUMMARY BÖLÜMÜ
+
+Bu blok mevcut OS_STATE.md dosyasında üst bölüme, "Header & Session" altına eklenir. Her session güncellenir.
+
+
+CRITIC BACKLOG SUMMARY
+
+Active findings: 9
+En yüksek öncelik: CB-001 (Over-gating, 12-15 puan kayıp) → D-108 SPEC üretimde
+HEMEN düzeltilebilir: CB-001, CB-003, CB-006 — toplam 18-24 puan/yıl alpha kaybı
+Faz 3 (IC datası bekler): CB-002, CB-004, CB-005 — toplam 14-20 puan/yıl
+Yapısal (ayrı SPEC): CB-007, CB-008, CB-009
+Bu session açılan direktifler: D-108, D-109, D-110 (3 paralel Architect SPEC)
+Detay: CRITIC_BACKLOG.md
+
+Orchestrator notu: Bu özet, session başında 30 saniyede taranabilecek snapshot'tır. Detay için CRITIC_BACKLOG.md zorunlu okuma.
 
 ### SYSTEM READINESS
 - **Overall Status:** ✅ PRODUCTION-READY
@@ -353,3 +370,10 @@ KAP Overlap Guard:
 | 🟡 LOW | Slippage modeli | Phase 5+ (Almgren-Chriss) — Gemini cevabı bekleniyor |
 
 ---
+
+
+## CRITIC BACKLOG SUMMARY
+- Active: 9 findings
+- En yüksek öncelik: CB-001 (12-15 puan, D-108)
+- Faz 3'e ertelendi: CB-002, CB-004, CB-005
+- Detay: CRITIC_BACKLOG.md

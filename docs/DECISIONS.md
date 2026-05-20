@@ -2,8 +2,8 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 19 May 2026  
-**Total Decisions:** 13 karar (DEC-001..DEC-013)  
+**Last Updated:** 20 May 2026  
+**Total Decisions:** 14 karar (DEC-001..DEC-013, DEC-015)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -27,7 +27,9 @@
 | **DEC-011** | src/scrapers/ — Financial-Statement Parser Intentionally Preserved (Not Wired) | Signal Architecture | ✅ Decided | 2026-05-19 | `src/scrapers/` |
 | **DEC-012** | Git History Scrub — Personal Portfolio Data | Security/Release | ✅ Decided | 2026-05-19 | `config.yaml` |
 | **DEC-013** | L5 Progressive Confidence Ramp (flat 0.8 → 3-phase ladder) | Signal Engine | ✅ Implemented | 2026-05-19 | `src/signals/engine.py`, `src/signals/layers/smart_money_layer.py` |
-
+| **DEC-015** | Alpha Attribution Infrastructure (Faz 1) | Signal Architecture / Analytics | ✅ Implemented | 2026-05-20 | `src/analytics/`, `src/reporting/`, `src/data/signal_logger.py`, `src/data/universe_snapshot.py`, `scripts/daily_update.py`, `src/signals/thresholds.py` |
+| DEC-016 | Critic Backlog System (persistent memory) | 2026-05-20 | ✅ |
+| **DEC-017** | Macro Gate Softening (CDS Percentile Overlay) | Signal Architecture / Risk Management | ✅ Implemented | 2026-05-20 | `src/signals/macro_regime_gate.py`, `src/signals/layers/macro_layer.py`, `src/signals/local/cache_store.py`, `src/signals/thresholds.py`, `scripts/daily_update.py` |
 ---
 
 ## DECISION CATEGORIES
@@ -58,6 +60,8 @@
 
 **Security / Release** (1)
 - [DEC-012](decisions/DEC-012-git-history-scrub.md) – Git history scrub (personal portfolio data; public-release blocker, Cagan manual)
+
+
 
 ### By Status
 
