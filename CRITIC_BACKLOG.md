@@ -17,16 +17,7 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 
 ---
 
-## ACTIVE FINDINGS (9 ACTIVE)
-
-### [CB-001] Over-gating — L2 < 45 → 0.0x scaling
-- **Tahmini alpha kaybı:** 12-15 puan/yıl (bull regime)
-- **Kök neden:** Macro regime gate sert eşikli. CDS spike sırasında out, normalize olduğunda geç in.
-- **Önerilen düzeltme:** CDS percentile-conditional gate (Longstaff et al. 2011)
-- **Akademik referans:** Longstaff, Pan, Pedersen, Singleton (2011) "How Sovereign is Sovereign Credit Risk?"
-- **Status:** D-108 SPEC üretiliyor (Architect)
-- **Etkilenen dosyalar:** `src/signals/macro_regime_gate.py`, `src/signals/engine.py`
-- **Eklendi:** 20 May 2026
+## ACTIVE FINDINGS (6 ACTIVE)
 
 ### [CB-002] Static weights, regime-blind
 - **Tahmini alpha kaybı:** 8-10 puan/yıl
@@ -35,14 +26,6 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 - **Akademik referans:** Asness, Moskowitz, Pedersen (2013) "Value and Momentum Everywhere"
 - **Status:** Faz 3 (IC datası sonrası, ~Aug 2026)
 - **Etkilenen dosyalar:** `src/signals/engine.py`, `src/signals/thresholds.py`
-- **Eklendi:** 20 May 2026
-
-### [CB-003] TP1 prematüre — ATR×1.5'te %50 exit
-- **Tahmini alpha kaybı:** 4-6 puan/yıl
-- **Kök neden:** Bull market'te ilk pivot direnci genelde kırılır. Profit-clipping bias.
-- **Önerilen düzeltme:** BULL regime'de TP1 atla veya 2.5x'e yükselt (let winners run)
-- **Status:** D-109 SPEC üretiliyor (Architect)
-- **Etkilenen dosyalar:** Position sizer, exit logic
 - **Eklendi:** 20 May 2026
 
 ### [CB-004] L3 KAP overweight — %30 continuous
@@ -59,14 +42,6 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 - **Önerilen düzeltme:** Empirical kalibrasyon — IC datasına dayalı eşik
 - **Status:** Faz 3 (IC datası sonrası)
 - **Etkilenen dosyalar:** `src/signals/conviction_validator.py`, `src/signals/thresholds.py`
-- **Eklendi:** 20 May 2026
-
-### [CB-006] Stop-loss -%8 dar (BIST volatilitesi için)
-- **Tahmini alpha kaybı:** 2-3 puan/yıl
-- **Kök neden:** AKSEN/ENERY gibi mikro-cap'lerde haftada -%5 normal noise. Whipsaw.
-- **Önerilen düzeltme:** Volatility-aware stop tier (ATR/P bazlı)
-- **Status:** D-110 SPEC üretiliyor (Architect)
-- **Etkilenen dosyalar:** `src/risk/position_sizer_v2.py`, `src/signals/thresholds.py`
 - **Eklendi:** 20 May 2026
 
 ### [CB-007] Foreign flow yanlış katmanda
@@ -99,30 +74,54 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 
 | Kategori | Tahmini Kayıp |
 |----------|--------------|
-| HEMEN düzeltilebilir (CB-001, CB-003, CB-006) | 18-24 puan/yıl |
+| ~~HEMEN düzeltilebilir (CB-001, CB-003, CB-006)~~ | ~~18-24 puan/yıl~~ ✅ KAPATILDI |
 | Faz 3 (IC sonrası — CB-002, CB-004, CB-005) | 14-20 puan/yıl |
 | Yapısal (CB-007, CB-008, CB-009) | Ölçülmüş değil |
-| **TOPLAM açık alpha leak** | **32-44+ puan/yıl** |
+| **TOPLAM açık alpha leak** | **~14-20+ puan/yıl** |
 
 ---
 
 ## CLOSED FINDINGS
 
-*(Kapatılanlar buraya taşınır — tarih + commit hash + doğrulama notu ile)*
+### ✅ [CB-001] Over-gating — L2 < 45 → 0.0x scaling
+- **Kapatıldı:** 20 May 2026
+- **Direktif:** D-108 (SPEC_MACRO_GATE_SOFTENING_1)
+- **Commit:** 4de8118 (DEC-016 batch) + D-108 commit
+- **Uygulanan:** CDS percentile-conditional overlay (Longstaff et al. 2011). BEAR soft 0.25x, CDS >90th percentile → hard 0.0x. HardExitFlags + MacroScalingResult audit trail.
+- **DEC:** DEC-017
+- **Doğrulama:** 874 passed, `pytest tests/test_macro_gate_softening.py` → 10 pass
 
-(Henüz kapatılmış madde yok.)
+### ✅ [CB-003] TP1 prematüre — ATR×1.5'te %50 exit
+- **Kapatıldı:** 20 May 2026
+- **Direktif:** D-109 (SPEC_TP_REGIME_CONDITIONAL_1)
+- **Commit:** D-109 commit
+- **Uygulanan:** BULL regime'de ATR multiplier 1.5x → 2.5x. Monotonicity guard eklendi. Library-only landing; production caller ayrı direktifte.
+- **Doğrulama:** 874 passed, `pytest tests/test_tp_regime_conditional.py` → 10 pass
+
+### ✅ [CB-006] Stop-loss -%8 dar (BIST volatilitesi için)
+- **Kapatıldı:** 20 May 2026
+- **Direktif:** D-110 (SPEC_STOPLOSS_VOLATILITY_AWARE_1)
+- **Commit:** D-110 commit
+- **Uygulanan:** Volatility-aware stop tier ladder (ATR/P bazlı): -%6/-%8/-%12/-%15, hard floor -%20. Risk parity sizing. ENERY -%8→-%15, AKSEN -%8→-%12.
+- **Doğrulama:** 874 passed, `pytest tests/test_stop_calculator.py` → 11 pass
 
 ---
 
 ## SESSION CHECKPOINT LOG
 
-*(Her session sonu burada satır ekler — accountability izi)*
-
-### 20 May 2026 — Session #1 (D-090..D-110)
+### 20 May 2026 — Session #1 Açılış (D-090..D-107)
 - ACTIVE FINDINGS oluşturuldu: 9 madde
 - Bu session'da kapatılan: yok (henüz)
 - Üretilmiş SPEC: D-108 (CB-001), D-109 (CB-003), D-110 (CB-006) — Architect aşamasında
 - Sonraki session'ın bakacağı: SPEC'lerin Builder implementasyonu, CB-007 için D-111 SPEC, IC dashboard günlük kontrol
+
+### 20 May 2026 — Session #1 Kapanış (D-108..D-110)
+- Bu session'da kapanan: CB-001 (D-108, DEC-017), CB-003 (D-109), CB-006 (D-110)
+- Active: 9 → 6
+- Test count: 824 → 874 passed
+- DEC-015 (Alpha Attribution Faz 1), DEC-016 (Critic Backlog System), DEC-017 (Macro Gate Softening) committed
+- pytest.ini addopts'tan -q kaldırıldı (summary satırı sorunu)
+- Sonraki session önceliği: CB-007 D-111, portföy kararı (BEAR devam), IC dashboard monitoring
 
 ---
 
