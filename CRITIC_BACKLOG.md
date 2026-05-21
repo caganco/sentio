@@ -24,6 +24,7 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 - **Kök neden:** L1=0.25, L2=0.20, L3=0.27 sabit. Rejim sadece gate, modülatör değil.
 - **Önerilen düzeltme:** Regime-conditional weights — BULL'da L1 (momentum) 0.40-0.50, BEAR'da L1 contrarian
 - **Akademik referans:** Asness, Moskowitz, Pedersen (2013) "Value and Momentum Everywhere"
+- **İç araştırma (RR):** RR-003 §3 (Regime-Conditional Weights — "CB-002 Derinleştirme") + Recommendations Aşama 1
 - **Status:** Faz 3 (IC datası sonrası, ~Aug 2026)
 - **Etkilenen dosyalar:** `src/signals/engine.py`, `src/signals/thresholds.py`
 - **Eklendi:** 20 May 2026
@@ -48,6 +49,7 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 - **Bulgu:** Ülkü & İkizlerli (2012) — foreign flows piyasa-seviyesi sinyal, hisse-spesifik değil
 - **Kök neden:** L5'te foreign_ratio hisse-spesifik kullanılıyor — akademik olarak yanlış
 - **Önerilen düzeltme:** `foreign_ratio` (ownership) L5'te kalır, `net_foreign_flow` (akış) L2'ye migrate
+- **Önerilen yol:** RR-001 §4 (yeni L5 mimarisi önerisi); ownership/flow ayrımı akademik temeli §2B
 - **Status:** D-111 (sıraya alınacak)
 - **Etkilenen dosyalar:** `src/signals/layers/smart_money_layer.py`, `src/data/local_macro_signals.py`
 - **Eklendi:** 20 May 2026
@@ -74,7 +76,8 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
   sorunu (L3), non-stationarity, interaksiyon kayıpları.
 - **Önerilen araştırma:** Attention-weighted dynamic composite, 
   multi-LLM ensemble jüri sistemi, conviction × context entegrasyonu.
-- **Status:** RESEARCH gerekiyor — araştırma direktifi Faz 3 öncesi
+- **İç araştırma (RR):** RR-003 §1 (Attention-Weighted), §2 (Multi-LLM Ensemble), §4 (Non-Linear Composite); yol haritası Recommendations Aşama 1-4
+- **Status:** RESEARCH tamamlandı (RR-003) — Aşama 1 SPEC bekliyor (Faz 3 öncesi)
 - **Eklendi:** 21 May 2026
 
 ---

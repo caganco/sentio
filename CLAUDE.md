@@ -101,6 +101,14 @@ Her SPEC (Specification) dökümanında şu alanlar **boş bırakılamaz**:
   - SPEC yazıyorsan ve bu alan boşsa, SPEC reddedilmiş sayılır.
   - Örnek: `src/signals/engine.py`, `tests/test_backtest.py`, `src/backtest/metrics.py`
 
+## RESEARCH REGISTRY (D-122)
+
+- **Her yeni SPEC/direktif, ilgili RR-XXX raporlarına `§section_number` ile referans vermek zorundadır.**
+  - Ham research raporları [`docs/research/`](docs/research/) altında **kalıcıdır** (silinmez).
+  - Master index: [`docs/RESEARCH_REGISTRY.md`](docs/RESEARCH_REGISTRY.md) — ID / başlık / tarih / bağlı CB-SPEC / status.
+  - Örnek: bir SPEC L5 mimarisini değiştiriyorsa → "Dayanak: RR-001 §4" satırı zorunlu.
+  - CB ↔ RR eşlemesi RESEARCH_REGISTRY.md'de tutulur (örn. CB-002 → RR-003 §3, CB-010 → RR-003 §1-2/§4).
+
 ## Session Bootstrap — Her Yeni Chat'te İlk Yap
 
 Yeni chat açtığında token tasarrufu için bu **30 saniyelik kontrol listesi**ni çalıştır:
