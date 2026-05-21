@@ -53,7 +53,7 @@ class FinBERTSentimentModel:
         self._load_model()
 
     def _load_model(self):
-        """Load pre-trained FinBERT model and tokenizer from HuggingFace."""
+        """Load pre-trained FinBERT from local cache only (no HF API calls)."""
         try:
             from transformers import pipeline
 
@@ -62,10 +62,18 @@ class FinBERTSentimentModel:
                 "sentiment-analysis",
                 model=self.model_name,
                 device=0 if self.device.startswith("cuda") else -1,
+                local_files_only=True,  # never call HF API; use cache or fail
             )
             logger.info(f"FinBERT model loaded successfully on {self.device}")
         except ImportError:
             logger.error("transformers library not installed. Install: pip install transformers torch")
+            self.pipeline = None
+        except OSError:
+            logger.warning(
+                f"FinBERT not found in local cache ({self.model_name}). "
+                "Run `python -c \"from transformers import pipeline; pipeline('sentiment-analysis', "
+                "model='ProsusAI/finbert')\"` once to download, or set TRANSFORMERS_OFFLINE=1."
+            )
             self.pipeline = None
         except Exception as e:
             logger.error(f"Failed to load FinBERT model: {e}")

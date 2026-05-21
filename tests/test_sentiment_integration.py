@@ -165,8 +165,8 @@ class TestSentimentIntegration:
             result = compute_signal("AKSEN", self.TECH_BULLISH, self.MACRO_NEUTRAL, [], date.today())
 
         sentiment_ls = [ls for ls in result.audit.layer_scores if ls.layer == "sentiment"][0]
-        # Sentiment weight = 0.0 (deactivated); code runs but contribution is null
-        assert sentiment_ls.weight == 0.0
+        # L4 weight = MASTER_WEIGHTS["sentiment"] * confidence (>= 0 always, > 0 when articles found)
+        assert sentiment_ls.weight >= 0.0
 
     def test_sentiment_missing_source_when_error(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):

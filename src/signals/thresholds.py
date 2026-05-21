@@ -219,6 +219,30 @@ CORRELATION_CLUSTER_THRESHOLD: float = 0.75  # Min corr to group stocks in a clu
 EXIT_STOP_LOSS: float = 0.92        # Stop-loss at entry * 0.92 (-8%)
 EXIT_PROFIT_TARGET: float = 1.20    # Profit target at entry * 1.20 (+20%)
 STOP_APPROACH_BUFFER: float = 0.03  # Warning when price within 3% of stop-loss
+# --- Volatility-aware stop-loss (SPEC_STOPLOSS_VOLATILITY_AWARE_1, D-110) ----
+# ATR/P ratio (ATR_20 / close) defines stop width tier. Hard floor caps the
+# widest stop at -20% (catastrophic loss cap). Risk parity sizes position so
+# the dollar loss at stop equals RISK_PER_TRADE_PCT of equity across all tiers.
+# EXIT_STOP_LOSS (0.92) preserved as legacy / mid-vol default.
+
+STOP_ATR_WINDOW: int = 20              # Stop-specific ATR window (wider than TP's 14d)
+
+# ATR/Price ratio tier boundaries (% of price)
+STOP_ATR_PCT_LOW_MAX:  float = 2.0     # ATR/P < 2% -> low vol tier
+STOP_ATR_PCT_MID_MAX:  float = 4.0     # ATR/P < 4% -> mid vol tier
+STOP_ATR_PCT_HIGH_MAX: float = 6.0     # ATR/P < 6% -> high vol tier
+                                        # >= 6% -> extreme (microcap)
+
+# Stop distances (positive fractions; applied as entry * (1 - stop_distance))
+STOP_LOSS_LOW_VOL:     float = 0.06    # -6% for ATR/P < 2%
+STOP_LOSS_MID_VOL:     float = 0.08    # -8% for ATR/P 2-4% (matches EXIT_STOP_LOSS)
+STOP_LOSS_HIGH_VOL:    float = 0.12    # -12% for ATR/P 4-6%
+STOP_LOSS_EXTREME_VOL: float = 0.15    # -15% for ATR/P >= 6% (microcap)
+STOP_HARD_FLOOR:       float = 0.20    # -20% absolute maximum (catastrophic loss cap)
+
+# Risk parity: target position dollar-risk fixed across all vol tiers.
+# position_size = (equity * RISK_PER_TRADE_PCT) / stop_distance
+RISK_PER_TRADE_PCT: float = 0.01
 
 # Backtest entry gatekeeping thresholds (prevent low-quality entries in risk-off regimes)
 BACKTEST_MACRO_MIN_SCORE: float = 45.0      # Minimum macro score to allow entry (< 45 = no entry)
@@ -232,6 +256,8 @@ L5_SMART_MONEY_WEIGHT: float = 0.10          # Active weight when score is valid
 SMART_MONEY_STALE_HOURS: int = 48            # >48h since last write → score=None, weight=0
 SMART_MONEY_MOMENTUM_DAYS: int = 10          # Day 10+: momentum signal activates
 SMART_MONEY_FULL_COMPOSITE_DAYS: int = 20    # Day 20+: full composite activates
+L5_CONF_PARTIAL: float = 0.5                 # Day 10-19 confidence (momentum-only phase)
+L5_CONF_FULL: float = 0.8                    # Day 20+ confidence (full composite phase)
 SMART_MONEY_PERCENTILE_WINDOW: int = 252     # Rolling window for percentile rank
 SMART_MONEY_PERCENTILE_WEIGHT: float = 0.60  # 60% percentile in composite
 SMART_MONEY_MOMENTUM_WEIGHT: float = 0.40    # 40% momentum in composite
@@ -285,6 +311,19 @@ MACRO_GATE_BULL_MIN: float = 60.0      # L2 ≥ 60 → BULL, 1.0×
 MACRO_GATE_NEUTRAL_MIN: float = 45.0   # 45 ≤ L2 < 60 → NEUTRAL, 0.8×; < 45 → BEAR, 0.0×
 MACRO_GATE_SCALING_BULL: float = 1.0
 MACRO_GATE_SCALING_NEUTRAL: float = 0.8
+# --- Macro regime gate v2 (SPEC_MACRO_GATE_SOFTENING_1, D-108) -----------
+# CDS percentile-conditional softening of BEAR hard gate.
+# Ref: Longstaff, Pan, Pedersen, Singleton (2011) NBER 16563.
+# Legacy MACRO_GATE_SCALING_BEAR = 0.0 preserved below (v1 callers unchanged).
+
+CDS_PERCENTILE_WINDOW: int = 252           # Rolling window for CDS percentile rank
+CDS_PERCENTILE_LOW:  float = 0.50          # <= LOW -> overlay = 1.0 (no dampening)
+CDS_PERCENTILE_HIGH: float = 0.90          # >= HIGH -> overlay = CDS_SCALING_HIGH
+CDS_SCALING_HIGH: float = 0.25             # Max dampening multiplier
+MACRO_GATE_SOFT_BEAR_BASE: float = 0.25    # L2<45 + CDS normal -> 0.25x (was hard 0.0x)
+MACRO_GATE_HARD_EXIT_CDS_BPS: float = 600.0    # CDS >= 600 bps -> unconditional 0.0x
+MACRO_GATE_HARD_EXIT_USDTRY_SIGMA: float = 3.0 # USDTRY z-score >= 3 -> unconditional 0.0x
+                                                # (Phase 1: placeholder; z-score not yet computed)
 MACRO_GATE_SCALING_BEAR: float = 0.0
 
 # --- Position sizing (SPEC_POSITION_SIZING_2) ---
@@ -300,9 +339,16 @@ MAX_DRAWDOWN_HARD_STOP: float = 0.15    # Portfolio DD → liquidate / pause ent
 TP1_PCT_EXIT: float = 0.50             # First resistance
 TP2_PCT_EXIT: float = 0.30             # Fib 0.618
 TP3_PCT_EXIT: float = 0.20             # Trailing / trend break
-ATR_TP1_MULTIPLE: float = 1.5          # Fallback when no detected levels
+ATR_TP1_MULTIPLE: float = 1.5          # Fallback when no detected levels (NEUTRAL/BEAR)
 ATR_TP2_MULTIPLE: float = 3.0
 ATR_TP3_MULTIPLE: float = 5.0
+# --- Staged TP regime-conditional (SPEC_TP_REGIME_CONDITIONAL_1, D-109) -----
+# BULL: wider TP fallbacks + minimum-distance filter so winners can run.
+# NEUTRAL/BEAR behavior unchanged (uses ATR_TP*_MULTIPLE above).
+ATR_TP1_MULTIPLE_BULL: float = 2.5
+ATR_TP2_MULTIPLE_BULL: float = 4.0
+ATR_TP3_MULTIPLE_BULL: float = 6.5
+ATR_TP1_MIN_DISTANCE_BULL: float = 2.0  # Real TP1 candidates must be >= entry + 2*ATR
 TP_PIVOT_LOOKBACK: int = 20
 TP_SWING_HIGH_LOOKBACK: int = 60
 TP_FIB_LOOKBACK: int = 252
@@ -315,3 +361,212 @@ TP3_TRAIL_BEAR: float = 0.02
 TP2_DAYS_HOLD: int = 3                 # Limit not filled → lower price
 TP3_DAYS_HOLD: int = 10                # Max hold before TP3 review
 CONVICTION_COLLAPSE_HOLD_HOURS: int = 24  # Recovery window before TP2+TP3 force-close
+
+# =============================================================================
+# L4 NEWS SENTIMENT — D-094 (SPEC_L4_NEWS_1)
+# borsa-mcp + Mynet Finans + FinBERT pipeline
+# =============================================================================
+
+# Haber çekme
+L4_NEWS_LOOKBACK_DAYS: int = 7            # son kaç günlük haber
+L4_NEWS_CACHE_TTL_HOURS: int = 6          # borsa-mcp önbellek yenileme süresi
+L4_NEWS_RECENCY_DECAY: float = 0.85       # recency weight = 0.85^age_days
+
+# Aktivasyon kapısı
+L4_MIN_ARTICLES_ACTIVATE: int = 3         # < 3 → confidence = 0.0 (no signal)
+L4_MIN_ARTICLES_FULL_CONF: int = 10       # >= 10 → volume_conf = 1.0
+
+# FinBERT modeli (Phase 1: İngilizce finansal; TR modeli ayrı micro-SPEC)
+L4_FINBERT_MODEL: str = "ProsusAI/finbert"
+L4_FINBERT_MAX_TOKENS: int = 512          # BERT truncation limit
+
+# FinBERT kategorilendirme eşikleri — [-1, 1] normalized score
+L4_BULLISH_THRESHOLD: float = 0.15        # score > +0.15 → bullish
+L4_BEARISH_THRESHOLD: float = -0.15       # score < -0.15 → bearish
+
+# Confidence bileşen ağırlıkları (toplam 1.00)
+L4_CONF_VOLUME_WEIGHT: float = 0.35
+L4_CONF_AGREEMENT_WEIGHT: float = 0.40
+L4_CONF_QUALITY_WEIGHT: float = 0.25
+
+# Ticker-haber eşleştirme relevans ağırlıkları
+TICKER_MATCH_WEIGHTS: dict[str, float] = {
+    "exact_ticker":  1.00,
+    "company_name":  0.85,
+    "sector_theme":  0.30,
+    "no_match":      0.10,
+}
+
+# Ticker → şirket adı alias'ları (Türkçe haberlerde geçen isimler, küçük harf)
+TICKER_COMPANY_ALIASES: dict[str, list[str]] = {
+    # — Bankacılık ——————————————————————————————————————
+    "AKBNK": ["akbank", "ak bank"],
+    "GARAN": ["garanti", "garanti bbva", "garanti bankası"],
+    "ISCTR": ["iş bankası", "işbank", "türkiye iş bankası"],
+    "YKBNK": ["yapı kredi", "yapı ve kredi"],
+    "HALKB": ["halkbank", "halk bankası", "türkiye halk bankası"],
+    "VAKBN": ["vakıfbank", "vakıf bankası"],
+    "SKBNK": ["şekerbank"],
+    "ALBRK": ["albaraka", "albaraka türk"],
+    "QNBFB": ["qnb finansbank", "finansbank"],
+    # — Holdingler ———————————————————————————————————————
+    "KCHOL": ["koç holding", "koç", "koç grubu"],
+    "SAHOL": ["sabancı holding", "sabancı"],
+    "TKFEN": ["tekfen holding", "tekfen"],
+    "ENKAI": ["enka", "enka inşaat"],
+    # — Enerji ————————————————————————————————————————————
+    "TUPRS": ["tüpraş", "türkiye petrol rafinerileri"],
+    "AKSEN": ["aksa enerji", "aksa"],
+    "ENERY": ["enerya", "enerya enerji"],
+    "ODAS":  ["odaş elektrik", "odaş"],
+    # — Perakende / Gıda ——————————————————————————————————
+    "BIMAS": ["bim", "bim mağazaları"],
+    "MGROS": ["migros", "migros ticaret"],
+    "ULKER": ["ülker", "ülker bisküvi"],
+    "CCOLA": ["coca-cola içecek", "cci"],
+    "AEFES": ["anadolu efes", "efes"],
+    # — Teknoloji / Telekom ———————————————————————————————
+    "TTKOM": ["türk telekom"],
+    "ASELS": ["aselsan"],
+    "LOGO":  ["logo yazılım", "logo"],
+    # — Ulaşım ————————————————————————————————————————————
+    "THYAO": ["türk hava yolları", "thy", "turkish airlines"],
+    "TAVHL": ["tav havalimanları", "tav"],
+    "PGSUS": ["pegasus", "pegasus hava yolları"],
+    "TOASO": ["tofaş", "tofaş otomobil"],
+    "FROTO": ["ford otosan", "ford"],
+    # — Sanayi / Hammadde ——————————————————————————————————
+    "EREGL": ["ereğli demir çelik", "erdemir"],
+    "SISE":  ["şişecam", "türkiye şişe ve cam"],
+    "KRDMD": ["kardemir"],
+    "PETKM": ["petkim"],
+}
+
+# =============================================================================
+# L5b VIOP (Derivatives) signal thresholds — D-099
+# VERDA-independent foundation: direct BIST CSV download, T+1 EOD.
+# Not yet wired into engine.py (MASTER_WEIGHTS["viop"] absent → weight=0.0).
+# =============================================================================
+
+VIOP_STALE_DAYS: int = 3
+VIOP_MIN_OI: int = 500          # Below this → "partial" signal, confidence 0.3
+
+# Put/Call OI ratio interpretation (open interest basis):
+#   < 0.50 = strong call dominance → very bullish derivatives positioning
+#   0.50-0.80 = moderate call dominance → bullish
+#   0.80-1.00 = slight call edge → neutral-bullish
+#   1.00-1.20 = slight put edge → neutral-bearish
+#   1.20-2.00 = put dominance → bearish
+#   >= 2.00 = strong puts → very bearish hedge positioning
+VIOP_PC_THRESHOLDS: dict[str, float] = {
+    "very_bullish": 0.50,
+    "bullish":      0.80,
+    "neutral_low":  1.00,
+    "neutral_high": 1.20,
+    "bearish":      2.00,
+}
+VIOP_PC_SCORES: dict[str, float] = {
+    "very_bullish": 82.0,
+    "bullish":      68.0,
+    "neutral_low":  55.0,
+    "neutral_high": 45.0,
+    "bearish":      32.0,
+    "very_bearish": 18.0,
+}
+VIOP_OI_DELTA_BOOST: float = 5.0        # Score nudge when OI delta confirms direction
+VIOP_OI_DELTA_THRESHOLD: float = 0.10   # 10% OI change considered a meaningful move
+
+# =============================================================================
+# L5b CUSTODY / MKK TAKAS SCRAPER (D-116, SPEC_FINTABLES_TAKAS_SCRAPER_1)
+# Fintables MKK takas verisi → custody_snapshots.db → L5 foreign signal.
+# =============================================================================
+
+# --- Storage ---
+CUSTODY_DB_PATH: str = "data/custody/custody_snapshots.db"
+
+# --- Scraper rate limiting ---
+CUSTODY_SCRAPE_RATE_LIMIT_SEC: float = 2.0   # saniye / ticker (saygılı rate limit)
+CUSTODY_SCRAPE_TIMEOUT_SEC: int = 30         # Playwright sayfa yükleme timeout
+CUSTODY_MAX_RETRIES: int = 3                 # Hata sonrası yeniden deneme
+CUSTODY_RETRY_BACKOFF_SEC: float = 5.0       # İlk bekleme (exponential: ×2 her retry)
+
+# --- Session management ---
+CUSTODY_SESSION_FILE: str = ".fintables_session.json"
+CUSTODY_SESSION_MAX_AGE_HOURS: int = 24      # Bu süreden eski cookie → yeniden login
+
+# --- History & activation ---
+CUSTODY_STALE_HOURS: int = 48                # >48h → None (sinyal dışı, parquet fallback)
+CUSTODY_BACKFILL_DAYS: int = 90              # İlk çalışmada geriye dönük çekim
+CUSTODY_MIN_HISTORY_DAYS: int = 10           # Bu kadar günden az → score=None
+
+# --- L5 custody signal sub-weights (yalnızca custody DB yolu aktifken geçerli) ---
+# Toplam = 1.00 (L5 foreign component içi ağırlıklar).
+CUSTODY_FOREIGN_LEVEL_WEIGHT: float = 0.50   # 252d rolling persentil
+CUSTODY_MOMENTUM_30D_WEIGHT: float = 0.30    # 30-gün Δ yabancı %
+CUSTODY_PERSISTENCE_WEIGHT: float = 0.20     # streak skoru (≤10 gün)
+
+# Normalisation için sabitler
+CUSTODY_CHANGE_30D_MAX_PP: float = 10.0      # ±10 pp → [0, 100]
+CUSTODY_PERSISTENCE_MAX_DAYS: int = 10       # streak cap
+
+# --- BIST50 ticker universe (D-116, quarterly review) ---
+# Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
+# sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
+# duplikasyon kaldırıldı → 49 unique ticker (50. üye doğrulanınca eklenecek).
+CUSTODY_BIST50_TICKERS: tuple[str, ...] = (
+    "AKBNK", "AKSEN", "AEFES", "ARCLK", "ASELS",
+    "BIMAS", "CCOLA", "DOHOL", "EREGL", "ENERY",
+    "ENKAI", "FROTO", "GARAN", "HALKB", "ISCTR",
+    "KCHOL", "KRDMD", "LOGO",  "MGROS", "ODAS",
+    "PETKM", "PGSUS", "SAHOL", "SISE",  "TAVHL",
+    "THYAO", "TKFEN", "TOASO", "TTKOM", "TUPRS",
+    "ULKER", "VAKBN", "YKBNK", "AKGRT", "ALBRK",
+    "CIMSA", "ECILC", "EGEEN", "GUBRF", "IPEKE",
+    "NETAS", "OTKAR", "QNBFB", "SKBNK", "SODA",
+    "TCELL", "VESTL", "DEXYS", "AGHOL",
+)
+
+# =============================================================================
+# ALPHA ATTRIBUTION & IC MEASUREMENT — DEC-015 (SPEC_ALPHA_INFRASTRUCTURE_1)
+# Faz 1: measurement infrastructure only. No weight changes.
+# References: Lopez de Prado (2018), Bailey & Lopez de Prado DSR (2460551),
+#             Ulku & Ikizlerli BIST Foreign Flows (2012),
+#             Bildik & Gulay BIST Contrarian (2007)
+# =============================================================================
+
+# IC forward return horizons (trading days)
+IC_HORIZON_T1:  int = 1
+IC_HORIZON_T5:  int = 5
+IC_HORIZON_T20: int = 20
+IC_HORIZON_T60: int = 60
+
+# Rolling IC window sizes (trading days)
+IC_ROLLING_SHORT: int = 30
+IC_ROLLING_MID:   int = 90
+IC_ROLLING_LONG:  int = 252
+
+# Minimum observations for Spearman IC computation
+IC_MIN_OBSERVATIONS: int = 10
+
+# Layer "investable" (active weight) gating
+IC_INVESTABLE_MEAN_MIN:   float = 0.03   # mean(IC) >= 0.03
+IC_INVESTABLE_TSTAT_MIN:  float = 2.0    # t-stat >= 2.0
+IC_INVESTABLE_MONTHS_MIN: int = 24       # >= 24 months of data
+
+# Layer watchlist / weight-halve / drop thresholds (Faz 2 reporting)
+IC_WATCHLIST_TSTAT_MAX:   float = 1.5    # t-stat < 1.5 last 6m -> watch
+IC_HALVE_CANDIDATE_TSTAT: float = 1.0    # t-stat < 1.0 last 12m -> halve candidate
+
+# Brinson-Fachler benchmark
+BRINSON_BENCHMARK: str = "equal_weight"   # "equal_weight" | "market_cap_weight"
+
+# Volatility regime (rolling 20d realized vol, annualized %)
+VOLATILITY_REGIME_LOW_MAX:  float = 15.0   # < 15% -> Low
+VOLATILITY_REGIME_HIGH_MIN: float = 30.0   # > 30% -> High
+# 15-30% -> Mid
+
+# Signal log storage paths
+SIGNAL_LOG_BASE_PATH:   str = "data/signal_logs"
+RETURNS_LOG_PATH:       str = "data/signal_logs/returns.parquet"
+UNIVERSE_SNAPSHOT_PATH: str = "data/universe_snapshots"
+IC_CACHE_PATH:          str = "data/analytics/ic_cache.parquet"

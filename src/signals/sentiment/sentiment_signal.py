@@ -1,8 +1,13 @@
-"""Sentiment signal layer for signal engine."""
+"""Sentiment signal layer for signal engine.
+
+Source priority (D-094 / SPEC_L4_NEWS_1):
+  1. borsa-mcp → Mynet Finans → FinBERT  (primary)
+  2. Yahoo Finance → VADER               (fallback when Mynet returns 0 articles)
+"""
 
 import logging
 
-from src.signals.sentiment.news_aggregator import NewsAggregator
+from src.signals.sentiment.news_aggregator import MynetNewsAggregator, NewsAggregator
 from src.signals.sentiment.vader_analyzer import VaderSentimentAnalyzer
 
 logger = logging.getLogger(__name__)
@@ -12,88 +17,39 @@ class SentimentSignal:
     """Calculate sentiment signal from news articles."""
 
     def __init__(self, cache_file: str = "data/sentiment_cache.json"):
-        """
-        Initialize sentiment signal.
-
-        Args:
-            cache_file: Path to sentiment cache
-        """
         self.analyzer = VaderSentimentAnalyzer()
         self.aggregator = NewsAggregator(cache_file)
 
     def calculate(self, ticker: str, days: int = 7) -> dict:
-        """
-        Calculate sentiment signal for ticker.
+        """Calculate sentiment signal for ticker.
 
-        Args:
-            ticker: Stock ticker
-            days: Days lookback for news
-
-        Returns:
-            Dict with:
-            - score: signal score [0, 100] (50=neutral)
-            - normalized: original sentiment [-1, 1]
-            - confidence: signal confidence [0, 1]
-            - bullish_count: number of bullish articles
-            - bearish_count: number of bearish articles
-            - article_count: total articles analyzed
-            - source: "computed" or "missing"
+        Returns dict with:
+          score [0,100], normalized [-1,1], confidence [0,1],
+          bullish_count, bearish_count, article_count,
+          source ("computed"|"missing")
         """
         try:
-            # Fetch news articles
-            articles = self.aggregator.fetch_news(ticker, days)
+            mynet_agg = MynetNewsAggregator()
+            result = mynet_agg.aggregate(ticker, days)
 
-            if not articles:
-                logger.warning(f"{ticker}: no news articles available")
-                return {
-                    "score": 50.0,  # neutral
-                    "normalized": 0.0,
-                    "confidence": 0.0,
-                    "bullish_count": 0,
-                    "bearish_count": 0,
-                    "article_count": 0,
-                    "source": "missing",
-                }
+            if result["article_count"] == 0:
+                logger.info("%s: Mynet returned 0 articles, falling back to Yahoo", ticker)
+                result = self._yahoo_fallback(ticker, days)
+            else:
+                # Preserve actual source in news_source; normalize top-level source
+                # for backward compat (tests assert source in "computed"|"missing")
+                result["news_source"] = result.get("source", "mynet_finans")
+                result["source"] = "computed"
 
-            # Aggregate sentiment
-            agg = self.aggregator.aggregate_sentiment(articles, self.analyzer)
-
-            # Convert normalized [0, 1] to signal score [0, 100]
-            signal_score = agg["normalized"] * 100
-
-            # Confidence based on article count and agreement
-            bullish_ratio = (
-                agg["bullish"] / agg["count"] if agg["count"] > 0 else 0
+            logger.debug(
+                "%s: sentiment score=%.1f conf=%.3f articles=%d source=%s",
+                ticker, result["score"], result["confidence"],
+                result["article_count"], result.get("source", "?"),
             )
-            bearish_ratio = (
-                agg["bearish"] / agg["count"] if agg["count"] > 0 else 0
-            )
-            agreement = max(bullish_ratio, bearish_ratio, 1 - bullish_ratio - bearish_ratio)
+            return result
 
-            # Confidence = f(article_count, agreement)
-            # More articles + stronger agreement = higher confidence
-            article_confidence = min(agg["count"] / 5, 1.0)  # Max at 5+ articles
-            agreement_confidence = agreement
-            confidence = (article_confidence + agreement_confidence) / 2
-
-            logger.info(
-                f"{ticker}: sentiment {agg['score']:.3f} (bullish={agg['bullish']}, "
-                f"bearish={agg['bearish']}, neutral={agg['count']-agg['bullish']-agg['bearish']}, "
-                f"confidence={confidence:.3f})"
-            )
-
-            return {
-                "score": round(signal_score, 4),
-                "normalized": round(agg["score"], 4),
-                "confidence": round(confidence, 4),
-                "bullish_count": agg["bullish"],
-                "bearish_count": agg["bearish"],
-                "article_count": agg["count"],
-                "source": "computed",
-            }
-
-        except Exception as e:
-            logger.exception(f"{ticker}: sentiment calculation failed: {e}")
+        except Exception as exc:
+            logger.exception("%s: sentiment calculation failed: %s", ticker, exc)
             return {
                 "score": 50.0,
                 "normalized": 0.0,
@@ -103,6 +59,46 @@ class SentimentSignal:
                 "article_count": 0,
                 "source": "missing",
             }
+
+    def _yahoo_fallback(self, ticker: str, days: int) -> dict:
+        """Legacy Yahoo Finance + VADER path (unchanged logic)."""
+        articles = self.aggregator.fetch_news(ticker, days)
+
+        if not articles:
+            logger.warning("%s: no news articles available (Yahoo fallback)", ticker)
+            return {
+                "score": 50.0,
+                "normalized": 0.0,
+                "confidence": 0.0,
+                "bullish_count": 0,
+                "bearish_count": 0,
+                "article_count": 0,
+                "source": "missing",
+            }
+
+        agg = self.aggregator.aggregate_sentiment(articles, self.analyzer)
+        signal_score = agg["normalized"] * 100
+
+        bullish_ratio = agg["bullish"] / agg["count"] if agg["count"] > 0 else 0
+        bearish_ratio = agg["bearish"] / agg["count"] if agg["count"] > 0 else 0
+        agreement = max(bullish_ratio, bearish_ratio, 1 - bullish_ratio - bearish_ratio)
+        article_confidence = min(agg["count"] / 5, 1.0)
+        confidence = (article_confidence + agreement) / 2
+
+        logger.info(
+            "%s: Yahoo sentiment %.3f (bullish=%d bearish=%d conf=%.3f)",
+            ticker, agg["score"], agg["bullish"], agg["bearish"], confidence,
+        )
+
+        return {
+            "score": round(signal_score, 4),
+            "normalized": round(agg["score"], 4),
+            "confidence": round(confidence, 4),
+            "bullish_count": agg["bullish"],
+            "bearish_count": agg["bearish"],
+            "article_count": agg["count"],
+            "source": "computed",
+        }
 
     def batch_calculate(self, tickers: list, days: int = 7) -> dict[str, dict]:
         """

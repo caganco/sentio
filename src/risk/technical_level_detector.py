@@ -3,6 +3,11 @@
 Hierarchical detection: daily pivots, Fibonacci extensions (252d), structural
 swing highs (60d), MA200, with an ATR-multiple fallback when too few real
 levels exist above entry. Output feeds the staged exit manager (TP1/TP2/TP3).
+
+D-109 (SPEC_TP_REGIME_CONDITIONAL_1) adds regime-aware TP fallbacks. BULL uses
+wider multiples (2.5/4.0/6.5xATR) + a minimum-distance filter on real TP1
+candidates so winners can run. NEUTRAL/BEAR unchanged.
+
 All tunables come from src.signals.thresholds.
 """
 from __future__ import annotations
@@ -12,14 +17,20 @@ from dataclasses import dataclass
 import pandas as pd
 
 from src.signals.thresholds import (
+    ATR_TP1_MIN_DISTANCE_BULL,
     ATR_TP1_MULTIPLE,
+    ATR_TP1_MULTIPLE_BULL,
     ATR_TP2_MULTIPLE,
+    ATR_TP2_MULTIPLE_BULL,
     ATR_TP3_MULTIPLE,
+    ATR_TP3_MULTIPLE_BULL,
     TP_CONFIDENCE_FLOOR,
     TP_CONFIDENCE_OVERLAP_BONUS,
     TP_FIB_LOOKBACK,
     TP_SWING_HIGH_LOOKBACK,
 )
+
+_REGIME_BULL = "BULL"
 
 
 @dataclass(frozen=True)
@@ -34,6 +45,7 @@ class LevelPlan:
     support_1: float
     support_2: float
     confidence: float
+    regime: str = "NEUTRAL"   # D-109: audit trail (default preserves prior behavior)
 
 
 def calculate_pivot_points(high: float, low: float, close: float) -> dict:
@@ -95,8 +107,28 @@ def calculate_atr(ohlcv: pd.DataFrame, period: int = 14) -> float:
     return float(tr.tail(period).mean())
 
 
-def detect_levels(ohlcv: pd.DataFrame) -> LevelPlan:
-    """Detect TP1/TP2/TP3 from OHLCV (columns: High, Low, Close)."""
+def detect_levels(ohlcv: pd.DataFrame, regime: str = "NEUTRAL") -> LevelPlan:
+    """Detect TP1/TP2/TP3 from OHLCV.
+
+    Args:
+        ohlcv: DataFrame with columns High, Low, Close (chronological).
+        regime: Macro regime label. "BULL" activates wider TP targets
+                (ATR_TP*_MULTIPLE_BULL) and a min-distance filter for TP1.
+                "NEUTRAL"/"BEAR" preserve the legacy behavior.
+
+    Returns:
+        Frozen LevelPlan. `regime` field stored for audit.
+    """
+    is_bull = (regime == _REGIME_BULL)
+    if is_bull:
+        tp1_mult, tp2_mult, tp3_mult = (
+            ATR_TP1_MULTIPLE_BULL, ATR_TP2_MULTIPLE_BULL, ATR_TP3_MULTIPLE_BULL,
+        )
+    else:
+        tp1_mult, tp2_mult, tp3_mult = (
+            ATR_TP1_MULTIPLE, ATR_TP2_MULTIPLE, ATR_TP3_MULTIPLE,
+        )
+
     current = ohlcv.iloc[-1]
     entry = float(current["Close"])
 
@@ -122,16 +154,39 @@ def detect_levels(ohlcv: pd.DataFrame) -> LevelPlan:
     ]
     valid.sort(key=lambda c: c["price"])
 
-    tp1 = valid[0] if len(valid) > 0 else None
-    tp2 = valid[1] if len(valid) > 1 else None
-    tp3 = valid[2] if len(valid) > 2 else None
+    # D-109: BULL min-distance filter -- skip near-entry levels that will be
+    # crossed quickly in a bull trend. Applied to TP1 candidate selection only.
+    if is_bull and atr > 0:
+        min_tp1_price = entry + ATR_TP1_MIN_DISTANCE_BULL * atr
+        bull_filtered = [c for c in valid if c["price"] >= min_tp1_price]
+        valid_for_tp1 = bull_filtered if bull_filtered else valid
+    else:
+        valid_for_tp1 = valid
+
+    tp1 = valid_for_tp1[0] if valid_for_tp1 else None
+
+    # TP2/TP3 picked from the full valid list, but must lie ABOVE TP1
+    tp1_price = tp1["price"] if tp1 else entry
+    above_tp1 = [c for c in valid if c["price"] > tp1_price]
+    tp2 = above_tp1[0] if len(above_tp1) > 0 else None
+    tp3 = above_tp1[1] if len(above_tp1) > 1 else None
 
     if tp1 is None:
-        tp1 = {"price": entry + ATR_TP1_MULTIPLE * atr, "type": "atr_1.5x"}
+        tp1 = {"price": entry + tp1_mult * atr, "type": f"atr_{tp1_mult}x"}
     if tp2 is None:
-        tp2 = {"price": entry + ATR_TP2_MULTIPLE * atr, "type": "atr_3.0x"}
+        tp2 = {"price": entry + tp2_mult * atr, "type": f"atr_{tp2_mult}x"}
     if tp3 is None:
-        tp3 = {"price": entry + ATR_TP3_MULTIPLE * atr, "type": "atr_5.0x"}
+        tp3 = {"price": entry + tp3_mult * atr, "type": f"atr_{tp3_mult}x"}
+
+    # D-109: enforce tp1 <= tp2 <= tp3. When BULL min-distance pushes TP1 to
+    # a far real level (e.g., fib_1.618), the entry-anchored ATR fallback for
+    # TP2/TP3 can land below it. Bump TP2/TP3 to (tp1 + tp_step) in that case.
+    if tp2["price"] < tp1["price"]:
+        tp2 = {"price": tp1["price"] + max(atr, 1e-6) * (tp2_mult - tp1_mult),
+               "type": f"atr_from_tp1_{tp2_mult - tp1_mult:.1f}x"}
+    if tp3["price"] < tp2["price"]:
+        tp3 = {"price": tp2["price"] + max(atr, 1e-6) * (tp3_mult - tp2_mult),
+               "type": f"atr_from_tp2_{tp3_mult - tp2_mult:.1f}x"}
 
     overlap = sum(
         1 for lv in (tp1, tp2, tp3)
@@ -152,4 +207,5 @@ def detect_levels(ohlcv: pd.DataFrame) -> LevelPlan:
         support_1=round(pivot["support_1"], 4),
         support_2=round(pivot["support_2"], 4),
         confidence=confidence,
+        regime=regime,
     )

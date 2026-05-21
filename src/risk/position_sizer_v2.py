@@ -80,6 +80,7 @@ def size_position(
     total_positions_count: int = 0,
     sector_exposure_pct: float = 0.0,
     portfolio_drawdown: float = 0.0,
+    stop_result: "object | None" = None,   # D-110: optional StopResult risk-parity clip
 ) -> SizingDecision:
     """Compute a sizing decision from conviction + macro regime + portfolio state.
 
@@ -92,6 +93,10 @@ def size_position(
         sector_exposure_pct: existing exposure to this position's sector [0,1];
             a new entry must not push it past MAX_SECTOR_CONCENTRATION.
         portfolio_drawdown: current drawdown as a positive fraction (0.12 = -12%).
+        stop_result: optional StopResult (D-110). When provided AND the
+            conviction-based allocation exceeds risk-parity allocation, the
+            allocation is clipped to risk-parity (so the dollar loss at stop
+            stays at RISK_PER_TRADE_PCT of equity).
 
     Returns:
         SizingDecision (frozen).
@@ -151,5 +156,14 @@ def size_position(
         alloc = headroom
         return decide(ACTION_ENTER, alloc,
                       f"clipped to sector cap {MAX_SECTOR_CONCENTRATION:.0%}")
+
+    # D-110 risk parity clip: when a vol-aware stop is supplied, the position
+    # may not exceed the risk-parity allocation (= RISK_PER_TRADE_PCT / stop_distance).
+    if stop_result is not None and alloc > 0:
+        rp_alloc = float(getattr(stop_result, "equity_used", 0.0))
+        if 0 < rp_alloc < alloc:
+            return decide(ACTION_ENTER, rp_alloc,
+                          f"{tier} entry, clipped to risk-parity "
+                          f"(vol_tier={getattr(stop_result, 'vol_tier', '?')})")
 
     return decide(ACTION_ENTER, alloc, f"{tier} entry")

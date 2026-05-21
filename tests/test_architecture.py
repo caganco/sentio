@@ -226,4 +226,124 @@ class TestBacktestEngineIntegrity:
         ), "backtest/engine.py bare except bloğu içeriyor. Logger ile logla."
 
 
+class TestVolatilityAwareStopConstants:
+    """D-110 / SPEC_STOPLOSS_VOLATILITY_AWARE_1: tier ordering + sanity."""
+
+    def test_stop_constants_ordered(self):
+        from src.signals.thresholds import (
+            EXIT_STOP_LOSS,
+            STOP_HARD_FLOOR,
+            STOP_LOSS_EXTREME_VOL,
+            STOP_LOSS_HIGH_VOL,
+            STOP_LOSS_LOW_VOL,
+            STOP_LOSS_MID_VOL,
+        )
+        assert STOP_LOSS_LOW_VOL < STOP_LOSS_MID_VOL < STOP_LOSS_HIGH_VOL < STOP_LOSS_EXTREME_VOL
+        assert STOP_LOSS_EXTREME_VOL <= STOP_HARD_FLOOR
+        # Mid-vol stop must match legacy -8% (1 - 0.92)
+        assert round(STOP_LOSS_MID_VOL, 4) == round(1.0 - EXIT_STOP_LOSS, 4)
+
+    def test_stop_calculator_importable(self):
+        from src.risk.stop_calculator import calculate_stop, classify_vol_tier
+        r = calculate_stop(100.0, 3.0, 100_000)
+        assert r.stop_price > 0
+        assert classify_vol_tier(0.03) == "mid"
+
+
+class TestTpRegimeConditionalConstants:
+    """D-109 / SPEC_TP_REGIME_CONDITIONAL_1: BULL TP multiplier contract."""
+
+    def test_bull_tp_constants_exist_and_wider_than_baseline(self):
+        from src.signals.thresholds import (
+            ATR_TP1_MIN_DISTANCE_BULL,
+            ATR_TP1_MULTIPLE,
+            ATR_TP1_MULTIPLE_BULL,
+            ATR_TP2_MULTIPLE,
+            ATR_TP2_MULTIPLE_BULL,
+            ATR_TP3_MULTIPLE,
+            ATR_TP3_MULTIPLE_BULL,
+        )
+        assert ATR_TP1_MULTIPLE_BULL > ATR_TP1_MULTIPLE       # 2.5 > 1.5
+        assert ATR_TP2_MULTIPLE_BULL > ATR_TP2_MULTIPLE       # 4.0 > 3.0
+        assert ATR_TP3_MULTIPLE_BULL > ATR_TP3_MULTIPLE       # 6.5 > 5.0
+        assert ATR_TP1_MIN_DISTANCE_BULL == 2.0
+
+    def test_bull_tp_ordering(self):
+        from src.signals.thresholds import (
+            ATR_TP1_MULTIPLE_BULL,
+            ATR_TP2_MULTIPLE_BULL,
+            ATR_TP3_MULTIPLE_BULL,
+        )
+        assert ATR_TP1_MULTIPLE_BULL < ATR_TP2_MULTIPLE_BULL < ATR_TP3_MULTIPLE_BULL
+
+
+class TestMacroGateSofteningConstants:
+    """D-108 / SPEC_MACRO_GATE_SOFTENING_1: gate v2 constants & contract."""
+
+    def test_cds_gate_constants_exist_and_ordered(self):
+        from src.signals.thresholds import (
+            CDS_PERCENTILE_HIGH,
+            CDS_PERCENTILE_LOW,
+            CDS_PERCENTILE_WINDOW,
+            CDS_SCALING_HIGH,
+            MACRO_GATE_HARD_EXIT_CDS_BPS,
+            MACRO_GATE_SOFT_BEAR_BASE,
+        )
+        assert CDS_PERCENTILE_LOW < CDS_PERCENTILE_HIGH
+        assert 0.0 < CDS_SCALING_HIGH < 1.0
+        assert MACRO_GATE_SOFT_BEAR_BASE == 0.25
+        assert CDS_PERCENTILE_WINDOW == 252
+        assert MACRO_GATE_HARD_EXIT_CDS_BPS == 600.0
+
+    def test_v2_returns_float_scaling_in_unit_range(self):
+        from src.signals.macro_regime_gate import calculate_macro_regime_scaling_v2
+        r = calculate_macro_regime_scaling_v2(42.0, 0.40)
+        assert 0.0 <= r.scaling <= 1.0
+
+    def test_v1_legacy_scaling_unchanged(self):
+        from src.signals.macro_regime_gate import calculate_macro_regime_scaling
+        assert calculate_macro_regime_scaling(65.0) == 1.0
+        assert calculate_macro_regime_scaling(50.0) == 0.8
+        assert calculate_macro_regime_scaling(40.0) == 0.0
+
+
+class TestCustodyConstants:
+    """D-116 / SPEC_FINTABLES_TAKAS_SCRAPER_1: custody sabitleri thresholds.py'de."""
+
+    def test_custody_db_path_from_thresholds(self):
+        """CUSTODY_DB_PATH thresholds.py'den gelmeli — hardcoded olmamalı."""
+        from src.signals.thresholds import CUSTODY_DB_PATH
+        assert isinstance(CUSTODY_DB_PATH, str)
+        assert "custody" in CUSTODY_DB_PATH
+
+    def test_custody_constants_exist_and_subweights_sum_to_one(self):
+        """D-116 sabitleri tanımlı; foreign sub-weight toplamı 1.0."""
+        from src.signals.thresholds import (
+            CUSTODY_BACKFILL_DAYS,
+            CUSTODY_FOREIGN_LEVEL_WEIGHT,
+            CUSTODY_MOMENTUM_30D_WEIGHT,
+            CUSTODY_PERSISTENCE_WEIGHT,
+            CUSTODY_SCRAPE_RATE_LIMIT_SEC,
+            CUSTODY_STALE_HOURS,
+        )
+        total = (
+            CUSTODY_FOREIGN_LEVEL_WEIGHT
+            + CUSTODY_MOMENTUM_30D_WEIGHT
+            + CUSTODY_PERSISTENCE_WEIGHT
+        )
+        assert abs(total - 1.0) < 1e-9
+        assert CUSTODY_STALE_HOURS > 0
+        assert CUSTODY_BACKFILL_DAYS > 0
+        assert CUSTODY_SCRAPE_RATE_LIMIT_SEC > 0
+
+    def test_bist50_tickers_in_thresholds(self):
+        """CUSTODY_BIST50_TICKERS tuple, ≥30 ticker, duplikasyon yok, AKSEN var."""
+        from src.signals.thresholds import CUSTODY_BIST50_TICKERS
+        assert isinstance(CUSTODY_BIST50_TICKERS, tuple)
+        assert len(CUSTODY_BIST50_TICKERS) >= 30
+        assert "AKSEN" in CUSTODY_BIST50_TICKERS
+        # SPEC taslağındaki TKFEN duplikasyonu düzeltildi → tüm ticker'lar unique.
+        assert len(set(CUSTODY_BIST50_TICKERS)) == len(CUSTODY_BIST50_TICKERS)
+
+
 pytestmark = pytest.mark.baseline

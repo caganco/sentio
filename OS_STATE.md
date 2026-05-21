@@ -1,5 +1,5 @@
 # BIST OS — System State
-**Last Updated:** 20 Mayıs 2026 — Session #1 Kapanış (D-071..D-110)
+**Last Updated:** 21 Mayıs 2026
 **Session:** Orchestrator — D-071..D-110 (Scheduler fix, L4/L5/VIOP, Alpha Attribution, Macro Gate, TP, Stop)
 **Repo:** github.com/raypun78/bist-trading-system (private — public release bekliyor)
 **Git HEAD:** 4de8118 (DEC-016 + D-108/109/110)

@@ -68,6 +68,15 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 - **Etkilenen dosyalar:** `src/nlp/finbert_analyzer.py`, `src/signals/sentiment/news_aggregator.py`
 - **Eklendi:** 20 May 2026
 
+### [CB-010] Linear additive mimari insan kararını simüle etmiyor
+- **Bulgu:** w1×L1 + w2×L2 + ... linear composite; layer bağımsızlık 
+  varsayımı muhtemelen yanlış (L1-L5 korelasyonu), episodik sinyal 
+  sorunu (L3), non-stationarity, interaksiyon kayıpları.
+- **Önerilen araştırma:** Attention-weighted dynamic composite, 
+  multi-LLM ensemble jüri sistemi, conviction × context entegrasyonu.
+- **Status:** RESEARCH gerekiyor — araştırma direktifi Faz 3 öncesi
+- **Eklendi:** 21 May 2026
+
 ---
 
 ## TOTAL ALPHA AT STAKE

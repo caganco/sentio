@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from src.signals.thresholds import EXIT_STOP_LOSS, STOP_APPROACH_BUFFER
+
+if TYPE_CHECKING:
+    from src.risk.stop_calculator import StopResult
 
 
 @dataclass
@@ -22,20 +26,26 @@ def check_stop_loss_approach(
     symbol: str,
     current_price: float,
     entry_price: float,
+    stop_result: "StopResult | None" = None,
 ) -> PositionAlert:
     """Check if position is approaching stop-loss.
 
-    Stop-loss is at entry_price * EXIT_STOP_LOSS (0.92 = -8%).
-    Warning triggers when price is within STOP_APPROACH_BUFFER (3%) of stop.
+    Stop-loss is at entry_price * EXIT_STOP_LOSS (0.92 = -8%) by default.
+    D-110: when `stop_result` is provided, use its volatility-aware stop_price
+    instead. Warning triggers when price is within STOP_APPROACH_BUFFER (3%)
+    of the stop.
 
     Example:
     - entry_price = 100.0
-    - stop_loss_price = 92.0
+    - stop_loss_price = 92.0 (or stop_result.stop_price if provided)
     - current_price = 94.8 → within 3% of stop (94.8 <= 92.0 * 1.03)
     - distance_to_stop_pct = ((94.8 - 92.0) / 92.0) * 100 = 3.0%
     - is_approaching_stop = True
     """
-    stop_loss_price = entry_price * EXIT_STOP_LOSS
+    if stop_result is not None:
+        stop_loss_price = float(stop_result.stop_price)
+    else:
+        stop_loss_price = entry_price * EXIT_STOP_LOSS
 
     if current_price <= 0 or entry_price <= 0:
         return PositionAlert(

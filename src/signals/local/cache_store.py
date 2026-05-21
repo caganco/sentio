@@ -145,6 +145,19 @@ class LocalMacroCache:
             ).fetchone()
             return dict(row) if row else None
 
+    def get_cds_history(self, days: int = 252) -> list[dict]:
+        """Trailing N days of CDS data (date ascending), for percentile / rolling stats.
+
+        D-108 / SPEC_MACRO_GATE_SOFTENING_1: powers `_compute_cds_percentile` in
+        macro_layer.py. Returns up to `days` rows; fewer if cache has less history.
+        """
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT * FROM cds_data ORDER BY data_date DESC LIMIT ?",
+                (days,),
+            ).fetchall()
+            return [dict(row) for row in reversed(rows)]
+
     def store_bist_foreign(
         self,
         week_ending_date: str,

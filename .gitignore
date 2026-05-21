@@ -24,3 +24,11 @@ test_results*.txt
 backtest_output.log
 chat.html
 vader_accuracy_results.txt
+
+# D-116 Fintables takas scraper (cookie + custody DB; *.db zaten ignore'da)
+.fintables_session.json
+data/custody/
+
+# D-120 operational reliability (logs/*.log alt dizinleri kapsamıyor)
+logs/failures/
+data/backups/

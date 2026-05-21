@@ -1,6 +1,27 @@
 """Pytest configuration and fixtures."""
 
+from unittest.mock import patch
+
 import pytest
+
+
+# ---------------------------------------------------------------------------
+# FinBERT isolation (session-scoped, autouse)
+# ---------------------------------------------------------------------------
+# Patches _load_model to a no-op so self.pipeline stays None.
+# get_sentiment_model() then falls through to DummyDistilBERTAnalyzer
+# (existing fallback_to_dummy=True path). Prevents all HF API calls and
+# eliminates 429 rate-limit warnings from the Thread-auto_conversion thread.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True, scope="session")
+def _finbert_offline():
+    """Block FinBERT from touching the HF network during the test session."""
+    def _noop_load(self):
+        self.pipeline = None
+
+    with patch("src.nlp.sentiment_model.FinBERTSentimentModel._load_model", _noop_load):
+        yield
 
 
 def pytest_collection_modifyitems(items):

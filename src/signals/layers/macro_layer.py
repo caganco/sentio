@@ -1,14 +1,37 @@
 """Macro layer: global + local macro signals → LayerScore 0-100."""
 from __future__ import annotations
 
+import logging
+
 from src.signals.local_macro_signals import LocalMacroSignals
 from src.signals.models import LayerScore
 from src.signals.thresholds import (
     ASSET_DIRECTIONS,
+    CDS_PERCENTILE_WINDOW,
     LOCAL_MACRO_ENABLED,
     MACRO_WEIGHTS_COMPOSITE,
     MASTER_WEIGHTS,
 )
+
+logger = logging.getLogger(__name__)
+
+
+def _compute_cds_percentile(cds_history: list[dict] | None) -> float | None:
+    """Percentile rank of the latest CDS value within trailing-window history.
+
+    D-108 / SPEC_MACRO_GATE_SOFTENING_1. Returns None when len(history) < 30
+    (insufficient data); callers should fall back to 0.5 (no dampening).
+
+    history rows are cache dicts with key `cds_bps` (ascending by data_date).
+    """
+    if not cds_history or len(cds_history) < 30:
+        return None
+    values = [row.get("cds_bps") for row in cds_history if row.get("cds_bps") is not None]
+    if len(values) < 30:
+        return None
+    latest = values[-1]
+    rank = sum(1 for v in values if v <= latest) / len(values)
+    return round(rank, 4)
 
 
 def score_macro(macro_data: dict) -> LayerScore:
@@ -75,6 +98,15 @@ def score_macro(macro_data: dict) -> LayerScore:
         local_signals = LocalMacroSignals()
         local_result = local_signals.score()
 
+        # D-108: CDS percentile from rolling window for audit + gate v2 callers.
+        cds_percentile: float | None = None
+        try:
+            from src.signals.local.cache_store import LocalMacroCache
+            history = LocalMacroCache().get_cds_history(days=CDS_PERCENTILE_WINDOW)
+            cds_percentile = _compute_cds_percentile(history)
+        except Exception as exc:
+            logger.debug("CDS percentile compute failed (non-fatal): %s", exc)
+
         # Gap 3: DXY weight is redistributed to global_signals when DXY data
         # is absent (confidence=0) so the total effective weight stays at 1.0.
         dxy_conf = local_result.dxy.confidence
@@ -118,6 +150,7 @@ def score_macro(macro_data: dict) -> LayerScore:
                 "score": round(local_result.cds.score, 4),
                 "conf": round(local_result.cds.confidence, 4),
                 "msg": local_result.cds.audit_msg,
+                "percentile": cds_percentile,   # D-108: None when history < 30d
             },
             "dxy": {
                 "score": round(local_result.dxy.score, 4),

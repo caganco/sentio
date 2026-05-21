@@ -24,6 +24,8 @@ from src.signals.thresholds import (
     CONFLICT_THRESHOLD,
     MASTER_WEIGHTS,
     SIGNAL_THRESHOLDS,
+    L5_CONF_FULL,
+    L5_CONF_PARTIAL,
     SMART_MONEY_FULL_COMPOSITE_DAYS,
     SMART_MONEY_MOMENTUM_DAYS,
 )
@@ -246,9 +248,9 @@ def compute_signal(
         # Phase boundaries imported from thresholds.py (no hardcode).
         _l5_n_days = get_l5_layer().get_l5_n_days(symbol)
         if _l5_n_days >= SMART_MONEY_FULL_COMPOSITE_DAYS:
-            _l5_conf = 0.8
+            _l5_conf = L5_CONF_FULL
         elif _l5_n_days >= SMART_MONEY_MOMENTUM_DAYS:
-            _l5_conf = 0.5
+            _l5_conf = L5_CONF_PARTIAL
         else:
             _l5_conf = 0.0
         smart_money_ls = LayerScore(
