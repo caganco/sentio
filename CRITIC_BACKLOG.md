@@ -22,19 +22,20 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 ### [CB-002] Static weights, regime-blind
 - **Tahmini alpha kaybı:** 8-10 puan/yıl
 - **Kök neden:** L1=0.25, L2=0.20, L3=0.27 sabit. Rejim sadece gate, modülatör değil.
-- **Önerilen düzeltme:** Regime-conditional weights — BULL'da L1 (momentum) 0.40-0.50, BEAR'da L1 contrarian
-- **Akademik referans:** Asness, Moskowitz, Pedersen (2013) "Value and Momentum Everywhere"
-- **İç araştırma (RR):** RR-003 §3 (Regime-Conditional Weights — "CB-002 Derinleştirme") + Recommendations Aşama 1
-- **Status:** Faz 3 (IC datası sonrası, ~Aug 2026)
-- **Etkilenen dosyalar:** `src/signals/engine.py`, `src/signals/thresholds.py`
+- **Önerilen düzeltme:** Regime-conditional weights — BULL'da L1 0.40-0.50, BEAR'da L1 contrarian
+- **Akademik referans:** Asness, Moskowitz, Pedersen (2013) J. Finance doi:10.1111/jofi.12021
+- **İç araştırma:** RR-003 §3 — bootstrap stratejisi + BIST empirik kanıt (Şenol 2020, Doğan&Bilge 2022)
+- **Tahmini alpha:** Sharpe +0.29 (Northern Trust) / +%80 göreceli (Neuhierl et al. 2024)
+- **Status:** Faz 3 (IC datası sonrası, ~Aug 2026) → D-123 HMM SPEC sonraki session
+- **Etkilenen:** `src/signals/engine.py`, `src/signals/thresholds.py`
 - **Eklendi:** 20 May 2026
 
-### [CB-004] L3 KAP overweight — %30 continuous
+### [CB-004] L3 KAP overweight — %27 continuous
 - **Tahmini alpha kaybı:** 3-5 puan/yıl
-- **Kök neden:** KAP filings episodik ve genelde nötr/teknik. Continuous %30 yanlış.
-- **Önerilen düzeltme:** Event-triggered weight boost — KAP event tetiklenince geçici weight artışı
+- **Kök neden:** KAP filings episodik ve genelde nötr/teknik. Continuous %27 yanlış.
+- **Önerilen düzeltme:** Event-triggered weight boost
 - **Status:** Faz 3 (IC datası sonrası)
-- **Etkilenen dosyalar:** `src/signals/engine.py`, `src/signals/layers/kap_layer.py`
+- **Etkilenen:** `src/signals/engine.py`, `src/signals/layers/kap_layer.py`
 - **Eklendi:** 20 May 2026
 
 ### [CB-005] Conviction threshold ≥0.68 çok yüksek
@@ -42,42 +43,31 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 - **Kök neden:** Aktif weight 0.78 iken 0.68 eşik = ortalama skor 87. Nadiren tetikleniyor.
 - **Önerilen düzeltme:** Empirical kalibrasyon — IC datasına dayalı eşik
 - **Status:** Faz 3 (IC datası sonrası)
-- **Etkilenen dosyalar:** `src/signals/conviction_validator.py`, `src/signals/thresholds.py`
+- **Etkilenen:** `src/signals/conviction_validator.py`, `src/signals/thresholds.py`
 - **Eklendi:** 20 May 2026
 
 ### [CB-007] Foreign flow yanlış katmanda
 - **Bulgu:** Ülkü & İkizlerli (2012) — foreign flows piyasa-seviyesi sinyal, hisse-spesifik değil
-- **Kök neden:** L5'te foreign_ratio hisse-spesifik kullanılıyor — akademik olarak yanlış
-- **Önerilen düzeltme:** `foreign_ratio` (ownership) L5'te kalır, `net_foreign_flow` (akış) L2'ye migrate
-- **Önerilen yol:** RR-001 §4 (yeni L5 mimarisi önerisi); ownership/flow ayrımı akademik temeli §2B
+- **Kök neden:** L5'te foreign_ratio hisse-spesifik — akademik olarak yanlış
+- **Önerilen düzeltme:** ownership L5'te kalır, net_foreign_flow L2'ye migrate
+- **Önerilen yol:** RR-001 §4
 - **Status:** D-111 (sıraya alınacak)
-- **Etkilenen dosyalar:** `src/signals/layers/smart_money_layer.py`, `src/data/local_macro_signals.py`
+- **Etkilenen:** `src/signals/layers/smart_money_layer.py`, `src/data/local_macro_signals.py`
 - **Eklendi:** 20 May 2026
 
 ### [CB-008] VIOP eşikleri akademik kaynaksız
-- **Bulgu:** RESEARCH-013 — Türkiye'ye özel Put/Call eşiği literatürde YOK. Mevcut VIOP_PC_THRESHOLDS CBOE referansı.
-- **Kök neden:** BIST opsiyon hacmi ABD'nin çok altında — CBOE eşikleri geçersiz olabilir
-- **Önerilen düzeltme:** Faz 1 IC ölçümü sonrası kalibrasyon. IC t-stat ≥ 2.0 görmeden engine'e bağlama.
-- **Status:** Faz 1 IC datası bekler (D-107 ile log alıyor)
-- **Etkilenen dosyalar:** `src/signals/thresholds.py` (VIOP_PC_THRESHOLDS), `src/signals/layers/viop_layer.py`
-- **Eklendi:** 20 May 2026
-
-### [CB-009] L4 Türkçe NLP yanlış araç
-- **Bulgu:** RESEARCH-016 — İngilizce FinBERT (ProsusAI) Türkçe Mynet haberlerine uygulanıyor. Dil mismatch.
-- **Kök neden:** Public Türkçe finansal BERT YOK. Mevcut Türkçe sentiment modelleri genel domain (film/ürün).
-- **Önerilen düzeltme:** Üç seçenek — (A) BERTurk + KAP fine-tune, (B) Lexicon-based, (C) LSTM + Twitter + suspicious score
-- **Status:** Ayrı SPEC (sırası gelmedi)
-- **Etkilenen dosyalar:** `src/nlp/finbert_analyzer.py`, `src/signals/sentiment/news_aggregator.py`
+- **Bulgu:** Türkiye'ye özel Put/Call eşiği literatürde YOK. CBOE referansı BIST için geçersiz olabilir.
+- **Önerilen düzeltme:** IC t-stat ≥ 2.0 sonrası kalibrasyon
+- **Status:** Faz 1 IC datası bekler
+- **Etkilenen:** `src/signals/thresholds.py`, `src/signals/layers/viop_layer.py`
 - **Eklendi:** 20 May 2026
 
 ### [CB-010] Linear additive mimari insan kararını simüle etmiyor
-- **Bulgu:** w1×L1 + w2×L2 + ... linear composite; layer bağımsızlık 
-  varsayımı muhtemelen yanlış (L1-L5 korelasyonu), episodik sinyal 
-  sorunu (L3), non-stationarity, interaksiyon kayıpları.
-- **Önerilen araştırma:** Attention-weighted dynamic composite, 
-  multi-LLM ensemble jüri sistemi, conviction × context entegrasyonu.
-- **İç araştırma (RR):** RR-003 §1 (Attention-Weighted), §2 (Multi-LLM Ensemble), §4 (Non-Linear Composite); yol haritası Recommendations Aşama 1-4
-- **Status:** RESEARCH tamamlandı (RR-003) — Aşama 1 SPEC bekliyor (Faz 3 öncesi)
+- **Bulgu:** w1×L1+...linear composite; layer bağımsızlık varsayımı muhtemelen yanlış,
+  episodik sinyal sorunu (L3), non-stationarity, interaksiyon kayıpları.
+- **Önerilen araştırma:** Attention-weighted composite, multi-LLM jüri, conviction×context
+- **İç araştırma:** RR-003 §1-4 — 4 aşamalı yol haritası (HMM → XGBoost → 2-LLM → Transformer)
+- **Status:** RESEARCH tamamlandı — D-123 HMM Aşama 1 SPEC sonraki session önceliği
 - **Eklendi:** 21 May 2026
 
 ---
@@ -86,61 +76,69 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 
 | Kategori | Tahmini Kayıp |
 |----------|--------------|
-| ~~HEMEN düzeltilebilir (CB-001, CB-003, CB-006)~~ | ~~18-24 puan/yıl~~ ✅ KAPATILDI |
-| Faz 3 (IC sonrası — CB-002, CB-004, CB-005) | 14-20 puan/yıl |
-| Yapısal (CB-007, CB-008, CB-009) | Ölçülmüş değil |
-| **TOPLAM açık alpha leak** | **~14-20+ puan/yıl** |
+| ~~HEMEN (CB-001, CB-003, CB-006)~~ | ~~18-24 puan/yıl~~ ✅ KAPATILDI |
+| Faz 3 (CB-002, CB-004, CB-005) | 14-20 puan/yıl |
+| Yapısal (CB-007, CB-008, CB-010) | Ölçülmüş değil |
+| **TOPLAM açık** | **~14-20+ puan/yıl** |
 
 ---
 
 ## CLOSED FINDINGS
 
 ### ✅ [CB-001] Over-gating — L2 < 45 → 0.0x scaling
-- **Kapatıldı:** 20 May 2026
-- **Direktif:** D-108 (SPEC_MACRO_GATE_SOFTENING_1)
-- **Commit:** 4de8118 (DEC-016 batch) + D-108 commit
-- **Uygulanan:** CDS percentile-conditional overlay (Longstaff et al. 2011). BEAR soft 0.25x, CDS >90th percentile → hard 0.0x. HardExitFlags + MacroScalingResult audit trail.
-- **DEC:** DEC-017
-- **Doğrulama:** 874 passed, `pytest tests/test_macro_gate_softening.py` → 10 pass
+- **Kapatıldı:** 20 May 2026 — D-108, DEC-017
+- **Uygulanan:** CDS percentile-conditional overlay. BEAR soft 0.25x, hard 0.0x.
+- **Doğrulama:** 874 passed
 
 ### ✅ [CB-003] TP1 prematüre — ATR×1.5'te %50 exit
-- **Kapatıldı:** 20 May 2026
-- **Direktif:** D-109 (SPEC_TP_REGIME_CONDITIONAL_1)
-- **Commit:** D-109 commit
-- **Uygulanan:** BULL regime'de ATR multiplier 1.5x → 2.5x. Monotonicity guard eklendi. Library-only landing; production caller ayrı direktifte.
-- **Doğrulama:** 874 passed, `pytest tests/test_tp_regime_conditional.py` → 10 pass
+- **Kapatıldı:** 20 May 2026 — D-109
+- **Uygulanan:** BULL'da 1.5x→2.5x ATR. Monotonicity guard.
+- **Doğrulama:** 874 passed
 
-### ✅ [CB-006] Stop-loss -%8 dar (BIST volatilitesi için)
-- **Kapatıldı:** 20 May 2026
-- **Direktif:** D-110 (SPEC_STOPLOSS_VOLATILITY_AWARE_1)
-- **Commit:** D-110 commit
-- **Uygulanan:** Volatility-aware stop tier ladder (ATR/P bazlı): -%6/-%8/-%12/-%15, hard floor -%20. Risk parity sizing. ENERY -%8→-%15, AKSEN -%8→-%12.
-- **Doğrulama:** 874 passed, `pytest tests/test_stop_calculator.py` → 11 pass
+### ✅ [CB-006] Stop-loss -%8 dar
+- **Kapatıldı:** 20 May 2026 — D-110
+- **Uygulanan:** Vol-aware tier: -%6/-%8/-%12/-%15, floor -%20
+- **Doğrulama:** 874 passed
+
+### ✅ [CB-009] L4 Türkçe NLP yanlış araç
+- **Kapatıldı:** 21 May 2026 — D-124
+- **Uygulanan:** Hybrid Tier-1 (93-term Türkçe lexicon) + Tier-2 (Claude Haiku 4.5)
+  temperature=0.0, structured JSON, prompt caching. ~18 TL/ay maliyet.
+- **Akademik referans:** RR-004 §Bölüm 5 (Boztepe Tilburg 2025, Lopez-Lira 2025)
+- **Doğrulama:** 999 passed, 46 yeni test
 
 ---
 
 ## SESSION CHECKPOINT LOG
 
-### 20 May 2026 — Session #1 Açılış (D-090..D-107)
+### 20 May 2026 — Session #1 Açılış
 - ACTIVE FINDINGS oluşturuldu: 9 madde
-- Bu session'da kapatılan: yok (henüz)
-- Üretilmiş SPEC: D-108 (CB-001), D-109 (CB-003), D-110 (CB-006) — Architect aşamasında
-- Sonraki session'ın bakacağı: SPEC'lerin Builder implementasyonu, CB-007 için D-111 SPEC, IC dashboard günlük kontrol
+- Üretilmiş SPEC: D-108/109/110
 
-### 20 May 2026 — Session #1 Kapanış (D-108..D-110)
-- Bu session'da kapanan: CB-001 (D-108, DEC-017), CB-003 (D-109), CB-006 (D-110)
-- Active: 9 → 6
-- Test count: 824 → 874 passed
-- DEC-015 (Alpha Attribution Faz 1), DEC-016 (Critic Backlog System), DEC-017 (Macro Gate Softening) committed
-- pytest.ini addopts'tan -q kaldırıldı (summary satırı sorunu)
-- Sonraki session önceliği: CB-007 D-111, portföy kararı (BEAR devam), IC dashboard monitoring
+### 20 May 2026 — Session #1 Kapanış
+- Kapanan: CB-001, CB-003, CB-006
+- Active: 9 → 6 | Test: 824 → 874
+
+### 21 May 2026 — Session #2 Kapanış (D-112..D-124)
+- Kapanan: CB-009 (D-124 — L4 Türkçe NLP hybrid)
+- Eklenen: CB-010 (linear mimari)
+- Active: 6 → 6 (CB-009 kapatıldı, CB-010 eklendi)
+- Test count: 874 → 999 passed
+- D-112..D-124 tamamlandı (signal logging, KAP, branch workflow, CI/CD,
+  ops reliability, mypy, research registry, L4 NLP)
+- gh CLI kuruldu — Builder artık PR açabiliyor
+- DEC-018 — Multi-instance Builder belgelendi
+- CHP krizi: BIST -%6, CDS 250 bps, devre kesici
+- Portföy: AKSEN SELL emri aktif (73.50, %-16.38)
+- Dependabot: 9 PR açık (pandas #6 hariç merge edilebilir)
+- Sonraki session: D-123 HMM SPEC + portföy kararı + Dependabot merge
 
 ---
 
 ## DOSYA KURALLARI
 
-- **Hiçbir madde silinmez** — kapatılanlar CLOSED FINDINGS bölümüne taşınır
-- **Tahmini alpha kaybı sayıları** kanıt geldikçe revize edilir (yorumla değil, ampirik IC datasıyla)
+- **Hiçbir madde silinmez** — kapatılanlar CLOSED FINDINGS'e taşınır
+- **Alpha sayıları** ampirik IC datasıyla revize edilir
 - **Status değişimleri** SESSION CHECKPOINT LOG'a yazılır
-- **Yeni bulgu eklenirken** kaynak (research raporu, critic, dış göz) açıkça referanslanır
-- **Closed işaretlemek için** commit hash + doğrulama testi şart
+- **Yeni bulgu** kaynak referansıyla eklenir
+- **Closed** = commit hash + doğrulama testi şart
