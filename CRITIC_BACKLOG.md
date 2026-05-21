@@ -83,6 +83,21 @@ Bu backlog, dış kritikler ve araştırma raporlarından çıkan **stratejik bu
 
 ---
 
+## ACTIVATION GATES — Zaman Kilitli Kararlar
+
+### [AG-001] ENABLE_HMM_WEIGHTS=True aktivasyonu
+- **Su an:** False (default) — D-123 implement edildi, 1032 test geciyor
+- **Aktivasyon kosulu:**
+  - Alpha Attribution IC dashboard'da >=90 gun OOS veri birikmi
+  - HMM NEUTRAL rejim → mevcut davranisla identik (architecture test ✅)
+  - HMM BULL/BEAR → MASTER_WEIGHTS'e gore Sharpe iyilesmesi gorunur
+- **Tahmini tarih:** ~Agustos 2026
+- **Aktive eden:** Cagan (manuel, .env'de ENABLE_HMM_WEIGHTS=True)
+- **Kontrol sorumlusu:** Her Orchestrator session basinda AG-001 status kontrol
+- **Eklendi:** 22 May 2026 — Session #3
+
+---
+
 ## CLOSED FINDINGS
 
 ### ✅ [CB-001] Over-gating — L2 < 45 → 0.0x scaling
