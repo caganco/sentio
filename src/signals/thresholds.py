@@ -384,6 +384,12 @@ L4_FINBERT_MAX_TOKENS: int = 512          # BERT truncation limit
 L4_BULLISH_THRESHOLD: float = 0.15        # score > +0.15 → bullish
 L4_BEARISH_THRESHOLD: float = -0.15       # score < -0.15 → bearish
 
+# Hybrid NLP tier thresholds (D-124)
+LEXICON_TIER1_HIGH: float = 1.0     # |raw_score| > 1.0 → definite, bypass Tier-2
+LEXICON_TIER1_LOW: float = 0.3      # |raw_score| ≤ 0.3 → neutral, bypass Tier-2
+HAIKU_TIMEOUT_S: float = 10.0       # Claude Haiku 4.5 per-request timeout (seconds)
+HAIKU_MAX_RETRIES: int = 2          # Transient failure retry count
+
 # Confidence bileşen ağırlıkları (toplam 1.00)
 L4_CONF_VOLUME_WEIGHT: float = 0.35
 L4_CONF_AGREEMENT_WEIGHT: float = 0.40
