@@ -48,7 +48,7 @@ class FinBERTSentimentModel:
         self.model = None
         self.tokenizer = None
         self.pipeline = None
-        self.latency_samples = []
+        self.latency_samples: list[float] = []
 
         self._load_model()
 
