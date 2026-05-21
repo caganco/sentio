@@ -44,3 +44,5 @@ test_out.txt
 requirements_full.txt
 cache/
 kap_*.json
+claude kritikler.md
+invalid/
