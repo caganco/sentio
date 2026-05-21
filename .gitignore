@@ -32,3 +32,15 @@ data/custody/
 # D-120 operational reliability (logs/*.log alt dizinleri kapsamıyor)
 logs/failures/
 data/backups/
+
+# Runtime / generated / local junk (not code)
+agents/intelligence/
+reports/
+decisions/
+.efficiency/
+%null%
+.claude/settings.local.json
+test_out.txt
+requirements_full.txt
+cache/
+kap_*.json
