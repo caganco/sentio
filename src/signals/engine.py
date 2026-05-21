@@ -92,7 +92,9 @@ def _apply_conflict_resolution(
     else:
         new_signal = signal
 
-    return new_signal, conflict
+    # new_signal narrows to a FinalSignal literal at runtime (SIGNAL_ORDER values
+    # are FinalSignal members); mypy sees the list element as plain str. (D-121)
+    return new_signal, conflict  # type: ignore[return-value]
 
 
 def _apply_regime_filter(
