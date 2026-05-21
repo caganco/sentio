@@ -6,6 +6,7 @@ SmartMoneyL5 — D-055 progressive foreign ratio signal (İş Yatırım screener
 from __future__ import annotations
 
 import logging
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -15,6 +16,13 @@ import numpy as np
 import pandas as pd
 
 from src.signals.thresholds import (
+    CUSTODY_CHANGE_30D_MAX_PP,
+    CUSTODY_FOREIGN_LEVEL_WEIGHT,
+    CUSTODY_MIN_HISTORY_DAYS,
+    CUSTODY_MOMENTUM_30D_WEIGHT,
+    CUSTODY_PERSISTENCE_MAX_DAYS,
+    CUSTODY_PERSISTENCE_WEIGHT,
+    CUSTODY_STALE_HOURS,
     L5_FOREIGN_WEIGHT,
     L5_KAP_OVERLAP_DAMP,
     L5_SHORT_INT_WEIGHT,
@@ -657,20 +665,180 @@ class SmartMoneyL5:
             return 0
         return int(df[df["symbol"] == symbol]["date"].nunique())
 
+    # ------------------------------------------------------------------
+    # D-116 custody / MKK takas path
+    # ------------------------------------------------------------------
+
+    def _load_custody_history(
+        self, symbol: str, custody_db_path: Path
+    ) -> pd.DataFrame | None:
+        """custody_daily_summary'den (date, yabanci_toplam_pct) çeker.
+
+        None döner: DB yok / symbol kaydı yok / < CUSTODY_MIN_HISTORY_DAYS gün /
+        son scraped_at > CUSTODY_STALE_HOURS. Exception → logger.error + None.
+        """
+        if not custody_db_path.exists():
+            return None
+        try:
+            con = sqlite3.connect(str(custody_db_path))
+            df = pd.read_sql_query(
+                """
+                SELECT date, yabanci_toplam_pct, scraped_at
+                FROM custody_daily_summary
+                WHERE ticker = ?
+                ORDER BY date ASC
+                """,
+                con,
+                params=(symbol,),
+            )
+            con.close()
+        except Exception as exc:  # noqa: BLE001 - silent fallback to parquet
+            logger.error("ALERT SmartMoneyL5._load_custody_history: %s → %s", symbol, exc)
+            return None
+
+        if df.empty or df["date"].nunique() < CUSTODY_MIN_HISTORY_DAYS:
+            return None
+
+        latest_scraped = df["scraped_at"].max()
+        try:
+            age = datetime.now(timezone.utc) - datetime.fromisoformat(latest_scraped)
+            if age > timedelta(hours=CUSTODY_STALE_HOURS):
+                logger.warning(
+                    "SmartMoneyL5 custody %s: stale (%.1fh > %dh) → fallback to parquet",
+                    symbol, age.total_seconds() / 3600, CUSTODY_STALE_HOURS,
+                )
+                return None
+        except (TypeError, ValueError):
+            pass
+
+        return df[["date", "yabanci_toplam_pct"]].dropna().reset_index(drop=True)
+
+    def compute_level_score(self, yabanci_pct_series: pd.Series) -> float:
+        """Rolling 252-day persentil rank → [0, 100]. <20 gün → 50.0."""
+        if len(yabanci_pct_series) < 20:
+            return 50.0
+        window = yabanci_pct_series.tail(252)
+        current = float(window.iloc[-1])
+        pct_rank = (window.values < current).sum() / len(window)
+        return round(pct_rank * 100.0, 2)
+
+    def compute_30d_change_score(self, yabanci_pct_series: pd.Series) -> float:
+        """30 günlük Δ yabancı % → [0, 100]. ±CUSTODY_CHANGE_30D_MAX_PP clamp. <2 gün → 50.0."""
+        if len(yabanci_pct_series) < 2:
+            return 50.0
+        lookback = min(30, len(yabanci_pct_series))
+        change_pp = float(
+            yabanci_pct_series.iloc[-1] - yabanci_pct_series.iloc[-lookback]
+        )
+        score = 50.0 + (change_pp / CUSTODY_CHANGE_30D_MAX_PP) * 50.0
+        return round(max(0.0, min(100.0, score)), 2)
+
+    def compute_persistence_score(self, yabanci_pct_series: pd.Series) -> float:
+        """Ard arda artış/azalış streak → [0, 100]. Düz/çakışık → 50.0.
+
+        Örnek: 7 gün ard arda artış → 50 + (7/10) × 50 = 85.0.
+        """
+        if len(yabanci_pct_series) < 2:
+            return 50.0
+
+        recent = yabanci_pct_series.tail(CUSTODY_PERSISTENCE_MAX_DAYS + 1)
+        daily = recent.diff().dropna()
+        if daily.empty:
+            return 50.0
+
+        streak = 0
+        direction: str | None = None
+        for chg in reversed(daily.values.tolist()):
+            if chg > 0:
+                if direction is None:
+                    direction = "up"
+                if direction == "up":
+                    streak += 1
+                else:
+                    break
+            elif chg < 0:
+                if direction is None:
+                    direction = "down"
+                if direction == "down":
+                    streak += 1
+                else:
+                    break
+            else:
+                break  # sıfır değişim → streak kesilir
+
+        if direction is None or streak == 0:
+            return 50.0
+
+        score_delta = (streak / CUSTODY_PERSISTENCE_MAX_DAYS) * 50.0
+        if direction == "up":
+            return round(min(100.0, 50.0 + score_delta), 2)
+        return round(max(0.0, 50.0 - score_delta), 2)
+
+    def _compute_from_custody(
+        self,
+        symbol: str,
+        custody_df: pd.DataFrame,
+        short_interest_score: float | None,
+        short_ratio: float | None,
+        kap_has_short_event: bool,
+    ) -> float | None:
+        """custody_daily_summary verisiyle L5 skoru hesaplar.
+
+        custody_foreign_score = 0.50×level + 0.30×change30d + 0.20×persistence.
+        short_interest_score varsa mevcut 0.70/0.30 birleşimi (değişmez) uygulanır.
+        """
+        series = custody_df["yabanci_toplam_pct"].reset_index(drop=True)
+
+        level_score = self.compute_level_score(series)
+        change_30d_score = self.compute_30d_change_score(series)
+        persistence_score = self.compute_persistence_score(series)
+
+        custody_foreign_score = round(
+            CUSTODY_FOREIGN_LEVEL_WEIGHT * level_score
+            + CUSTODY_MOMENTUM_30D_WEIGHT * change_30d_score
+            + CUSTODY_PERSISTENCE_WEIGHT * persistence_score,
+            2,
+        )
+        logger.debug(
+            "SmartMoneyL5 custody %s: level=%.1f change30d=%.1f persist=%.1f → foreign=%.1f",
+            symbol, level_score, change_30d_score, persistence_score, custody_foreign_score,
+        )
+
+        if short_interest_score is None:
+            return float(max(0.0, min(100.0, custody_foreign_score)))
+
+        si = float(short_interest_score)
+        if kap_has_short_event and short_ratio is not None and short_ratio > SHORT_INTEREST_HIGH:
+            si = 0.5 + (si - 0.5) * L5_KAP_OVERLAP_DAMP
+
+        result = round(
+            L5_FOREIGN_WEIGHT * custody_foreign_score
+            + L5_SHORT_INT_WEIGHT * (si * 100.0),
+            2,
+        )
+        logger.debug(
+            "SmartMoneyL5 custody %s: final composite = %.1f (short_dampened=%s)",
+            symbol, result, kap_has_short_event,
+        )
+        return float(max(0.0, min(100.0, result)))
+
     def compute_l5_score(
         self,
         symbol: str,
         parquet_path: Path | None = None,
+        custody_db_path: Path | None = None,
         short_interest_score: float | None = None,
         short_ratio: float | None = None,
         kap_has_short_event: bool = False,
     ) -> float | None:
         """
-        Progressive L5 score for a single symbol (D-055/D-058).
+        Progressive L5 score for a single symbol (D-055/D-058 + D-116 custody).
 
         Args:
             symbol: Stock symbol
             parquet_path: Path to daily screener parquet
+            custody_db_path: D-116 — MKK custody SQLite. Verilip veri varsa
+                önceliklidir; yoksa/stale ise parquet fallback (backward compat).
             short_interest_score: Short interest score [0,1] from normalizer; None → no short data
             short_ratio: Raw short ratio % for KAP overlap check
             kap_has_short_event: L3 KAP short disclosure in this week
@@ -683,6 +851,19 @@ class SmartMoneyL5:
 
         Caller (engine) must set LayerScore.weight=0 when this returns None.
         """
+        # --- D-116: custody DB önceliği (varsa) ---
+        if custody_db_path is not None:
+            cdf = self._load_custody_history(symbol, Path(custody_db_path))
+            if cdf is not None:
+                return self._compute_from_custody(
+                    symbol, cdf,
+                    short_interest_score, short_ratio, kap_has_short_event,
+                )
+            logger.debug(
+                "SmartMoneyL5 %s: custody_db empty/stale → falling back to parquet", symbol
+            )
+
+        # --- Mevcut parquet path (değişmez) ---
         if parquet_path is None:
             parquet_path = self.DEFAULT_PARQUET_PATH
 

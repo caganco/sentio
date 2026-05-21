@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Literal
 
+import src.data.kap_client  # noqa: F401 — applies Company.from_row field-name patch
 from kap_client import Kap
 
 from src.data.kap_fetcher import fetch_attachments_for_disclosure

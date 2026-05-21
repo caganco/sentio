@@ -47,11 +47,35 @@ python -m pytest tests/ -q --tb=short
   
 - **Her değişiklikten sonra pytest çalıştır, zero regression zorunlu.**
   - `python -m pytest tests/ -q --tb=short`
-  - Tüm 746 test pass olmalı (1 skipped).
+  - Tüm 953 test pass olmalı (2 skipped).
 
 - **Direktif enforcement:** Direktifte ETKİLENEN DOSYALAR listesinde yer
   almayan bir dosyaya dokunmadan önce Orchestrator'a sor ve onay al.
   Kapsam kayması (scope creep) sessizce yapılmaz.
+
+## Branch Workflow
+
+- **Her direktif kendi branch'inde geliştirilir:** `feature/d{N}-{kisa-isim}`
+  - Örnek: `feature/d117-pyproject-merge`, `feature/d113-kap-signature-fix`
+  - `{N}` direktif numarası (D-XXX) ile eşleşir, `{kisa-isim}` kebab-case.
+
+- **Master'a doğrudan commit YASAK.** Tüm değişiklik PR (pull request) üzerinden
+  merge edilir. `master` korunan daldır.
+
+- **Merge ön-koşulları — İKİSİ DE zorunlu:**
+  1. **pytest yeşil:** `python -m pytest tests/ -q --tb=short` → tamamen geçer
+     (mevcut baseline: 953 passed, 2 skipped — regresyon kabul edilmez).
+  2. **Cagan onayı:** PR review onaylanmadan merge edilmez.
+
+- **Conflict → Orchestrator'a eskalasyon.** Builder, `master` ile çakışan bir
+  merge ile karşılaşırsa conflict'i sessizce çözmez; Orchestrator'a bildirir
+  ve çözüm kararını ona bırakır. (Direktif enforcement prensibinin uzantısı.)
+
+- **CI hizalaması:** PR açıldığında [.github/workflows/ci.yml](.github/workflows/ci.yml)
+  otomatik koşar — sırayla architecture → integration → lint → full-regression.
+  CI tier'ları yeşil olmadan merge edilmez. PR şablonu:
+  [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md).
+  Operasyonel arıza kurtarması: [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ## Test Yazım Kuralları
 
@@ -121,7 +145,7 @@ Context kayıp veya regresyon var, commit'e bakılır
 ```powershell
 # Commit öncesi veya haftada 1x çalıştır
 python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
-# Beklenen: "== 746 passed, 1 skipped in ~45s ==" (D-086 L5 ladder sonrası)
+# Beklenen: "== 953 passed, 2 skipped in ~60s ==" (D-120 operational reliability sonrası)
 ```
 
 ### Quick Reference (Memorize)
@@ -134,7 +158,7 @@ python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
 - **Stop-loss:** entry × 0.92 (-8%)
 - **Profit target:** entry × 1.20 (+20%)
 - **Stop approach:** warning when price ≤ (stop × 1.03)
-- **Test count:** 746 pass, 1 skipped (regression guard, D-086 L5 ladder)
+- **Test count:** 953 pass, 2 skipped (regression guard, D-120 operational reliability)
 
 ---
 

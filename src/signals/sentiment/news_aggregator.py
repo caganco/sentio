@@ -204,3 +204,117 @@ class NewsAggregator:
             "bearish": bearish_count,
             "articles": article_scores,
         }
+
+
+# =============================================================================
+# D-094 — Mynet News Aggregator (borsa-mcp + FinBERT pipeline)
+# Mevcut NewsAggregator korunur — Yahoo Finance fallback olarak kalır.
+# =============================================================================
+
+def _empty_result(reason: str) -> dict:
+    return {
+        "score": 50.0,
+        "normalized": 0.0,
+        "confidence": 0.0,
+        "bullish_count": 0,
+        "bearish_count": 0,
+        "article_count": 0,
+        "source": f"missing:{reason}",
+        "model": "none",
+        "detail_articles": [],
+    }
+
+
+def _compute_confidence(scored: list, n: int) -> float:
+    """Three-component L4 confidence formula.
+
+    Returns 0.0 when n < L4_MIN_ARTICLES_ACTIVATE (hard gate).
+
+    Component 1 — Volume    (weight 0.35): min(n / L4_MIN_ARTICLES_FULL_CONF, 1.0)
+    Component 2 — Agreement (weight 0.40): max(bullish_ratio, bearish_ratio)
+    Component 3 — Quality   (weight 0.25): mean(relevance × finbert_confidence)
+    """
+    from src.signals.thresholds import (
+        L4_CONF_AGREEMENT_WEIGHT,
+        L4_CONF_QUALITY_WEIGHT,
+        L4_CONF_VOLUME_WEIGHT,
+        L4_MIN_ARTICLES_ACTIVATE,
+        L4_MIN_ARTICLES_FULL_CONF,
+    )
+
+    if n < L4_MIN_ARTICLES_ACTIVATE:
+        return 0.0
+
+    volume_conf = min(n / L4_MIN_ARTICLES_FULL_CONF, 1.0)
+
+    bullish_n = sum(1 for s in scored if s.label == "bullish")
+    bearish_n = sum(1 for s in scored if s.label == "bearish")
+    agreement_conf = max(bullish_n / n, bearish_n / n)
+
+    quality_conf = sum(s.relevance_weight * s.finbert_confidence for s in scored) / n
+
+    conf = (
+        L4_CONF_VOLUME_WEIGHT * volume_conf
+        + L4_CONF_AGREEMENT_WEIGHT * agreement_conf
+        + L4_CONF_QUALITY_WEIGHT * quality_conf
+    )
+    return round(min(conf, 1.0), 4)
+
+
+class MynetNewsAggregator:
+    """Aggregate Mynet Finans articles for a ticker using borsa-mcp + FinBERT.
+
+    Usage:
+        agg = MynetNewsAggregator()
+        result = agg.aggregate(symbol="AKBNK", days=7)
+    """
+
+    def __init__(self) -> None:
+        from src.data.news_fetcher import MynetNewsFetcher, TickerMatcher
+        from src.nlp.finbert_analyzer import FinBERTAnalyzer
+
+        self._fetcher = MynetNewsFetcher()
+        self._matcher = TickerMatcher()
+        self._analyzer = FinBERTAnalyzer()
+
+    def aggregate(self, symbol: str, days: int) -> dict:
+        """Fetch → match → score. Returns dict compatible with SentimentSignal."""
+        articles = self._fetcher.fetch(symbol, days)
+        if not articles:
+            return _empty_result("no_articles")
+
+        matched = [self._matcher.match(art, symbol) for art in articles]
+        relevant = [m for m in matched if m.match_type != "no_match"] or matched
+
+        scored = self._analyzer.score_articles(relevant)
+        if not scored:
+            return _empty_result("scoring_failed")
+
+        weighted_sent = self._analyzer.compute_weighted_sentiment(scored)
+        score_0_100 = round((weighted_sent + 1.0) / 2.0 * 100.0, 2)
+
+        n = len(scored)
+        confidence = _compute_confidence(scored, n)
+
+        bullish_n = sum(1 for s in scored if s.label == "bullish")
+        bearish_n = sum(1 for s in scored if s.label == "bearish")
+
+        return {
+            "score":          score_0_100,
+            "normalized":     round(weighted_sent, 4),
+            "confidence":     confidence,
+            "bullish_count":  bullish_n,
+            "bearish_count":  bearish_n,
+            "article_count":  n,
+            "source":         "mynet_finans",
+            "model":          scored[0].source if scored else "unknown",
+            "detail_articles": [
+                {
+                    "title":     s.title[:80],
+                    "label":     s.label,
+                    "sentiment": s.sentiment_raw,
+                    "weight":    s.effective_weight,
+                }
+                for s in scored[:5]
+            ],
+        }

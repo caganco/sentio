@@ -5,6 +5,8 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  schedule:
+    - cron: '0 6 * * 1'   # Haftalık — Pazartesi 06:00 UTC (güvenlik denetimi)
 
 jobs:
   architecture:
@@ -73,3 +75,33 @@ jobs:
         run: |
           python -m pytest tests/ \
             -q --tb=short
+
+  security:
+    name: "Security — pip-audit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install pip-audit
+        run: pip install pip-audit
+      - name: Audit dependencies
+        run: pip-audit --requirement requirements.txt
+        continue-on-error: true   # bilgilendirme — CVE bloklamaz (Dependabot takip eder)
+
+  type-check:
+    name: "Type Check — mypy"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install mypy
+        run: pip install mypy
+      - name: Type Check
+        run: mypy src/ --config-file pyproject.toml --ignore-missing-imports
+        continue-on-error: true   # teknik borç — şimdilik bloklamaz

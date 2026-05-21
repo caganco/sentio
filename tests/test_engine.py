@@ -15,7 +15,6 @@ from src.signals.layers.kap_layer import score_kap
 from src.signals.layers.macro_layer import score_macro
 from src.signals.layers.risk_layer import detect_regime, score_risk
 from src.signals.layers.sentiment_layer import score_sentiment
-from src.signals.layers.smartmoney_layer import score_smartmoney
 from src.signals.layers.technical_layer import score_technical
 from src.signals.models import SIGNAL_ORDER, LayerScore, SignalResult
 from src.signals.thresholds import (
@@ -405,22 +404,6 @@ class TestSentimentLayer:
     def test_accepts_ticker_argument(self):
         ls = score_sentiment("GARAN")
         assert ls.layer == "sentiment"
-
-
-# ---------------------------------------------------------------------------
-# test_smartmoney_stub
-# ---------------------------------------------------------------------------
-
-class TestSmartMoneyStub:
-
-    def test_returns_neutral(self):
-        assert score_smartmoney().score == 50.0
-
-    def test_confidence_zero(self):
-        assert score_smartmoney().confidence == 0.0
-
-    def test_source_missing(self):
-        assert score_smartmoney().source == "missing"
 
 
 # ---------------------------------------------------------------------------

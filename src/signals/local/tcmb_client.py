@@ -130,6 +130,20 @@ class TCMBClient:
                 continue
         return None
 
+    @staticmethod
+    def _scrape_tcmb_rate() -> float | None:
+        """Scrape current TCMB policy rate from tcmb.gov.tr (first-party source).
+
+        Returns the rate as a float (e.g. 37.0), or None on failure.
+        Fallback chain: EVDS → tcmb.gov.tr scrape → YAML/cache (D-095).
+        """
+        try:
+            from src.data.tcmb_scraper import fetch_tcmb_policy_rate
+            return fetch_tcmb_policy_rate()
+        except Exception as exc:
+            logger.warning(f"TCMBClient: tcmb.gov.tr scraper error: {exc}")
+            return None
+
     def _fallback_ok(self, context: str) -> bool:
         """Graceful degradation: succeed if YAML/cache already has a decision.
 
@@ -238,7 +252,38 @@ class TCMBClient:
             )
             return True
 
-        return self._fallback_ok("EVDS live API unavailable")
+        # EVDS unavailable — try tcmb.gov.tr scraper before YAML (D-095)
+        logger.warning("TCMBClient: EVDS unavailable, trying tcmb.gov.tr scraper")
+        scraped_rate = self._scrape_tcmb_rate()
+        if scraped_rate is not None:
+            latest = self.cache.get_latest_tcmb()
+            prev_rate = latest.get("rate_after") if latest else None
+
+            if prev_rate is not None:
+                if scraped_rate > prev_rate:
+                    decision_type = "hike"
+                elif scraped_rate < prev_rate:
+                    decision_type = "cut"
+                else:
+                    decision_type = "hold"
+            else:
+                decision_type = "hold"
+
+            self.cache.store_tcmb(
+                decision_date=datetime.utcnow().strftime("%Y-%m-%d"),
+                decision_type=decision_type,
+                rate_before=prev_rate or scraped_rate,
+                rate_after=scraped_rate,
+                source="tcmb_gov_scrape",
+                confidence=0.9,
+            )
+            logger.info(
+                f"TCMBClient: tcmb.gov.tr scrape success — {decision_type} at {scraped_rate}% "
+                f"(was {prev_rate}%)"
+            )
+            return True
+
+        return self._fallback_ok("EVDS and tcmb.gov.tr scraper both unavailable")
 
     def score(self) -> LocalMacroSignal:
         """

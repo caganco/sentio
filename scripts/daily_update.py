@@ -13,7 +13,7 @@ from src.analysis.momentum import scan_momentum_stocks
 from src.analysis.portfolio import analyze_portfolio, portfolio_summary
 from src.data.database import get_prices, initialize_db, sync_portfolio, upsert_prices, get_sector, get_sector_context
 from src.data.fetcher import fetch_all_bist_batch, fetch_multiple_stocks, get_bist100_tickers
-from src.data.kap_scraper import fetch_kap_news
+from src.data.kap_scraper import fetch_kap_news_full
 from src.data.macro import fetch_macro_data
 from src.data.macro_feed import fetch_macro_snapshot, save_to_db, get_latest_snapshot
 from src.data.macro_scheduler import run_daily_update as run_macro_update
@@ -25,6 +25,8 @@ from src.signals.strategist import StrategistAgent, StrategistError
 from src.reports.daily_report import generate_html_report, generate_markdown_report
 from src.risk.kelly import KellySizer
 from src.risk.drawdown import DrawdownTracker
+from src.risk.technical_level_detector import detect_levels
+from src.signals.macro_regime_gate import classify_regime
 from src.signals.layers.smart_money_layer import get_l5_layer
 from src.signals.layers.connectors.smart_money_connector import IsYatirimScreenerConnector
 from src.signals.sentiment.sentiment_signal import SentimentSignal
@@ -155,6 +157,30 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     except Exception as _exc:
         logger.error("SmartMoneyL5 screener fetch error (graceful): %s", _exc)
 
+    # --- Fintables Takas / MKK Custody fetch (D-116) ---
+    # custody DB yolu: hem buradaki fetch hem aşağıdaki L5 skor okuması kullanır.
+    from src.signals.thresholds import CUSTODY_DB_PATH as _CUSTODY_DB_PATH
+    _custody_db_path = Path(__file__).parent.parent / _CUSTODY_DB_PATH
+    logger.info("Fetching Fintables takas/custody data (BIST50)...")
+    try:
+        from src.data.fintables_scraper import FintablesScraperConnector
+        _db_existed = _custody_db_path.exists()  # connector __init__ DB oluşturur — önce yakala
+        _takas_conn = FintablesScraperConnector(db_path=_custody_db_path)
+        if not _db_existed:
+            logger.info("Custody DB yok → backfill başlatılıyor...")
+            _takas_conn.backfill()
+        else:
+            _takas_results = _takas_conn.scrape_all(date_str=_today_str)
+            _takas_ok = sum(1 for v in _takas_results.values() if v)
+            logger.info(
+                "Fintables takas: %d/%d ticker başarılı (%s)",
+                _takas_ok, len(_takas_results), _today_str,
+            )
+    except ImportError:
+        logger.debug("playwright/fintables_scraper bulunamadı → takas fetch atlanıyor")
+    except Exception as _exc:
+        logger.error("Fintables takas fetch error (graceful): %s", _exc)
+
     config = load_config()
     positions = config.get("portfolio", {}).get("positions", [])
     sync_portfolio(positions)
@@ -258,9 +284,15 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
 
         logger.info("Fetching KAP disclosures...")
         _pos_tickers = list(positions.keys()) if isinstance(positions, dict) else [p["ticker"] for p in positions]
-        kap_news = fetch_kap_news(
-            portfolio_tickers=_pos_tickers,
-        )
+        # fetch_kap_news_full() returns the dict shape {source_used, total, items, ...}
+        # that the briefing + downstream kap_src/kap_total readers expect. A KAP
+        # failure must NEVER kill the report (Macro Snapshot + Strategist live AFTER
+        # this point) — graceful fallback to an empty result. (D-113 signature fix)
+        try:
+            kap_news = fetch_kap_news_full(_pos_tickers)
+        except Exception as _kap_exc:
+            logger.warning("KAP fetch failed (non-fatal): %s", _kap_exc)
+            kap_news = {"source_used": "none", "total": 0, "items": []}
 
         # Calculate macro alignment scores for portfolio positions
         calculator = MacroAlignmentCalculator()
@@ -287,6 +319,16 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         portfolio_data = []
         kelly_sizer = KellySizer(portfolio_value_pct=100.0, kelly_fraction=0.25)
         current_positions = {}
+
+        # Regime for TP level computation — derived once from macro_signal (D-112).
+        # Falls back to NEUTRAL when macro_signal is unavailable.
+        _tp_regime = "NEUTRAL"
+        if macro_signal is not None:
+            try:
+                _l2_for_tp = (macro_signal.macro_environment_score + 1) * 50.0
+                _tp_regime = classify_regime(_l2_for_tp)
+            except Exception:
+                pass
 
         # Initialize drawdown tracker with portfolio total value
         portfolio_total_value = summary.get("total_value", 0)
@@ -340,8 +382,11 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "source": sent.get("source"),
                 }
 
-            # L5 Smart Money score (foreign ratio from İş Yatırım screener)
-            _l5_pos_score = get_l5_layer().compute_l5_score(a.ticker)
+            # L5 Smart Money score (D-116: custody DB öncelikli, yoksa İş Yatırım parquet)
+            _l5_pos_score = get_l5_layer().compute_l5_score(
+                a.ticker,
+                custody_db_path=_custody_db_path if _custody_db_path.exists() else None,
+            )
             if _l5_pos_score is not None:
                 position["smart_money"] = {
                     "l5_score": round(_l5_pos_score, 2),
@@ -365,6 +410,22 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "size": position_pct,
                     "pnl_pct": a.unrealized_pnl_pct if a.unrealized_pnl_pct is not None else 0,
                 }
+
+            # TP levels — detect_levels() per ticker (D-112).
+            # OHLCV unavailable or any exception → tp1/tp2/tp3 = null (silent skip).
+            try:
+                _ohlcv = db_data.get(a.ticker)
+                if _ohlcv is not None and not _ohlcv.empty:
+                    _plan = detect_levels(_ohlcv, _tp_regime)
+                    position["tp1"] = round(_plan.tp1, 2)
+                    position["tp2"] = round(_plan.tp2, 2)
+                    position["tp3"] = round(_plan.tp3, 2)
+                    position["tp_regime"] = _plan.regime
+                    position["tp_confidence"] = _plan.confidence
+                else:
+                    position.update({"tp1": None, "tp2": None, "tp3": None})
+            except Exception:
+                position.update({"tp1": None, "tp2": None, "tp3": None})
 
             portfolio_data.append(position)
 
@@ -479,6 +540,44 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         print(f"  Briefing  : {briefing_path}")
         print(f"  KAP News  : {kap_total} item(s) via {kap_src}\n")
 
+        # --- D-108 Macro Gate v2 (CDS-percentile-conditional soft BEAR) ---
+        # Computes the v2 scaling once per run and stashes in briefing for audit /
+        # future position_sizer_v2 callers. Failure path: try/except -> v1 fallback.
+        macro_gate_v2 = None
+        try:
+            from src.signals.local.cache_store import LocalMacroCache as _LMC
+            from src.signals.layers.macro_layer import _compute_cds_percentile
+            from src.signals.macro_regime_gate import (
+                HardExitFlags as _HardExitFlags,
+                calculate_macro_regime_scaling_v2 as _gate_v2,
+            )
+            from src.signals.thresholds import CDS_PERCENTILE_WINDOW as _CPW
+
+            _cds_hist = _LMC().get_cds_history(days=_CPW)
+            _cds_pct = _compute_cds_percentile(_cds_hist)
+            _cds_pct_used = _cds_pct if _cds_pct is not None else 0.5
+            _l2_score = (briefing["macro_snapshot"].get("macro_environment_score", 0) + 1) * 50.0
+            _cds_latest = _cds_hist[-1].get("cds_bps", 0.0) if _cds_hist else 0.0
+            _portfolio_dd = briefing.get("portfolio_drawdown", {}).get("drawdown_pct", 0.0) / 100.0
+            _hard = _HardExitFlags(
+                cds_bps=float(_cds_latest),
+                usdtry_zscore=0.0,                # Phase 1 placeholder (DEC-017)
+                portfolio_drawdown=float(_portfolio_dd),
+            )
+            _v2 = _gate_v2(_l2_score, _cds_pct_used, hard_exit_flags=_hard)
+            macro_gate_v2 = {
+                "scaling": _v2.scaling,
+                "regime": _v2.regime,
+                "cds_percentile": _cds_pct,        # None if history < 30d
+                "cds_overlay": _v2.cds_overlay,
+                "hard_exit": _v2.hard_exit,
+                "reason": _v2.reason,
+            }
+            logger.info("Macro gate v2: %s", _v2.reason)
+            briefing["macro_gate_v2"] = macro_gate_v2
+        except Exception as exc:
+            logger.warning("D-108 macro gate v2 compute failed (non-fatal): %s", exc)
+
         # --- Kelly Criterion Position Sizing ---
         kelly_sizing = {}
         vix_val = macro_data.get("vix") if isinstance(macro_data, dict) else None
@@ -556,6 +655,18 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         report_path = reports_dir / f"report_{briefing['date']}.md"
         _write_daily_report(report_path, briefing, strategist_notes)
         print(f"  Strategist: {report_path}\n")
+
+        # --- D-107 Alpha Attribution: signal log writes + return fill ---
+        try:
+            _write_signal_logs_d107(
+                tickers=tickers,
+                db_data=db_data,
+                macro_data=macro_data,
+                macro_signal=macro_signal if 'macro_signal' in locals() else None,
+                kelly_sizing=kelly_sizing,
+            )
+        except Exception as exc:
+            logger.warning("D-107 signal log writes failed (non-fatal): %s", exc)
 
     # --- Forward Test Log (for live validation against backtest) ---
     if scan:
@@ -736,6 +847,127 @@ def _write_daily_report(report_path: Path, briefing: dict, strategist_notes: str
     report_path.write_text("\n".join(lines), encoding="utf-8")
 
 
+# ── D-107 Alpha Attribution Hook (SPEC_ALPHA_INFRASTRUCTURE_1 Phase 3) ──────
+
+def _compute_position_weights_d107(kelly_sizing: dict) -> dict[str, float]:
+    """Aggregate Kelly results into {symbol: weight_pct_of_portfolio}."""
+    out: dict[str, float] = {}
+    for ticker, info in (kelly_sizing or {}).items():
+        if not isinstance(info, dict) or "error" in info:
+            continue
+        rec_pct = info.get("recommended_size_pct")
+        if rec_pct is None:
+            continue
+        out[ticker] = float(rec_pct) / 100.0
+    return out
+
+
+def _write_signal_logs_d107(
+    tickers: list[str],
+    db_data: dict,
+    macro_data: dict,
+    macro_signal,
+    kelly_sizing: dict,
+) -> None:
+    """Per-symbol compute_signal() loop + flat parquet write + return fill (D-107).
+
+    Writes flat data/signal_logs/YYYY-MM-DD.parquet via alpha_attribution.
+    Pure additive — failure here must NEVER break the briefing pipeline.
+    Each ticker computed in its own try/except so one bad ticker can't kill the rest.
+    """
+    from datetime import date as _d
+    from src.signals.engine import compute_signal
+    from src.signals.macro_regime_gate import classify_regime
+    from src.backtest.data_loader import build_technical_data
+    from src.data.signal_logger import SignalLogger, ReturnFiller
+    from src.data.universe_snapshot import UniverseSnapshot
+    from src.reporting.alpha_attribution import write_daily_snapshot
+    import pandas as _pd
+
+    today = _d.today()
+    universe = UniverseSnapshot()
+    universe.fetch_and_save_current()  # idempotent — refresh current snapshot
+
+    # Regime label from L2 macro score on 0-100 scale.
+    regime_label = "NEUTRAL"
+    try:
+        if macro_signal is not None:
+            env_score = float(macro_signal.macro_environment_score)
+            l2_score = (env_score + 1.0) * 50.0   # [-1,+1] -> [0,100]
+            regime_label = classify_regime(l2_score)
+    except Exception as exc:
+        logger.info("D-107 regime classify failed: %s", exc)
+
+    position_weights = _compute_position_weights_d107(kelly_sizing)
+    sig_logger = SignalLogger()
+    n_logged = 0
+    records: list[dict] = []
+
+    for symbol in tickers:
+        try:
+            df = db_data.get(symbol)
+            if df is None or df.empty:
+                continue
+            tech = build_technical_data(df, _pd.Timestamp(today))
+            if tech is None:
+                continue
+            macro_dict = macro_data if isinstance(macro_data, dict) else {}
+            result = compute_signal(
+                symbol=symbol,
+                technical_data=tech,
+                macro_data=macro_dict,
+                kap_events=[],  # Faz 1: KAP routing into engine deferred
+                as_of_date=today,
+            )
+            tier = universe.get_liquidity_tier(symbol, today.year, today.month)
+            record = sig_logger.build_record(
+                symbol=symbol,
+                result=result,
+                liquidity_tier=tier,
+                position_weight=position_weights.get(symbol, 0.0),
+                regime_label=regime_label,
+            )
+            records.append(record.model_dump())
+            n_logged += 1
+        except Exception as exc:
+            logger.info("D-107 signal log skip %s: %s", symbol, exc)
+
+    logger.info("D-107 signal log: %d symbols computed (regime=%s)", n_logged, regime_label)
+
+    # Write flat daily parquet — always runs, even when n_logged == 0
+    write_daily_snapshot(records, today)
+
+    # Forward-return fill: reads flat YYYY-MM-DD.parquet from past trading days
+    try:
+        from src.data.database import get_prices as _get_prices
+
+        def _price_on(symbol: str, d) -> float | None:
+            try:
+                prices = _get_prices(symbol, limit_days=120)
+                if prices is None or prices.empty:
+                    return None
+                d_ts = _pd.Timestamp(d)
+                idx = prices.index
+                idx_at_or_before = idx[idx <= d_ts]
+                if len(idx_at_or_before) == 0:
+                    return None
+                return float(prices.loc[idx_at_or_before[-1], "Close"])
+            except Exception:
+                return None
+
+        def _reader(d) -> "_pd.DataFrame | None":
+            path = Path(__file__).parent.parent / "data" / "signal_logs" / f"{d}.parquet"
+            if not path.exists():
+                return None
+            return _pd.read_parquet(path)
+
+        filler = ReturnFiller()
+        n_filled = filler.fill(today, _price_on, _reader)
+        logger.info("D-107 return filler: %d rows backfilled", n_filled)
+    except Exception as exc:
+        logger.warning("D-107 return filler failed (non-fatal): %s", exc)
+
+
 def _days_to_period(days: int) -> str:
     if days <= 30:
         return "1mo"
@@ -753,4 +985,14 @@ if __name__ == "__main__":
     parser.add_argument("--scan", action="store_true", help="Run momentum scanner")
     parser.add_argument("--generate-report", action="store_true", help="Generate daily report (Phase 3)")
     args = parser.parse_args()
-    run_update(scan=args.scan, generate_report=args.generate_report)
+    try:
+        run_update(scan=args.scan, generate_report=args.generate_report)
+    except Exception as _exc:
+        # D-120: pipeline tümüyle düşerse failure dosyası yaz (+opsiyonel email), sonra raise.
+        from src.utils.failure_notifier import notify_failure
+        _fpath = notify_failure(
+            _exc,
+            context=f"daily_update scan={args.scan} generate_report={args.generate_report}",
+        )
+        logger.error("daily_update FAILED — failure logged to %s", _fpath)
+        raise

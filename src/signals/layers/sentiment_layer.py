@@ -31,9 +31,12 @@ def score_sentiment(symbol: str, days: int = 7) -> LayerScore:
 
         detail = {
             "normalized_sentiment": result["normalized"],
-            "article_count": result["article_count"],
-            "bullish_count": result["bullish_count"],
-            "bearish_count": result["bearish_count"],
+            "article_count":        result["article_count"],
+            "bullish_count":        result["bullish_count"],
+            "bearish_count":        result["bearish_count"],
+            "source_model":         result.get("model", "unknown"),
+            "news_source":          result.get("news_source") or result.get("source", "unknown"),
+            "top_articles":         result.get("detail_articles", []),
         }
 
         logger.debug(

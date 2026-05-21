@@ -242,11 +242,12 @@ def _parse_rss_date(date_str: str) -> datetime:
 
 def _fetch_gnews(ticker: str, company_name: str | None = None) -> list[dict]:
     """Google News RSS üzerinden son 24 saatteki haberleri çeker."""
-    query_terms = [ticker]
+    # "THYAO KAP OR BIST OR bildirim" Google'da (THYAO KAP) OR BIST OR bildirim
+    # olarak parse edilir — THYAO filtresini bypass eder. Düz OR kullan.
     if company_name:
-        query_terms.append(company_name)
-    query_terms.append("KAP OR BIST OR bildirim")
-    query = " ".join(query_terms)
+        query = f"{ticker} OR \"{company_name}\""
+    else:
+        query = ticker
 
     url = GNEWS_URL.format(query=requests.utils.quote(query))
     cutoff = datetime.now(timezone.utc) - timedelta(hours=NEWS_LOOKBACK_HOURS)
@@ -292,66 +293,122 @@ def _fetch_gnews(ticker: str, company_name: str | None = None) -> list[dict]:
 # ── Ana fonksiyon ─────────────────────────────────────────────────────────────
 
 def fetch_kap_news(
-    portfolio_tickers: list[str] | None = None,
+    ticker_or_tickers: str | list[str] | None = None,
     watchlist_tickers: list[str] | None = None,
     *,
     company_names: dict[str, str] | None = None,
-) -> dict:
-    """
-    KAP bildirimlerini toplar.
+) -> list[dict]:
+    """KAP bildirimlerini toplar.
+
+    Args:
+        ticker_or_tickers: Tek ticker string ("THYAO"), liste, veya None (PORTFOLIO_TICKERS)
+        watchlist_tickers: Ek ticker listesi
+        company_names: {ticker: şirket_adı} — gnews sorgusu için
 
     Returns:
-        {
-          "fetched_at": ISO str,
-          "source_used": "kap_api" | "gnews" | "none",
-          "coverage_hours": 24,
-          "total": int,
-          "items": [ {source, ticker, title, published, category, url} ]
-        }
+        list[dict] — her eleman: {source, ticker, title, published, category, url}
+        Kaynak bulunamazsa boş liste döner, exception fırlatmaz.
     """
-    tickers = list({*(portfolio_tickers or PORTFOLIO_TICKERS),
-                    *(watchlist_tickers or WATCHLIST_TICKERS)})
+    if isinstance(ticker_or_tickers, str):
+        portfolio_tickers: list[str] = [ticker_or_tickers]
+    else:
+        portfolio_tickers = list(ticker_or_tickers) if ticker_or_tickers else list(PORTFOLIO_TICKERS)
+
+    tickers = list({*portfolio_tickers, *(watchlist_tickers or WATCHLIST_TICKERS)})
     company_names = company_names or {}
 
     all_items: list[dict] = []
-    source_used = "none"
 
-    # ── Katman 1: KAP API ──────────────────────────────────────────────────
+    # ── Per-ticker: KAP API önce, yoksa RSS — her ticker bağımsız ─────────
     _kap_api_warmup()
-    kap_hits: list[dict] = []
     for ticker in tickers:
-        items = _fetch_kap_api(ticker)
-        kap_hits.extend(items)
-        if items:
+        # Katman 1: KAP API
+        kap_items = _fetch_kap_api(ticker)
+        if kap_items:
+            all_items.extend(kap_items)
             time.sleep(0.3)   # polite delay
-
-    if kap_hits:
-        all_items = kap_hits
-        source_used = "kap_api"
-
-    # ── Katman 2: Google News RSS ──────────────────────────────────────────
-    if not all_items:
-        gnews_hits: list[dict] = []
-        for ticker in tickers:
-            items = _fetch_gnews(ticker, company_names.get(ticker))
-            gnews_hits.extend(items)
-            time.sleep(0.5)
-
-        if gnews_hits:
-            all_items = gnews_hits
-            source_used = "gnews"
+            continue
+        # Katman 2: Google News RSS (bu ticker için fallback)
+        rss_items = _fetch_gnews(ticker, company_names.get(ticker))
+        all_items.extend(rss_items)
+        time.sleep(0.5)
 
     # CRITICAL → IMPORTANT → NOISE, aynı kategoride yeniden eskiye
     _priority = {"CRITICAL": 0, "IMPORTANT": 1, "NOISE": 2}
     all_items.sort(key=lambda x: (_priority.get(x["category"], 3), x["published"]), reverse=False)
 
+    return all_items
+
+
+def fetch_kap_news_full(
+    ticker_or_tickers: str | list[str] | None = None,
+    watchlist_tickers: list[str] | None = None,
+    *,
+    company_names: dict[str, str] | None = None,
+) -> dict:
+    """fetch_kap_news ile aynı ama {fetched_at, source_used, total, items} dict döner.
+
+    CLI ve KapScraper.get_news_result() için kullanılır.
+    """
+    items = fetch_kap_news(ticker_or_tickers, watchlist_tickers, company_names=company_names)
+    source = "none"
+    if items:
+        src = items[0].get("source", "")
+        source = "kap_api" if src == "kap_api" else "gnews"
     return {
         "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "source_used": source_used,
+        "source_used": source,
         "coverage_hours": NEWS_LOOKBACK_HOURS,
-        "total": len(all_items),
-        "items": all_items,
+        "total": len(items),
+        "items": items,
     }
+
+
+# ── KapScraper class ─────────────────────────────────────────────────────────
+
+class KapScraper:
+    """High-level wrapper around kap_scraper module for per-symbol news fetching.
+
+    Layer priority:
+      1. KAP API (POST memberDisclosureQuery) — often WAF-blocked
+      2. Google News RSS — reliable fallback
+    Returns empty list when both layers fail.
+    """
+
+    def get_news(self, symbol: str) -> list[dict]:
+        """Return recent news/disclosures for *symbol* as list of dicts.
+
+        Each dict has: source, ticker, title, published, category, url.
+        Returns [] when no news is available (never raises).
+        """
+        return fetch_kap_news(symbol)
+
+    def get_news_result(self, symbol: str) -> dict:
+        """Same as get_news() but returns the full result dict with metadata."""
+        return fetch_kap_news_full(symbol)
+
+    def get_filings(self, symbol: str) -> list[dict]:
+        """Return recent KAP filings for *symbol* in score_kap()-compatible format.
+
+        Each dict has: symbol, published_at, category, title, url, source.
+        Uses Layer 1 (KAP API) → Layer 2 (Google News RSS) fallback.
+        Returns [] when no data is available (never raises).
+        """
+        try:
+            raw_items = fetch_kap_news(symbol)
+        except Exception:
+            return []
+        return [
+            {
+                "symbol": symbol,
+                "published_at": item.get("published", ""),
+                "category": item.get("category", "diger"),
+                "title": item.get("title", ""),
+                "url": item.get("url", ""),
+                "source": item.get("source", ""),
+            }
+            for item in raw_items
+        ]
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -370,7 +427,7 @@ if __name__ == "__main__":
     print(f"  Lookback : Son {NEWS_LOOKBACK_HOURS} saat")
     print(SEP)
 
-    result = fetch_kap_news()
+    result = fetch_kap_news_full()
 
     print(f"\n  Kaynak   : {result['source_used']}")
     print(f"  Toplam   : {result['total']} bildirim/haber")

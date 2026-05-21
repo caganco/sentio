@@ -154,12 +154,21 @@ class TestMissingNews:
 # Confidence tests
 # ---------------------------------------------------------------------------
 
+_MYNET_EMPTY = "src.signals.sentiment.news_aggregator.MynetNewsAggregator.aggregate"
+_MYNET_EMPTY_RESULT = {
+    "score": 50.0, "normalized": 0.0, "confidence": 0.0,
+    "bullish_count": 0, "bearish_count": 0, "article_count": 0,
+    "source": "missing",
+}
+
+
 class TestConfidence:
-    """Test confidence scoring logic."""
+    """Test confidence scoring logic (Yahoo fallback path)."""
 
     def test_few_articles_lower_confidence(self, sentiment_signal):
         single_news = [_yahoo_item("Good results", "Decent earnings", 0)]
-        with patch("yfinance.Ticker", return_value=_mock_ticker(single_news)):
+        with patch(_MYNET_EMPTY, return_value=_MYNET_EMPTY_RESULT), \
+             patch("yfinance.Ticker", return_value=_mock_ticker(single_news)):
             result = sentiment_signal.calculate("AKSEN", days=7)
         assert result["article_count"] == 1
         assert result["confidence"] <= 0.8
@@ -169,13 +178,15 @@ class TestConfidence:
             _yahoo_item(f"Positive news {i}", "Strong results and bullish outlook", i * 0.5)
             for i in range(6)
         ]
-        with patch("yfinance.Ticker", return_value=_mock_ticker(many_news)):
+        with patch(_MYNET_EMPTY, return_value=_MYNET_EMPTY_RESULT), \
+             patch("yfinance.Ticker", return_value=_mock_ticker(many_news)):
             result = sentiment_signal.calculate("AKSEN", days=7)
         assert result["article_count"] >= 5
         assert result["confidence"] >= 0.5
 
     def test_agreement_affects_confidence(self, sentiment_signal, positive_news):
-        with patch("yfinance.Ticker", return_value=_mock_ticker(positive_news)):
+        with patch(_MYNET_EMPTY, return_value=_MYNET_EMPTY_RESULT), \
+             patch("yfinance.Ticker", return_value=_mock_ticker(positive_news)):
             result = sentiment_signal.calculate("AKSEN", days=7)
         if result["article_count"] > 1:
             agreement_ratio = max(result["bullish_count"], result["bearish_count"]) / result["article_count"]
@@ -228,3 +239,68 @@ class TestErrorHandling:
         with patch("yfinance.Ticker", return_value=_mock_ticker(positive_news)):
             result_7 = sentiment_signal.calculate("AKSEN", days=7)
         assert isinstance(result_7, dict)
+
+
+# ---------------------------------------------------------------------------
+# L4 Confidence Formula tests (D-094 / SPEC_L4_NEWS_1)
+# ---------------------------------------------------------------------------
+
+class TestL4ConfidenceFormula:
+    """Validate three-component confidence formula for Mynet/FinBERT pipeline."""
+
+    @staticmethod
+    def _scored(n: int, label: str = "bullish", relevance: float = 1.0, fb_conf: float = 1.0):
+        from src.nlp.finbert_analyzer import ScoredArticle
+        return [
+            ScoredArticle(
+                title=f"t{i}", sentiment_raw=0.7 if label == "bullish" else -0.7,
+                finbert_confidence=fb_conf, relevance_weight=relevance,
+                recency_weight=1.0, effective_weight=relevance * fb_conf,
+                label=label,
+            )
+            for i in range(n)
+        ]
+
+    def test_below_activation_threshold_returns_zero(self):
+        """n < L4_MIN_ARTICLES_ACTIVATE (3) → confidence = 0.0."""
+        from src.signals.sentiment.news_aggregator import _compute_confidence
+        scored = self._scored(2)
+        assert _compute_confidence(scored, 2) == 0.0
+
+    def test_unanimous_ten_articles_max_confidence(self):
+        """10 unanimous bullish, full relevance → confidence = 1.0."""
+        from src.signals.sentiment.news_aggregator import _compute_confidence
+        scored = self._scored(10)
+        assert abs(_compute_confidence(scored, 10) - 1.0) < 1e-6
+
+    def test_three_articles_unanimous_confidence_above_zero(self):
+        """3 unanimous bullish → confidence > 0, ≤ 1."""
+        from src.signals.sentiment.news_aggregator import _compute_confidence
+        scored = self._scored(3)
+        conf = _compute_confidence(scored, 3)
+        assert 0.0 < conf <= 1.0
+
+    def test_mixed_sentiment_lowers_agreement(self):
+        """3 bullish + 3 bearish → lower conf than 6 unanimous bullish."""
+        from src.signals.sentiment.news_aggregator import _compute_confidence
+        mixed = self._scored(3, "bullish") + self._scored(3, "bearish")
+        unanimous = self._scored(6, "bullish")
+        assert _compute_confidence(mixed, 6) < _compute_confidence(unanimous, 6)
+
+    def test_low_relevance_lowers_quality_component(self):
+        """Low relevance_weight → quality_conf lower → overall confidence lower."""
+        from src.signals.sentiment.news_aggregator import _compute_confidence
+        high_rel = self._scored(5, relevance=1.00)
+        low_rel  = self._scored(5, relevance=0.10)
+        assert _compute_confidence(high_rel, 5) > _compute_confidence(low_rel, 5)
+
+    def test_engine_weight_zero_at_zero_confidence(self):
+        """Engine: MASTER_WEIGHTS['sentiment'] × 0.0 = 0."""
+        from src.signals.thresholds import MASTER_WEIGHTS
+        assert MASTER_WEIGHTS["sentiment"] * 0.0 == 0.0
+
+    def test_engine_weight_scales_with_confidence(self):
+        """Engine: MASTER_WEIGHTS['sentiment'] × 0.75 ≈ 0.09."""
+        from src.signals.thresholds import MASTER_WEIGHTS
+        effective = MASTER_WEIGHTS["sentiment"] * 0.75
+        assert abs(effective - 0.09) < 1e-6

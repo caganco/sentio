@@ -8,6 +8,7 @@ import logging
 import time
 from datetime import date
 
+import src.data.kap_client  # noqa: F401 — applies Company.from_row field-name patch
 from kap_client import Kap
 from kap_client.exceptions import CompanyNotFoundError, KapError, RateLimitError
 
@@ -53,7 +54,9 @@ def fetch_disclosures_for_symbol(
             )
             return [_disclosure_to_dict(d) for d in disclosures]
         except CompanyNotFoundError:
-            logger.warning("KAP: symbol not found: %s", symbol)
+            # Expected since ~May 2026: HT member-type endpoint returns [] for all
+            # BIST listed stocks — kap_client cannot resolve tickers to OIDs.
+            logger.debug("KAP: symbol not in member list (HT endpoint dead): %s", symbol)
             return []
         except RateLimitError:
             if attempt == _MAX_RETRIES:
