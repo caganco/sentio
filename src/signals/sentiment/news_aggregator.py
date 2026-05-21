@@ -271,11 +271,11 @@ class MynetNewsAggregator:
 
     def __init__(self) -> None:
         from src.data.news_fetcher import MynetNewsFetcher, TickerMatcher
-        from src.nlp.finbert_analyzer import FinBERTAnalyzer
+        from src.nlp.finbert_analyzer import TurkishHybridAnalyzer
 
         self._fetcher = MynetNewsFetcher()
         self._matcher = TickerMatcher()
-        self._analyzer = FinBERTAnalyzer()
+        self._analyzer = TurkishHybridAnalyzer()
 
     def aggregate(self, symbol: str, days: int) -> dict:
         """Fetch → match → score. Returns dict compatible with SentimentSignal."""
