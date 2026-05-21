@@ -135,6 +135,7 @@ def _build_signal_summary(
     regime: MacroRegime,
     layer_scores: list[LayerScore],
     risk_off_override: bool,
+    hmm_regime: str | None = None,
 ) -> str:
     parts = [f"{symbol} {final_signal} | Score:{score:.1f}"]
     if conflict.detected:
@@ -153,6 +154,8 @@ def _build_signal_summary(
         if rsi is not None:
             parts.append(f"RSI:{rsi:.0f}")
     parts.append(f"Macro:{regime}")
+    if hmm_regime is not None:
+        parts.append(f"HMM:{hmm_regime}")
     return " | ".join(parts)
 
 
@@ -163,12 +166,34 @@ def compute_signal(
     kap_events: list[dict],
     as_of_date: date | None = None,
     weight_override: dict[str, float] | None = None,
+    hmm_regime: str | None = None,
 ) -> SignalResult:
-    """Compute signal for a single symbol. Stateless — safe for backtesting."""
+    """Compute signal for a single symbol. Stateless — safe for backtesting.
+
+    D-123: hmm_regime ("BULL"/"NEUTRAL"/"BEAR") — when ENABLE_HMM_WEIGHTS=True
+    and no explicit weight_override is given, regime-conditional weights are
+    injected via the existing weight_override mechanism. engine.py never imports
+    regime_hmm directly; the string label is injected by the caller.
+    """
     if as_of_date is None:
         as_of_date = date.today()
     elif as_of_date > date.today():
         raise ValueError(f"as_of_date {as_of_date} is in the future")
+
+    # D-123 HMM weight injection (feature flag protected)
+    from src.signals.thresholds import ENABLE_HMM_WEIGHTS as _HMM_ENABLED
+    if _HMM_ENABLED and hmm_regime is not None and weight_override is None:
+        try:
+            from src.signals.regime_hmm import get_hmm_weight_override
+            weight_override = get_hmm_weight_override(hmm_regime)
+            logger.debug(
+                "HMM weight override applied: regime=%s, weights=%s",
+                hmm_regime, weight_override,
+            )
+        except Exception as _exc:
+            logger.warning(
+                "HMM weight override failed (%s) — falling back to MASTER_WEIGHTS", _exc
+            )
 
     weights = dict(MASTER_WEIGHTS)
     if weight_override:
@@ -288,7 +313,8 @@ def compute_signal(
 
     score = round(weighted_sum, 4)
     summary = _build_signal_summary(
-        symbol, final_signal, score, conflict, regime, layer_scores, risk_off_override
+        symbol, final_signal, score, conflict, regime, layer_scores, risk_off_override,
+        hmm_regime=hmm_regime,
     )
 
     audit = AuditTrail(
@@ -324,14 +350,21 @@ def compute_batch(
     macro_data: dict,
     kap_batch: dict[str, list[dict]],
     as_of_date: date | None = None,
+    hmm_regime: str | None = None,
 ) -> list[SignalResult]:
-    """Compute signals for multiple symbols. macro_data shared. Sorted by score desc."""
+    """Compute signals for multiple symbols. macro_data shared. Sorted by score desc.
+
+    D-123: hmm_regime forwarded to every compute_signal() call.
+    HMM is computed once per batch (in daily_update.py) and injected here.
+    """
     results: list[SignalResult] = []
     for symbol in symbols:
         try:
             tech = technical_batch.get(symbol, {})
             kap = kap_batch.get(symbol, [])
-            result = compute_signal(symbol, tech, macro_data, kap, as_of_date)
+            result = compute_signal(
+                symbol, tech, macro_data, kap, as_of_date, hmm_regime=hmm_regime
+            )
             results.append(result)
         except Exception as exc:
             logger.error("compute_batch: skipping %s — %s", symbol, exc)
