@@ -515,6 +515,20 @@ CUSTODY_PERSISTENCE_WEIGHT: float = 0.20     # streak skoru (≤10 gün)
 CUSTODY_CHANGE_30D_MAX_PP: float = 10.0      # ±10 pp → [0, 100]
 CUSTODY_PERSISTENCE_MAX_DAYS: int = 10       # streak cap
 
+# =============================================================================
+# L5b FOREIGN FLOW — Is Yatirim SCREENER BRIDGE (D-126, SPEC_FOREIGN_FLOW_ISYATIRIM_1)
+# Custody/MKK abonelik duvarına takıldığı için (D-116), yabancı oran sinyali
+# İş Yatırım getScreenerDataNEW (robots-güvenli, login yok) üzerinden köprülenir.
+# Günlük foreign_ratio snapshot'ları isyatirim.db'ye birikir → L5'te custody ile
+# AYNI makine (_compute_from_custody) change_30d/level/persistence üretir.
+# =============================================================================
+FOREIGN_FLOW_DB_PATH: str = "data/foreign_flow/isyatirim.db"
+FOREIGN_FLOW_STALE_HOURS: int = 48           # screener T+1; >48h → sinyal dışı (parquet fallback)
+FOREIGN_FLOW_MIN_HISTORY_DAYS: int = 2       # gün-1 seed (today + 30g-önce) → change_30d çalışır
+# İş Yatırım criterion 45 (1 aylık değişim) ZATEN puan (pp) cinsinden — canlı
+# doğrulandı (örn. -0.02 = -0.02 pp; bps degil). Bu yüzden bölme gerekmez.
+FOREIGN_FLOW_CHANGE_UNIT_DIVISOR: float = 1.0
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;

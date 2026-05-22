@@ -23,6 +23,8 @@ from src.signals.thresholds import (
     CUSTODY_PERSISTENCE_MAX_DAYS,
     CUSTODY_PERSISTENCE_WEIGHT,
     CUSTODY_STALE_HOURS,
+    FOREIGN_FLOW_MIN_HISTORY_DAYS,
+    FOREIGN_FLOW_STALE_HOURS,
     L5_FOREIGN_WEIGHT,
     L5_KAP_OVERLAP_DAMP,
     L5_SHORT_INT_WEIGHT,
@@ -713,6 +715,54 @@ class SmartMoneyL5:
 
         return df[["date", "yabanci_toplam_pct"]].dropna().reset_index(drop=True)
 
+    def _load_foreign_flow_history(
+        self, symbol: str, db_path: Path
+    ) -> pd.DataFrame | None:
+        """İş Yatırım bridge DB'den (date, yabanci_toplam_pct) çeker (D-126, §17).
+
+        `_load_custody_history` ile aynı mantık; tablo `foreign_flow_summary`,
+        eşikler FOREIGN_FLOW_*. Çıktı şeması custody ile aynı olduğundan
+        `_compute_from_custody` aynen yeniden kullanılır.
+
+        None döner: DB yok / symbol kaydı yok / < FOREIGN_FLOW_MIN_HISTORY_DAYS gün /
+        son scraped_at > FOREIGN_FLOW_STALE_HOURS. Exception → logger.error + None.
+        """
+        if not db_path.exists():
+            return None
+        try:
+            con = sqlite3.connect(str(db_path))
+            df = pd.read_sql_query(
+                """
+                SELECT date, yabanci_toplam_pct, scraped_at
+                FROM foreign_flow_summary
+                WHERE ticker = ?
+                ORDER BY date ASC
+                """,
+                con,
+                params=(symbol,),
+            )
+            con.close()
+        except Exception as exc:  # noqa: BLE001 - silent fallback to parquet
+            logger.error("ALERT SmartMoneyL5._load_foreign_flow_history: %s → %s", symbol, exc)
+            return None
+
+        if df.empty or df["date"].nunique() < FOREIGN_FLOW_MIN_HISTORY_DAYS:
+            return None
+
+        latest_scraped = df["scraped_at"].max()
+        try:
+            age = datetime.now(timezone.utc) - datetime.fromisoformat(latest_scraped)
+            if age > timedelta(hours=FOREIGN_FLOW_STALE_HOURS):
+                logger.warning(
+                    "SmartMoneyL5 foreign_flow %s: stale (%.1fh > %dh) → fallback to parquet",
+                    symbol, age.total_seconds() / 3600, FOREIGN_FLOW_STALE_HOURS,
+                )
+                return None
+        except (TypeError, ValueError):
+            pass
+
+        return df[["date", "yabanci_toplam_pct"]].dropna().reset_index(drop=True)
+
     def compute_level_score(self, yabanci_pct_series: pd.Series) -> float:
         """Rolling 252-day persentil rank → [0, 100]. <20 gün → 50.0."""
         if len(yabanci_pct_series) < 20:
@@ -827,6 +877,7 @@ class SmartMoneyL5:
         symbol: str,
         parquet_path: Path | None = None,
         custody_db_path: Path | None = None,
+        foreign_flow_db_path: Path | None = None,
         short_interest_score: float | None = None,
         short_ratio: float | None = None,
         kap_has_short_event: bool = False,
@@ -838,7 +889,9 @@ class SmartMoneyL5:
             symbol: Stock symbol
             parquet_path: Path to daily screener parquet
             custody_db_path: D-116 — MKK custody SQLite. Verilip veri varsa
-                önceliklidir; yoksa/stale ise parquet fallback (backward compat).
+                önceliklidir; yoksa/stale ise foreign_flow/parquet fallback.
+            foreign_flow_db_path: D-126 — İş Yatırım bridge SQLite. custody yok/stale
+                iken denenir; veri varsa custody ile aynı makine kullanılır.
             short_interest_score: Short interest score [0,1] from normalizer; None → no short data
             short_ratio: Raw short ratio % for KAP overlap check
             kap_has_short_event: L3 KAP short disclosure in this week
@@ -860,7 +913,19 @@ class SmartMoneyL5:
                     short_interest_score, short_ratio, kap_has_short_event,
                 )
             logger.debug(
-                "SmartMoneyL5 %s: custody_db empty/stale → falling back to parquet", symbol
+                "SmartMoneyL5 %s: custody_db empty/stale → falling back to foreign_flow/parquet", symbol
+            )
+
+        # --- D-126 (§17): İş Yatırım bridge DB (custody yok/stale ise) ---
+        if foreign_flow_db_path is not None:
+            ffdf = self._load_foreign_flow_history(symbol, Path(foreign_flow_db_path))
+            if ffdf is not None:
+                return self._compute_from_custody(
+                    symbol, ffdf,
+                    short_interest_score, short_ratio, kap_has_short_event,
+                )
+            logger.debug(
+                "SmartMoneyL5 %s: foreign_flow_db empty/stale → falling back to parquet", symbol
             )
 
         # --- Mevcut parquet path (değişmez) ---
