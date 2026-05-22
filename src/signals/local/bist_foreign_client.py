@@ -103,7 +103,7 @@ class BistForeignOwnershipClient:
                 f"&startDate={start_date}&endDate={end_date}&type=json"
             )
             try:
-                resp = requests.get(url, headers={"key": api_key}, timeout=5)
+                resp = requests.get(url, headers={"key": api_key}, timeout=3)
             except requests.exceptions.RequestException as e:
                 logger.warning(f"BistForeignClient: {series_id} network error: {e}")
                 continue
@@ -114,17 +114,23 @@ class BistForeignOwnershipClient:
                 )
                 continue
 
-            # Migrated host serves the EVDS web SPA (HTML) for every path,
-            # so .json() raises on a non-API response. Treat any non-JSON
-            # body as "API unavailable" and move on.
+            # Migrated host serves the EVDS SPA (HTML) for every path.
+            # If any series returns non-JSON, all others will too — break.
+            ct = resp.headers.get("Content-Type", "")
+            if "html" in ct.lower():
+                logger.warning(
+                    f"BistForeignClient: {series_id} HTML response — EVDS "
+                    f"migrated, aborting series loop"
+                )
+                break
             try:
                 data = resp.json()
             except ValueError:
                 logger.warning(
                     f"BistForeignClient: {series_id} non-JSON body — EVDS "
-                    f"API likely migrated"
+                    f"migrated, aborting series loop"
                 )
-                continue
+                break
 
             observations = data.get("items") or data.get("data") or []
             if not observations:
