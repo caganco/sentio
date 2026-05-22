@@ -112,7 +112,7 @@ class TCMBClient:
     )
     # Documented endpoint after the 05/04/2024 change: query string starts
     # with "?series=" (no "?" -> server returns the SPA HTML), key in header.
-    _EVDS_BASE = "https://evds2.tcmb.gov.tr/service/evds/"
+    _EVDS_BASE = "https://evds3.tcmb.gov.tr/igmevdsms-dis/service/evds/"
 
     @staticmethod
     def _extract_value(obs: dict) -> float | None:
