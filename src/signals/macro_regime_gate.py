@@ -26,7 +26,7 @@ from src.signals.thresholds import (
     MACRO_GATE_SCALING_BEAR,
     MACRO_GATE_SCALING_BULL,
     MACRO_GATE_SCALING_NEUTRAL,
-    MACRO_GATE_SOFT_BEAR_BASE,
+    MACRO_GATE_THRESHOLDS,
     MAX_DRAWDOWN_HARD_STOP,
 )
 
@@ -111,12 +111,28 @@ def _cds_overlay(cds_percentile: float) -> float:
     )
 
 
+def _l2_base_scaling(l2_macro_score: float) -> float:
+    """CB-002: L2 score -> base position-size multiplier (floor, no full block).
+
+    First band whose threshold L2 does not reach wins; >= 60 -> 1.0:
+        L2 < 30 -> 0.3 | 30-45 -> 0.5 | 45-60 -> 0.8 | >= 60 -> 1.0
+    """
+    for threshold, mult in MACRO_GATE_THRESHOLDS:
+        if l2_macro_score < threshold:
+            return mult
+    return MACRO_GATE_SCALING_BULL
+
+
 def calculate_macro_regime_scaling_v2(
     l2_macro_score: float,
     cds_percentile: float,
     hard_exit_flags: HardExitFlags | None = None,
 ) -> MacroScalingResult:
-    """CDS-conditional position sizing multiplier (D-108).
+    """L2-step soft scaling x CDS overlay position-size multiplier (CB-002).
+
+    Base scaling comes from the L2-step floor (no full block below L2=45), then
+    the DEC-017 CDS-percentile overlay dampens it multiplicatively. Hard exits
+    (CDS >= 600 bps, USDTRY z-score, portfolio DD) still force 0.0.
 
     Args:
         l2_macro_score: L2 engine score [0, 100].
@@ -135,44 +151,13 @@ def calculate_macro_regime_scaling_v2(
 
     regime = classify_regime(l2_macro_score)
     overlay = _cds_overlay(cds_percentile)
-
-    if regime == REGIME_BULL:
-        scaling = round(MACRO_GATE_SCALING_BULL * overlay, 4)
-        return MacroScalingResult(
-            scaling=scaling, regime=REGIME_BULL, cds_overlay=overlay,
-            hard_exit=False,
-            reason=f"BULL L2={l2_macro_score:.1f}, CDS_pct={cds_percentile:.2f} -> {scaling:.3f}x",
-        )
-
-    if regime == REGIME_NEUTRAL:
-        scaling = round(MACRO_GATE_SCALING_NEUTRAL * overlay, 4)
-        return MacroScalingResult(
-            scaling=scaling, regime=REGIME_NEUTRAL, cds_overlay=overlay,
-            hard_exit=False,
-            reason=f"NEUTRAL L2={l2_macro_score:.1f}, CDS_pct={cds_percentile:.2f} -> {scaling:.3f}x",
-        )
-
-    # BEAR -- CDS >= HIGH -> hard 0.0; else linear soft scaling
-    if cds_percentile >= CDS_PERCENTILE_HIGH:
-        return MacroScalingResult(
-            scaling=0.0, regime=REGIME_BEAR, cds_overlay=overlay, hard_exit=False,
-            reason=f"BEAR + CDS_pct={cds_percentile:.2f} >= {CDS_PERCENTILE_HIGH:.2f} -> hard 0.0x",
-        )
-
-    if cds_percentile <= CDS_PERCENTILE_LOW:
-        soft = MACRO_GATE_SOFT_BEAR_BASE
-    else:
-        span = CDS_PERCENTILE_HIGH - CDS_PERCENTILE_LOW
-        soft = round(
-            MACRO_GATE_SOFT_BEAR_BASE * (CDS_PERCENTILE_HIGH - cds_percentile) / span,
-            4,
-        )
-    soft = max(0.0, soft)
+    base = _l2_base_scaling(l2_macro_score)
+    scaling = round(base * overlay, 4)
 
     return MacroScalingResult(
-        scaling=soft, regime=REGIME_BEAR, cds_overlay=overlay, hard_exit=False,
+        scaling=scaling, regime=regime, cds_overlay=overlay, hard_exit=False,
         reason=(
-            f"BEAR_SOFT L2={l2_macro_score:.1f}, CDS_pct={cds_percentile:.2f} "
-            f"-> soft={soft:.3f}x (was 0.0x)"
+            f"CB-002 {regime} L2={l2_macro_score:.1f} base={base:.2f} "
+            f"CDS_pct={cds_percentile:.2f} overlay={overlay:.2f} -> {scaling:.3f}x"
         ),
     )

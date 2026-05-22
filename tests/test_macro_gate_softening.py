@@ -49,23 +49,24 @@ class TestBullRegime:
 class TestBearSoftGate:
 
     def test_cds_low_soft_entry(self) -> None:
-        """L2 < 45 but CDS normal -> 0.25x (NOT hard 0.0x)."""
+        """CB-002: L2 in 30-45 + CDS normal -> base floor 0.5 (NOT hard 0.0x)."""
         r = calculate_macro_regime_scaling_v2(40.0, 0.30)
         assert r.regime == "BEAR"
-        assert abs(r.scaling - 0.25) < 0.001
+        assert abs(r.scaling - 0.5) < 0.001    # base 0.5 x overlay 1.0
         assert r.hard_exit is False
 
-    def test_cds_high_hard_block_in_bear(self) -> None:
-        """L2 < 45 AND CDS >= 90th pct -> 0.0x (sovereign stress confirmed)."""
+    def test_cds_high_dampens_bear_floor(self) -> None:
+        """CB-002: L2 < 45 + CDS >= 90th pct -> floor x overlay (dampened, not hard 0)."""
         r = calculate_macro_regime_scaling_v2(40.0, 0.92)
         assert r.regime == "BEAR"
-        assert r.scaling == 0.0
+        assert abs(r.scaling - 0.125) < 0.001  # base 0.5 x overlay 0.25
+        assert r.hard_exit is False
 
     def test_cds_midband_partial(self) -> None:
-        """L2 < 45, CDS = 70th pct -> partial soft scaling between 0 and 0.25."""
+        """CB-002: L2 in 30-45, CDS = 70th pct -> base 0.5 x overlay 0.625 = 0.3125."""
         r = calculate_macro_regime_scaling_v2(40.0, 0.70)
         assert r.regime == "BEAR"
-        assert 0.0 < r.scaling < 0.25
+        assert abs(r.scaling - 0.3125) < 0.001
 
 
 # ---- Hard exits ------------------------------------------------------------
