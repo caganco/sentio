@@ -242,6 +242,29 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     except Exception as _exc:
         logger.error("Short interest fetch error (graceful): %s", _exc)
 
+    # --- VIOP Takasbank market-wide put/call ratio (CB-008) ---
+    _viop_score: float = 50.0
+    _viop_conf: float = 0.0
+    try:
+        from src.data.viop_takasbank_parser import fetch_viop_pcr
+        from src.signals.thresholds import VIOP_PCR_BEARISH, VIOP_PCR_BULLISH
+        _viop_pcr_data = fetch_viop_pcr()
+        if _viop_pcr_data:
+            _pcr = _viop_pcr_data["put_call_ratio"]
+            if _pcr >= VIOP_PCR_BEARISH:
+                _viop_score = 35.0
+            elif _pcr <= VIOP_PCR_BULLISH:
+                _viop_score = 65.0
+            else:
+                _viop_score = 50.0
+            _viop_conf = 0.6
+            logger.info(
+                "VIOP PCR: %.4f (put=%d, call=%d) -> score=%.1f",
+                _pcr, _viop_pcr_data["put_oi"], _viop_pcr_data["call_oi"], _viop_score,
+            )
+    except Exception as _exc:
+        logger.warning("VIOP Takasbank hook hatasi (graceful): %s", _exc)
+
     config = load_config()
     positions = config.get("portfolio", {}).get("positions", [])
     sync_portfolio(positions)
@@ -1007,6 +1030,8 @@ def _write_signal_logs_d107(
                 liquidity_tier=tier,
                 position_weight=position_weights.get(symbol, 0.0),
                 regime_label=regime_label,
+                viop_score=_viop_score,
+                viop_conf=_viop_conf,
             )
             records.append(record.model_dump())
             n_logged += 1

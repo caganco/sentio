@@ -509,6 +509,10 @@ VIOP_PC_SCORES: dict[str, float] = {
 VIOP_OI_DELTA_BOOST: float = 5.0        # Score nudge when OI delta confirms direction
 VIOP_OI_DELTA_THRESHOLD: float = 0.10   # 10% OI change considered a meaningful move
 
+# --- Takasbank market-wide PCR thresholds (CB-008) ---
+VIOP_PCR_BEARISH: float = 1.2   # PCR >= 1.2 -> put baskisi (kontraryen bullish tetikleyici)
+VIOP_PCR_BULLISH: float = 0.6   # PCR <= 0.6 -> call baskisi (kontraryen bearish tetikleyici)
+
 # =============================================================================
 # L5b CUSTODY / MKK TAKAS SCRAPER (D-116, SPEC_FINTABLES_TAKAS_SCRAPER_1)
 # Fintables MKK takas verisi → custody_snapshots.db → L5 foreign signal.
