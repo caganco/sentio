@@ -275,6 +275,13 @@ SHORT_INTEREST_STALE: int = 10        # days — no update → neutral fallback
 # L3-L5 covariance dampening (D-058)
 L5_KAP_OVERLAP_DAMP: float = 0.6      # Dampening factor when L3 KAP + L5 short overlap
 
+# D-127 PaySahipligi / Major Holder Change (SPK XI.29.1)
+MAJOR_HOLDER_CHANGE_THRESHOLD_PCT: float = 5.0      # SPK zorunlu bildirim esigi
+MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS: int = 30          # Olay gecerliligi (gun)
+L5_MAJOR_HOLDER_WEIGHT: float = 0.10                 # Blend agirligi L5 kompozitinde
+L5_MAJOR_HOLDER_ENTRY_SCORE: float = 75.0            # BULL: kurumsal giris >= %5
+L5_MAJOR_HOLDER_EXIT_SCORE: float = 25.0             # BEAR: kurumsal cikis
+
 # =============================================================================
 # PHASE 4.5 -- RUTHLESS ALPHA (D-052). SPEC_SIGNAL_CONVICTION_1 /
 # POSITION_SIZING_2 / MACRO_REGIME_GATE_2 / STAGED_TP_1.
@@ -584,6 +591,67 @@ BRINSON_BENCHMARK: str = "equal_weight"   # "equal_weight" | "market_cap_weight"
 VOLATILITY_REGIME_LOW_MAX:  float = 15.0   # < 15% -> Low
 VOLATILITY_REGIME_HIGH_MIN: float = 30.0   # > 30% -> High
 # 15-30% -> Mid
+
+# =============================================================================
+# HMM REGIME-CONDITIONAL WEIGHTS (D-123, SPEC_HMM_REGIME_WEIGHTS_1)
+# Dayanak: RR-003 §3 (CB-002 + CB-010 Aşama 1)
+# Ref: Hamilton (1989), Asness/Moskowitz/Pedersen (2013), Lo (2004)
+# BIST empirical: Senol 2020, Dogan&Bilge 2022, Wang et al. 2020
+# =============================================================================
+
+ENABLE_HMM_WEIGHTS: bool = False   # True → daily_update.py aktive eder; env var override mümkün
+
+# GaussianHMM model hyperparameters
+HMM_N_COMPONENTS: int    = 3            # BULL / NEUTRAL / BEAR
+HMM_COVARIANCE_TYPE: str = "full"       # 3×3 full covariance matrix
+HMM_N_ITER: int          = 500          # EM iteration upper bound
+HMM_TOL: float           = 1e-4         # EM convergence tolerance
+HMM_RANDOM_STATE: int    = 42           # reproducibility
+
+# Walk-forward retrain schedule
+HMM_WALK_FORWARD_WINDOW_MONTHS: int = 36   # rolling train window (3 years)
+HMM_RETRAIN_INTERVAL_DAYS: int      = 30   # retrain when model older than this
+HMM_MIN_TRAIN_DAYS: int             = 252  # minimum samples required (1 year)
+HMM_PREDICT_MIN_DAYS: int           = 30   # Viterbi sequence minimum length
+
+# Storage
+HMM_MODEL_PATH: str = "data/hmm/regime_model.pkl"
+
+# Feature definition (3-dim observation vector)
+# [0] bist_log_return  [1] roll_vol_20d (annualized)  [2] usdtry_log_change
+HMM_FEATURE_NAMES: tuple[str, ...] = ("bist_log_return", "roll_vol_20d", "usdtry_log_change")
+HMM_VOL_LOOKBACK: int = 20   # rolling vol window in trading days
+
+# Regime-conditional weight tables — Σ = 1.00 each; keys == MASTER_WEIGHTS.keys()
+# BULL: momentum (L1) + smart money (L5) lead; macro (L2) less marginal in bull
+HMM_WEIGHTS_BULL: dict[str, float] = {
+    "technical":   0.32,   # L1 ↑ momentum premium peaks in bull (Asness et al. 2013)
+    "macro":       0.17,   # L2 ↓ already supportive background in bull
+    "kap":         0.27,   # L3    corporate events always informative
+    "sentiment":   0.10,   # L4    suspended (confidence=0), kept for activation
+    "smart_money": 0.12,   # L5 ↑ institutional flows reliable in bull
+    "risk":        0.02,   # L6 ↓ risk-off rarely triggered in bull
+}  # Σ = 1.00
+
+# NEUTRAL: identical to MASTER_WEIGHTS (architecture-tested invariant)
+HMM_WEIGHTS_NEUTRAL: dict[str, float] = {
+    "technical":   0.25,
+    "macro":       0.20,
+    "kap":         0.30,
+    "sentiment":   0.12,
+    "smart_money": 0.10,
+    "risk":        0.03,
+}  # Σ = 1.00  — must equal MASTER_WEIGHTS (test_architecture.py enforces this)
+
+# BEAR: macro (L2) dominant; technical (L1) reduced (false bullish risk in bear)
+HMM_WEIGHTS_BEAR: dict[str, float] = {
+    "technical":   0.15,   # L1 ↓↓ oversold bounces produce false bullish signals
+    "macro":       0.30,   # L2 ↑↑ macro dominant; CDS+USDTRY+TCMB critical
+    "kap":         0.32,   # L3 ↑  corporate disclosures early warning in bear
+    "sentiment":   0.07,   # L4 ↓  noisy in bear environment
+    "smart_money": 0.10,   # L5    monitoring institutional exits
+    "risk":        0.06,   # L6 ↑↑ risk-off signal more frequently correct
+}  # Σ = 1.00
 
 # Signal log storage paths
 SIGNAL_LOG_BASE_PATH:   str = "data/signal_logs"

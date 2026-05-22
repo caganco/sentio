@@ -157,6 +157,19 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     except Exception as _exc:
         logger.error("SmartMoneyL5 screener fetch error (graceful): %s", _exc)
 
+    # --- D-123 HMM Regime Detection ---
+    _hmm_regime_label: str | None = None
+    from src.signals.thresholds import ENABLE_HMM_WEIGHTS as _HMM_ENABLED_DU
+    if _HMM_ENABLED_DU:
+        logger.info("HMM regime detection (D-123)...")
+        try:
+            from src.signals.regime_hmm import BISTRegimeHMM
+            _hmm_model = BISTRegimeHMM.load_or_retrain()
+            _hmm_regime_label = _hmm_model.predict_current_regime()
+            logger.info("HMM regime: %s", _hmm_regime_label)
+        except Exception as _exc:
+            logger.warning("HMM regime detection failed (non-fatal): %s", _exc)
+
     # --- Fintables Takas / MKK Custody fetch (D-116) ---
     # custody DB yolu: hem buradaki fetch hem aşağıdaki L5 skor okuması kullanır.
     from src.signals.thresholds import CUSTODY_DB_PATH as _CUSTODY_DB_PATH
@@ -578,6 +591,8 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         except Exception as exc:
             logger.warning("D-108 macro gate v2 compute failed (non-fatal): %s", exc)
 
+        briefing["hmm_regime"] = _hmm_regime_label   # D-123 audit field (None when disabled)
+
         # --- Kelly Criterion Position Sizing ---
         kelly_sizing = {}
         vix_val = macro_data.get("vix") if isinstance(macro_data, dict) else None
@@ -664,6 +679,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 macro_data=macro_data,
                 macro_signal=macro_signal if 'macro_signal' in locals() else None,
                 kelly_sizing=kelly_sizing,
+                hmm_regime=_hmm_regime_label,   # D-123
             )
         except Exception as exc:
             logger.warning("D-107 signal log writes failed (non-fatal): %s", exc)
@@ -868,6 +884,7 @@ def _write_signal_logs_d107(
     macro_data: dict,
     macro_signal,
     kelly_sizing: dict,
+    hmm_regime: str | None = None,   # D-123
 ) -> None:
     """Per-symbol compute_signal() loop + flat parquet write + return fill (D-107).
 
@@ -918,6 +935,7 @@ def _write_signal_logs_d107(
                 macro_data=macro_dict,
                 kap_events=[],  # Faz 1: KAP routing into engine deferred
                 as_of_date=today,
+                hmm_regime=hmm_regime,   # D-123
             )
             tier = universe.get_liquidity_tier(symbol, today.year, today.month)
             record = sig_logger.build_record(

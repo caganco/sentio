@@ -150,9 +150,16 @@ NOISE_KEYWORDS = [
 ]
 
 
+def _is_pay_sahipligi(text: str) -> bool:
+    """Return True if text signals a major shareholder notification (SPK XI.29.1)."""
+    return any(k in text for k in ("pay sahipligi", "onemli pay sahibi", "sermaye pay sahipligi"))
+
+
 def classify_disclosure(text: str) -> str:
     """CRITICAL / IMPORTANT / NOISE döndürür."""
     lower = text.lower()
+    if _is_pay_sahipligi(lower):
+        return "CRITICAL"
     if any(k in lower for k in CRITICAL_KEYWORDS):
         return "CRITICAL"
     if any(k in lower for k in IMPORTANT_KEYWORDS):

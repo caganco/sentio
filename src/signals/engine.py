@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from src.signals.conviction_validator import compute_conviction
 from src.signals.layers.kap_layer import score_kap
@@ -28,6 +28,9 @@ from src.signals.thresholds import (
     L5_CONF_PARTIAL,
     SMART_MONEY_FULL_COMPOSITE_DAYS,
     SMART_MONEY_MOMENTUM_DAYS,
+    MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS,
+    L5_MAJOR_HOLDER_ENTRY_SCORE,
+    L5_MAJOR_HOLDER_EXIT_SCORE,
 )
 
 logger = logging.getLogger(__name__)
@@ -135,6 +138,7 @@ def _build_signal_summary(
     regime: MacroRegime,
     layer_scores: list[LayerScore],
     risk_off_override: bool,
+    hmm_regime: str | None = None,
 ) -> str:
     parts = [f"{symbol} {final_signal} | Score:{score:.1f}"]
     if conflict.detected:
@@ -153,6 +157,8 @@ def _build_signal_summary(
         if rsi is not None:
             parts.append(f"RSI:{rsi:.0f}")
     parts.append(f"Macro:{regime}")
+    if hmm_regime is not None:
+        parts.append(f"HMM:{hmm_regime}")
     return " | ".join(parts)
 
 
@@ -163,12 +169,34 @@ def compute_signal(
     kap_events: list[dict],
     as_of_date: date | None = None,
     weight_override: dict[str, float] | None = None,
+    hmm_regime: str | None = None,
 ) -> SignalResult:
-    """Compute signal for a single symbol. Stateless — safe for backtesting."""
+    """Compute signal for a single symbol. Stateless — safe for backtesting.
+
+    D-123: hmm_regime ("BULL"/"NEUTRAL"/"BEAR") — when ENABLE_HMM_WEIGHTS=True
+    and no explicit weight_override is given, regime-conditional weights are
+    injected via the existing weight_override mechanism. engine.py never imports
+    regime_hmm directly; the string label is injected by the caller.
+    """
     if as_of_date is None:
         as_of_date = date.today()
     elif as_of_date > date.today():
         raise ValueError(f"as_of_date {as_of_date} is in the future")
+
+    # D-123 HMM weight injection (feature flag protected)
+    from src.signals.thresholds import ENABLE_HMM_WEIGHTS as _HMM_ENABLED
+    if _HMM_ENABLED and hmm_regime is not None and weight_override is None:
+        try:
+            from src.signals.regime_hmm import get_hmm_weight_override
+            weight_override = get_hmm_weight_override(hmm_regime)
+            logger.debug(
+                "HMM weight override applied: regime=%s, weights=%s",
+                hmm_regime, weight_override,
+            )
+        except Exception as _exc:
+            logger.warning(
+                "HMM weight override failed (%s) — falling back to MASTER_WEIGHTS", _exc
+            )
 
     weights = dict(MASTER_WEIGHTS)
     if weight_override:
@@ -225,13 +253,34 @@ def compute_signal(
         detail=sentiment_ls.detail, source=sentiment_ls.source,
     )
 
+    # D-127 PaySahipligi — major holder change signal
+    _major_holder_score: float | None = None
+    _mh_cutoff = (as_of_date or date.today()) - timedelta(days=MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS)
+    for _ev in kap_events:
+        if str(_ev.get("category", "")).lower() != "pay_sahipligi":
+            continue
+        try:
+            _pub_raw = _ev.get("published_at") or _ev.get("publish_datetime", "")
+            _pub_date = datetime.fromisoformat(str(_pub_raw)).date()
+            if _pub_date < _mh_cutoff:
+                continue
+        except (ValueError, TypeError):
+            continue
+        _dir = _ev.get("structured_data", {}).get("direction", "UNKNOWN")
+        if _dir == "ENTRY":
+            _major_holder_score = L5_MAJOR_HOLDER_ENTRY_SCORE
+            break
+        if _dir == "EXIT":
+            _major_holder_score = L5_MAJOR_HOLDER_EXIT_SCORE
+            break
+
     # L5 Smart Money (D-055 — Phase 4.5 progressive build), confidence-scaled
     # at LayerScore creation (D-052, DEC-009): effective weight =
     # MASTER_WEIGHTS["smart_money"] (0.10) x layer confidence.
     # compute_l5_score() returns None when: no history, stale >48h, ADV
     # ineligible, or <10 days → confidence=0 → effective weight 0 (fully
     # excluded; not a 50.0 neutral contribution). Data-collection until ~Gün 10.
-    _l5_score = get_l5_layer().compute_l5_score(symbol)
+    _l5_score = get_l5_layer().compute_l5_score(symbol, major_holder_change_score=_major_holder_score)
     if _l5_score is None:
         smart_money_ls = LayerScore(
             layer="smart_money",
@@ -288,7 +337,8 @@ def compute_signal(
 
     score = round(weighted_sum, 4)
     summary = _build_signal_summary(
-        symbol, final_signal, score, conflict, regime, layer_scores, risk_off_override
+        symbol, final_signal, score, conflict, regime, layer_scores, risk_off_override,
+        hmm_regime=hmm_regime,
     )
 
     audit = AuditTrail(
@@ -324,14 +374,21 @@ def compute_batch(
     macro_data: dict,
     kap_batch: dict[str, list[dict]],
     as_of_date: date | None = None,
+    hmm_regime: str | None = None,
 ) -> list[SignalResult]:
-    """Compute signals for multiple symbols. macro_data shared. Sorted by score desc."""
+    """Compute signals for multiple symbols. macro_data shared. Sorted by score desc.
+
+    D-123: hmm_regime forwarded to every compute_signal() call.
+    HMM is computed once per batch (in daily_update.py) and injected here.
+    """
     results: list[SignalResult] = []
     for symbol in symbols:
         try:
             tech = technical_batch.get(symbol, {})
             kap = kap_batch.get(symbol, [])
-            result = compute_signal(symbol, tech, macro_data, kap, as_of_date)
+            result = compute_signal(
+                symbol, tech, macro_data, kap, as_of_date, hmm_regime=hmm_regime
+            )
             results.append(result)
         except Exception as exc:
             logger.error("compute_batch: skipping %s — %s", symbol, exc)

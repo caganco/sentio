@@ -17,7 +17,7 @@ class TestThresholdsSingleSource:
         engine_path = Path(__file__).parent.parent / "src" / "signals" / "engine.py"
 
         # Read thresholds.py
-        thresholds_content = thresholds_path.read_text()
+        thresholds_content = thresholds_path.read_text(encoding="utf-8")
 
         # Verify all expected keys are defined
         for key in ("buy_strong", "buy_weak", "hold_lower", "sell_weak"):
@@ -26,7 +26,7 @@ class TestThresholdsSingleSource:
             )
 
         # Read engine.py and check for hardcoded thresholds
-        engine_content = engine_path.read_text()
+        engine_content = engine_path.read_text(encoding="utf-8")
 
         # Pattern: search for literal threshold values like 72.0, 60.0, etc.
         # These should NOT appear in engine.py if properly imported from thresholds.py
@@ -56,7 +56,7 @@ class TestThresholdsSingleSource:
     def test_no_hardcoded_thresholds_in_engine(self):
         """Verify engine.py does not hardcode weight values (must import MASTER_WEIGHTS)."""
         engine_path = Path(__file__).parent.parent / "src" / "signals" / "engine.py"
-        engine_content = engine_path.read_text()
+        engine_content = engine_path.read_text(encoding="utf-8")
 
         # Weight values should never appear as raw floats in engine.py
         weight_patterns = [
@@ -344,6 +344,84 @@ class TestCustodyConstants:
         assert "AKSEN" in CUSTODY_BIST50_TICKERS
         # SPEC taslağındaki TKFEN duplikasyonu düzeltildi → tüm ticker'lar unique.
         assert len(set(CUSTODY_BIST50_TICKERS)) == len(CUSTODY_BIST50_TICKERS)
+
+
+class TestHMMRegimeWeightConstants:
+    """D-123 / SPEC_HMM_REGIME_WEIGHTS_1: HMM sabitleri thresholds.py'de, invariantlar sağlanmalı."""
+
+    def test_hmm_constants_exist_and_types_correct(self):
+        """ENABLE_HMM_WEIGHTS bool, HMM_N_COMPONENTS==3, tip ve değer kontrolü."""
+        from src.signals.thresholds import (
+            ENABLE_HMM_WEIGHTS,
+            HMM_COVARIANCE_TYPE,
+            HMM_MIN_TRAIN_DAYS,
+            HMM_N_COMPONENTS,
+            HMM_N_ITER,
+            HMM_RANDOM_STATE,
+            HMM_RETRAIN_INTERVAL_DAYS,
+        )
+        assert isinstance(ENABLE_HMM_WEIGHTS, bool)
+        assert ENABLE_HMM_WEIGHTS is False   # default değişmemeli
+        assert HMM_N_COMPONENTS == 3
+        assert HMM_COVARIANCE_TYPE == "full"
+        assert HMM_N_ITER > 0
+        assert HMM_MIN_TRAIN_DAYS >= 252
+        assert HMM_RETRAIN_INTERVAL_DAYS > 0
+        assert isinstance(HMM_RANDOM_STATE, int)
+
+    def test_hmm_all_tables_sum_to_one(self):
+        """Her HMM ağırlık tablosu Σ = 1.00 (tolerans 1e-9)."""
+        from src.signals.thresholds import HMM_WEIGHTS_BEAR, HMM_WEIGHTS_BULL, HMM_WEIGHTS_NEUTRAL
+        for name, table in [
+            ("BULL", HMM_WEIGHTS_BULL),
+            ("NEUTRAL", HMM_WEIGHTS_NEUTRAL),
+            ("BEAR", HMM_WEIGHTS_BEAR),
+        ]:
+            assert abs(sum(table.values()) - 1.0) < 1e-9, (
+                f"HMM_WEIGHTS_{name} sum = {sum(table.values())} ≠ 1.0"
+            )
+
+    def test_hmm_neutral_weights_equal_master(self):
+        """HMM_WEIGHTS_NEUTRAL == MASTER_WEIGHTS — kritik design invariant."""
+        from src.signals.thresholds import HMM_WEIGHTS_NEUTRAL, MASTER_WEIGHTS
+        assert dict(HMM_WEIGHTS_NEUTRAL) == dict(MASTER_WEIGHTS), (
+            "HMM_WEIGHTS_NEUTRAL must be identical to MASTER_WEIGHTS "
+            "so NEUTRAL regime == baseline behavior"
+        )
+
+    def test_hmm_tables_have_same_keys_as_master(self):
+        """Tüm HMM tabloları MASTER_WEIGHTS ile aynı key set'ine sahip olmalı."""
+        from src.signals.thresholds import (
+            HMM_WEIGHTS_BEAR,
+            HMM_WEIGHTS_BULL,
+            HMM_WEIGHTS_NEUTRAL,
+            MASTER_WEIGHTS,
+        )
+        expected_keys = set(MASTER_WEIGHTS.keys())
+        for name, table in [
+            ("BULL", HMM_WEIGHTS_BULL),
+            ("NEUTRAL", HMM_WEIGHTS_NEUTRAL),
+            ("BEAR", HMM_WEIGHTS_BEAR),
+        ]:
+            assert set(table.keys()) == expected_keys, (
+                f"HMM_WEIGHTS_{name} keys {set(table.keys())} ≠ MASTER_WEIGHTS keys {expected_keys}"
+            )
+
+    def test_hmm_bull_tech_weight_above_master(self):
+        """BULL rejimde teknik ağırlık MASTER_WEIGHTS'ten yüksek olmalı (momentum premium)."""
+        from src.signals.thresholds import HMM_WEIGHTS_BULL, MASTER_WEIGHTS
+        assert HMM_WEIGHTS_BULL["technical"] > MASTER_WEIGHTS["technical"]
+
+    def test_hmm_bear_macro_weight_above_master(self):
+        """BEAR rejimde makro ağırlık MASTER_WEIGHTS'ten yüksek olmalı (macro dominant)."""
+        from src.signals.thresholds import HMM_WEIGHTS_BEAR, MASTER_WEIGHTS
+        assert HMM_WEIGHTS_BEAR["macro"] > MASTER_WEIGHTS["macro"]
+
+    def test_hmm_model_path_in_thresholds(self):
+        """HMM_MODEL_PATH thresholds.py'den gelmeli, 'hmm' içermeli."""
+        from src.signals.thresholds import HMM_MODEL_PATH
+        assert isinstance(HMM_MODEL_PATH, str)
+        assert "hmm" in HMM_MODEL_PATH
 
 
 pytestmark = pytest.mark.baseline

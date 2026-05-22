@@ -26,6 +26,7 @@ EventCategory = Literal[
     "temettu",
     "sermaye_artirimi",
     "genel_kurul",
+    "pay_sahipligi",
     "diger",
 ]
 
@@ -33,6 +34,11 @@ EventCategory = Literal[
 # Keyword → category map (Turkish, lowercase matching)
 # ---------------------------------------------------------------------------
 _CATEGORY_KEYWORDS: list[tuple[str, EventCategory]] = [
+    # pay_sahipligi — most specific, must appear before general keywords (D-127)
+    ("pay sahipligi bildirimi", "pay_sahipligi"),
+    ("pay sahipligi", "pay_sahipligi"),
+    ("onemli pay sahipligi", "pay_sahipligi"),
+    ("onemli pay sahibi", "pay_sahipligi"),
     # longer / more-specific phrases first to avoid false matches
     ("finansal rapor", "finansal_rapor"),
     ("finansal tablo", "finansal_rapor"),
@@ -87,6 +93,8 @@ def extract_structured_data(
         return _parse_dividend(subject)
     if category == "sermaye_artirimi":
         return _parse_capital_increase(subject)
+    if category == "pay_sahipligi":
+        return _parse_pay_sahipligi(subject)
     return {}
 
 
@@ -196,6 +204,20 @@ def _parse_capital_increase(subject: str) -> dict:
     except Exception as exc:
         logger.warning("KAP parser: capital-increase parse failed for %r: %s", subject, exc)
     return result
+
+
+def _parse_pay_sahipligi(subject: str) -> dict:
+    """Extract direction (ENTRY/EXIT/UNKNOWN) from a pay sahipligi subject (D-127)."""
+    lower = subject.lower()
+    _entry_kw = ("artis", "artmis", "artmistir", "alim", "yukselen", "kazanilmis", "artti", "yukseldi")
+    _exit_kw = ("azalis", "azalmis", "azalmistir", "satis", "dususen", "elden cikarilmis", "azaldi", "dustu")
+    if any(k in lower for k in _entry_kw):
+        direction = "ENTRY"
+    elif any(k in lower for k in _exit_kw):
+        direction = "EXIT"
+    else:
+        direction = "UNKNOWN"
+    return {"direction": direction, "threshold_pct": 5.0}
 
 
 def _parse_number(s: str) -> float:
