@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from src.signals.conviction_validator import compute_conviction
 from src.signals.layers.kap_layer import score_kap
@@ -28,6 +28,9 @@ from src.signals.thresholds import (
     L5_CONF_PARTIAL,
     SMART_MONEY_FULL_COMPOSITE_DAYS,
     SMART_MONEY_MOMENTUM_DAYS,
+    MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS,
+    L5_MAJOR_HOLDER_ENTRY_SCORE,
+    L5_MAJOR_HOLDER_EXIT_SCORE,
 )
 
 logger = logging.getLogger(__name__)
@@ -250,13 +253,34 @@ def compute_signal(
         detail=sentiment_ls.detail, source=sentiment_ls.source,
     )
 
+    # D-127 PaySahipligi — major holder change signal
+    _major_holder_score: float | None = None
+    _mh_cutoff = (as_of_date or date.today()) - timedelta(days=MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS)
+    for _ev in kap_events:
+        if str(_ev.get("category", "")).lower() != "pay_sahipligi":
+            continue
+        try:
+            _pub_raw = _ev.get("published_at") or _ev.get("publish_datetime", "")
+            _pub_date = datetime.fromisoformat(str(_pub_raw)).date()
+            if _pub_date < _mh_cutoff:
+                continue
+        except (ValueError, TypeError):
+            continue
+        _dir = _ev.get("structured_data", {}).get("direction", "UNKNOWN")
+        if _dir == "ENTRY":
+            _major_holder_score = L5_MAJOR_HOLDER_ENTRY_SCORE
+            break
+        if _dir == "EXIT":
+            _major_holder_score = L5_MAJOR_HOLDER_EXIT_SCORE
+            break
+
     # L5 Smart Money (D-055 — Phase 4.5 progressive build), confidence-scaled
     # at LayerScore creation (D-052, DEC-009): effective weight =
     # MASTER_WEIGHTS["smart_money"] (0.10) x layer confidence.
     # compute_l5_score() returns None when: no history, stale >48h, ADV
     # ineligible, or <10 days → confidence=0 → effective weight 0 (fully
     # excluded; not a 50.0 neutral contribution). Data-collection until ~Gün 10.
-    _l5_score = get_l5_layer().compute_l5_score(symbol)
+    _l5_score = get_l5_layer().compute_l5_score(symbol, major_holder_change_score=_major_holder_score)
     if _l5_score is None:
         smart_money_ls = LayerScore(
             layer="smart_money",

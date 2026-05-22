@@ -17,7 +17,7 @@ class TestThresholdsSingleSource:
         engine_path = Path(__file__).parent.parent / "src" / "signals" / "engine.py"
 
         # Read thresholds.py
-        thresholds_content = thresholds_path.read_text()
+        thresholds_content = thresholds_path.read_text(encoding="utf-8")
 
         # Verify all expected keys are defined
         for key in ("buy_strong", "buy_weak", "hold_lower", "sell_weak"):
@@ -26,7 +26,7 @@ class TestThresholdsSingleSource:
             )
 
         # Read engine.py and check for hardcoded thresholds
-        engine_content = engine_path.read_text()
+        engine_content = engine_path.read_text(encoding="utf-8")
 
         # Pattern: search for literal threshold values like 72.0, 60.0, etc.
         # These should NOT appear in engine.py if properly imported from thresholds.py
@@ -56,7 +56,7 @@ class TestThresholdsSingleSource:
     def test_no_hardcoded_thresholds_in_engine(self):
         """Verify engine.py does not hardcode weight values (must import MASTER_WEIGHTS)."""
         engine_path = Path(__file__).parent.parent / "src" / "signals" / "engine.py"
-        engine_content = engine_path.read_text()
+        engine_content = engine_path.read_text(encoding="utf-8")
 
         # Weight values should never appear as raw floats in engine.py
         weight_patterns = [

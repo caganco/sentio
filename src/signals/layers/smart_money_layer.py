@@ -830,6 +830,7 @@ class SmartMoneyL5:
         short_interest_score: float | None = None,
         short_ratio: float | None = None,
         kap_has_short_event: bool = False,
+        major_holder_change_score: float | None = None,
     ) -> float | None:
         """
         Progressive L5 score for a single symbol (D-055/D-058 + D-116 custody).
@@ -905,22 +906,31 @@ class SmartMoneyL5:
                 )
 
         if short_interest_score is None:
-            return foreign_score
+            _result: float = foreign_score
+        else:
+            si = float(short_interest_score)
+            if kap_has_short_event and short_ratio is not None and short_ratio > SHORT_INTEREST_HIGH:
+                si = 0.5 + (si - 0.5) * L5_KAP_OVERLAP_DAMP
 
-        si = float(short_interest_score)
-        if kap_has_short_event and short_ratio is not None and short_ratio > SHORT_INTEREST_HIGH:
-            si = 0.5 + (si - 0.5) * L5_KAP_OVERLAP_DAMP
+            result = round(
+                L5_FOREIGN_WEIGHT * foreign_score
+                + L5_SHORT_INT_WEIGHT * (si * 100.0),
+                2,
+            )
+            logger.debug(
+                "SmartMoneyL5 %s: L5 composite — foreign=%.1f short_int=%.1f (dampened=%s) result=%.1f",
+                symbol, foreign_score, si * 100.0, kap_has_short_event, result,
+            )
+            _result = float(max(0.0, min(100.0, result)))
 
-        result = round(
-            L5_FOREIGN_WEIGHT * foreign_score
-            + L5_SHORT_INT_WEIGHT * (si * 100.0),
-            2,
-        )
-        logger.debug(
-            "SmartMoneyL5 %s: L5 composite — foreign=%.1f short_int=%.1f (dampened=%s) result=%.1f",
-            symbol, foreign_score, si * 100.0, kap_has_short_event, result,
-        )
-        return float(max(0.0, min(100.0, result)))
+        # D-127 major_holder_change blend
+        if major_holder_change_score is not None:
+            from src.signals.thresholds import L5_MAJOR_HOLDER_WEIGHT
+            _result = (1.0 - L5_MAJOR_HOLDER_WEIGHT) * _result + L5_MAJOR_HOLDER_WEIGHT * major_holder_change_score
+            logger.debug(
+                "SmartMoneyL5 %s: major_holder_blend=%.1f result=%.1f", symbol, major_holder_change_score, _result
+            )
+        return float(max(0.0, min(100.0, round(_result, 2))))
 
 
 # Module-level singleton used by engine.py

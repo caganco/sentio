@@ -275,6 +275,13 @@ SHORT_INTEREST_STALE: int = 10        # days — no update → neutral fallback
 # L3-L5 covariance dampening (D-058)
 L5_KAP_OVERLAP_DAMP: float = 0.6      # Dampening factor when L3 KAP + L5 short overlap
 
+# D-127 PaySahipligi / Major Holder Change (SPK XI.29.1)
+MAJOR_HOLDER_CHANGE_THRESHOLD_PCT: float = 5.0      # SPK zorunlu bildirim esigi
+MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS: int = 30          # Olay gecerliligi (gun)
+L5_MAJOR_HOLDER_WEIGHT: float = 0.10                 # Blend agirligi L5 kompozitinde
+L5_MAJOR_HOLDER_ENTRY_SCORE: float = 75.0            # BULL: kurumsal giris >= %5
+L5_MAJOR_HOLDER_EXIT_SCORE: float = 25.0             # BEAR: kurumsal cikis
+
 # =============================================================================
 # PHASE 4.5 -- RUTHLESS ALPHA (D-052). SPEC_SIGNAL_CONVICTION_1 /
 # POSITION_SIZING_2 / MACRO_REGIME_GATE_2 / STAGED_TP_1.
