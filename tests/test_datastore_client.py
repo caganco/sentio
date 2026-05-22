@@ -187,9 +187,13 @@ class TestDatastoreFileIndex:
         assert result[0].file_format == "xlsx"
         assert result[1].data_date == date(2026, 3, 1)
 
-    def test_list_files_empty_on_html(self, tmp_path, monkeypatch):
-        """Content-Type: text/html -> bos liste, exception yok."""
-        from src.data.bist_datastore_client import DatastoreFileIndex, DatastoreSession
+    def test_list_files_non_json_raises_expired(self, tmp_path, monkeypatch):
+        """Content-Type: text/html -> DatastoreSessionExpiredError (session redirect)."""
+        from src.data.bist_datastore_client import (
+            DatastoreFileIndex,
+            DatastoreSession,
+            DatastoreSessionExpiredError,
+        )
 
         path = _make_session_json(tmp_path)
         s = DatastoreSession(path)
@@ -198,8 +202,8 @@ class TestDatastoreFileIndex:
         mock_resp = self._make_mock_response(200, content_type="text/html; charset=utf-8")
         monkeypatch.setattr(index._session, "get", lambda *a, **kw: mock_resp)
 
-        result = index.list_files(3153)
-        assert result == []
+        with pytest.raises(DatastoreSessionExpiredError):
+            index.list_files(3153)
 
     def test_list_files_401_raises(self, tmp_path, monkeypatch):
         """401 -> DatastoreSessionExpiredError."""

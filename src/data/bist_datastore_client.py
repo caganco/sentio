@@ -174,11 +174,11 @@ class DatastoreFileIndex:
 
         ct = resp.headers.get("Content-Type", "")
         if not resp.ok or "json" not in ct.lower():
-            logger.warning(
-                "DataStore list_files: HTTP %d, Content-Type=%r — bos liste donuluyor",
-                resp.status_code, ct,
+            raise DatastoreSessionExpiredError(
+                f"DataStore list_files: HTTP {resp.status_code}, "
+                f"Content-Type={ct!r} — session suresi dolmus olabilir. "
+                "Cozum: python scripts/capture_datastore_session.py"
             )
-            return []
 
         try:
             data = resp.json()
