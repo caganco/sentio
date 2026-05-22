@@ -194,6 +194,23 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     except Exception as _exc:
         logger.error("Fintables takas fetch error (graceful): %s", _exc)
 
+    # --- Is Yatirim Foreign Flow fetch (D-128; D-126 bridge kullanir) ---
+    # Robots-guvenli screener; custody DB bos/yoksa L5'in change_30d sinyalini doldurur.
+    from src.signals.thresholds import FOREIGN_FLOW_DB_PATH as _FOREIGN_FLOW_DB_PATH
+    _foreign_flow_db_path = Path(__file__).parent.parent / _FOREIGN_FLOW_DB_PATH
+    _foreign_flow_freshness = None
+    logger.info("Fetching Is Yatirim foreign-flow data (screener bridge)...")
+    try:
+        from src.data.isyatirim_scraper import ForeignFlowConnector
+        _ff_conn = ForeignFlowConnector(db_path=_foreign_flow_db_path)
+        _ff_results = _ff_conn.fetch_and_store(date_str=_today_str)
+        _ff_ok = sum(1 for v in _ff_results.values() if v)
+        # freshness = DB'deki gercek en son tarih (AKBNK temsilci; bugun yazildiysa = bugun)
+        _foreign_flow_freshness = _ff_conn.writer.get_latest_date("AKBNK")
+        logger.info("Foreign flow: %d ticker yazildi (%s)", _ff_ok, _today_str)
+    except Exception as _exc:
+        logger.error("Foreign flow fetch error (graceful): %s", _exc)
+
     config = load_config()
     positions = config.get("portfolio", {}).get("positions", [])
     sync_portfolio(positions)
@@ -399,6 +416,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             _l5_pos_score = get_l5_layer().compute_l5_score(
                 a.ticker,
                 custody_db_path=_custody_db_path if _custody_db_path.exists() else None,
+                foreign_flow_db_path=_foreign_flow_db_path if _foreign_flow_db_path.exists() else None,
             )
             if _l5_pos_score is not None:
                 position["smart_money"] = {
@@ -592,6 +610,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             logger.warning("D-108 macro gate v2 compute failed (non-fatal): %s", exc)
 
         briefing["hmm_regime"] = _hmm_regime_label   # D-123 audit field (None when disabled)
+        briefing["foreign_flow_freshness"] = _foreign_flow_freshness   # D-128 son foreign_flow tarihi
 
         # --- Kelly Criterion Position Sizing ---
         kelly_sizing = {}
