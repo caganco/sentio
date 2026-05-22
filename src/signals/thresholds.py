@@ -560,6 +560,19 @@ FOREIGN_MONTHLY_LOOKBACK_MONTHS: int = 3      # trend penceresi (son N ay net_us
 FOREIGN_MONTHLY_ENTRY_SCORE: float = 70.0     # net_usd trend artis -> giris
 FOREIGN_MONTHLY_EXIT_SCORE: float = 30.0      # net_usd trend azalis -> cikis
 
+# --- Is Yatirim Aciga Satis PDF Parser (D-132) ---
+# Kaynak: arastirma.isyatirim.com.tr gunluk PDF raporu (robots-safe).
+# NOT: SPK yasagi nedeniyle short_ratio veri var ama sinyal agirligi
+# yakin vadede 0'a yakin kalir; veri toplama altyapisi hazir tutulur.
+SHORT_INTEREST_PDF_BASE_URL: str = (
+    "https://arastirma.isyatirim.com.tr/wp-content/uploads/{YYYY}/{MM}/"
+    "Aciga_Satis_Raporu_{DDMMYYYY}.pdf"
+)
+SHORT_INTEREST_CACHE_DIR: str = "data/cache"
+SHORT_INTEREST_CACHE_FILE_TPL: str = "isyatirim_short_interest_{YYYYMMDD}.json"
+SHORT_INTEREST_FETCH_TIMEOUT_SEC: int = 30
+SHORT_INTEREST_STALE_DAYS: int = 3            # cache gecerlilik suresi (gun)
+
 # --- BIST DataStore Client (D-130) ---
 DATASTORE_SESSION_FILE: str = "datastore_session.json"
 DATASTORE_SESSION_MAX_AGE_DAYS: int = 25

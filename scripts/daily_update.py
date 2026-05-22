@@ -211,6 +211,21 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
     except Exception as _exc:
         logger.error("Foreign flow fetch error (graceful): %s", _exc)
 
+    # --- Is Yatirim Aciga Satis PDF fetch (D-132) ---
+    # Robots-guvenli PDF raporu; short_ratio L5 short_interest sinyaline beslenir.
+    # SPK yasagi doneminde sinyal agirligi 0'a yakin; veri toplanmaya devam eder.
+    _short_interest_ratios: dict[str, float] = {}
+    logger.info("Fetching Is Yatirim short interest PDF...")
+    try:
+        from src.data.isyatirim_short_interest_parser import IsyatirimShortInterestConnector
+        _si_conn = IsyatirimShortInterestConnector()
+        _short_interest_ratios = _si_conn.get_short_ratios()
+        logger.info("Short interest: %d ticker yuklendi", len(_short_interest_ratios))
+        for _si_ticker, _si_ratio in list(_short_interest_ratios.items())[:5]:
+            logger.debug("  %s: short_ratio=%.2f%%", _si_ticker, _si_ratio)
+    except Exception as _exc:
+        logger.error("Short interest fetch error (graceful): %s", _exc)
+
     config = load_config()
     positions = config.get("portfolio", {}).get("positions", [])
     sync_portfolio(positions)
@@ -413,10 +428,22 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                 }
 
             # L5 Smart Money score (D-116: custody DB öncelikli, yoksa İş Yatırım parquet)
+            # D-132: short_ratio PDF verisini short_interest_score normalize ederek pass et
+            _ticker_short_ratio = _short_interest_ratios.get(a.ticker)
+            _short_interest_score: float | None = None
+            if _ticker_short_ratio is not None:
+                from src.data.short_interest_normalizer import score_short_interest
+                _short_interest_score = score_short_interest(_ticker_short_ratio, 0.5)
+                logger.debug(
+                    "short_interest_pct %s: ratio=%.2f%% score=%.3f",
+                    a.ticker, _ticker_short_ratio, _short_interest_score,
+                )
             _l5_pos_score = get_l5_layer().compute_l5_score(
                 a.ticker,
                 custody_db_path=_custody_db_path if _custody_db_path.exists() else None,
                 foreign_flow_db_path=_foreign_flow_db_path if _foreign_flow_db_path.exists() else None,
+                short_interest_score=_short_interest_score,
+                short_ratio=_ticker_short_ratio,
             )
             if _l5_pos_score is not None:
                 position["smart_money"] = {
@@ -611,6 +638,7 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
 
         briefing["hmm_regime"] = _hmm_regime_label   # D-123 audit field (None when disabled)
         briefing["foreign_flow_freshness"] = _foreign_flow_freshness   # D-128 son foreign_flow tarihi
+        briefing["short_interest_ticker_count"] = len(_short_interest_ratios)  # D-132 PDF ticker sayisi
 
         # --- Kelly Criterion Position Sizing ---
         kelly_sizing = {}

@@ -20,3 +20,4 @@ playwright>=1.60.0    # D-116 Fintables takas scraper (opsiyonel; post-install: 
 playwright-stealth>=0.0.1  # D-116 bot-detection bypass (playwright ile birlikte kurulur)
 hmmlearn>=0.3.0       # D-123 HMM regime-conditional weights
 scikit-learn>=1.3.0   # D-123 StandardScaler (hmmlearn dependency, explicit for clarity)
+pdfplumber>=0.11.0    # D-132 Is Yatirim aciga satis PDF parser
