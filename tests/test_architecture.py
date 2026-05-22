@@ -444,4 +444,31 @@ class TestMacroWeightsComposite:
         assert total == pytest.approx(1.0, abs=1e-9)
 
 
+class TestKapBoostConstants:
+    """D-131 / CB-004: KAP event-triggered weight boost constants."""
+
+    def test_kap_boost_constants_exist_and_bracket_one(self):
+        from src.signals.thresholds import (
+            KAP_EVENT_BOOST_MULTIPLIER,
+            KAP_NO_EVENT_MULTIPLIER,
+        )
+        assert KAP_NO_EVENT_MULTIPLIER > 0.0
+        assert KAP_NO_EVENT_MULTIPLIER < 1.0 < KAP_EVENT_BOOST_MULTIPLIER
+        # geometric mean ~1.0: boost/dampen roughly balanced (directive point #3)
+        gm = (KAP_EVENT_BOOST_MULTIPLIER * KAP_NO_EVENT_MULTIPLIER) ** 0.5
+        assert 0.9 <= gm <= 1.1
+
+    def test_kap_boost_categories_valid(self):
+        import typing
+        from src.signals.thresholds import KAP_BOOST_CATEGORIES
+        from src.data.kap_parser import EventCategory
+        valid = set(typing.get_args(EventCategory))
+        assert len(KAP_BOOST_CATEGORIES) > 0
+        assert all(c in valid for c in KAP_BOOST_CATEGORIES)
+
+    def test_master_weights_kap_unchanged(self):
+        from src.signals.thresholds import MASTER_WEIGHTS
+        assert MASTER_WEIGHTS["kap"] == pytest.approx(0.30)
+
+
 pytestmark = pytest.mark.baseline
