@@ -90,6 +90,14 @@ KAP_CATEGORY_IMPACT: dict[str, float] = {
 KAP_BASE_SCORE: float = 50.0
 KAP_DUPLICATE_MULTIPLIER: float = 0.5  # extra events of same category
 
+# D-131 (CB-004): KAP L3 event-triggered weight boost. KAP filings episodik --
+# sessiz gunlerde sabit weight KAP'in notr skorunu fazla sayar. Per-call carpan
+# kap layer'in EFEKTIF weight'ine uygulanir; MASTER_WEIGHTS degismez, composite
+# Sigma(weights)'e bolundugu icin otomatik re-normalize olur. Notr durum = 1.0.
+KAP_EVENT_BOOST_MULTIPLIER: float = 1.4   # boost-kategori event varsa
+KAP_NO_EVENT_MULTIPLIER: float = 0.7      # window icinde hic relevant event yoksa
+KAP_BOOST_CATEGORIES: list[str] = ["pay_sahipligi", "temettu", "sermaye_artirimi"]
+
 # Risk layer base and penalties
 RISK_BASE_SCORE: float = 70.0
 RISK_RSI_OVERBOUGHT_PENALTY: float = 20.0   # RSI > 80
