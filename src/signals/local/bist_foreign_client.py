@@ -44,7 +44,7 @@ class BistForeignOwnershipClient:
         "TP.DNYBNK",           # legacy alt
         "TP.YBNK.ADBK",        # legacy alt
     )
-    _EVDS_BASE = "https://evds2.tcmb.gov.tr/service/evds/"
+    _EVDS_BASE = "https://evds3.tcmb.gov.tr/igmevdsms-dis/service/evds/"
 
     @staticmethod
     def _extract_value(obs: dict) -> float | None:

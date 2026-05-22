@@ -1,7 +1,7 @@
 """EVDS (Electronic Data Delivery System) native client (D-095).
 
-EVDS is the TCMB data API. Endpoint: https://evds2.tcmb.gov.tr/service/evds/
-Auth: API key in 'key' request header (obtained from evds2.tcmb.gov.tr).
+EVDS is the TCMB data API. Endpoint: https://evds3.tcmb.gov.tr/igmevdsms-dis/service/evds/
+Auth: API key in 'key' request header (obtained from evds3.tcmb.gov.tr).
 
 Usage:
     from src.data.evds_client import fetch_series, fetch_series_df
@@ -22,7 +22,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-_BASE_URL = "https://evds2.tcmb.gov.tr/service/evds/"
+_BASE_URL = "https://evds3.tcmb.gov.tr/igmevdsms-dis/service/evds/"
 _DEFAULT_TIMEOUT = 10
 
 _LOOKBACK_WINDOWS: dict[str, int] = {
@@ -69,7 +69,7 @@ def fetch_series(
     key = api_key or os.getenv("EVDS_API_KEY")
     if not key:
         raise EvdsError(
-            "EVDS_API_KEY not set. Obtain a free key at https://evds2.tcmb.gov.tr/ "
+            "EVDS_API_KEY not set. Obtain a free key at https://evds3.tcmb.gov.tr/ "
             "and add it to your .env file."
         )
 
