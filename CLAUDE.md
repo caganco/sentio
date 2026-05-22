@@ -77,6 +77,13 @@ python -m pytest tests/ -q --tb=short
   [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md).
   Operasyonel arıza kurtarması: [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
+## MULTI-INSTANCE BUILDER KURALLARI
+
+**PARALEL DİREKTİF KURALI (Orchestrator zorunlu):**
+Yeni direktif vermeden önce ETKİLENEN DOSYALAR listesi kontrol edilir.
+Aktif direktiflerle aynı dosyaya dokunan yeni direktif → sırayla ver, paralel değil.
+İhlal: aynı dosyaya 2 Builder aynı anda dokunursa shared working tree çakışır.
+
 ## Test Yazım Kuralları
 
 Test davranışı test eder, implementasyonu değil. Private metodlara
