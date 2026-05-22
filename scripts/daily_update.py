@@ -183,12 +183,28 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
             logger.info("Custody DB yok → backfill başlatılıyor...")
             _takas_conn.backfill()
         else:
-            _takas_results = _takas_conn.scrape_all(date_str=_today_str)
+            from src.data.fintables_scraper import FintablesClient as _FintablesClient
+            from src.signals.thresholds import CUSTODY_SCRAPE_RATE_LIMIT_SEC as _RATE_SEC
+            import time as _time_local
+            _takas_results: dict[str, bool] = {}
+            _takas_blocked = False
+            with _FintablesClient(session_file=_takas_conn.session_file) as _client:
+                for _tidx, _tticker in enumerate(_takas_conn.tickers):
+                    _tres = _takas_conn.scrape_ticker(_tticker, _today_str, _client)
+                    _takas_results[_tticker] = _tres
+                    if _tidx == 0 and not _tres:
+                        logger.warning(
+                            "Fintables takas devre disi — bot engeli aktif, skip"
+                        )
+                        _takas_blocked = True
+                        break
+                    _time_local.sleep(_RATE_SEC)
             _takas_ok = sum(1 for v in _takas_results.values() if v)
-            logger.info(
-                "Fintables takas: %d/%d ticker başarılı (%s)",
-                _takas_ok, len(_takas_results), _today_str,
-            )
+            if not _takas_blocked:
+                logger.info(
+                    "Fintables takas: %d/%d ticker basarili (%s)",
+                    _takas_ok, len(_takas_results), _today_str,
+                )
     except ImportError:
         logger.debug("playwright/fintables_scraper bulunamadı → takas fetch atlanıyor")
     except Exception as _exc:
