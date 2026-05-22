@@ -46,3 +46,5 @@ cache/
 kap_*.json
 claude kritikler.md
 invalid/
+
+*_session.json
