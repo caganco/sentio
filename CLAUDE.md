@@ -104,6 +104,19 @@ PARALEL BUILDER ÇAKIŞMA KURALI:
 - Master'a doğrudan commit yasak
 - PR olmadan merge yasak
 
+## GIT WORKTREE KURALI
+
+Her Builder kendi worktree'sinde çalışır:
+- Builder 1: C:\Users\cagan\bist-wt-builder1
+- Builder 2: C:\Users\cagan\bist-wt-builder2
+- Builder 3: C:\Users\cagan\bist-wt-builder3
+
+Worktree'de yeni branch:
+git checkout -b feature/d-XXX
+
+Ana repo (bist-trading-system) sadece Cagan kullanır:
+merge, PR review, --check komutları
+
 ## Test Yazım Kuralları
 
 Test davranışı test eder, implementasyonu değil. Private metodlara
