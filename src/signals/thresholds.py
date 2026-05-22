@@ -560,6 +560,14 @@ FOREIGN_MONTHLY_LOOKBACK_MONTHS: int = 3      # trend penceresi (son N ay net_us
 FOREIGN_MONTHLY_ENTRY_SCORE: float = 70.0     # net_usd trend artis -> giris
 FOREIGN_MONTHLY_EXIT_SCORE: float = 30.0      # net_usd trend azalis -> cikis
 
+# --- BIST DataStore Client (D-130) ---
+DATASTORE_SESSION_FILE: str = "datastore_session.json"
+DATASTORE_SESSION_MAX_AGE_DAYS: int = 25
+DATASTORE_PRODUCT_FOREIGN: int = 3153
+DATASTORE_PRODUCT_SHORT: int = 3155
+DATASTORE_PRODUCT_PRICES: int = 3156
+DATASTORE_RATE_LIMIT_SEC: float = 2.0
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
