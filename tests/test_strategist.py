@@ -312,3 +312,51 @@ def test_system_prompt_borsa_focus():
     assert any(kw in content for kw in ("bist", "turkish", "turkey", "türk")), (
         "System prompt must reference BIST or Turkish market"
     )
+
+
+# ---------------------------------------------------------------------------
+# D-134: max_tokens headroom + truncation visibility
+# ---------------------------------------------------------------------------
+
+def test_max_output_tokens_is_4096():
+    """Report was cut at the old 2000-token cap; D-134 raises it to 4096."""
+    mod = _load_module()
+    assert mod._MAX_OUTPUT_TOKENS == 4096
+
+
+def test_analyze_report_uses_max_output_tokens(system_prompt_path):
+    """create() must request the full _MAX_OUTPUT_TOKENS budget."""
+    mock_mod, mock_client = _make_mock_anthropic()
+    mock_client.messages.create.return_value = _mock_response("Equity analysis. " * 20)
+    agent, mod = _make_agent(system_prompt_path, mock_mod, mock_client)
+
+    agent.analyze_report(_VALID_REPORT)
+    call_kwargs = mock_client.messages.create.call_args[1]
+    assert call_kwargs["max_tokens"] == mod._MAX_OUTPUT_TOKENS == 4096
+
+
+def test_truncation_logs_warning(system_prompt_path, caplog):
+    """stop_reason='max_tokens' must emit a warning (was silently 'successful')."""
+    mock_mod, mock_client = _make_mock_anthropic()
+    resp = _mock_response("Equity analysis. " * 20)
+    resp.stop_reason = "max_tokens"
+    mock_client.messages.create.return_value = resp
+    agent, _ = _make_agent(system_prompt_path, mock_mod, mock_client)
+
+    with caplog.at_level("WARNING"):
+        result = agent.analyze_report(_VALID_REPORT)
+    assert "truncated" in caplog.text.lower()
+    assert len(result) >= 100   # notes still returned (non-fatal)
+
+
+def test_no_warning_when_complete(system_prompt_path, caplog):
+    """Normal stop (end_turn) must NOT emit the truncation warning."""
+    mock_mod, mock_client = _make_mock_anthropic()
+    resp = _mock_response("Equity analysis. " * 20)
+    resp.stop_reason = "end_turn"
+    mock_client.messages.create.return_value = resp
+    agent, _ = _make_agent(system_prompt_path, mock_mod, mock_client)
+
+    with caplog.at_level("WARNING"):
+        agent.analyze_report(_VALID_REPORT)
+    assert "truncated" not in caplog.text.lower()

@@ -13,6 +13,9 @@ _DEFAULT_SYSTEM_PROMPT_PATH = str(
 _DEFAULT_MODEL = "claude-sonnet-4-6"
 _DEFAULT_TIMEOUT = 10
 _MIN_RESPONSE_CHARS = 100
+# D-134: report truncated mid-content ("## 📋 KA") because the response hit the
+# old 2000-token cap. 4096 gives the full multi-section narrative headroom.
+_MAX_OUTPUT_TOKENS = 4096
 
 # ---------------------------------------------------------------------------
 # Encoding helpers — compact format for token budget
@@ -136,12 +139,21 @@ class StrategistAgent:
         try:
             response = self.client.messages.create(
                 model=self.model,
-                max_tokens=2000,
+                max_tokens=_MAX_OUTPUT_TOKENS,
                 system=self.system_prompt,
                 messages=[{"role": "user", "content": user_message}],
                 timeout=float(self.timeout),
             )
             notes = response.content[0].text
+
+            # D-134: a max_tokens stop is NOT an API error, so it was logged as
+            # "generated successfully" while the markdown was cut mid-heading.
+            # Surface it loudly instead of silently writing a truncated report.
+            if getattr(response, "stop_reason", None) == "max_tokens":
+                logger.warning(
+                    "Strategist response truncated at max_tokens=%d; "
+                    "report narrative may be incomplete.", _MAX_OUTPUT_TOKENS
+                )
 
             if not notes or len(notes) < _MIN_RESPONSE_CHARS:
                 raise StrategistError(
