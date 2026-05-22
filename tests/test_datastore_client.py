@@ -169,7 +169,7 @@ class TestDatastoreFileIndex:
         return resp
 
     def test_list_files_parses_json(self, tmp_path, monkeypatch):
-        """200 JSON {files:[...]} -> list[DatastoreFile] dogru parse."""
+        """200 JSON {items:[...]} -> list[DatastoreFile], productTypeId filtresi."""
         from src.data.bist_datastore_client import DatastoreFileIndex, DatastoreSession
 
         path = _make_session_json(tmp_path)
@@ -177,10 +177,11 @@ class TestDatastoreFileIndex:
         index = DatastoreFileIndex(s)
 
         files_data = [
-            {"id": "abc", "name": "YabanciIslem_2026-04.xlsx"},
-            {"id": "def", "name": "YabanciIslem_2026-03.xls"},
+            {"id": "abc", "name": "YabanciIslem_2026-04.xlsx", "productTypeId": 3153},
+            {"id": "def", "name": "YabanciIslem_2026-03.xls", "productTypeId": 3153},
+            {"id": "other", "name": "OtherProduct_2026-03.xlsx", "productTypeId": 9999},
         ]
-        mock_resp = self._make_mock_response(200, {"files": files_data})
+        mock_resp = self._make_mock_response(200, {"items": files_data})
         monkeypatch.setattr(index._session, "get", lambda *a, **kw: mock_resp)
 
         result = index.list_files(3153)

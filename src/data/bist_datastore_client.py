@@ -108,6 +108,10 @@ class DatastoreSession:
         """_raw_cookies'i requests.Session'a inject et + auth headers."""
         session.cookies.update(self.cookies)
         if self.x_auth_token:
+            session.cookies.set("token", self.x_auth_token)
+            sid = self.cookies.get("sid", "")
+            if sid:
+                session.cookies.set("sid", sid)
             session.headers.update({
                 "Authorization": f"Bearer {self.x_auth_token}",
                 "x-auth-token": self.x_auth_token,
@@ -153,16 +157,16 @@ class DatastoreFileIndex:
 
     def list_files(self, product_type_id: int) -> list[DatastoreFile]:
         """
-        GET /api/library/files?productTypeId={id}
-        200 + JSON -> list[DatastoreFile]
+        GET /api/library?page=1&page-size=100
+        200 + JSON -> list[DatastoreFile] (productTypeId ile filtreli)
         401 -> DatastoreSessionExpiredError
-        JSON gelmezse (HTML, 403, 404) -> WARNING + bos liste
+        HTML veya JSON degil -> DatastoreSessionExpiredError
         """
-        url = f"{_BASE_URL}/api/library/files"
+        url = f"{_BASE_URL}/api/library"
         try:
             resp = self._session.get(
                 url,
-                params={"productTypeId": product_type_id},
+                params={"page": 1, "page-size": 100},
                 timeout=self._timeout,
             )
         except Exception as exc:
@@ -194,10 +198,21 @@ class DatastoreFileIndex:
             logger.warning("DataStore list_files: JSON parse hatasi — %s", exc)
             return []
 
-        files_raw = data if isinstance(data, list) else data.get("files", data.get("data", []))
+        if isinstance(data, dict):
+            logger.debug("DataStore list_files response keys: %s", list(data.keys()))
+        else:
+            logger.debug("DataStore list_files response: list[%d]", len(data))
+
+        files_raw = (
+            data if isinstance(data, list)
+            else data.get("items", data.get("files", data.get("data", [])))
+        )
         result: list[DatastoreFile] = []
         for f in files_raw:
             try:
+                pid = f.get("productTypeId") or (f.get("productType") or {}).get("id")
+                if pid is not None and int(pid) != product_type_id:
+                    continue
                 file_id = str(f.get("id", f.get("fileId", "")))
                 name = str(f.get("name", f.get("fileName", file_id)))
                 fmt = _guess_format(name)
