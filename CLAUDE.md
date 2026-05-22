@@ -84,6 +84,26 @@ Yeni direktif vermeden önce ETKİLENEN DOSYALAR listesi kontrol edilir.
 Aktif direktiflerle aynı dosyaya dokunan yeni direktif → sırayla ver, paralel değil.
 İhlal: aynı dosyaya 2 Builder aynı anda dokunursa shared working tree çakışır.
 
+## BUILDER PR KURALI (Zorunlu)
+
+Her direktif tamamlandığında Builder şunu söyler:
+  Branch: feature/d-XXX
+  Commit: abc1234
+  PR açıyorum...
+  PR #XX açıldı: [URL]
+
+Builder push + PR açma işlemini kendisi yapar.
+Cagan sadece merge komutunu çalıştırır:
+  gh pr merge XX --merge
+
+Merge conflict çıkarsa Builder çözer, Cagan görmez.
+Cagan terminal açmaz — sadece merge komutunu yapıştırır.
+
+PARALEL BUILDER ÇAKIŞMA KURALI:
+- Her Builder kendi feature branch'inde çalışır
+- Master'a doğrudan commit yasak
+- PR olmadan merge yasak
+
 ## Test Yazım Kuralları
 
 Test davranışı test eder, implementasyonu değil. Private metodlara
