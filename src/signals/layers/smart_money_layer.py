@@ -25,6 +25,9 @@ from src.signals.thresholds import (
     CUSTODY_STALE_HOURS,
     FOREIGN_FLOW_MIN_HISTORY_DAYS,
     FOREIGN_FLOW_STALE_HOURS,
+    FOREIGN_MONTHLY_ENTRY_SCORE,
+    FOREIGN_MONTHLY_EXIT_SCORE,
+    FOREIGN_MONTHLY_LOOKBACK_MONTHS,
     L5_FOREIGN_WEIGHT,
     L5_KAP_OVERLAP_DAMP,
     L5_SHORT_INT_WEIGHT,
@@ -763,6 +766,44 @@ class SmartMoneyL5:
 
         return df[["date", "yabanci_toplam_pct"]].dropna().reset_index(drop=True)
 
+    def _load_foreign_monthly_score(
+        self, symbol: str, db_path: Path
+    ) -> float | None:
+        """BIST Datastore aylik net_usd trendinden L5 skoru (D-129).
+
+        Son FOREIGN_MONTHLY_LOOKBACK_MONTHS ayin net_usd'si (year,month artan).
+        delta = son - ilk: >0 -> ENTRY(70), <0 -> EXIT(30), ==0 -> 50.0.
+        None doner: DB yok / < 2 ay veri / okuma hatasi -> parquet fallback.
+        """
+        if not db_path.exists():
+            return None
+        try:
+            con = sqlite3.connect(str(db_path))
+            cur = con.execute(
+                """
+                SELECT net_usd FROM foreign_monthly
+                WHERE ticker = ? AND net_usd IS NOT NULL
+                ORDER BY year ASC, month ASC
+                """,
+                (symbol,),
+            )
+            vals = [float(r[0]) for r in cur.fetchall()]
+            con.close()
+        except Exception as exc:  # noqa: BLE001 - silent fallback to parquet
+            logger.error("ALERT SmartMoneyL5._load_foreign_monthly_score: %s → %s", symbol, exc)
+            return None
+
+        vals = vals[-FOREIGN_MONTHLY_LOOKBACK_MONTHS:]
+        if len(vals) < 2:
+            return None
+
+        delta = vals[-1] - vals[0]
+        if delta > 0:
+            return FOREIGN_MONTHLY_ENTRY_SCORE
+        if delta < 0:
+            return FOREIGN_MONTHLY_EXIT_SCORE
+        return 50.0
+
     def compute_level_score(self, yabanci_pct_series: pd.Series) -> float:
         """Rolling 252-day persentil rank → [0, 100]. <20 gün → 50.0."""
         if len(yabanci_pct_series) < 20:
@@ -878,6 +919,7 @@ class SmartMoneyL5:
         parquet_path: Path | None = None,
         custody_db_path: Path | None = None,
         foreign_flow_db_path: Path | None = None,
+        foreign_monthly_db_path: Path | None = None,
         short_interest_score: float | None = None,
         short_ratio: float | None = None,
         kap_has_short_event: bool = False,
@@ -926,7 +968,22 @@ class SmartMoneyL5:
                     short_interest_score, short_ratio, kap_has_short_event,
                 )
             logger.debug(
-                "SmartMoneyL5 %s: foreign_flow_db empty/stale → falling back to parquet", symbol
+                "SmartMoneyL5 %s: foreign_flow_db empty/stale → falling back to foreign_monthly/parquet", symbol
+            )
+
+        # --- D-129: BIST Datastore aylik net_usd trendi (foreign_flow yok ise) ---
+        if foreign_monthly_db_path is not None:
+            fm = self._load_foreign_monthly_score(symbol, Path(foreign_monthly_db_path))
+            if fm is not None:
+                if short_interest_score is None:
+                    return float(max(0.0, min(100.0, fm)))
+                si = float(short_interest_score)
+                if kap_has_short_event and short_ratio is not None and short_ratio > SHORT_INTEREST_HIGH:
+                    si = 0.5 + (si - 0.5) * L5_KAP_OVERLAP_DAMP
+                result = round(L5_FOREIGN_WEIGHT * fm + L5_SHORT_INT_WEIGHT * (si * 100.0), 2)
+                return float(max(0.0, min(100.0, result)))
+            logger.debug(
+                "SmartMoneyL5 %s: foreign_monthly empty → falling back to parquet", symbol
             )
 
         # --- Mevcut parquet path (değişmez) ---

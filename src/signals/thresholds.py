@@ -541,6 +541,17 @@ FOREIGN_FLOW_MIN_HISTORY_DAYS: int = 2       # gün-1 seed (today + 30g-önce) �
 # doğrulandı (örn. -0.02 = -0.02 pp; bps degil). Bu yüzden bölme gerekmez.
 FOREIGN_FLOW_CHANGE_UNIT_DIVISOR: float = 1.0
 
+# =============================================================================
+# L5c BIST DATASTORE AYLIK YABANCI ISLEM (D-129, SPEC_FOREIGN_MONTHLY_DATASTORE_1)
+# BIST Datastore "Foreign Investor Transactions" aylik .xls (RR-005 s2). Net
+# yabanci USD akisinin son aylardaki trendi L5'te fallback tier olur:
+# precedence custody -> foreign_flow -> foreign_monthly -> parquet.
+# =============================================================================
+FOREIGN_MONTHLY_DB_PATH: str = "data/bist_datastore/foreign_monthly.db"
+FOREIGN_MONTHLY_LOOKBACK_MONTHS: int = 3      # trend penceresi (son N ay net_usd)
+FOREIGN_MONTHLY_ENTRY_SCORE: float = 70.0     # net_usd trend artis -> giris
+FOREIGN_MONTHLY_EXIT_SCORE: float = 30.0      # net_usd trend azalis -> cikis
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
