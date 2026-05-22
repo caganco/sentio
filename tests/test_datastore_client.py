@@ -120,7 +120,7 @@ class TestDatastoreSession:
             DatastoreSession(tmp_path / "nonexistent.json")
 
     def test_inject_adds_cookies_and_header(self, tmp_path):
-        """inject_into() cookies.update() + Authorization header ekler."""
+        """inject_into() cookies.update() + Authorization + x-auth-token header ekler."""
         from src.data.bist_datastore_client import DatastoreSession
 
         path = _make_session_json(tmp_path)
@@ -130,6 +130,8 @@ class TestDatastoreSession:
         assert req_session.cookies.get("sid") == "sess123"
         assert "Authorization" in req_session.headers
         assert req_session.headers["Authorization"].startswith("Bearer ")
+        assert "x-auth-token" in req_session.headers
+        assert req_session.headers["x-auth-token"] == s.x_auth_token
 
     def test_decode_jwt_exp_future(self, tmp_path):
         """JWT decode: gelecek exp -> token_exp gelecekte."""
@@ -187,9 +189,13 @@ class TestDatastoreFileIndex:
         assert result[0].file_format == "xlsx"
         assert result[1].data_date == date(2026, 3, 1)
 
-    def test_list_files_empty_on_html(self, tmp_path, monkeypatch):
-        """Content-Type: text/html -> bos liste, exception yok."""
-        from src.data.bist_datastore_client import DatastoreFileIndex, DatastoreSession
+    def test_list_files_html_raises_expired(self, tmp_path, monkeypatch):
+        """Content-Type: text/html -> DatastoreSessionExpiredError (redirect = session sona ermis)."""
+        from src.data.bist_datastore_client import (
+            DatastoreFileIndex,
+            DatastoreSession,
+            DatastoreSessionExpiredError,
+        )
 
         path = _make_session_json(tmp_path)
         s = DatastoreSession(path)
@@ -198,8 +204,8 @@ class TestDatastoreFileIndex:
         mock_resp = self._make_mock_response(200, content_type="text/html; charset=utf-8")
         monkeypatch.setattr(index._session, "get", lambda *a, **kw: mock_resp)
 
-        result = index.list_files(3153)
-        assert result == []
+        with pytest.raises(DatastoreSessionExpiredError):
+            index.list_files(3153)
 
     def test_list_files_401_raises(self, tmp_path, monkeypatch):
         """401 -> DatastoreSessionExpiredError."""

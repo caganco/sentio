@@ -105,10 +105,13 @@ class DatastoreSession:
         return True
 
     def inject_into(self, session: requests.Session) -> None:
-        """_raw_cookies'i requests.Session'a inject et + Authorization header."""
+        """_raw_cookies'i requests.Session'a inject et + auth headers."""
         session.cookies.update(self.cookies)
         if self.x_auth_token:
-            session.headers.update({"Authorization": f"Bearer {self.x_auth_token}"})
+            session.headers.update({
+                "Authorization": f"Bearer {self.x_auth_token}",
+                "x-auth-token": self.x_auth_token,
+            })
 
     @staticmethod
     def _decode_jwt_exp(token: str) -> datetime | None:
@@ -173,6 +176,11 @@ class DatastoreFileIndex:
             )
 
         ct = resp.headers.get("Content-Type", "")
+        if "html" in ct.lower():
+            raise DatastoreSessionExpiredError(
+                f"DataStore HTML yaniti (HTTP {resp.status_code}) — session suresi dolmus veya redirect. "
+                "Cozum: python scripts/capture_datastore_session.py"
+            )
         if not resp.ok or "json" not in ct.lower():
             logger.warning(
                 "DataStore list_files: HTTP %d, Content-Type=%r — bos liste donuluyor",
