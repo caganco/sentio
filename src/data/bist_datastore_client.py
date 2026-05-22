@@ -213,8 +213,8 @@ class DatastoreFileIndex:
                 pid = f.get("productTypeId") or (f.get("productType") or {}).get("id")
                 if pid is not None and int(pid) != product_type_id:
                     continue
-                file_id = str(f.get("id", f.get("fileId", "")))
-                name = str(f.get("name", f.get("fileName", file_id)))
+                file_id = str(f.get("referenceId", f.get("fileId", f.get("id", ""))))
+                name = str(f.get("fileName", f.get("name", file_id)))
                 fmt = _guess_format(name)
                 data_date = _extract_date_from_name(name)
                 url_val = f.get("url") or f.get("downloadUrl")
@@ -336,7 +336,7 @@ class DatastoreDownloader:
 
 import re as _re
 
-_DATE_RE = _re.compile(r"(\d{4})[-_](\d{2})")
+_DATE_RE = _re.compile(r"(?<!\d)(\d{4})[-_]?(\d{2})(?!\d)")
 
 
 def _extract_date_from_name(name: str) -> date | None:
@@ -358,4 +358,6 @@ def _guess_format(name: str) -> str:
         return "xls"
     if lower.endswith(".csv"):
         return "csv"
+    if lower.endswith(".zip"):
+        return "zip"
     return "xlsx"

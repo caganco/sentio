@@ -177,17 +177,17 @@ class TestDatastoreFileIndex:
         index = DatastoreFileIndex(s)
 
         files_data = [
-            {"id": "abc", "name": "YabanciIslem_2026-04.xlsx", "productTypeId": 3153},
-            {"id": "def", "name": "YabanciIslem_2026-03.xls", "productTypeId": 3153},
-            {"id": "other", "name": "OtherProduct_2026-03.xlsx", "productTypeId": 9999},
+            {"referenceId": "6672666", "fileName": "yabanci202604.zip", "productTypeId": 3153},
+            {"referenceId": "6626435", "fileName": "yabanci202603.zip", "productTypeId": 3153},
+            {"referenceId": "9999999", "fileName": "other202603.zip",   "productTypeId": 9999},
         ]
         mock_resp = self._make_mock_response(200, {"items": files_data})
         monkeypatch.setattr(index._session, "get", lambda *a, **kw: mock_resp)
 
         result = index.list_files(3153)
         assert len(result) == 2
-        assert result[0].file_id == "abc"
-        assert result[0].file_format == "xlsx"
+        assert result[0].file_id == "6672666"
+        assert result[0].file_format == "zip"
         assert result[1].data_date == date(2026, 3, 1)
 
     def test_list_files_non_json_raises_expired(self, tmp_path, monkeypatch):
