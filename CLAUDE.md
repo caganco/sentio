@@ -90,6 +90,17 @@ Test davranışı test eder, implementasyonu değil. Private metodlara
 (`_method`) doğrudan test yazılmaz. Refactor sonrası test kırılıyorsa
 bu test hatalı yazılmış demektir.
 
+## TEST ÇALIŞTIRMA
+
+**HIZLI TEST KURALI (pytest-xdist):**
+- `pip install pytest-xdist` (bir kez, requirements'e eklenir)
+- **Full regression:** `python -m pytest tests/ -q -n auto` (paralel, tüm CPU çekirdek)
+- **PR öncesi — sadece etkilenen dosyalar:** `python -m pytest tests/test_XXXX.py -q` (hızlı feedback)
+- **Merge öncesi — full regression bir kez:** `python -m pytest tests/ -q --tb=short` (sırayla, tam göz önü)
+
+Paralel çalıştırma lokal feedback'i 4-10x hızlandırır; merge öncesi sırayla çalıştırma
+test order bağımlılığını yakalar (isolated test design).
+
 ## Her Session Başında Oku (Builder Zorunlu)
 
 Builder başlangıcında şu dosyaları açıp gözden geçir:

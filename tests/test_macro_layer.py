@@ -8,7 +8,11 @@ import pytest
 from src.signals.layers.macro_layer import score_macro
 from src.signals.local import LocalMacroCache
 from src.signals.local_macro_signals import LocalMacroSignals
-from src.signals.thresholds import LOCAL_MACRO_ENABLED, LOCAL_MACRO_WEIGHTS
+from src.signals.thresholds import (
+    LOCAL_MACRO_ENABLED,
+    LOCAL_MACRO_WEIGHTS,
+    MACRO_WEIGHTS_COMPOSITE,
+)
 
 
 class TestScoreMacroWithoutLocalSignals:
@@ -52,6 +56,10 @@ class TestScoreMacroWithoutLocalSignals:
         mock_local.dxy.score = 50.0
         mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
         mock_local.dxy.audit_msg = "mocked"
+        mock_local.bist_foreign_weekly.score = 50.0
+        mock_local.bist_foreign_weekly.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.bist_foreign_weekly.raw_value = None
+        mock_local.bist_foreign_weekly.audit_msg = "mocked"
         mock_local.tl_bond_proxy.score = 50.0
         mock_local.tl_bond_proxy.raw_value = None
         mock_local.tl_bond_proxy.audit_msg = "mocked"
@@ -140,6 +148,10 @@ class TestScoreMacroWithLocalSignals:
         mock_local.dxy.score = 50.0
         mock_local.dxy.confidence = 0.0   # absent → weight falls back to global_signals
         mock_local.dxy.audit_msg = "mocked"
+        mock_local.bist_foreign_weekly.score = 50.0
+        mock_local.bist_foreign_weekly.confidence = 0.0   # absent → weight falls back to global_signals
+        mock_local.bist_foreign_weekly.raw_value = None
+        mock_local.bist_foreign_weekly.audit_msg = "mocked"
         mock_local.tl_bond_proxy.score = 50.0
         mock_local.tl_bond_proxy.raw_value = None
         mock_local.tl_bond_proxy.audit_msg = "mocked"
@@ -216,3 +228,87 @@ class TestForeignFlowsWeighting:
             composite_present = LocalMacroSignals(cache=cache_yes).score().composite_score
 
             assert composite_present != composite_absent
+
+
+# Neutral global macro input → global_score = 50 (drives score_macro into the
+# LOCAL_MACRO_ENABLED branch without skewing the global term).
+_NEUTRAL_GLOBAL = {"USDTRY": 0.0, "VIX": 0.0, "BRENT": 0.0, "BIST100": 0.0}
+
+
+def _score_macro_with_cache(cache) -> object:
+    """Run score_macro() against an injected test cache, then restore singleton.
+
+    score_macro() calls LocalMacroSignals() (no cache) → the process singleton.
+    An explicit-cache instance is NOT the singleton (see __new__), so we assign
+    it to _instance manually, then reset afterward to avoid cross-test leakage.
+    """
+    LocalMacroSignals._reset()
+    LocalMacroSignals._instance = LocalMacroSignals(cache=cache)
+    try:
+        return score_macro(dict(_NEUTRAL_GLOBAL))
+    finally:
+        LocalMacroSignals._reset()
+
+
+class TestForeignFlowsL2Migration:
+    """D-118 (CB-007): bist_foreign_weekly activated in MACRO_WEIGHTS_COMPOSITE.
+
+    Asserts on score_macro() output (MACRO_WEIGHTS_COMPOSITE path), distinct
+    from TestForeignFlowsWeighting which checks LocalMacroResult.composite_score
+    (LOCAL_MACRO_WEIGHTS path, untouched by D-118).
+    """
+
+    def test_score_macro_changes_with_foreign_flow(self):
+        """Strong net inflow lifts score_macro() above a strong net outflow."""
+        today = datetime.utcnow().date().isoformat()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_in = LocalMacroCache(db_path=str(Path(tmpdir) / "in.db"))
+            cache_in.store_tcmb(decision_date=today, decision_type="hold")
+            cache_in.store_cds(data_date=today, cds_bps=300.0)
+            cache_in.store_bist_foreign(
+                week_ending_date=today, foreign_ownership_pct=30.0,
+                pct_change_weekly=+0.40,
+            )
+            score_inflow = _score_macro_with_cache(cache_in).score
+
+            cache_out = LocalMacroCache(db_path=str(Path(tmpdir) / "out.db"))
+            cache_out.store_tcmb(decision_date=today, decision_type="hold")
+            cache_out.store_cds(data_date=today, cds_bps=300.0)
+            cache_out.store_bist_foreign(
+                week_ending_date=today, foreign_ownership_pct=28.0,
+                pct_change_weekly=-0.40,
+            )
+            score_outflow = _score_macro_with_cache(cache_out).score
+
+        assert score_inflow > score_outflow
+        assert (score_inflow - score_outflow) > 1.0
+
+    def test_score_macro_no_foreign_data_no_nan(self):
+        """Absent foreign data → valid score (weight redistributed), no NaN."""
+        today = datetime.utcnow().date().isoformat()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache = LocalMacroCache(db_path=str(Path(tmpdir) / "nofx.db"))
+            cache.store_tcmb(decision_date=today, decision_type="hold")
+            cache.store_cds(data_date=today, cds_bps=300.0)
+            result = _score_macro_with_cache(cache)
+
+        assert result.score == result.score          # not NaN
+        assert 0.0 <= result.score <= 100.0
+
+    def test_score_macro_detail_includes_bist_foreign(self):
+        """detail dict must surface the bist_foreign_weekly block at weight 0.15."""
+        today = datetime.utcnow().date().isoformat()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache = LocalMacroCache(db_path=str(Path(tmpdir) / "detail.db"))
+            cache.store_tcmb(decision_date=today, decision_type="hold")
+            cache.store_cds(data_date=today, cds_bps=300.0)
+            cache.store_bist_foreign(
+                week_ending_date=today, foreign_ownership_pct=30.0,
+                pct_change_weekly=0.0,
+            )
+            result = _score_macro_with_cache(cache)
+
+        assert "local_macro" in result.detail
+        fw = result.detail["local_macro"]["bist_foreign_weekly"]
+        assert "score" in fw and "conf" in fw and "contrib" in fw
+        assert fw["weight"] == pytest.approx(0.15)

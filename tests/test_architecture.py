@@ -424,4 +424,51 @@ class TestHMMRegimeWeightConstants:
         assert "hmm" in HMM_MODEL_PATH
 
 
+class TestMacroWeightsComposite:
+    """D-118 / CB-007: bist_foreign_weekly activated in MACRO_WEIGHTS_COMPOSITE."""
+
+    def test_bist_foreign_activated(self):
+        """bist_foreign_weekly must be active (not the old 0.0 stub)."""
+        from src.signals.thresholds import MACRO_WEIGHTS_COMPOSITE
+        assert MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"] > 0.0
+        assert MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"] == pytest.approx(0.15)
+
+    def test_macro_weights_composite_sum_is_one(self):
+        """All MACRO_WEIGHTS_COMPOSITE components must sum to 1.00."""
+        from src.signals.thresholds import MACRO_WEIGHTS_COMPOSITE
+        active = [
+            "global_signals", "tcmb", "cds", "dxy",
+            "bist_foreign_weekly", "tl_bond_proxy",
+        ]
+        total = sum(MACRO_WEIGHTS_COMPOSITE[k] for k in active)
+        assert total == pytest.approx(1.0, abs=1e-9)
+
+
+class TestKapBoostConstants:
+    """D-131 / CB-004: KAP event-triggered weight boost constants."""
+
+    def test_kap_boost_constants_exist_and_bracket_one(self):
+        from src.signals.thresholds import (
+            KAP_EVENT_BOOST_MULTIPLIER,
+            KAP_NO_EVENT_MULTIPLIER,
+        )
+        assert KAP_NO_EVENT_MULTIPLIER > 0.0
+        assert KAP_NO_EVENT_MULTIPLIER < 1.0 < KAP_EVENT_BOOST_MULTIPLIER
+        # geometric mean ~1.0: boost/dampen roughly balanced (directive point #3)
+        gm = (KAP_EVENT_BOOST_MULTIPLIER * KAP_NO_EVENT_MULTIPLIER) ** 0.5
+        assert 0.9 <= gm <= 1.1
+
+    def test_kap_boost_categories_valid(self):
+        import typing
+        from src.signals.thresholds import KAP_BOOST_CATEGORIES
+        from src.data.kap_parser import EventCategory
+        valid = set(typing.get_args(EventCategory))
+        assert len(KAP_BOOST_CATEGORIES) > 0
+        assert all(c in valid for c in KAP_BOOST_CATEGORIES)
+
+    def test_master_weights_kap_unchanged(self):
+        from src.signals.thresholds import MASTER_WEIGHTS
+        assert MASTER_WEIGHTS["kap"] == pytest.approx(0.30)
+
+
 pytestmark = pytest.mark.baseline

@@ -90,6 +90,14 @@ KAP_CATEGORY_IMPACT: dict[str, float] = {
 KAP_BASE_SCORE: float = 50.0
 KAP_DUPLICATE_MULTIPLIER: float = 0.5  # extra events of same category
 
+# D-131 (CB-004): KAP L3 event-triggered weight boost. KAP filings episodik --
+# sessiz gunlerde sabit weight KAP'in notr skorunu fazla sayar. Per-call carpan
+# kap layer'in EFEKTIF weight'ine uygulanir; MASTER_WEIGHTS degismez, composite
+# Sigma(weights)'e bolundugu icin otomatik re-normalize olur. Notr durum = 1.0.
+KAP_EVENT_BOOST_MULTIPLIER: float = 1.4   # boost-kategori event varsa
+KAP_NO_EVENT_MULTIPLIER: float = 0.7      # window icinde hic relevant event yoksa
+KAP_BOOST_CATEGORIES: list[str] = ["pay_sahipligi", "temettu", "sermaye_artirimi"]
+
 # Risk layer base and penalties
 RISK_BASE_SCORE: float = 70.0
 RISK_RSI_OVERBOUGHT_PENALTY: float = 20.0   # RSI > 80
@@ -189,14 +197,19 @@ TL_BOND_PROXY_SCORES: dict[str, float] = {
 
 # Composite macro weighting (global + local)
 # Gap 3: DXY added at 0.25; global_signals reduced from 0.50 to 0.25.
-# macro_layer.py redistributes DXY weight back to global_signals when DXY absent
-# (confidence=0), so total effective weight always equals 1.0.
+# macro_layer.py redistributes DXY/foreign weight back to global_signals when
+# those signals are absent (confidence=0), so total effective weight stays 1.0.
+# D-118 (CB-007): bist_foreign_weekly activated 0.0 -> 0.15 (Ulku & Ikizlerli
+# 2012 -- weekly net foreign flow Granger-causes BIST returns). DXY took the
+# largest cut (0.25 -> 0.19, asymmetric): its BIST effect is indirect via
+# USDTRY (already in global_signals -> double-count risk) and often confidence=0.
+# Sum = 0.22 + 0.22 + 0.22 + 0.19 + 0.15 = 1.00 (tl_bond_proxy stub stays 0.0).
 MACRO_WEIGHTS_COMPOSITE: dict[str, float] = {
-    "global_signals":    0.25,   # Gap 3: was 0.50; DXY fallback restores to 0.50 when absent
-    "tcmb":              0.25,   # TCMB policy rate
-    "cds":               0.25,   # CDS spreads
-    "dxy":               0.25,   # Gap 3: DXY global USD index
-    "bist_foreign_weekly": 0.0,  # Stub (Layer 5 will use daily version)
+    "global_signals":    0.22,   # D-118: was 0.25; DXY/foreign fallback restores when absent
+    "tcmb":              0.22,   # D-118: was 0.25 -- TCMB policy rate
+    "cds":               0.22,   # D-118: was 0.25 -- CDS spreads
+    "dxy":               0.19,   # D-118: was 0.25 -- asymmetric cut (indirect via USDTRY)
+    "bist_foreign_weekly": 0.15, # D-118: was 0.0 -- CB-007 activation (market-level net flow)
     "tl_bond_proxy":     0.0,    # Gap 4 stub: Phase 5 activate with native TL yields
 }
 
@@ -535,6 +548,25 @@ FOREIGN_FLOW_MIN_HISTORY_DAYS: int = 2       # gün-1 seed (today + 30g-önce) �
 # İş Yatırım criterion 45 (1 aylık değişim) ZATEN puan (pp) cinsinden — canlı
 # doğrulandı (örn. -0.02 = -0.02 pp; bps degil). Bu yüzden bölme gerekmez.
 FOREIGN_FLOW_CHANGE_UNIT_DIVISOR: float = 1.0
+
+# =============================================================================
+# L5c BIST DATASTORE AYLIK YABANCI ISLEM (D-129, SPEC_FOREIGN_MONTHLY_DATASTORE_1)
+# BIST Datastore "Foreign Investor Transactions" aylik .xls (RR-005 s2). Net
+# yabanci USD akisinin son aylardaki trendi L5'te fallback tier olur:
+# precedence custody -> foreign_flow -> foreign_monthly -> parquet.
+# =============================================================================
+FOREIGN_MONTHLY_DB_PATH: str = "data/bist_datastore/foreign_monthly.db"
+FOREIGN_MONTHLY_LOOKBACK_MONTHS: int = 3      # trend penceresi (son N ay net_usd)
+FOREIGN_MONTHLY_ENTRY_SCORE: float = 70.0     # net_usd trend artis -> giris
+FOREIGN_MONTHLY_EXIT_SCORE: float = 30.0      # net_usd trend azalis -> cikis
+
+# --- BIST DataStore Client (D-130) ---
+DATASTORE_SESSION_FILE: str = "datastore_session.json"
+DATASTORE_SESSION_MAX_AGE_DAYS: int = 25
+DATASTORE_PRODUCT_FOREIGN: int = 3153
+DATASTORE_PRODUCT_SHORT: int = 3155
+DATASTORE_PRODUCT_PRICES: int = 3156
+DATASTORE_RATE_LIMIT_SEC: float = 2.0
 
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web

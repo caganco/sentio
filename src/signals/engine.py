@@ -31,6 +31,9 @@ from src.signals.thresholds import (
     MAJOR_HOLDER_CHANGE_LOOKBACK_DAYS,
     L5_MAJOR_HOLDER_ENTRY_SCORE,
     L5_MAJOR_HOLDER_EXIT_SCORE,
+    KAP_EVENT_BOOST_MULTIPLIER,
+    KAP_NO_EVENT_MULTIPLIER,
+    KAP_BOOST_CATEGORIES,
 )
 
 logger = logging.getLogger(__name__)
@@ -231,9 +234,23 @@ def compute_signal(
     )
 
     kap_ls = score_kap(symbol, kap_events, as_of_date)
+    # D-131 (CB-004): episodic event boost. score_kap detail carries the
+    # categories of symbol+window-filtered relevant events. Boost-category event
+    # -> boost; some event but none boost-worthy -> neutral; no event -> dampen.
+    # weights["kap"] is the active table value (MASTER or HMM); _compute_weighted_sum
+    # divides by Sigma(weights) so this re-normalizes without touching MASTER_WEIGHTS.
+    _kap_cats = set(kap_ls.detail.get("categories", {}))
+    if _kap_cats & set(KAP_BOOST_CATEGORIES):
+        _kap_mult = KAP_EVENT_BOOST_MULTIPLIER
+    elif kap_ls.detail.get("events_count", 0) > 0:
+        _kap_mult = 1.0
+    else:
+        _kap_mult = KAP_NO_EVENT_MULTIPLIER
     kap_ls = LayerScore(
         layer=kap_ls.layer, score=kap_ls.score, confidence=kap_ls.confidence,
-        weight=_w("kap"), detail=kap_ls.detail, source=kap_ls.source,
+        weight=_w("kap") * _kap_mult,
+        detail={**kap_ls.detail, "weight_multiplier": _kap_mult},
+        source=kap_ls.source,
     )
 
     risk_ls = score_risk(symbol, technical_data, macro_data)
