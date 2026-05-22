@@ -424,4 +424,24 @@ class TestHMMRegimeWeightConstants:
         assert "hmm" in HMM_MODEL_PATH
 
 
+class TestMacroWeightsComposite:
+    """D-118 / CB-007: bist_foreign_weekly activated in MACRO_WEIGHTS_COMPOSITE."""
+
+    def test_bist_foreign_activated(self):
+        """bist_foreign_weekly must be active (not the old 0.0 stub)."""
+        from src.signals.thresholds import MACRO_WEIGHTS_COMPOSITE
+        assert MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"] > 0.0
+        assert MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"] == pytest.approx(0.15)
+
+    def test_macro_weights_composite_sum_is_one(self):
+        """All MACRO_WEIGHTS_COMPOSITE components must sum to 1.00."""
+        from src.signals.thresholds import MACRO_WEIGHTS_COMPOSITE
+        active = [
+            "global_signals", "tcmb", "cds", "dxy",
+            "bist_foreign_weekly", "tl_bond_proxy",
+        ]
+        total = sum(MACRO_WEIGHTS_COMPOSITE[k] for k in active)
+        assert total == pytest.approx(1.0, abs=1e-9)
+
+
 pytestmark = pytest.mark.baseline

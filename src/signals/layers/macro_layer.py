@@ -109,10 +109,14 @@ def score_macro(macro_data: dict) -> LayerScore:
 
         # Gap 3: DXY weight is redistributed to global_signals when DXY data
         # is absent (confidence=0) so the total effective weight stays at 1.0.
+        # Gap 4 (D-118): same redistribution for bist_foreign_weekly when absent.
         dxy_conf = local_result.dxy.confidence
+        foreign_conf = local_result.bist_foreign_weekly.confidence
         global_w = MACRO_WEIGHTS_COMPOSITE["global_signals"]
         if dxy_conf == 0.0:
             global_w += MACRO_WEIGHTS_COMPOSITE["dxy"]
+        if foreign_conf == 0.0:
+            global_w += MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"]
 
         global_contrib = global_score * global_w
         tcmb_contrib = (
@@ -130,14 +134,25 @@ def score_macro(macro_data: dict) -> LayerScore:
             * dxy_conf
             * MACRO_WEIGHTS_COMPOSITE["dxy"]
         )
+        # D-118 (CB-007): market-level net foreign flow contribution.
+        bist_foreign_contrib = (
+            local_result.bist_foreign_weekly.score
+            * foreign_conf
+            * MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"]
+        )
 
-        final_score = global_contrib + tcmb_contrib + cds_contrib + dxy_contrib
+        final_score = (
+            global_contrib + tcmb_contrib + cds_contrib
+            + dxy_contrib + bist_foreign_contrib
+        )
         final_score = max(0.0, min(100.0, final_score))
 
-        # Confidence: min of components with data (exclude absent DXY)
+        # Confidence: min of components with data (exclude absent DXY/foreign)
         conf_components = [confidence, local_result.tcmb.confidence, local_result.cds.confidence]
         if dxy_conf > 0.0:
             conf_components.append(dxy_conf)
+        if foreign_conf > 0.0:
+            conf_components.append(foreign_conf)
         min_conf = min(conf_components)
 
         detail["local_macro"] = {
@@ -156,6 +171,14 @@ def score_macro(macro_data: dict) -> LayerScore:
                 "score": round(local_result.dxy.score, 4),
                 "conf": round(dxy_conf, 4),
                 "msg": local_result.dxy.audit_msg,
+            },
+            "bist_foreign_weekly": {   # D-118 (CB-007)
+                "score": round(local_result.bist_foreign_weekly.score, 4),
+                "conf": round(foreign_conf, 4),
+                "raw_pct": local_result.bist_foreign_weekly.raw_value,
+                "msg": local_result.bist_foreign_weekly.audit_msg,
+                "weight": MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"],
+                "contrib": round(bist_foreign_contrib, 4),
             },
             "tl_bond_proxy": {
                 "score": round(local_result.tl_bond_proxy.score, 4),

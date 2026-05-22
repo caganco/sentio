@@ -189,14 +189,19 @@ TL_BOND_PROXY_SCORES: dict[str, float] = {
 
 # Composite macro weighting (global + local)
 # Gap 3: DXY added at 0.25; global_signals reduced from 0.50 to 0.25.
-# macro_layer.py redistributes DXY weight back to global_signals when DXY absent
-# (confidence=0), so total effective weight always equals 1.0.
+# macro_layer.py redistributes DXY/foreign weight back to global_signals when
+# those signals are absent (confidence=0), so total effective weight stays 1.0.
+# D-118 (CB-007): bist_foreign_weekly activated 0.0 -> 0.15 (Ulku & Ikizlerli
+# 2012 -- weekly net foreign flow Granger-causes BIST returns). DXY took the
+# largest cut (0.25 -> 0.19, asymmetric): its BIST effect is indirect via
+# USDTRY (already in global_signals -> double-count risk) and often confidence=0.
+# Sum = 0.22 + 0.22 + 0.22 + 0.19 + 0.15 = 1.00 (tl_bond_proxy stub stays 0.0).
 MACRO_WEIGHTS_COMPOSITE: dict[str, float] = {
-    "global_signals":    0.25,   # Gap 3: was 0.50; DXY fallback restores to 0.50 when absent
-    "tcmb":              0.25,   # TCMB policy rate
-    "cds":               0.25,   # CDS spreads
-    "dxy":               0.25,   # Gap 3: DXY global USD index
-    "bist_foreign_weekly": 0.0,  # Stub (Layer 5 will use daily version)
+    "global_signals":    0.22,   # D-118: was 0.25; DXY/foreign fallback restores when absent
+    "tcmb":              0.22,   # D-118: was 0.25 -- TCMB policy rate
+    "cds":               0.22,   # D-118: was 0.25 -- CDS spreads
+    "dxy":               0.19,   # D-118: was 0.25 -- asymmetric cut (indirect via USDTRY)
+    "bist_foreign_weekly": 0.15, # D-118: was 0.0 -- CB-007 activation (market-level net flow)
     "tl_bond_proxy":     0.0,    # Gap 4 stub: Phase 5 activate with native TL yields
 }
 

@@ -76,7 +76,7 @@ class SignalLogRecord(BaseModel):
     l6_risk_conf:  float = 0.0
     viop_score:    float | None = None
     viop_conf:     float | None = None
-    l5_foreign_flow_raw: float | None = None  # D-108 baseline (market-level)
+    l2_foreign_flow_raw: float | None = None  # D-108 baseline (market-level)
 
     # Composite output
     composite_score:  float = 50.0
@@ -132,7 +132,7 @@ SIGNAL_LOG_SCHEMA = pa.schema([
     pa.field("l6_risk_conf",     pa.float32()),
     pa.field("viop_score",       pa.float32()),
     pa.field("viop_conf",        pa.float32()),
-    pa.field("l5_foreign_flow_raw", pa.float32()),
+    pa.field("l2_foreign_flow_raw", pa.float32()),
     pa.field("composite_score",  pa.float32()),
     pa.field("conviction_score", pa.float32()),
     pa.field("conviction_tier",  pa.string()),
@@ -176,7 +176,7 @@ class SignalLogger:
         realized_vol_pct: float | None = None,
         viop_score: float | None = None,
         viop_conf: float | None = None,
-        l5_foreign_flow_raw: float | None = None,
+        l2_foreign_flow_raw: float | None = None,
     ) -> SignalLogRecord:
         audit = result.audit
         ls_map = {ls.layer: ls for ls in audit.layer_scores}
@@ -205,7 +205,7 @@ class SignalLogger:
             l6_risk_conf=_c("risk"),
             viop_score=viop_score,
             viop_conf=viop_conf,
-            l5_foreign_flow_raw=l5_foreign_flow_raw,
+            l2_foreign_flow_raw=l2_foreign_flow_raw,
             composite_score=result.score,
             conviction_score=result.conviction_score,
             conviction_tier=result.conviction_tier,
