@@ -306,6 +306,21 @@ class TestMacroGateSofteningConstants:
         assert calculate_macro_regime_scaling(50.0) == 0.8
         assert calculate_macro_regime_scaling(40.0) == 0.0
 
+    def test_cb002_macro_gate_floor_and_thresholds(self):
+        """CB-002: L2-step floor constants exist, ordered, and bracket below 1.0."""
+        from src.signals.thresholds import (
+            MACRO_GATE_FLOOR,
+            MACRO_GATE_SCALING_BULL,
+            MACRO_GATE_THRESHOLDS,
+        )
+        assert 0.0 < MACRO_GATE_FLOOR < 1.0
+        mults = [m for _, m in MACRO_GATE_THRESHOLDS]
+        assert mults == sorted(mults)                     # ascending
+        assert MACRO_GATE_THRESHOLDS[0][1] == MACRO_GATE_FLOOR
+        assert all(m < MACRO_GATE_SCALING_BULL for m in mults)
+        # CB-002 core: lowest band is a positive floor, not a full block.
+        assert MACRO_GATE_FLOOR > 0.0
+
 
 class TestCustodyConstants:
     """D-116 / SPEC_FINTABLES_TAKAS_SCRAPER_1: custody sabitleri thresholds.py'de."""

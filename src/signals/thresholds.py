@@ -346,6 +346,13 @@ MACRO_GATE_HARD_EXIT_USDTRY_SIGMA: float = 3.0 # USDTRY z-score >= 3 -> uncondit
                                                 # (Phase 1: placeholder; z-score not yet computed)
 MACRO_GATE_SCALING_BEAR: float = 0.0
 
+# CB-002: L2-step soft scaling floor. v2 base scaling = first band whose
+# threshold L2 does not reach; >= 60 -> MACRO_GATE_SCALING_BULL (1.0). Replaces
+# the L2<45 -> 0.0 full block with a positive floor (CDS overlay + hard exits
+# still apply on top). DEC-017 CDS overlay preserved as a multiplicative dampener.
+MACRO_GATE_FLOOR: float = 0.3
+MACRO_GATE_THRESHOLDS: list[tuple[float, float]] = [(30.0, 0.3), (45.0, 0.5), (60.0, 0.8)]
+
 # --- Position sizing (SPEC_POSITION_SIZING_2) ---
 POSITION_SIZE_STRONG: float = 0.325    # 32.5% base per BUY-STRONG
 POSITION_SIZE_MEDIUM: float = 0.175    # 17.5% base per BUY-MEDIUM
