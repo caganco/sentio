@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: tier1-architecture-tests
+        name: "Tier 1 — Architecture Tests"
+        entry: python -m pytest tests/test_architecture.py -q --tb=short
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: tier2-integration-tests
+        name: "Tier 2 — Integration Tests"
+        entry: python -m pytest tests/test_backtest.py tests/test_signal_alert.py -q --tb=short
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: ruff-lint
+        name: "Ruff Linter"
+        entry: ruff check src/ tests/ --select E9,F63,F7,F82
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]

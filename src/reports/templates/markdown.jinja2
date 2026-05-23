@@ -1,0 +1,43 @@
+# BIST Günlük Rapor — {{ report_date }}
+> Oluşturulma: {{ generated_at }}
+
+---
+
+## Portföy Özeti
+
+| Ticker | Adet | Maliyet | Son Fiyat | P&L% | P&L TL | RSI | vs MA20 |
+|--------|-----:|--------:|----------:|-----:|-------:|----:|--------:|
+{% for p in positions -%}
+| {{ p.ticker }} | {{ p.quantity }} | {{ "%.2f"|format(p.avg_cost) }} | {{ "%.2f"|format(p.current_price) }} | {{ p.pnl_pct|pct }} | {{ p.pnl_tl|tl }} | {{ p.rsi|int if p.rsi else "—" }} | {{ p.ma20_diff|pct if p.ma20_diff is not none else "—" }} |
+{% endfor -%}
+| **TOPLAM** | | {{ total_cost|thou }} | {{ total_value|thou }} | **{{ total_pnl_pct|pct }}** | **{{ total_pnl|tl }}** | | |
+
+### Stop-Loss & Hedef Fiyatlar
+
+| Ticker | Maliyet | Stop-Loss (-8%) | Hedef (+20%) | Durum |
+|--------|--------:|----------------:|-------------:|-------|
+{% for p in positions -%}
+| {{ p.ticker }} | {{ "%.2f"|format(p.avg_cost) }} | {{ "%.2f"|format(p.stop_loss) }} | {{ "%.2f"|format(p.target) }} | {{ "STOP ALTI !" if p.current_price <= p.stop_loss else ("HEDEFE ULASTI" if p.current_price >= p.target else "Normal") }} |
+{% endfor %}
+---
+
+## Momentum Scanner — Top {{ candidates|length }} Aday
+
+| # | Ticker | Son | Günlük | 1 Ay | Hacim | 52H Uzak. | RSI | Skor |
+|---|--------|----:|-------:|-----:|------:|----------:|----:|-----:|
+{% for c in candidates -%}
+| {{ loop.index }} | {{ c.ticker }} | {{ "%.2f"|format(c.close) }} | {{ c.daily_chg|pct if c.daily_chg else "—" }} | {{ c.ret_1m|pct if c.ret_1m else "—" }} | {{ "%.1fx"|format(c.vol_surge) if c.vol_surge else "—" }} | {{ "%.1f%%"|format(c.proximity_52w) if c.proximity_52w else "—" }} | {{ c.rsi|int if c.rsi else "—" }} | {{ "%.4f"|format(c.score) if c.score else "—" }} |
+{% endfor %}
+---
+
+## Uyarılar
+{% if not alerts %}
+Aktif uyarı yok.
+{% else %}
+{% for al in alerts %}
+- **[{{ al.severity }}]** `{{ al.ticker }}` — {{ al.message }}
+{% endfor %}
+{% endif %}
+
+---
+*Bu rapor otomatik oluşturulmuştur. Yatırım tavsiyesi değildir.*

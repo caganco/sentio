@@ -1,0 +1,33 @@
+{
+  "_doc": "Strategist v2.0 runtime parameters (SPEC_STRATEGIST_2, D-052 Phase 4.5 Ruthless Alpha). Conviction thresholds are on the 0-1 scale; regime thresholds mirror SPEC. Single source for code constants remains src/signals/thresholds.py.",
+  "version": "2.0",
+  "alpha_generation_mode": true,
+  "conviction_threshold_strong": 0.68,
+  "conviction_threshold_medium": 0.55,
+  "conviction_collapse": 0.35,
+  "max_positions_strong": 4,
+  "max_positions_medium": 2,
+  "max_positions_total": 6,
+  "position_size_strong": 0.325,
+  "position_size_medium": 0.175,
+  "max_drawdown_tolerance": 0.15,
+  "max_sector_concentration": 0.40,
+  "bull_regime_threshold": 0.60,
+  "bear_regime_threshold": 0.45,
+  "deployment_target": 0.95,
+  "staged_tp": { "tp1_pct": 0.50, "tp2_pct": 0.30, "tp3_pct": 0.20 },
+  "forbidden_phrases": [
+    "güvenlik için çeşitlendirme",
+    "sonsuza kadar tut",
+    "riski azalt",
+    "büyük pozisyondan kaçın",
+    "kesinlik için bekle",
+    "sermayeyi koru",
+    "diversification for safety",
+    "hold forever",
+    "reduce risk",
+    "avoid large positions",
+    "wait for certainty",
+    "preserve capital"
+  ]
+}

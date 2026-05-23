@@ -1,0 +1,60 @@
+.env
+*.db
+positions.yaml
+logs/*.log
+reports/*.md
+reports/*.html
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.idea/
+.vscode/
+*.egg-info/
+dist/
+build/
+
+# D-062 G-04: root temp/build artifacts
+PHASE_4_2_*_STATUS.txt
+phase_4_2_*_output.txt
+d_033_validation*.txt
+test_output.txt
+test_results*.txt
+backtest_output.log
+chat.html
+vader_accuracy_results.txt
+
+# D-116 Fintables takas scraper (cookie + custody DB; *.db zaten ignore'da)
+.fintables_session.json
+data/custody/
+
+# D-120 operational reliability (logs/*.log alt dizinleri kapsamıyor)
+logs/failures/
+data/backups/
+
+# Runtime / generated / local junk (not code)
+agents/intelligence/
+reports/
+decisions/
+.efficiency/
+%null%
+.claude/settings.local.json
+test_out.txt
+requirements_full.txt
+cache/
+kap_*.json
+claude kritikler.md
+invalid/
+
+*_session.json
+
+# Public-release: keep local, hide from GitHub (preserve-local cleanup)
+# _governance/ = critical project-continuity / AI-memory (CRITIC_BACKLOG, MASTER_PLAN, orchestrator/boot docs)
+# miscellaneous/ = transient dev scratch / deprecated notes
+# OS_STATE.md, masterplan.md, CRITIC_BACKLOG.md = code/test-read -> hidden in place (not moved)
+_governance/
+miscellaneous/
+OS_STATE.md
+agents/memory/masterplan.md
+CRITIC_BACKLOG.md
