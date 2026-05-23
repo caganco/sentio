@@ -48,3 +48,13 @@ claude kritikler.md
 invalid/
 
 *_session.json
+
+# Public-release: keep local, hide from GitHub (preserve-local cleanup)
+# _governance/ = critical project-continuity / AI-memory (CRITIC_BACKLOG, MASTER_PLAN, orchestrator/boot docs)
+# miscellaneous/ = transient dev scratch / deprecated notes
+# OS_STATE.md, masterplan.md, CRITIC_BACKLOG.md = code/test-read -> hidden in place (not moved)
+_governance/
+miscellaneous/
+OS_STATE.md
+agents/memory/masterplan.md
+CRITIC_BACKLOG.md

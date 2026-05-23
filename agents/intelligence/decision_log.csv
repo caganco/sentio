@@ -1,4 +1,0 @@
-date,ticker,signal,macro_driver,technical_driver,macro_or_technical,applied,result_pct,notes
-2026-05-13,TAVHL,SELL,Petrol $107 jet yakıt maliyeti baskısı,RSI 39 — aşırı satım yok düşüş trendi,macro,pending,,Auditor DEĞİŞTİRİLDİ — AL sinyali reddedildi; sektor cold
-2026-05-13,ENERY,SELL-PARTIAL,Konsantrasyon %54.6 > limit %30 + güçlü makroda zayıf fiyat,RSI 50 — makro desteğe rağmen ivme yok,macro,pending,,500 lot sat — Auditor REDDEDİLDİ; konsantrasyon kuralı ihlali
-2026-05-13,AKSEN,SELL-PARTIAL,Enerji sektörü makro desteği var ama konsantrasyon baskısı,RSI 65 — giriş değil; mevcut pozisyon koruma zamanı,technical,pending,,118 lot sat — Auditor DEĞİŞTİRİLDİ; BUY → HOLD/azalt
