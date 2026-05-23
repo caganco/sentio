@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "version": "1.0-test",
+    "last_updated": "2026-05-14",
+    "note": "Test fixture for macro alignment unit tests"
+  },
+  "variables": {
+    "brent": {"unit": "USD/bbl", "direction": "higher = up"},
+    "usd_try": {"unit": "TRY/USD", "direction": "higher = weakness"},
+    "vix": {"unit": "index", "direction": "higher = risk-off"},
+    "cds": {"unit": "bps", "direction": "higher = stress"}
+  },
+  "profiles": {
+    "TEST_AKSEN": {
+      "sector": "Energy",
+      "description": "Test oil producer",
+      "sensitivities": {
+        "brent": {"direction": "+", "strength": "strong", "mechanism": "Revenue tied to oil"},
+        "usd_try": {"direction": "-", "strength": "weak", "mechanism": "Minor FX"},
+        "vix": {"direction": "-", "strength": "medium", "mechanism": "EM carry"},
+        "cds": {"direction": "-", "strength": "weak", "mechanism": "Indirect"}
+      }
+    },
+    "TEST_AIRLINE": {
+      "sector": "Tourism",
+      "description": "Test airline",
+      "sensitivities": {
+        "brent": {"direction": "-", "strength": "strong", "mechanism": "Fuel cost"},
+        "usd_try": {"direction": "-", "strength": "strong", "mechanism": "Leasing cost"},
+        "vix": {"direction": "-", "strength": "medium", "mechanism": "Travel demand"},
+        "cds": {"direction": "-", "strength": "medium", "mechanism": "Risk sentiment"}
+      }
+    }
+  }
+}

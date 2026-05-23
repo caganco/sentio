@@ -1,0 +1,8 @@
+# ÖRNEK — gerçek veri değil
+portfolio:
+  positions:
+    SYMBOL1: {lots: 100, avg_cost: 50.00}
+    SYMBOL2: {lots: 200, avg_cost: 75.00}
+  funds:
+    FUND1: {units: 1000}
+    FUND2: {units: 2000}
