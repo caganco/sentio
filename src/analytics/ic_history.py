@@ -91,20 +91,30 @@ class ICHistoryWriter:
             return None
 
     def _build_rows(self, calc: ICCalculator, today: date) -> list[dict]:
-        """Build K-04 rows from the FDR panel (+ per-cell n_obs). Skips all-empty."""
+        """Build K-04 rows from the FDR panel (+ per-cell n_obs + decay slopes).
+
+        D-140: pre-computes IC decay from EXISTING ic_history.parquet (before
+        today's append) so slope columns are populated without lookahead.
+        """
         panel = calc.compute_fdr_panel(today)
-        # n_obs per (layer, horizon) from a direct IC pass.
+        # n_obs + decay pre-compute per (layer, horizon)
         n_obs_map: dict[tuple[str, int], int] = {}
+        decay_map: dict[tuple[str, int], dict] = {}
         for layer in FDR_LAYER_COLS:
             for horizon in FDR_HORIZONS:
                 n_obs_map[(layer, horizon)] = calc.compute_ic(
                     layer, horizon, universe="all", regime="all",
                 ).n_obs
+                # reads existing history (pre-today) — correct, no lookahead
+                decay_map[(layer, horizon)] = calc.compute_decay(
+                    layer, horizon, history_path=str(self._path),
+                )
 
         rows: list[dict] = []
         any_data = False
         for r in panel.results:
             n_obs = int(n_obs_map.get((r["layer"], r["horizon"]), 0))
+            decay = decay_map.get((r["layer"], r["horizon"]), {})
             if n_obs > 0:
                 any_data = True
             rows.append({
@@ -116,10 +126,10 @@ class ICHistoryWriter:
                 "p_adj": r["p_adj"],
                 "significant": bool(r["significant"]),
                 "n_obs": n_obs,
-                "group_adjust": False,         # Faz 1: raw IC (sector-neutral = Faz 2)
-                "icir_120d": float("nan"),     # Faz 2
-                "decay_slope_30d": float("nan"),
-                "decay_slope_60d": float("nan"),
+                "group_adjust": False,
+                "icir_120d": float("nan"),     # Faz 3
+                "decay_slope_30d": decay.get("slope_30d", float("nan")),
+                "decay_slope_60d": decay.get("slope_60d", float("nan")),
             })
         return rows if any_data else []
 
