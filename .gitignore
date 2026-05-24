@@ -67,3 +67,6 @@ agents/memory/masterplan.md
 CRITIC_BACKLOG.md
 # tests private CRITIC_BACKLOG.md/OS_STATE.md (local-only); inline comment kaldirildi (pattern'i bozuyordu)
 tests/test_critic_backlog.py
+
+# D-143 NAV Discount Tracker: local holdings config (never commit)
+config/
