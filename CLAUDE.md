@@ -104,18 +104,22 @@ PARALEL BUILDER ÇAKIŞMA KURALI:
 - Master'a doğrudan commit yasak
 - PR olmadan merge yasak
 
-## GIT WORKTREE KURALI
+## PARALEL CALISMA KURALI (AYRI CLONE'LAR)
 
-Her Builder kendi worktree'sinde çalışır:
+Her Builder kendi BAGIMSIZ clone'unda calisir (tam izolasyon, ayri .git):
 - Builder 1: <local-path>
 - Builder 2: <local-path>
 - Builder 3: <local-path>
 
-Worktree'de yeni branch:
-git checkout -b feature/d-XXX
+Her clone bagimsizdir; biri branch degistirince digeri etkilenmez
+(eski paylasimli-worktree cakismalari artik imkansiz).
 
-Ana repo (bist-trading-system) sadece the maintainer kullanır:
-merge, PR review, --check komutları
+Clone'da yeni is: git checkout -b feature/d-XXX -> push -> PR.
+Ana repo (bist-trading-system) sadece the maintainer: merge, PR review.
+
+master KORUMALI: direct push + force-push reddedilir; merge icin
+PR + yesil CI (Tier 1/2/3 + Ruff) zorunlu. Admin dahil kimse master'a
+dogrudan yazamaz.
 
 ## Test Yazım Kuralları
 
