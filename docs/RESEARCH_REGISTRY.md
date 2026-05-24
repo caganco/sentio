@@ -11,7 +11,9 @@
 | [RR-003](research/RR-003-composite-mimari-alternatifleri.md) | Composite mimari alternatifleri | 21 May 2026 | CB-002, CB-010 | ⏳ Aşama 1 SPEC bekliyor |
 | [RR-005](research/RR-005-fetcher-map.md) | BIST fetcher haritası (robots/auth/format/rate-limit/ToS) | 22 May 2026 | — (fetcher SPEC bekliyor) | ⏳ Uygulanmadı |
 | [RR-008](research/RR-008-evds-migration.md) | TCMB EVDS API migration: evds2→evds3, yeni base URL | 22 May 2026 | — (D-131 EVDS URL fix bekliyor) | ⏳ Uygulanmadı |
-| [RR-010](research/RR-010-bist-ic-measurement.md) | IC ölçüm metodolojisi — Spearman IC, ICIR, Bayesian shrinkage weight kalibrasyonu | 23 May 2026 | CB-010 (statik weight savunulamazlığı) | ⏳ Uygulanmadı (min 60 gün sinyal birikimi şart) |
+| [RR-010](research/RR-010-bist-ic-measurement.md) | IC ölçüm metodolojisi — Spearman IC, ICIR, Bayesian shrinkage weight kalibrasyonu | 23 May 2026 | CB-010 (statik weight savunulamazlığı) | ✅ Applied (Faz 1+2) — D-139/D-140 |
+| [RR-011](research/RR-011-NLP-YAMA.md) | FinBERT-TR fizibilite — Yol 3 confirmed (BIST NLP pratik lens) | 24 May 2026 | — (L4 sentiment speci bekliyor) | ⏳ Uygulanmadı |
+| [RR-012](research/RR-012-EM-Spesifik%20Fakt%C3%B6r%20Literat%C3%BCr%C3%BC%20Derinle%C5%9Ftirmesi.md) | 14 EM/BIST-spesifik faktör literatür derinleştirmesi — implementasyon fizibilite analizi | 24 May 2026 | — (Phase 5 faktör speci bekliyor) | ⏳ Uygulanmadı |
 
 ---
 
