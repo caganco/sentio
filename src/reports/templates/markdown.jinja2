@@ -28,6 +28,9 @@
 {% for c in candidates -%}
 | {{ loop.index }} | {{ c.ticker }} | {{ "%.2f"|format(c.close) }} | {{ c.daily_chg|pct if c.daily_chg else "—" }} | {{ c.ret_1m|pct if c.ret_1m else "—" }} | {{ "%.1fx"|format(c.vol_surge) if c.vol_surge else "—" }} | {{ "%.1f%%"|format(c.proximity_52w) if c.proximity_52w else "—" }} | {{ c.rsi|int if c.rsi else "—" }} | {{ "%.4f"|format(c.score) if c.score else "—" }} |
 {% endfor %}
+> ⏰ **Önerilen İşlem Penceresi:** {{ execution_window }}
+> *(Ekinci 2003 BIST intraday likidite paterni — bu bir rapor notudur, otomatik emir değildir)*
+
 ---
 
 ## Uyarılar

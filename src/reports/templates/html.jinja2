@@ -124,6 +124,13 @@
 </table>
 {% endif %}
 
+<div class="timing-note" style="margin:12px 0;padding:10px 14px;
+     background:#1e2a1e;border-left:3px solid #4caf50;border-radius:4px;
+     color:#b0c4b0;font-size:0.85em;">
+  ⏰ <strong>Önerilen İşlem Penceresi:</strong> {{ execution_window }}<br>
+  <em>Ekinci 2003 BIST intraday likidite paterni — bu bir rapor notudur, otomatik emir değildir.</em>
+</div>
+
 {% if alerts %}
 <h2>Uyarılar</h2>
 {% for al in alerts %}
