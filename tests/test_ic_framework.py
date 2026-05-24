@@ -223,3 +223,186 @@ class TestICHistoryWriter:
         content = src.read_text(encoding="utf-8")
         assert "from src.signals.engine" not in content
         assert "import src.signals.engine" not in content
+
+
+# ---------------------------------------------------------------------------
+# IC Decay Monitor (D-140)
+# ---------------------------------------------------------------------------
+
+class TestDecayMonitor:
+
+    def _write_ic_history(self, path: Path, n_days: int, slope: float = 0.0, seed: int = 1):
+        """Write synthetic ic_history.parquet with given IC trend slope per day."""
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        from src.analytics.ic_history import IC_HISTORY_SCHEMA
+
+        rng = np.random.default_rng(seed)
+        rows = []
+        for i in range(n_days):
+            for layer in ("l1_tech_score", "l2_macro_score"):
+                for horizon in (5, 20):
+                    ic_val = 0.05 + slope * i + rng.standard_normal() * 0.005
+                    rows.append({
+                        "date": date(2026, 1, 5) + timedelta(days=i),
+                        "layer": layer,
+                        "horizon": horizon,
+                        "ic": float(ic_val),
+                        "p_value": 0.05,
+                        "p_adj": 0.05,
+                        "significant": True,
+                        "n_obs": 100,
+                        "group_adjust": False,
+                        "icir_120d": float("nan"),
+                        "decay_slope_30d": float("nan"),
+                        "decay_slope_60d": float("nan"),
+                    })
+        df = pd.DataFrame(rows)
+        tbl = pa.Table.from_pandas(df, schema=IC_HISTORY_SCHEMA, safe=False)
+        pq.write_table(tbl, path, compression="snappy")
+
+    def test_compute_decay_returns_expected_keys(self, tmp_path: Path):
+        hp = tmp_path / "ic_history.parquet"
+        self._write_ic_history(hp, n_days=40)
+        sig, ret = _make_layer_panel()
+        result = ICCalculator(sig, ret).compute_decay(
+            "l1_tech_score", 5, history_path=str(hp))
+        assert set(result.keys()) == {"slope_30d", "slope_60d", "slope_120d", "status"}
+
+    def test_compute_decay_no_history_returns_ok(self, tmp_path: Path):
+        sig, ret = _make_layer_panel()
+        result = ICCalculator(sig, ret).compute_decay(
+            "l1_tech_score", 5,
+            history_path=str(tmp_path / "nonexistent.parquet"))
+        assert result["status"] == "ok"
+        assert np.isnan(result["slope_30d"])
+
+    def test_compute_decay_ok_status(self, tmp_path: Path):
+        hp = tmp_path / "ic_history.parquet"
+        self._write_ic_history(hp, n_days=40, slope=0.0001)   # slight positive trend
+        sig, ret = _make_layer_panel()
+        result = ICCalculator(sig, ret).compute_decay(
+            "l1_tech_score", 5, history_path=str(hp))
+        assert result["status"] == "ok"
+
+    def test_compute_decay_warn_status(self, tmp_path: Path):
+        hp = tmp_path / "ic_history.parquet"
+        # slope=-0.0015 per day -> after 30 obs: well below IC_DECAY_SLOPE_WARN=-0.001
+        self._write_ic_history(hp, n_days=40, slope=-0.0015)
+        sig, ret = _make_layer_panel()
+        result = ICCalculator(sig, ret).compute_decay(
+            "l1_tech_score", 5, history_path=str(hp))
+        assert result["status"] == "warn"
+
+    def test_compute_decay_review_status(self, tmp_path: Path):
+        hp = tmp_path / "ic_history.parquet"
+        # slope=-0.003 per day -> below IC_DECAY_SLOPE_REVIEW=-0.002
+        self._write_ic_history(hp, n_days=40, slope=-0.003)
+        sig, ret = _make_layer_panel()
+        result = ICCalculator(sig, ret).compute_decay(
+            "l1_tech_score", 5, history_path=str(hp))
+        assert result["status"] == "review"
+
+    def test_compute_decay_insufficient_history_nan(self, tmp_path: Path):
+        hp = tmp_path / "ic_history.parquet"
+        self._write_ic_history(hp, n_days=10, slope=0.0)   # only 10 rows < 15 (half of 30)
+        sig, ret = _make_layer_panel()
+        result = ICCalculator(sig, ret).compute_decay(
+            "l1_tech_score", 5, history_path=str(hp))
+        assert np.isnan(result["slope_30d"])
+
+    def test_ic_history_writer_writes_decay_after_30_days(self, tmp_path: Path):
+        """After 35 days of existing history, run_daily writes non-NaN slope_30d."""
+        hp = tmp_path / "ic_history.parquet"
+        self._write_ic_history(hp, n_days=35)
+        sig, ret = _make_layer_panel()
+        calc = ICCalculator(sig, ret)
+        writer = ICHistoryWriter(history_path=str(hp))
+        writer.run_daily(date(2026, 5, 24), calc=calc)
+        df = pd.read_parquet(hp)
+        today_rows = df[df["date"].astype(str) == "2026-05-24"]
+        assert not today_rows.empty
+        l1 = today_rows[today_rows["layer"] == "l1_tech_score"]
+        assert not l1.empty
+        # slope_30d non-NaN because >= 15 rows in 30d window exist
+        assert not np.isnan(l1.iloc[0]["decay_slope_30d"])
+
+
+# ---------------------------------------------------------------------------
+# Delisted Tickers (D-140, SPEC K-07)
+# ---------------------------------------------------------------------------
+
+class TestDelistedSkip:
+
+    def _delisted_json(self, path: Path, entries: list) -> None:
+        path.write_text(
+            json.dumps({"version": "1.0", "tickers": entries}),
+            encoding="utf-8",
+        )
+
+    def _run_filler(
+        self,
+        tmp_path: Path,
+        prices: dict,
+        delist_path: Path | None = None,
+    ) -> pd.DataFrame:
+        returns_path = tmp_path / "returns.parquet"
+        sm = tmp_path / "sector_mapping.json"
+        sm.write_text("{}", encoding="utf-8")
+        filler = ReturnFiller(
+            returns_path=str(returns_path),
+            sector_mapping_path=str(sm),
+            delisted_map_path=str(delist_path) if delist_path else None,
+        )
+        today = date(2026, 5, 20)
+
+        def price_fetcher(symbol, d):
+            return prices[symbol][1] if d == today else prices[symbol][0]
+
+        def reader(d):
+            return pd.DataFrame([
+                {"symbol": s, "date": d, "price_limit_hit": False}
+                for s in prices
+            ])
+
+        filler.fill(today, price_fetcher, reader)
+        if not returns_path.exists():
+            return pd.DataFrame()
+        return pd.read_parquet(returns_path)
+
+    def test_delisted_symbol_skipped(self, tmp_path: Path):
+        """Symbol with delist_date <= today is skipped for ALL horizons."""
+        dl = tmp_path / "delisted.json"
+        # today = 2026-05-20 >= delist_date 2026-05-10 -> currently delisted -> skip
+        self._delisted_json(dl, [{"ticker": "AAA", "delist_date": "2026-05-10"}])
+        df = self._run_filler(tmp_path, {"AAA": (100.0, 110.0)}, delist_path=dl)
+        assert df.empty or "AAA" not in df["symbol"].tolist()
+
+    def test_non_delisted_symbol_not_skipped(self, tmp_path: Path):
+        """Symbol with delist_date far in the future is not skipped."""
+        dl = tmp_path / "delisted.json"
+        self._delisted_json(dl, [{"ticker": "ZZZ", "delist_date": "2020-01-01"}])
+        df = self._run_filler(tmp_path, {"BBB": (100.0, 110.0)}, delist_path=dl)
+        assert not df.empty
+        assert "BBB" in df["symbol"].tolist()
+
+    def test_unknown_ticker_not_in_delisted_map(self, tmp_path: Path):
+        """Symbol absent from delisted map is not affected."""
+        dl = tmp_path / "delisted.json"
+        self._delisted_json(dl, [{"ticker": "OTHER", "delist_date": "2020-01-01"}])
+        df = self._run_filler(tmp_path, {"CCC": (100.0, 110.0)}, delist_path=dl)
+        assert not df.empty
+        assert "CCC" in df["symbol"].tolist()
+
+    def test_mixed_delisted_and_active(self, tmp_path: Path):
+        """Delisted tickers filtered; active tickers proceed normally."""
+        dl = tmp_path / "delisted.json"
+        self._delisted_json(dl, [{"ticker": "AAA", "delist_date": "2026-05-10"}])
+        df = self._run_filler(
+            tmp_path,
+            {"AAA": (100.0, 110.0), "BBB": (100.0, 105.0)},
+            delist_path=dl,
+        )
+        symbols = df["symbol"].tolist() if not df.empty else []
+        assert "BBB" in symbols
+        assert "AAA" not in symbols

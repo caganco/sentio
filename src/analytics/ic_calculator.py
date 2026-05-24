@@ -309,6 +309,75 @@ class ICCalculator:
         )
 
     # ----------------------------------------------------------------
+    # IC Decay Monitor (D-140)
+    # ----------------------------------------------------------------
+
+    def compute_decay(
+        self,
+        layer: str,
+        horizon: int,
+        window_days: int | None = None,
+        history_path: str | None = None,
+    ) -> dict:
+        """OLS slope on rolling IC history to detect signal decay.
+
+        Reads ic_history.parquet (IC_HISTORY_PATH by default).
+        Returns slope_30d/60d/120d (change in IC per observation entry).
+        NaN when insufficient history (< half the window size).
+        Status: "ok" | "warn" (slope < IC_DECAY_SLOPE_WARN) |
+                "review" (slope < IC_DECAY_SLOPE_REVIEW).
+        window_days: if set, caps the max history used for all 3 windows.
+
+        Dayanak: RR-010 sec.3 (IC decay monitoring), D-140.
+        """
+        from src.signals.thresholds import (
+            IC_DECAY_SLOPE_REVIEW,
+            IC_DECAY_SLOPE_WARN,
+            IC_HISTORY_PATH as _DEF,
+        )
+        hp = Path(history_path or _DEF)
+        if not hp.exists():
+            return {
+                "slope_30d": float("nan"),
+                "slope_60d": float("nan"),
+                "slope_120d": float("nan"),
+                "status": "ok",
+            }
+
+        df = pd.read_parquet(hp)
+        mask = (df["layer"] == layer) & (df["horizon"] == horizon)
+        sub = df[mask].sort_values("date")
+        if window_days is not None:
+            sub = sub.tail(window_days)
+
+        slopes: dict[str, float] = {}
+        for w, key in [(30, "slope_30d"), (60, "slope_60d"), (120, "slope_120d")]:
+            win = sub.tail(w)
+            if len(win) < max(2, w // 2):
+                slopes[key] = float("nan")
+                continue
+            x = np.arange(len(win), dtype=float)
+            y = win["ic"].values.astype(float)
+            valid = ~np.isnan(y)
+            if valid.sum() < 2:
+                slopes[key] = float("nan")
+            else:
+                slope, _ = np.polyfit(x[valid], y[valid], 1)
+                slopes[key] = round(float(slope), 6)
+
+        finite = [v for v in slopes.values() if not np.isnan(v)]
+        if not finite:
+            status = "ok"
+        elif min(finite) < IC_DECAY_SLOPE_REVIEW:
+            status = "review"
+        elif min(finite) < IC_DECAY_SLOPE_WARN:
+            status = "warn"
+        else:
+            status = "ok"
+
+        return {**slopes, "status": status}
+
+    # ----------------------------------------------------------------
     # Optional Alphalens integration
     # ----------------------------------------------------------------
 
