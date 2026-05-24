@@ -514,6 +514,11 @@ class TestICFrameworkInvariants:
         assert IC_FDR_ALPHA == 0.10
         assert IC_DECAY_SLOPE_WARN < 0
 
+    def test_new_layer_tstat_hurdle(self):
+        """G-22: IC_NEW_LAYER_TSTAT_HURDLE must equal 3.0 (Harvey-Liu-Zhu 2016)."""
+        from src.signals.thresholds import IC_NEW_LAYER_TSTAT_HURDLE
+        assert IC_NEW_LAYER_TSTAT_HURDLE == 3.0
+
     def test_analytics_not_importing_engine(self):
         """src/analytics/ modules must not import src.signals.engine (K-08)."""
         analytics_dir = Path(__file__).parent.parent / "src" / "analytics"
