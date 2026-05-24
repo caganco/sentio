@@ -141,6 +141,36 @@ def score_macro(macro_data: dict) -> LayerScore:
             * MACRO_WEIGHTS_COMPOSITE["bist_foreign_weekly"]
         )
 
+        # D-144: Multi-window boost (CB-011, non-fatal try/except)
+        # ff_series_override: test injection or external caller series from
+        # macro_data dict; absent -> single-point fallback (boost=1.0).
+        try:
+            from src.data.foreign_flow_parser import (
+                compute_boost_multiplier,
+                compute_multi_window,
+            )
+            _ff_series = (
+                macro_data.get("ff_series_override")
+                if isinstance(macro_data, dict)
+                else None
+            )
+            if _ff_series is None:
+                _ff_raw = local_result.bist_foreign_weekly.raw_value
+                _ff_series = [float(_ff_raw)] if _ff_raw is not None else []
+            if len(_ff_series) >= 2:
+                _mw = compute_multi_window("BIST", _ff_series)
+                _boost = compute_boost_multiplier(_mw)
+                if _boost != 1.0:
+                    bist_foreign_contrib *= _boost
+                    logger.debug(
+                        "D-144 FF boost: persistence=%d boost=%.2f dir=%s",
+                        _mw["persistence"],
+                        _boost,
+                        _mw["direction"],
+                    )
+        except Exception as _exc:
+            logger.debug("D-144 FF multi-window boost failed (non-fatal): %s", _exc)
+
         final_score = (
             global_contrib + tcmb_contrib + cds_contrib
             + dxy_contrib + bist_foreign_contrib

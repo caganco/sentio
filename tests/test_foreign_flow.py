@@ -219,3 +219,131 @@ def test_l5_foreign_flow_none_falls_back_to_parquet(tmp_path):
         foreign_flow_db_path=tmp_path / "missing.db",  # yok → None → parquet (o da yok) → None
     )
     assert result is None  # ne foreign_flow ne parquet → None (graceful)
+
+
+# ---------------------------------------------------------------------------
+# D-144 CB-011: Multi-window foreign flow + QNB filter tests
+# ---------------------------------------------------------------------------
+from src.data.foreign_flow_parser import (
+    compute_boost_multiplier,
+    compute_multi_window,
+    qnb_filter,
+)
+
+
+class TestMultiWindowForeignFlow:
+    """D-144: compute_multi_window pure function tests."""
+
+    def test_delta_values_correct(self):
+        """delta_Nd = (latest - Nd_ago) * 100 bps."""
+        # series[-1]=0.25, series[-4]=0.22 -> delta_3d = (0.25-0.22)*100 = 3.0 bps
+        series = [0.22, 0.23, 0.24, 0.25]
+        mw = compute_multi_window("BIST", series)
+        assert mw["delta_3d"] == pytest.approx(3.0, abs=1e-6)
+        assert mw["delta_5d"] is None   # need >= 6 points
+        assert mw["delta_10d"] is None  # need >= 11 points
+
+    def test_insufficient_series_returns_none_deltas(self):
+        """< 4 points -> delta_3d None; < 6 points -> delta_5d None."""
+        series = [0.20, 0.21, 0.22]  # 3 points
+        mw = compute_multi_window("BIST", series)
+        assert mw["delta_3d"] is None
+        assert mw["delta_5d"] is None
+        assert mw["delta_10d"] is None
+
+    def test_persistence_buy_5_days(self):
+        """5 consecutive up days -> persistence=5, direction=BUY."""
+        series = [0.20, 0.21, 0.22, 0.23, 0.24, 0.25]
+        mw = compute_multi_window("BIST", series)
+        assert mw["persistence"] == 5
+        assert mw["direction"] == "BUY"
+
+    def test_persistence_sell_3_days(self):
+        """3 consecutive down days -> persistence=3, direction=SELL."""
+        series = [0.30, 0.29, 0.28, 0.27]
+        mw = compute_multi_window("BIST", series)
+        assert mw["persistence"] == 3
+        assert mw["direction"] == "SELL"
+
+    def test_direction_neutral_minimal_change(self):
+        """< 1 bps absolute delta -> NEUTRAL direction."""
+        # delta_5d = (0.200009 - 0.200000) * 100 = 0.0009 bps < 1 bps
+        series = [0.200000, 0.200001, 0.200002, 0.200003, 0.200005, 0.200009]
+        mw = compute_multi_window("BIST", series)
+        assert mw["direction"] == "NEUTRAL"
+
+    def test_empty_series_safe(self):
+        """Empty series -> no crash, persistence=0, direction=NEUTRAL."""
+        mw = compute_multi_window("BIST", [])
+        assert mw["persistence"] == 0
+        assert mw["direction"] == "NEUTRAL"
+        assert mw["delta_3d"] is None
+
+
+class TestQNBFilter:
+    """D-144: qnb_filter ticker-specific correction tests."""
+
+    def test_qnb_filter_adjusts_qnbfb(self):
+        """QNBFB.IS raw ~100% is scaled down to ~12%."""
+        result = qnb_filter(100.0, "QNBFB.IS")
+        assert result == pytest.approx(100.0 * 0.12, rel=1e-4)
+        assert result < 20.0  # sanity: well below 100%
+
+    def test_qnb_filter_passthrough_other_ticker(self):
+        """Other tickers return raw value unchanged."""
+        raw = 25.7
+        assert qnb_filter(raw, "ARCLK.IS") == pytest.approx(raw)
+        assert qnb_filter(raw, "KCHOL.IS") == pytest.approx(raw)
+        assert qnb_filter(raw, "BIST") == pytest.approx(raw)
+
+    def test_qnb_filter_adjusted_flag_in_multiwindow(self):
+        """QNBFB.IS series -> qnb_adjusted=True in compute_multi_window output."""
+        series = [90.0, 95.0, 98.0, 99.0]
+        mw = compute_multi_window("QNBFB.IS", series)
+        assert mw["qnb_adjusted"] is True
+
+    def test_non_qnb_adjusted_flag_false(self):
+        """Non-QNBFB ticker -> qnb_adjusted=False."""
+        mw = compute_multi_window("BIST", [0.20, 0.21, 0.22, 0.23])
+        assert mw["qnb_adjusted"] is False
+
+
+class TestFFBoostMultiplier:
+    """D-144: compute_boost_multiplier logic tests."""
+
+    def test_boost_persistence_gte_3_active(self):
+        """persistence >= 3 -> +0.20 boost (total 1.20)."""
+        series = [0.20, 0.21, 0.22, 0.23]  # 3 up days, no delta_5d/10d
+        mw = compute_multi_window("BIST", series)
+        assert mw["persistence"] >= 3
+        boost = compute_boost_multiplier(mw)
+        assert boost == pytest.approx(1.20, abs=0.001)
+
+    def test_boost_persistence_lt_3_no_boost(self):
+        """persistence < 3 -> no boost (1.0), no alignment bonus."""
+        # 2 up days preceded by a down day to cap persistence at 2
+        series = [0.25, 0.20, 0.21, 0.22]  # down then 2 up -> persistence=2
+        mw = compute_multi_window("BIST", series)
+        if mw["persistence"] < 3:
+            boost = compute_boost_multiplier(mw)
+            assert boost == pytest.approx(1.0, abs=0.001)
+
+    def test_boost_aligned_directions_adds_10pct(self):
+        """delta_5d and delta_10d same sign -> +0.10 alignment bonus."""
+        # 12 up-trending points: delta_5d > 0 AND delta_10d > 0
+        series = [0.20 + i * 0.01 for i in range(12)]
+        mw = compute_multi_window("BIST", series)
+        assert mw["delta_5d"] is not None and mw["delta_5d"] > 0
+        assert mw["delta_10d"] is not None and mw["delta_10d"] > 0
+        boost = compute_boost_multiplier(mw)
+        # persistence=11 (+0.20) + alignment (+0.10) = 1.30
+        assert boost >= 1.10  # at least alignment bonus
+
+    def test_boost_cap_1_5x_not_exceeded(self):
+        """Boost is capped at 1.5x even if both bonuses apply."""
+        # max theoretical = 1.0 + 0.20 + 0.10 = 1.30 (both bonuses)
+        # test cap directly via dict override
+        mw_mock = {"persistence": 10, "delta_5d": 5.0, "delta_10d": 8.0}
+        boost = compute_boost_multiplier(mw_mock)
+        assert boost <= 1.5
+        assert boost == pytest.approx(1.30, abs=0.001)  # 1.0+0.20+0.10
