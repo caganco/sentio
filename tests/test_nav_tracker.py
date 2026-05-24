@@ -242,19 +242,23 @@ class TestNAVZScore:
     # --- Integration: compute from synthetic history ---
 
     def test_zscore_computed_from_history(self, tmp_path):
-        """Z-score is non-NaN and positive when today's discount > historical mean."""
+        """Z-score is non-NaN and positive when today's discount > historical mean.
+
+        Uses slope=0.001 so discount varies 0.30..0.40 over 100 days,
+        giving std > 0 and a well-defined z-score.
+        today's disc=0.50 is above the mean (~0.35) -> z > 0.
+        """
         hp = tmp_path / "nav_history.parquet"
-        _write_nav_history(hp, "KCHOL", n_days=100, discount_base=0.30)
+        _write_nav_history(hp, "KCHOL", n_days=100, discount_base=0.30, slope=0.001)
 
         tracker = NAVZScoreTracker(history_path=str(hp))
-        # discount=0.40 is well above mean 0.30
         result = tracker.update(
-            self._make_nav_result(disc=0.40), as_of_date=date(2026, 5, 20)
+            self._make_nav_result(disc=0.50), as_of_date=date(2026, 5, 20)
         )
 
         assert result["signal"] != "COLLECTING"
         assert not np.isnan(result["z_score"])
-        assert result["z_score"] > 0  # 0.40 > mean 0.30
+        assert result["z_score"] > 0  # 0.50 > mean ~0.35
 
     def test_append_only_idempotency(self, tmp_path):
         """Same date+ticker written twice -> no duplicate row in parquet."""
