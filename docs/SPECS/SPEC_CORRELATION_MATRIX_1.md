@@ -10,7 +10,6 @@
 - `src/risk/kelly_criterion.py` (modified to consume correlations)
 - `config.yaml` (correlation_matrix section)
 - `tests/test_correlation_*.py` (NEW, ~8 tests)
-- `docs/DEPENDENCY_MAP.md` (updated)
 
 ---
 
@@ -678,7 +677,6 @@ Week 3 (June 23-27):
 ```
 BEFORE starting:
 ☐ Review SPEC_CORRELATION_MATRIX_1.md
-☐ Review DEPENDENCY_MAP.md (understand data flows)
 ☐ Understand Kelly Criterion (DEC-006) design
 ☐ Confirm sector mapping with Strategist
 

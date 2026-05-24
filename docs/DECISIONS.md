@@ -155,7 +155,6 @@ Tests: +N passing"
 
 ## RELATED DOCUMENTATION
 
-- `docs/DEPENDENCY_MAP.md` – System architecture & dependencies
 - `docs/BOOT_ARCHITECT.md` – Architecture overview
 - `docs/BOOT_BUILDER.md` – Builder development guidelines
 - `CLAUDE.md` – Project instructions & bootstrap protocol
