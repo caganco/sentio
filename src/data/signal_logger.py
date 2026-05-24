@@ -269,11 +269,14 @@ class ReturnFiller:
         self,
         returns_path: str = RETURNS_LOG_PATH,
         sector_mapping_path: str = SECTOR_MAPPING_PATH,
+        delisted_map_path: str | None = None,   # D-140: None -> DELISTED_TICKERS_PATH
     ) -> None:
         self._path = Path(returns_path)
         self._cal = BISTCalendar()
         self._sector_map_path = Path(sector_mapping_path)
         self._sector_map: dict[str, str] | None = None
+        self._delisted_path = Path(delisted_map_path) if delisted_map_path else None
+        self._delisted_cache: dict | None = None
 
     def _sector_of(self, symbol: str) -> str | None:
         """Lazy-load sector_mapping.json; return ticker's sector or None."""
@@ -289,6 +292,27 @@ class ReturnFiller:
             except Exception as exc:
                 logger.debug("return_filler: sector map load failed: %s", exc)
         return self._sector_map.get(symbol)
+
+    def _delist_date_of(self, symbol: str) -> "date | None":
+        """Lazy-load delisted_tickers.json; return delist_date or None.
+
+        D-140: survivorship bias protection — callers skip return calc
+        for any symbol whose signal_date >= delist_date.
+        """
+        if self._delisted_cache is None:
+            self._delisted_cache = {}
+            try:
+                from src.signals.thresholds import DELISTED_TICKERS_PATH
+                p = self._delisted_path or Path(DELISTED_TICKERS_PATH)
+                if p.exists():
+                    raw = json.loads(p.read_text(encoding="utf-8"))
+                    for entry in raw.get("tickers", []):
+                        t, d = entry.get("ticker"), entry.get("delist_date")
+                        if t and d:
+                            self._delisted_cache[t] = date.fromisoformat(d)
+            except Exception as exc:
+                logger.debug("return_filler: delisted map load failed: %s", exc)
+        return self._delisted_cache.get(symbol)
 
     def fill(self, today: date, price_fetcher, signal_log_reader) -> int:
         """Fill all horizons. Returns count of rows written.
@@ -316,6 +340,15 @@ class ReturnFiller:
         computed: list[dict] = []
         for symbol in symbols:
             try:
+                # D-140: survivorship bias — skip if stock is currently delisted.
+                # Check today >= delist_date: price fetcher cannot get a current price
+                # for a delisted stock, so skip all horizons for it.
+                delist = self._delist_date_of(symbol)
+                if delist is not None and today >= delist:
+                    logger.debug(
+                        "return_filler: %s delisted %s, skip h=%d", symbol, delist, horizon,
+                    )
+                    continue
                 base_price = price_fetcher(symbol, signal_date)
                 curr_price = price_fetcher(symbol, today)
                 if base_price is None or curr_price is None or base_price == 0:
