@@ -4,7 +4,7 @@
 **Belirti → Teşhis → Kurtarma** sırasıyla. Komutlar PowerShell içindir.
 
 İlgili dokümanlar: [PRE_COMMIT_SETUP.md](PRE_COMMIT_SETUP.md) ·
-[SIGNAL_ALERT_USAGE.md](SIGNAL_ALERT_USAGE.md) · [DEPENDENCY_MAP.md](DEPENDENCY_MAP.md)
+[SIGNAL_ALERT_USAGE.md](SIGNAL_ALERT_USAGE.md)
 
 ---
 

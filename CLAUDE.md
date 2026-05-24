@@ -47,7 +47,8 @@ python -m pytest tests/ -q --tb=short
   
 - **Her değişiklikten sonra pytest çalıştır, zero regression zorunlu.**
   - `python -m pytest tests/ -q --tb=short`
-  - Tüm 953 test pass olmalı (2 skipped).
+  - Tüm testler pass olmalı (regresyon kabul edilmez). Güncel sayı için:
+    `python -m pytest tests/ -q | tail -3`
 
 - **Spec enforcement:** Specte ETKİLENEN DOSYALAR listesinde yer
   almayan bir dosyaya dokunmadan önce Orchestrator'a sor ve onay al.
@@ -64,7 +65,7 @@ python -m pytest tests/ -q --tb=short
 
 - **Merge ön-koşulları — İKİSİ DE zorunlu:**
   1. **pytest yeşil:** `python -m pytest tests/ -q --tb=short` → tamamen geçer
-     (mevcut baseline: 953 passed, 2 skipped — regresyon kabul edilmez).
+     (regresyon kabul edilmez; güncel sayı: `python -m pytest tests/ -q | tail -3`).
   2. **the maintainer onayı:** PR review onaylanmadan merge edilmez.
 
 - **Conflict → Orchestrator'a eskalasyon.** Builder, `master` ile çakışan bir
@@ -170,25 +171,22 @@ Yeni chat açtığında token tasarrufu için bu **30 saniyelik kontrol listesi*
 
 ### STEP 1: Konteksti Yükle (10 saniye)
 ```powershell
-# 1. Dependency haritasını oku
-Get-Content docs/DEPENDENCY_MAP.md | Select-Object -First 50
-
-# 2. Thresholds dosyasını kontrol et (constants manifest)
+# Thresholds dosyasını kontrol et (constants manifest — tek doğru kaynak)
 Get-Content src/signals/thresholds.py | Select-Object -First 30
 ```
 
 ### STEP 2: Kritik Dosyaları Oku (Sırayla)
-1. **[docs/DEPENDENCY_MAP.md](docs/DEPENDENCY_MAP.md)** — Tüm dependency chain, constraints
-2. **[docs/DECISIONS.md](docs/DECISIONS.md)** — Karar geçmişi, neden/neden olmadı (context + anti-patterns)
-3. **[src/signals/thresholds.py](src/signals/thresholds.py)** — ALL constants (hardcoded value yok)
-4. **[src/signals/engine.py](src/signals/engine.py)** — Signal composition logic
+1. **[docs/DECISIONS.md](docs/DECISIONS.md)** — Karar geçmişi, neden/neden olmadı (context + anti-patterns)
+2. **[src/signals/thresholds.py](src/signals/thresholds.py)** — ALL constants (hardcoded value yok)
+3. **[src/signals/engine.py](src/signals/engine.py)** — Signal composition logic
+4. **[tests/test_architecture.py](tests/test_architecture.py)** — design invariant'ları (executable, CI-enforced)
 5. **Bu bölüm:** Dokunulmaz Prensipler + Her Session Başında Oku bölümleri
 
 ### STEP 3: Sistem Sağlığı — Daily Bootstrap (~12 sn)
 ```powershell
 # Tier 1 (Architecture) + Tier 2 (Integration) — tek komut
 python -m pytest tests/test_architecture.py tests/test_signal_alert.py tests/test_backtest.py -v --tb=no 2>&1 | Select-String "passed"
-# Beklenen: "== 34 passed in ~2s =="
+# Tier 1 (Architecture) + Tier 2 (Integration) tümü pass olmalı
 ```
 
 ### STEP 4: Eğer Fail Oldu
@@ -199,16 +197,16 @@ Context kayıp veya regresyon var, commit'e bakılır
 
 ### STEP 5: Eğer Yeşil
 ```
-✅ Tier 1 (Architecture): 5 test — design invariants OK
-✅ Tier 2 (Integration): 29 test — signals + backtest OK
-→ BAŞLA (fully connected, 34/34 pass)
+✅ Tier 1 (Architecture): design invariants OK
+✅ Tier 2 (Integration): signals + backtest OK
+→ BAŞLA (fully connected)
 ```
 
 ### Pre-Commit / Haftalık Full Regression (40 sn)
 ```powershell
 # Commit öncesi veya haftada 1x çalıştır
-python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
-# Beklenen: "== 953 passed, 2 skipped in ~60s ==" (D-120 operational reliability sonrası)
+python -m pytest tests/ -q | tail -3
+# Tümü pass + sıfır regresyon olmalı (güncel sayıyı bu komut gösterir)
 ```
 
 ### Quick Reference (Memorize)
@@ -216,19 +214,19 @@ python -m pytest tests/ -v --tb=no 2>&1 | Select-String "passed"
 - **Signal engine:** `src/signals/engine.py` (no hardcoded thresholds)
 - **Composite formula (Phase 4.5, D-052):** `L1 tech*0.25 + L2 macro*0.20 + L3 kap*0.30 + L4 sent*(0.12×conf) + L5 smart*(0.10×conf) + L6 risk*0.03`, dinamik normalizer (Σ ∈ [0.78,1.00], DEC-009)
 - **Conviction:** `(composite/100) × macro_mult`; ≥0.68 BUY-STRONG · 0.55-0.67 BUY-MEDIUM · <0.55 WATCH
-- **Macro gate:** L2≥60 → 1.0x · 45-59 → 0.8x · <45 → 0.0x (no entry)
+- **Macro gate:** L2-step soft scaling × CDS overlay + hard-exits (CB-002); tek kaynak `macro_regime_gate.py`
 - **Staged TP:** TP1 %50 / TP2 %30 / TP3 %20
 - **Stop-loss:** entry × 0.92 (-8%)
 - **Profit target:** entry × 1.20 (+20%)
 - **Stop approach:** warning when price ≤ (stop × 1.03)
-- **Test count:** 953 pass, 2 skipped (regression guard, D-120 operational reliability)
+- **Test count:** güncel sayı → `python -m pytest tests/ -q | tail -3` (sıfır regresyon zorunlu)
 
 ---
 
 ## Token Saving Strategy
 
 Yeni session açarken:
-1. `docs/DEPENDENCY_MAP.md` built-in — context restore 30 saniye
+1. `src/signals/thresholds.py` — sabitlerin tek kaynağı (context restore)
 2. `docs/DECISIONS.md` auto-load — karar geçmişi, anti-patterns
 3. `memory/MEMORY.md` auto-load — session state recap
 4. `CLAUDE.md` bu bölümü — bootstrap checklist
