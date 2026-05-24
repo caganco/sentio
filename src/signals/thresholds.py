@@ -620,6 +620,7 @@ CUSTODY_BIST50_TICKERS: tuple[str, ...] = (
 # IC forward return horizons (trading days)
 IC_HORIZON_T1:  int = 1
 IC_HORIZON_T5:  int = 5
+IC_HORIZON_T10: int = 10   # D-139: cross-window matrix horizon (RR-010 Karar #3)
 IC_HORIZON_T20: int = 20
 IC_HORIZON_T60: int = 60
 
@@ -634,11 +635,29 @@ IC_MIN_OBSERVATIONS: int = 10
 # Layer "investable" (active weight) gating
 IC_INVESTABLE_MEAN_MIN:   float = 0.03   # mean(IC) >= 0.03
 IC_INVESTABLE_TSTAT_MIN:  float = 2.0    # t-stat >= 2.0
-IC_INVESTABLE_MONTHS_MIN: int = 24       # >= 24 months of data
+IC_INVESTABLE_MONTHS_MIN: int = 6        # D-139: was 24; Cagan override (SPEC sec.6) -> 6 = ~126 trading days
 
 # Layer watchlist / weight-halve / drop thresholds (Faz 2 reporting)
 IC_WATCHLIST_TSTAT_MAX:   float = 1.5    # t-stat < 1.5 last 6m -> watch
 IC_HALVE_CANDIDATE_TSTAT: float = 1.0    # t-stat < 1.0 last 12m -> halve candidate
+
+# D-139 IC framework Faz 1 (SPEC_IC_FRAMEWORK_1 K-01). New analytics constants;
+# all comments ASCII-only (cp1254 architecture-test safety, no capital S/G-cedilla).
+# Bayesian weight calibration gating (RR-010 sec.2 B10, Karar #9-10; Faz 3 uses these)
+IC_BAYESIAN_TAU_MIN_DAYS:  int = 60      # tau=0.20 entry threshold (first calibration)
+IC_BAYESIAN_TAU_FULL_DAYS: int = 730     # tau=0.95 full independence from prior
+
+# IC monitoring thresholds (RR-010 sec.2 B12; Faz 2 decay monitor uses these)
+IC_DECAY_SLOPE_WARN:   float = -0.001    # 30/60/120d rolling IC slope -> warn
+IC_DECAY_SLOPE_REVIEW: float = -0.002    # slope below this -> layer "review"
+IC_FDR_ALPHA:          float = 0.10      # BH-FDR significance level
+IC_FDR_M_TESTS:        int   = 12        # 6 layers x 2 primary horizons (T5, T20)
+
+# Analytics data-path constants (runtime parquet/json; gitignored personal data)
+IC_HISTORY_PATH:        str = "data/analytics/ic_history.parquet"
+IC_WEIGHT_HISTORY_PATH: str = "data/analytics/weight_history.parquet"
+DELISTED_TICKERS_PATH:  str = "data/analytics/delisted_tickers.json"
+SECTOR_RETURNS_CACHE:   str = "data/analytics/sector_returns_cache.parquet"
 
 # Brinson-Fachler benchmark
 BRINSON_BENCHMARK: str = "equal_weight"   # "equal_weight" | "market_cap_weight"
