@@ -193,7 +193,6 @@ bist-trading-system/
 ├── tests/                    # 1,150+ tests (unit · integration · architecture)
 ├── docs/
 │   ├── decisions/            # ADRs: DEC-001 … DEC-017
-│   ├── DEPENDENCY_MAP.md      # Module dependency graph
 │   └── DECISIONS.md           # Decision index
 ├── scripts/                  # daily_update.py, loaders, runners
 └── config.yaml               # Universe + scanner parameters
