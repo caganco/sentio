@@ -127,3 +127,6 @@ def score_technical(technical_data: dict) -> LayerScore:
         detail=detail,
         source="computed" if not partial else "partial",
     )
+
+# D-138 violation test (gecici) — layer engine import ediyor (layering ihlali)
+from src.signals.engine import compute_signal as _v  # noqa
