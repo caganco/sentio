@@ -7,9 +7,13 @@ intact for legacy/other callers). Position size is driven by:
 
 with hard caps: max 4 BUY-STRONG, max 2 BUY-MEDIUM, max 6 total, single sector
 <= 40%, portfolio drawdown hard stop at 15%. All constants from thresholds.py.
+
+D-145 (RR-014): apply_adv_cap() post-processes size_position() output with a
+5% ADV cap (Almgren 2005). size_position() signature is unchanged.
 """
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from src.signals.thresholds import (
@@ -22,9 +26,12 @@ from src.signals.thresholds import (
     MAX_POSITIONS_STRONG,
     MAX_POSITIONS_TOTAL,
     MAX_SECTOR_CONCENTRATION,
+    POSITION_MAX_ADV_PCT,
     POSITION_SIZE_MEDIUM,
     POSITION_SIZE_STRONG,
 )
+
+logger = logging.getLogger(__name__)
 
 TIER_STRONG = "BUY-STRONG"
 TIER_MEDIUM = "BUY-MEDIUM"
@@ -167,3 +174,99 @@ def size_position(
                           f"(vol_tier={getattr(stop_result, 'vol_tier', '?')})")
 
     return decide(ACTION_ENTER, alloc, f"{tier} entry")
+
+
+# =============================================================================
+# D-145 / RR-014: ADV cap post-processing
+# =============================================================================
+
+def fetch_adv(ticker: str, lookback: int = 20) -> float | None:
+    """Fetch Average Daily Volume in TL via yfinance (20-day default).
+
+    Args:
+        ticker: BIST ticker without suffix (e.g. "AKBNK") or with ".IS".
+        lookback: Number of trading days for the rolling average.
+
+    Returns:
+        Mean(Close × Volume) over last ``lookback`` days in TL,
+        or None if fetch fails (non-fatal).
+    """
+    try:
+        import yfinance as yf  # lazy import — optional dependency
+
+        yf_ticker = ticker if ticker.endswith(".IS") else f"{ticker}.IS"
+        df = yf.download(yf_ticker, period="2mo", progress=False, auto_adjust=True)
+        if df is None or df.empty or len(df) < lookback:
+            logger.warning(
+                "fetch_adv(%s): insufficient data (%d rows) — ADV cap skipped",
+                ticker,
+                0 if df is None else len(df),
+            )
+            return None
+        recent = df.tail(lookback)
+        adv_tl = float((recent["Close"] * recent["Volume"]).mean())
+        return adv_tl
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "fetch_adv(%s) failed: %s — ADV cap not applied", ticker, exc
+        )
+        return None
+
+
+def apply_adv_cap(
+    ticker: str,
+    decision: SizingDecision,
+    *,
+    adv_lookback: int = 20,
+) -> SizingDecision:
+    """Apply POSITION_MAX_ADV_PCT cap to a SizingDecision (D-145, RR-014).
+
+    Post-processes the result of size_position(): fetches 20-day ADV from
+    yfinance and clips position_size to POSITION_MAX_ADV_PCT × ADV when the
+    conviction-based size would exceed that limit.
+
+    Non-fatal: if fetch_adv() returns None (yfinance unavailable, insufficient
+    history, etc.), the original decision is returned unchanged and a warning
+    is already logged inside fetch_adv().
+
+    Args:
+        ticker: BIST ticker (e.g. "AKBNK"); ".IS" suffix added if absent.
+        decision: SizingDecision returned by size_position().
+        adv_lookback: Trading-day window for ADV (default 20).
+
+    Returns:
+        New SizingDecision with position_size ≤ ADV cap, or the original
+        decision when the cap is unavailable or not triggered.
+    """
+    if decision.position_size <= 0.0:
+        return decision  # No active entry — cap irrelevant
+
+    adv = fetch_adv(ticker, lookback=adv_lookback)
+    if adv is None or adv <= 0.0:
+        return decision  # Non-fatal: ADV unavailable, keep original
+
+    max_by_adv = adv * POSITION_MAX_ADV_PCT
+    if decision.position_size <= max_by_adv:
+        return decision  # Within ADV limit — no clip needed
+
+    # Derive portfolio equity so we can restate allocation_pct correctly.
+    portfolio_equity = (
+        decision.position_size / decision.allocation_pct
+        if decision.allocation_pct > 0.0
+        else 0.0
+    )
+    new_alloc_pct = (
+        round(max_by_adv / portfolio_equity, 6) if portfolio_equity > 0.0 else 0.0
+    )
+
+    return SizingDecision(
+        conviction_tier=decision.conviction_tier,
+        action=decision.action,
+        allocation_pct=new_alloc_pct,
+        position_size=round(max_by_adv, 4),
+        macro_scaling=decision.macro_scaling,
+        reason=(
+            f"{decision.reason}, clipped to ADV cap "
+            f"({POSITION_MAX_ADV_PCT:.0%}×ADV={max_by_adv:,.0f} TL)"
+        ),
+    )
