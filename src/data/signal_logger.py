@@ -13,6 +13,7 @@ IC calculation time on (date, symbol). as_of_timestamp guards against lookahead.
 """
 from __future__ import annotations
 
+import json
 import logging
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -27,6 +28,7 @@ from src.data.bist_calendar import BISTCalendar
 from src.signals.thresholds import (
     IC_HORIZON_T1,
     IC_HORIZON_T5,
+    IC_HORIZON_T10,
     IC_HORIZON_T20,
     IC_HORIZON_T60,
     RETURNS_LOG_PATH,
@@ -40,7 +42,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_HORIZONS: tuple[int, ...] = (IC_HORIZON_T1, IC_HORIZON_T5, IC_HORIZON_T20, IC_HORIZON_T60)
+_HORIZONS: tuple[int, ...] = (
+    IC_HORIZON_T1, IC_HORIZON_T5, IC_HORIZON_T10, IC_HORIZON_T20, IC_HORIZON_T60,
+)
+
+# D-139: default sector map (ticker -> sector) for sector-neutral returns.
+SECTOR_MAPPING_PATH: str = "data/sector_mapping.json"
 
 
 # ---------------------------------------------------------------------------
@@ -104,8 +111,10 @@ class ReturnRecord(BaseModel):
     """
     signal_date: date
     symbol: str
-    horizon: int          # 1 | 5 | 20 | 60
+    horizon: int          # 1 | 5 | 10 | 20 | 60
     forward_return: float
+    sector_adjusted_return: float | None = None   # D-139: fwd_return - sector_mean
+    sector: str | None = None                     # D-139: from sector_mapping.json
     price_limit_hit: bool
     filled_at: datetime
 
@@ -256,9 +265,30 @@ class ReturnFiller:
         forward_return = (price_today / price_{signal_date}) - 1
     """
 
-    def __init__(self, returns_path: str = RETURNS_LOG_PATH) -> None:
+    def __init__(
+        self,
+        returns_path: str = RETURNS_LOG_PATH,
+        sector_mapping_path: str = SECTOR_MAPPING_PATH,
+    ) -> None:
         self._path = Path(returns_path)
         self._cal = BISTCalendar()
+        self._sector_map_path = Path(sector_mapping_path)
+        self._sector_map: dict[str, str] | None = None
+
+    def _sector_of(self, symbol: str) -> str | None:
+        """Lazy-load sector_mapping.json; return ticker's sector or None."""
+        if self._sector_map is None:
+            self._sector_map = {}
+            try:
+                if self._sector_map_path.exists():
+                    raw = json.loads(self._sector_map_path.read_text(encoding="utf-8"))
+                    self._sector_map = {
+                        t: (v.get("sector") if isinstance(v, dict) else v)
+                        for t, v in raw.items()
+                    }
+            except Exception as exc:
+                logger.debug("return_filler: sector map load failed: %s", exc)
+        return self._sector_map.get(symbol)
 
     def fill(self, today: date, price_fetcher, signal_log_reader) -> int:
         """Fill all horizons. Returns count of rows written.
@@ -282,7 +312,8 @@ class ReturnFiller:
         if not symbols:
             return 0
 
-        rows: list[ReturnRecord] = []
+        # Pass 1: compute raw forward returns for every symbol on this signal_date.
+        computed: list[dict] = []
         for symbol in symbols:
             try:
                 base_price = price_fetcher(symbol, signal_date)
@@ -291,17 +322,46 @@ class ReturnFiller:
                     continue
                 fwd_return = float(curr_price) / float(base_price) - 1.0
                 row_df = df[df["symbol"] == symbol]
-                rows.append(ReturnRecord(
-                    signal_date=signal_date,
-                    symbol=symbol,
-                    horizon=horizon,
-                    forward_return=round(fwd_return, 6),
-                    price_limit_hit=bool(row_df["price_limit_hit"].values[0])
-                                   if "price_limit_hit" in row_df else False,
-                    filled_at=datetime.now(timezone.utc),
-                ))
+                computed.append({
+                    "symbol": symbol,
+                    "fwd_return": round(fwd_return, 6),
+                    "sector": self._sector_of(symbol),
+                    "price_limit_hit": bool(row_df["price_limit_hit"].values[0])
+                                       if "price_limit_hit" in row_df else False,
+                })
             except Exception as exc:
                 logger.debug("return_filler: %s h=%d failed: %s", symbol, horizon, exc)
+
+        if not computed:
+            return 0
+
+        # Pass 2: sector mean (per known sector) for sector-neutral (demeaned) return.
+        sector_sums: dict[str, float] = {}
+        sector_counts: dict[str, int] = {}
+        for c in computed:
+            sec = c["sector"]
+            if sec is None:
+                continue
+            sector_sums[sec] = sector_sums.get(sec, 0.0) + c["fwd_return"]
+            sector_counts[sec] = sector_counts.get(sec, 0) + 1
+
+        rows: list[ReturnRecord] = []
+        for c in computed:
+            sec = c["sector"]
+            sector_adj: float | None = None
+            if sec is not None and sector_counts.get(sec):
+                sector_mean = sector_sums[sec] / sector_counts[sec]
+                sector_adj = round(c["fwd_return"] - sector_mean, 6)
+            rows.append(ReturnRecord(
+                signal_date=signal_date,
+                symbol=c["symbol"],
+                horizon=horizon,
+                forward_return=c["fwd_return"],
+                sector_adjusted_return=sector_adj,
+                sector=sec,
+                price_limit_hit=c["price_limit_hit"],
+                filled_at=datetime.now(timezone.utc),
+            ))
 
         if rows:
             self._append_rows(rows)

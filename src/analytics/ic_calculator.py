@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -22,6 +23,7 @@ import pandas as pd
 from scipy import stats
 
 from src.signals.thresholds import (
+    IC_FDR_ALPHA,
     IC_HORIZON_T1,
     IC_HORIZON_T5,
     IC_HORIZON_T20,
@@ -32,6 +34,13 @@ from src.signals.thresholds import (
     IC_MIN_OBSERVATIONS,
     IC_ROLLING_MID,
 )
+
+# D-139: 6 signal layers (viop excluded) x 2 primary horizons for BH-FDR panel.
+FDR_LAYER_COLS = (
+    "l1_tech_score", "l2_macro_score", "l3_kap_score",
+    "l4_sent_score", "l5_sm_score", "l6_risk_score",
+)
+FDR_HORIZONS = (IC_HORIZON_T5, IC_HORIZON_T20)
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +66,20 @@ class ICResult:
     t_stat: float
     p_value: float
     is_investable: bool
+
+
+@dataclass
+class FDRResult:
+    """Benjamini-Hochberg FDR panel for 6 layers x 2 primary horizons (D-139).
+
+    Dayanak: RR-010 sec.2 B4, Karar #6 (Benjamini & Hochberg 1995). Naive a=0.05
+    across 12 hypotheses inflates the false-positive rate; BH-FDR controls it.
+    """
+    as_of_date: date
+    results: list[dict]    # [{layer, horizon, ic, p_raw, p_adj, significant}, ...]
+    n_tests: int
+    alpha: float
+    method: str            # "fdr_bh"
 
 
 class ICCalculator:
@@ -240,6 +263,50 @@ class ICCalculator:
                             logger.debug("IC compute failed %s h=%d u=%s r=%s: %s",
                                          col, h, u, r, exc)
         return results
+
+    # ----------------------------------------------------------------
+    # BH-FDR multiple-testing correction (D-139)
+    # ----------------------------------------------------------------
+
+    def compute_fdr_panel(self, as_of_date: date) -> FDRResult:
+        """Benjamini-Hochberg FDR over 6 layers x {T5, T20} = 12 tests.
+
+        Dayanak: RR-010 sec.2 B4, Karar #6. Computes per-(layer, horizon) IC +
+        raw p-value via compute_ic(), then applies statsmodels fdr_bh to the
+        valid (non-NaN) p-values. Layers with insufficient data (NaN p-value)
+        are reported significant=False, p_adj=NaN, and excluded from correction.
+        """
+        raw: list[dict] = []
+        for layer in FDR_LAYER_COLS:
+            for horizon in FDR_HORIZONS:
+                r = self.compute_ic(layer, horizon, universe="all", regime="all")
+                raw.append({
+                    "layer": layer,
+                    "horizon": horizon,
+                    "ic": r.mean_ic,
+                    "p_raw": r.p_value,
+                    "p_adj": float("nan"),
+                    "significant": False,
+                })
+
+        valid_idx = [i for i, d in enumerate(raw) if not np.isnan(d["p_raw"])]
+        if valid_idx:
+            from statsmodels.stats.multitest import multipletests
+            pvals = [raw[i]["p_raw"] for i in valid_idx]
+            reject, p_adj, _, _ = multipletests(
+                pvals, alpha=IC_FDR_ALPHA, method="fdr_bh",
+            )
+            for k, i in enumerate(valid_idx):
+                raw[i]["p_adj"] = round(float(p_adj[k]), 6)
+                raw[i]["significant"] = bool(reject[k])
+
+        return FDRResult(
+            as_of_date=as_of_date,
+            results=raw,
+            n_tests=len(raw),
+            alpha=IC_FDR_ALPHA,
+            method="fdr_bh",
+        )
 
     # ----------------------------------------------------------------
     # Optional Alphalens integration
