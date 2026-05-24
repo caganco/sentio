@@ -115,8 +115,16 @@ Her Builder kendi BAGIMSIZ clone'unda calisir (tam izolasyon, ayri .git):
 Her clone bagimsizdir; biri branch degistirince digeri etkilenmez
 (eski paylasimli-worktree cakismalari artik imkansiz).
 
-Clone'da yeni is: git checkout -b feature/d-XXX -> push -> PR.
+Clone'da yeni is — SIRADA YAP (atlamak stale koddan branch açar):
+  git checkout master
+  git pull origin master        # ← ZORUNLU: en güncel master'dan başla
+  git checkout -b feature/d-XXX
+  ... geliştir ...
+  git push origin feature/d-XXX
+  gh pr create ...
+
 Ana repo (bist-trading-system) sadece Cagan: merge, PR review.
+Research raporu (RR-XXX) da clone'dan commit edilir — ana repo'dan değil.
 
 master KORUMALI: direct push + force-push reddedilir; merge icin
 PR + yesil CI (Tier 1/2/3 + Ruff) zorunlu. Admin dahil kimse master'a
@@ -164,6 +172,11 @@ Her SPEC (Specification) dökümanında şu alanlar **boş bırakılamaz**:
   - Master index: [`docs/RESEARCH_REGISTRY.md`](docs/RESEARCH_REGISTRY.md) — ID / başlık / tarih / bağlı CB-SPEC / status.
   - Örnek: bir SPEC L5 mimarisini değiştiriyorsa → "Dayanak: RR-001 §4" satırı zorunlu.
   - CB ↔ RR eşlemesi RESEARCH_REGISTRY.md'de tutulur (örn. CB-002 → RR-003 §3, CB-010 → RR-003 §1-2/§4).
+
+- **Yeni RR dosyası eklendiğinde RESEARCH_REGISTRY.md ZORUNLU güncellenir.**
+  - `docs/research/RR-XXX-{isim}.md` → PR açılmadan önce `docs/RESEARCH_REGISTRY.md`'ye satır eklenir.
+  - Status başlangıçta `⏳ Uygulanmadı`; direktife dönüştüğünde `✅ Applied` + D-XXX yazılır.
+  - Registry güncellemesi RR commit'iyle aynı branch'te olur — ayrı PR açılmaz.
 
 ## Session Bootstrap — Her Yeni Chat'te İlk Yap
 
