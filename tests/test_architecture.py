@@ -486,6 +486,37 @@ class TestKapBoostConstants:
         assert MASTER_WEIGHTS["kap"] == pytest.approx(0.30)
 
 
+class TestADVCapConstants:
+    """D-145 / RR-014: ADV cap design invariants — thresholds.py single source."""
+
+    def test_adv_cap_constant(self):
+        """POSITION_MAX_ADV_PCT must equal 0.05 (Almgren 2005, D-145)."""
+        from src.signals.thresholds import POSITION_MAX_ADV_PCT
+        assert POSITION_MAX_ADV_PCT == pytest.approx(0.05)
+
+    def test_execution_window_constants_exist(self):
+        """Execution timing constants must exist and be valid HH:MM strings."""
+        import re
+
+        from src.signals.thresholds import (
+            EXECUTION_WINDOW_AFTERNOON_END,
+            EXECUTION_WINDOW_AFTERNOON_START,
+            EXECUTION_WINDOW_MORNING_END,
+            EXECUTION_WINDOW_MORNING_START,
+        )
+
+        time_re = re.compile(r"^\d{2}:\d{2}$")
+        for val in (
+            EXECUTION_WINDOW_MORNING_START,
+            EXECUTION_WINDOW_MORNING_END,
+            EXECUTION_WINDOW_AFTERNOON_START,
+            EXECUTION_WINDOW_AFTERNOON_END,
+        ):
+            assert time_re.match(val), f"Invalid time format: {val!r}"
+        # Morning window must precede afternoon window (string comparison valid for HH:MM)
+        assert EXECUTION_WINDOW_MORNING_END < EXECUTION_WINDOW_AFTERNOON_START
+
+
 class TestICFrameworkInvariants:
     """D-139 / SPEC_IC_FRAMEWORK_1 K-09: IC framework design invariants."""
 

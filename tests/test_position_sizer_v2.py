@@ -12,11 +12,13 @@ from src.risk.position_sizer_v2 import (
     TIER_SELL,
     TIER_STRONG,
     TIER_WEAK,
+    apply_adv_cap,
     classify_sizing_tier,
     size_position,
 )
 from src.signals.thresholds import (
     MAX_DRAWDOWN_HARD_STOP,
+    POSITION_MAX_ADV_PCT,
     POSITION_SIZE_MEDIUM,
     POSITION_SIZE_STRONG,
 )
@@ -109,3 +111,48 @@ class TestEdgeCases:
     def test_sector_cap_full_watchlists(self):
         d = size_position(0.95, 1.0, EQUITY, sector_exposure_pct=0.40)
         assert d.action == ACTION_WATCHLIST
+
+
+class TestADVCap:
+    """D-145 / RR-014: ADV cap post-processing — 4 test."""
+
+    def test_adv_cap_applies_when_position_exceeds(self, monkeypatch):
+        """position_size > adv_cap → final position capped at adv_cap."""
+        decision = size_position(0.80, 1.0, EQUITY)
+        assert decision.position_size > 0
+
+        # ADV = 100k TL → cap = 100k × 0.05 = 5k TL  (position ~26k → exceeds)
+        monkeypatch.setattr(
+            "src.risk.position_sizer_v2.fetch_adv",
+            lambda *a, **kw: 100_000.0,
+        )
+        result = apply_adv_cap("AKBNK", decision)
+        assert result.position_size == pytest.approx(5_000.0, rel=1e-3)
+        assert "ADV cap" in result.reason
+
+    def test_adv_cap_not_applied_when_position_within(self, monkeypatch):
+        """position_size < adv_cap → original decision returned unchanged."""
+        decision = size_position(0.80, 1.0, EQUITY)
+
+        # ADV = 100M TL → cap = 5M TL (far above ~26k position → no clip)
+        monkeypatch.setattr(
+            "src.risk.position_sizer_v2.fetch_adv",
+            lambda *a, **kw: 100_000_000.0,
+        )
+        result = apply_adv_cap("AKBNK", decision)
+        assert result.position_size == pytest.approx(decision.position_size, rel=1e-3)
+
+    def test_adv_fetch_fail_nonfatal(self, monkeypatch):
+        """fetch_adv returns None → non-fatal, original decision unchanged."""
+        decision = size_position(0.80, 1.0, EQUITY)
+
+        monkeypatch.setattr(
+            "src.risk.position_sizer_v2.fetch_adv",
+            lambda *a, **kw: None,
+        )
+        result = apply_adv_cap("AKBNK", decision)
+        assert result.position_size == pytest.approx(decision.position_size, rel=1e-3)
+
+    def test_adv_cap_constant_value(self):
+        """POSITION_MAX_ADV_PCT == 0.05 invariant (Almgren 2005, D-145)."""
+        assert POSITION_MAX_ADV_PCT == pytest.approx(0.05)

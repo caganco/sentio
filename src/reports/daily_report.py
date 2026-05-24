@@ -4,6 +4,12 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
 from src.analysis.portfolio import PositionAnalysis, portfolio_summary
+from src.signals.thresholds import (
+    EXECUTION_WINDOW_AFTERNOON_END,
+    EXECUTION_WINDOW_AFTERNOON_START,
+    EXECUTION_WINDOW_MORNING_END,
+    EXECUTION_WINDOW_MORNING_START,
+)
 from src.utils.config import get_reports_dir
 from src.utils.logger import setup_logger
 
@@ -75,6 +81,12 @@ def _build_context(
         "candidates": candidates,
         "alerts": all_alerts,
         "has_high_alerts": bool(summ["high_alerts"]),
+        # D-145: Ekinci (2003) BIST intraday execution timing note (rapor notu)
+        "execution_window": (
+            f"{EXECUTION_WINDOW_MORNING_START}–{EXECUTION_WINDOW_MORNING_END}"
+            f" veya "
+            f"{EXECUTION_WINDOW_AFTERNOON_START}–{EXECUTION_WINDOW_AFTERNOON_END}"
+        ),
     }
 
 

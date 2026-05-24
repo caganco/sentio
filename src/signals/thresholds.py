@@ -370,6 +370,20 @@ MAX_POSITIONS_TOTAL: int = 6
 MAX_SECTOR_CONCENTRATION: float = 0.40  # Single sector cap
 MAX_DRAWDOWN_HARD_STOP: float = 0.15    # Portfolio DD → liquidate / pause entries
 
+# --- ADV cap + execution timing (D-145, RR-014) ---
+# Ref: Almgren (2005) optimal execution / Ekinci (2003) BIST intraday pattern.
+# Max position = min(conviction-based TL, POSITION_MAX_ADV_PCT x ADV_20d).
+# Prevents oversized entries in illiquid BIST names (market impact control).
+POSITION_MAX_ADV_PCT: float = 0.05   # 5% of 20-day Average Daily Volume (TL)
+
+# Ekinci (2003) BIST intraday: sabah ters-J + ogleden sonra U-sekli likidite.
+# Acilis (09:30-10:30) ve kapanis oncesi (15:30+) likidite dusuk -> bu
+# pencereler disinda islem onerilmez. Yalnizca rapor notu; otomatik emir degil.
+EXECUTION_WINDOW_MORNING_START:   str = "10:30"
+EXECUTION_WINDOW_MORNING_END:     str = "11:30"
+EXECUTION_WINDOW_AFTERNOON_START: str = "14:00"
+EXECUTION_WINDOW_AFTERNOON_END:   str = "15:30"
+
 # --- Staged take-profit (SPEC_STAGED_TP_1) ---
 TP1_PCT_EXIT: float = 0.50             # First resistance
 TP2_PCT_EXIT: float = 0.30             # Fib 0.618
