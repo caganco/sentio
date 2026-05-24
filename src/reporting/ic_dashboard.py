@@ -49,6 +49,7 @@ class ICDashboard:
         loo_results=None,
         regime: str = "unknown",
         signal_count: int = 0,
+        decay_data: "dict[str, dict] | None" = None,   # D-140: {layer: compute_decay result}
     ) -> None:
         # Filter to horizon=5, universe="all", regime="all" for the headline row
         self._ics = {
@@ -59,31 +60,42 @@ class ICDashboard:
         self._regime = regime
         self._today = date.today()
         self._signal_count = signal_count
+        self._decay = decay_data or {}
 
     def print_cli(self) -> None:
-        sep = "=" * 78
+        sep = "=" * 90
         print()
         print(sep)
         print(f"  BIST OS -- Alpha Attribution Dashboard  |  {self._today}  |  Regime: {self._regime}")
         print(sep)
         print(f"  {'Layer':<18} {'IC(t+5)':>9} {'IR':>7} {'t-stat':>8} "
-              f"{'LOO dIC':>10} {'Status':>10}")
-        print("-" * 78)
+              f"{'LOO dIC':>10} {'Decay30d':>11} {'Status':>10}")
+        print("-" * 90)
         for col, display in LAYER_DISPLAY.items():
             ic_r = self._ics.get(col)
             loo_r = self._loo.get(col)
+            # D-140: decay slope string
+            decay = self._decay.get(col, {})
+            d30 = decay.get("slope_30d", float("nan"))
+            dstatus = decay.get("status", "ok")
+            if np.isnan(d30):
+                d_str = "--"
+            else:
+                flag = "!!" if dstatus == "review" else ("!" if dstatus == "warn" else "")
+                d_str = f"{d30:+.4f}{flag}"
             if ic_r is None or np.isnan(ic_r.mean_ic):
                 # Show COLLECTING when signals exist but returns not yet accumulated
                 status = f"COLLECTING({self._signal_count})" if self._signal_count > 0 else "NO DATA"
-                print(f"  {display:<18} {'--':>9} {'--':>7} {'--':>8} {'--':>10} {status:>13}")
+                print(f"  {display:<18} {'--':>9} {'--':>7} {'--':>8} {'--':>10} "
+                      f"{d_str:>11} {status:>10}")
                 continue
             loo_str = f"{loo_r.marginal_ic:+.4f}" if loo_r else "--"
             status = _status_label(ic_r.t_stat, ic_r.is_investable)
             print(f"  {display:<18} {ic_r.mean_ic:>9.4f} {ic_r.ir:>7.3f} "
-                  f"{ic_r.t_stat:>8.2f} {loo_str:>10} {status:>10}")
+                  f"{ic_r.t_stat:>8.2f} {loo_str:>10} {d_str:>11} {status:>10}")
         print(sep)
         print(f"  PBO estimate: [pending Faz 3]")
-        print(f"  Survivorship: Faz 1 -- yfinance + manual snapshot (bias accepted)")
+        print(f"  Survivorship: Faz 2 -- delisted tickers filter active (D-140)")
         print()
 
     def dump_json(self, path: str) -> None:
@@ -97,6 +109,9 @@ class ICDashboard:
             report["record_count"] = self._signal_count
         for col, ic_r in self._ics.items():
             loo_r = self._loo.get(col)
+            decay = self._decay.get(col, {})
+            d30 = decay.get("slope_30d", float("nan"))
+            d60 = decay.get("slope_60d", float("nan"))
             report["layers"][col] = {
                 "display_name": LAYER_DISPLAY.get(col, col),
                 "horizon_t5_ic": (ic_r.mean_ic if not np.isnan(ic_r.mean_ic) else None),
@@ -107,6 +122,9 @@ class ICDashboard:
                 "is_investable": ic_r.is_investable,
                 "loo_delta_ic": (loo_r.marginal_ic if loo_r else None),
                 "status": _status_label(ic_r.t_stat, ic_r.is_investable),
+                "decay_slope_30d": (None if np.isnan(d30) else d30),
+                "decay_slope_60d": (None if np.isnan(d60) else d60),
+                "decay_status": decay.get("status", "ok"),
             }
         out_path = Path(path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -166,6 +184,7 @@ def main() -> int:
     loo_results: list = []
     regime = "unknown"
 
+    decay_data: dict = {}
     try:
         # Read flat daily parquets directly — avoids schema collision with returns.parquet
         sig_df = read_flat_signals(sig_dir)
@@ -176,10 +195,18 @@ def main() -> int:
         if "regime_label" in sig_df.columns and not sig_df.empty:
             from collections import Counter
             regime = Counter(sig_df["regime_label"].dropna()).most_common(1)[0][0]
+        # D-140: compute IC decay for each layer at horizon 5
+        from src.analytics.ic_calculator import FDR_LAYER_COLS
+        for col in FDR_LAYER_COLS:
+            try:
+                decay_data[col] = calc.compute_decay(col, 5)
+            except Exception as dec_exc:
+                logger.debug("ic_dashboard: decay compute failed %s: %s", col, dec_exc)
     except Exception as exc:
         logger.warning("ic_dashboard: compute failed, rendering empty: %s", exc)
 
-    dash = ICDashboard(ic_results, loo_results, regime=regime, signal_count=signal_count)
+    dash = ICDashboard(ic_results, loo_results, regime=regime,
+                       signal_count=signal_count, decay_data=decay_data)
     dash.print_cli()
     out = args.json or f"data/analytics/ic_report_{date.today()}.json"
     dash.dump_json(out)
