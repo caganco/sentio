@@ -653,6 +653,11 @@ IC_DECAY_SLOPE_REVIEW: float = -0.002    # slope below this -> layer "review"
 IC_FDR_ALPHA:          float = 0.10      # BH-FDR significance level
 IC_FDR_M_TESTS:        int   = 12        # 6 layers x 2 primary horizons (T5, T20)
 
+# New-layer admission hurdle (G-22, Harvey-Liu-Zhu 2016 RFS 29(1):5)
+# A candidate layer must clear this t-stat before receiving any MASTER_WEIGHTS share.
+# 3.0 corrects for multiple-comparison bias in factor discovery (vs naive 2.0).
+IC_NEW_LAYER_TSTAT_HURDLE: float = 3.0
+
 # Analytics data-path constants (runtime parquet/json; gitignored personal data)
 IC_HISTORY_PATH:        str = "data/analytics/ic_history.parquet"
 IC_WEIGHT_HISTORY_PATH: str = "data/analytics/weight_history.parquet"

@@ -2,8 +2,8 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 20 May 2026  
-**Total Decisions:** 14 karar (DEC-001..DEC-013, DEC-015)  
+**Last Updated:** 24 May 2026  
+**Total Decisions:** 16 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -30,6 +30,8 @@
 | **DEC-015** | Alpha Attribution Infrastructure (Faz 1) | Signal Architecture / Analytics | ✅ Implemented | 2026-05-20 | `src/analytics/`, `src/reporting/`, `src/data/signal_logger.py`, `src/data/universe_snapshot.py`, `scripts/daily_update.py`, `src/signals/thresholds.py` |
 | DEC-016 | Critic Backlog System (persistent memory) | 2026-05-20 | ✅ |
 | **DEC-017** | Macro Gate Softening (CDS Percentile Overlay) | Signal Architecture / Risk Management | ✅ Implemented | 2026-05-20 | `src/signals/macro_regime_gate.py`, `src/signals/layers/macro_layer.py`, `src/signals/local/cache_store.py`, `src/signals/thresholds.py`, `scripts/daily_update.py` |
+| **DEC-022** | L6 Bayesian kalibrasyonu dışı — statik 0.03 | Signal Architecture / Analytics | ✅ Decided | 2026-05-24 | `src/signals/thresholds.py` |
+| **DEC-023** | MASTER_WEIGHTS manuel onay protokolü | Signal Architecture / Analytics | ✅ Decided | 2026-05-24 | `src/signals/thresholds.py`, `docs/DECISIONS.md` |
 ---
 
 ## DECISION CATEGORIES
@@ -162,6 +164,70 @@ Tests: +N passing"
 
 ---
 
+---
+
+## DEC-022 — L6 Bayesian kalibrasyonu dışı: statik 0.03
+
+| Alan | Değer |
+|------|-------|
+| **ID** | DEC-022 |
+| **Başlık** | L6 Bayesian kalibrasyonu dışı — statik 0.03 |
+| **Tarih** | 24 May 2026 |
+| **Alan** | Signal Architecture / Analytics |
+| **Durum** | ✅ Decided |
+| **Etkilenen Dosyalar** | `src/signals/thresholds.py` |
+
+### Gerekçe
+
+L6 Risk/Kelly bir alfa sinyali değildir; pozisyon büyütücüdür (position sizer).
+ICIR-tabanlı Bayesian kalibrasyon bu katmana anlamsızdir:
+
+- L6 çıktısı bireysel hisse alpha tahmini değil, portföy büyüklük ayarı yapar.
+- Sinyal IC'si ile L6 katkısı arasında doğrudan ilişki yoktur.
+- Bayesian update yalnızca gerçek alpha üreten L1-L5 katmanlarına uygulanır.
+
+**Sonuç:** L6 ağırlığı `MASTER_WEIGHTS["risk"] = 0.03` olarak statik kalır.
+WeightCalibrator (Faz 3) L6'yı güncelleme kapsamı dışında tutar.
+
+**Kaynak:** RR-010 §6 madde 10
+
+---
+
+## DEC-023 — MASTER_WEIGHTS manuel onay protokolü
+
+| Alan | Değer |
+|------|-------|
+| **ID** | DEC-023 |
+| **Başlık** | MASTER_WEIGHTS manuel onay protokolü |
+| **Tarih** | 24 May 2026 |
+| **Alan** | Signal Architecture / Analytics |
+| **Durum** | ✅ Decided |
+| **Etkilenen Dosyalar** | `src/signals/thresholds.py`, `docs/DECISIONS.md` |
+
+### Gerekçe
+
+WeightCalibrator (Faz 3, D-135) otomatik ağırlık önerileri üretecektir.
+Bu öneriler doğrudan üretime geçmez; aşağıdaki 4 adımlı protokol zorunludur:
+
+1. **Orchestrator değerlendirir:** WeightCalibrator çıktısı
+   `data/analytics/weight_history.parquet`'e yazılır. Orchestrator
+   önerilen değişimi IC metrikleri, regime koşulları ve CB geçmişiyle
+   karşılaştırarak değerlendirir.
+2. **the maintainer onaylar:** Orchestrator değerlendirmesini the maintainer inceler ve
+   açık onay verir. Sessiz kalma onay sayılmaz.
+3. **Ayrı spec ile thresholds.py güncellenir:** Onaylanan değerler
+   ayrı bir spec (D-XXX) kapsamında `MASTER_WEIGHTS` bloğuna yazılır.
+   Hiçbir Builder `MASTER_WEIGHTS`'i kendi inisiyatifiyle değiştiremez.
+4. **PR → CI → merge:** Standart branch workflow (CLAUDE.md) uygulanır.
+   Green CI + the maintainer merge onayı olmadan üretim değişmez.
+
+**Kapsam dışı (statik):** L6 (DEC-022 gereği), τ=0 fazı (60 işlem günü dolmadan
+herhangi bir otomatik kalibrasyon başlamaz — IC_BAYESIAN_TAU_MIN_DAYS=60).
+
+**Kaynak:** SPEC_IC_FRAMEWORK_1 K-06, G-22
+
+---
+
 **Owner:** Architect  
 **Maintained By:** Architect  
-**Last Review:** 19 May 2026
+**Last Review:** 24 May 2026
