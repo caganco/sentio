@@ -1082,6 +1082,57 @@ def _write_signal_logs_d107(
     except Exception as exc:
         logger.warning("D-139 IC daily compute failed (non-fatal): %s", exc)
 
+    # --- NAV Discount Tracker (D-143, RR-013) ---
+    try:
+        from src.analytics.nav_calculator import NAVCalculator
+        from src.analytics.nav_zscore import NAVZScoreTracker
+        from src.signals.thresholds import (
+            NAV_DISCOUNT_KADEME1_KAPATMA,
+            NAV_DISCOUNT_KADEME2_ALIM,
+        )
+
+        nav_result = NAVCalculator().compute_tier1_nav("KCHOL")
+        zscore_result = NAVZScoreTracker().update(nav_result, as_of_date=today)
+
+        disc = nav_result["discount_pct"]
+        z = zscore_result["z_score"]
+        signal = zscore_result["signal"]
+        logger.info(
+            "D-143 NAV KCHOL: iskonto=%.1f%% z=%.2f sinyal=%s",
+            disc * 100,
+            z if z == z else float("nan"),  # nan-safe
+            signal,
+        )
+
+        # Alert trigger: append NAV section to today's daily report markdown
+        nav_alert_line = ""
+        if disc < NAV_DISCOUNT_KADEME1_KAPATMA:
+            nav_alert_line = (
+                f"[NAV-ALERT] KCHOL iskonto {disc:.1%} < Kademe-1 siniri "
+                f"({NAV_DISCOUNT_KADEME1_KAPATMA:.0%}) -- TRIM/KAPATMA sinyali"
+            )
+        elif disc > NAV_DISCOUNT_KADEME2_ALIM:
+            nav_alert_line = (
+                f"[NAV-ALERT] KCHOL iskonto {disc:.1%} > Kademe-2 siniri "
+                f"({NAV_DISCOUNT_KADEME2_ALIM:.0%}) -- EK ALIM sinyali"
+            )
+
+        import glob as _glob
+        report_files = sorted(_glob.glob("reports/daily_*.md"), reverse=True)
+        if report_files:
+            z_str = f"{z:.2f}" if z == z else "N/A"
+            nav_section = (
+                f"\n\n## NAV Tracker -- KCHOL\n"
+                f"- iskonto: {disc:.1%}  |  z-skor: {z_str}  |  sinyal: {signal}\n"
+            )
+            if nav_alert_line:
+                nav_section += f"- WARNING: {nav_alert_line}\n"
+            with open(report_files[0], "a", encoding="utf-8") as _f:
+                _f.write(nav_section)
+
+    except Exception as exc:
+        logger.warning("D-143 NAV tracker failed (non-fatal): %s", exc)
+
 
 def _days_to_period(days: int) -> str:
     if days <= 30:
