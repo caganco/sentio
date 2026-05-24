@@ -25,6 +25,20 @@ jobs:
           python -m pytest tests/test_architecture.py \
             -q --tb=short
 
+  import-linter:
+    name: "Architecture — import-linter"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install import-linter
+        run: pip install import-linter
+      - name: import-linter contracts
+        run: lint-imports
+
   integration:
     name: "Tier 2 — Integration Tests"
     runs-on: ubuntu-latest

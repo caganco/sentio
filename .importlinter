@@ -1,0 +1,26 @@
+[importlinter]
+root_package = src
+
+# Layering: engine (top) > layers > thresholds (bottom/leaf).
+# Lower layers CANNOT import higher ones -> enforces both:
+#   * signal layers must not import the engine
+#   * thresholds is a leaf (imports nothing from layers/engine)
+[importlinter:contract:signal-layering]
+name = Signal engine layering (no upward imports)
+type = layers
+layers =
+    src.signals.engine
+    src.signals.layers
+    src.signals.thresholds
+
+# The six signal layers must not import one another.
+[importlinter:contract:layer-independence]
+name = Signal layers are mutually independent
+type = independence
+modules =
+    src.signals.layers.technical_layer
+    src.signals.layers.macro_layer
+    src.signals.layers.kap_layer
+    src.signals.layers.sentiment_layer
+    src.signals.layers.smart_money_layer
+    src.signals.layers.risk_layer
