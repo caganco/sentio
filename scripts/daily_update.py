@@ -1073,6 +1073,15 @@ def _write_signal_logs_d107(
     except Exception as exc:
         logger.warning("D-107 return filler failed (non-fatal): %s", exc)
 
+    # --- Daily IC computation (D-139) ---
+    try:
+        from src.analytics.ic_history import ICHistoryWriter
+
+        n_ic = ICHistoryWriter().run_daily(today)
+        logger.info("D-139 IC history: %d rows appended", n_ic)
+    except Exception as exc:
+        logger.warning("D-139 IC daily compute failed (non-fatal): %s", exc)
+
 
 def _days_to_period(days: int) -> str:
     if days <= 30:
