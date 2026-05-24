@@ -486,4 +486,47 @@ class TestKapBoostConstants:
         assert MASTER_WEIGHTS["kap"] == pytest.approx(0.30)
 
 
+class TestICFrameworkInvariants:
+    """D-139 / SPEC_IC_FRAMEWORK_1 K-09: IC framework design invariants."""
+
+    def test_master_weights_not_auto_mutated(self):
+        """weight_calibrator.py must never write MASTER_WEIGHTS at runtime.
+
+        Faz 1: file does not exist yet -> guard makes this a vacuous pass.
+        Faz 3 (D-135) adds the calibrator; proposals go to weight_history.parquet.
+        """
+        src = Path(__file__).parent.parent / "src" / "analytics" / "weight_calibrator.py"
+        if src.exists():
+            content = src.read_text(encoding="utf-8")
+            assert "MASTER_WEIGHTS[" not in content, (
+                "weight_calibrator.py MASTER_WEIGHTS'e dogrudan yaziyor. "
+                "Onerilen weight'ler weight_history.parquet'e yazilmali."
+            )
+
+    def test_ic_constants_single_source(self):
+        """New IC constants must be defined in thresholds.py with expected values."""
+        from src.signals.thresholds import (
+            IC_BAYESIAN_TAU_MIN_DAYS,
+            IC_DECAY_SLOPE_WARN,
+            IC_FDR_ALPHA,
+        )
+        assert IC_BAYESIAN_TAU_MIN_DAYS == 60
+        assert IC_FDR_ALPHA == 0.10
+        assert IC_DECAY_SLOPE_WARN < 0
+
+    def test_analytics_not_importing_engine(self):
+        """src/analytics/ modules must not import src.signals.engine (K-08)."""
+        analytics_dir = Path(__file__).parent.parent / "src" / "analytics"
+        if not analytics_dir.exists():
+            return
+        for f in analytics_dir.glob("*.py"):
+            content = f.read_text(encoding="utf-8")
+            assert "from src.signals.engine" not in content, (
+                f"{f.name} src.signals.engine'i import ediyor - mimari ihlal"
+            )
+            assert "import src.signals.engine" not in content, (
+                f"{f.name} src.signals.engine'i import ediyor - mimari ihlal"
+            )
+
+
 pytestmark = pytest.mark.baseline
