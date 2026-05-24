@@ -58,4 +58,5 @@ miscellaneous/
 OS_STATE.md
 agents/memory/masterplan.md
 CRITIC_BACKLOG.md
-tests/test_critic_backlog.py   # tests private CRITIC_BACKLOG.md/OS_STATE.md (local-only)
+# tests private CRITIC_BACKLOG.md/OS_STATE.md (local-only); inline comment kaldirildi (pattern'i bozuyordu)
+tests/test_critic_backlog.py
