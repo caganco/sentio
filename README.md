@@ -147,7 +147,7 @@ sizing at 0.8×.
 ## Setup
 
 ```bash
-git clone https://github.com/raypun78/bist-trading-system
+git clone https://github.com/caganco/bist-trading-system
 cd bist-trading-system
 
 pip install -r requirements.txt
