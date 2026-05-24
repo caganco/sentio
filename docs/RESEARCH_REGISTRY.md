@@ -16,6 +16,8 @@
 | [RR-012](research/RR-012-EM-Spesifik%20Fakt%C3%B6r%20Literat%C3%BCr%C3%BC%20Derinle%C5%9Ftirmesi.md) | 14 EM/BIST-spesifik faktör literatür derinleştirmesi — implementasyon fizibilite analizi | 24 May 2026 | — (Phase 5 faktör direktifi bekliyor) | ⏳ Uygulanmadı |
 | [RR-013](research/RR-013_NAV_ISKONTO.md) | BIST holding NAV iskontosu hesabı ve mean reversion alpha stratejisi (KCHOL/SAHOL/AGHOL pilot) | 24 May 2026 | RR-012 §B8 (20× detay) | ⏳ Uygulanmadı |
 | [RR-014](research/RR-014-SLIPPAGE.md) | BIST slippage ve market impact modellemesi — Almgren-Chriss, karekök etkisi, BIST mikroyapı bulguları | 24 May 2026 | — (execution SPEC bekliyor) | ⏳ Uygulanmadı |
+| [RR-015](research/RR-015-TRANSACTION-COST.md) | Transaction cost modellemesi — broker tier karşılaştırması, round-trip maliyet, ~85K TL portföy erozyon analizi | 24 May 2026 | RR-014 §devam | ⏳ Uygulanmadı |
+| [RR-016](research/RR-016-DRAWDOWN-AND-VOLATILITY-TARGETING.md) | Drawdown & volatility targeting — max drawdown kontrolü, volatility scaling, kriz dönemleri counterfactual analizi | 24 May 2026 | RR-012, RR-013, RR-014, RR-015 §devam | ⏳ Uygulanmadı |
 
 ---
 
