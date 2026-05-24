@@ -664,6 +664,25 @@ IC_WEIGHT_HISTORY_PATH: str = "data/analytics/weight_history.parquet"
 DELISTED_TICKERS_PATH:  str = "data/analytics/delisted_tickers.json"
 SECTOR_RETURNS_CACHE:   str = "data/analytics/sector_returns_cache.parquet"
 
+# ----------------------------------------------------------------
+# NAV Discount Tracker (D-143, RR-013 sec.5.2 + sec.8)
+# KCHOL holding NAV iskonto z-skor sinyal esikleri.
+# ASCII-only comments (cp1254 architecture-test safety).
+# ----------------------------------------------------------------
+NAV_ZSCORE_BUY:      float = 2.0    # z > +2.0 -> BUY
+NAV_ZSCORE_BUY_LEAN: float = 1.0    # z > +1.0 -> BUY-LEAN
+NAV_ZSCORE_TRIM:     float = -1.0   # z < -1.0 -> TRIM
+NAV_ZSCORE_AVOID:    float = -2.0   # z < -2.0 -> AVOID
+NAV_LOOKBACK_DAYS:   int   = 252    # 252 trading-day rolling window
+
+# Hard thresholds (RR-013 sec.8 pre-set, absolute discount levels)
+NAV_DISCOUNT_KADEME1_KAPATMA: float = 0.30  # iskonto < %30 -> trim/kapatma
+NAV_DISCOUNT_KADEME2_ALIM:    float = 0.45  # iskonto > %45 -> ek alim
+
+# NAV data paths (gitignored runtime artifacts, not committed)
+NAV_HISTORY_PATH:   str = "data/analytics/nav_history.parquet"
+HOLDINGS_YAML_PATH: str = "config/holdings.yaml"
+
 # Brinson-Fachler benchmark
 BRINSON_BENCHMARK: str = "equal_weight"   # "equal_weight" | "market_cap_weight"
 

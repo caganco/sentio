@@ -519,6 +519,31 @@ class TestICFrameworkInvariants:
         from src.signals.thresholds import IC_NEW_LAYER_TSTAT_HURDLE
         assert IC_NEW_LAYER_TSTAT_HURDLE == 3.0
 
+    def test_nav_thresholds_constants(self):
+        """D-143: NAV constants must be defined in thresholds.py with correct values."""
+        from src.signals.thresholds import (
+            NAV_DISCOUNT_KADEME2_ALIM,
+            NAV_LOOKBACK_DAYS,
+            NAV_ZSCORE_BUY,
+        )
+        assert NAV_ZSCORE_BUY == 2.0
+        assert NAV_DISCOUNT_KADEME2_ALIM == 0.45
+        assert NAV_LOOKBACK_DAYS == 252
+
+    def test_nav_modules_not_importing_engine(self):
+        """src/analytics/nav_*.py must not import src.signals.engine (K-08)."""
+        analytics_dir = Path(__file__).parent.parent / "src" / "analytics"
+        if not analytics_dir.exists():
+            return
+        for f in analytics_dir.glob("nav_*.py"):
+            content = f.read_text(encoding="utf-8")
+            assert "from src.signals.engine" not in content, (
+                f"{f.name} src.signals.engine'i import ediyor - mimari ihlal"
+            )
+            assert "import src.signals.engine" not in content, (
+                f"{f.name} src.signals.engine'i import ediyor - mimari ihlal"
+            )
+
     def test_analytics_not_importing_engine(self):
         """src/analytics/ modules must not import src.signals.engine (K-08)."""
         analytics_dir = Path(__file__).parent.parent / "src" / "analytics"
