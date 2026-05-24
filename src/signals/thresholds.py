@@ -165,6 +165,14 @@ BIST_FOREIGN_STALE_DAYS: int = 10
 BIST_FOREIGN_THRESHOLD_OUTFLOW: float = -0.2  # % daily change threshold
 BIST_FOREIGN_THRESHOLD_INFLOW: float = 0.2    # % daily change threshold
 
+# D-144 Multi-window foreign flow (CB-011)
+# ASCII-only comments (cp1254 architecture-test safety).
+FOREIGN_FLOW_WINDOWS: tuple = (3, 5, 10)       # analysis windows (days)
+FOREIGN_FLOW_PERSISTENCE_MIN: int = 3           # min consecutive days for +20% boost
+FOREIGN_FLOW_QNB_TICKER: str = "QNBFB.IS"      # structural bias ticker
+FOREIGN_FLOW_QNB_FILTER_ENABLED: bool = True    # apply QNB correction
+FOREIGN_FLOW_SIGNAL_VERSION: str = "v2"         # audit trail
+
 # DXY — US Dollar Index (Gap 3 — SPEC_L2_ENHANCEMENT_1)
 # Higher DXY (USD strength) → EM capital outflows → bearish for BIST.
 # Thresholds: weekly % change → score. List ordered high-to-low; first match wins.

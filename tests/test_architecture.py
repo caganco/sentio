@@ -530,6 +530,15 @@ class TestICFrameworkInvariants:
         assert NAV_DISCOUNT_KADEME2_ALIM == 0.45
         assert NAV_LOOKBACK_DAYS == 252
 
+    def test_foreign_flow_constants(self):
+        """D-144: CB-011 foreign flow constants in thresholds.py."""
+        from src.signals.thresholds import (
+            FOREIGN_FLOW_QNB_FILTER_ENABLED,
+            FOREIGN_FLOW_WINDOWS,
+        )
+        assert FOREIGN_FLOW_QNB_FILTER_ENABLED is True
+        assert len(FOREIGN_FLOW_WINDOWS) == 3
+
     def test_nav_modules_not_importing_engine(self):
         """src/analytics/nav_*.py must not import src.signals.engine (K-08)."""
         analytics_dir = Path(__file__).parent.parent / "src" / "analytics"
