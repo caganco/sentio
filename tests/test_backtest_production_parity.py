@@ -231,17 +231,23 @@ class TestParityFutureChecks:
     """
 
     def test_composite_calculation_parity_requires_calculator(self):
-        """Production/backtest composite parity — D-149c: src/signals/calculator.py gerekli."""
-        pytest.skip(
-            "D-149c bekliyor: src/signals/calculator.py mevcut değil. "
-            "compute_composite_score() importlandığında skip kaldır."
-        )
+        """Production/backtest composite parity — calculator.py paylasimli modul (D-149c)."""
+        from src.signals.calculator import compute_composite_score
+
+        # Neutral giris -> her iki engine ayni sonucu uretmeli
+        scores = {layer: 50.0 for layer in MASTER_WEIGHTS}
+        result = compute_composite_score(scores, MASTER_WEIGHTS)
+        assert result == pytest.approx(50.0, abs=0.01)
 
     def test_signal_from_composite_consistent_via_calculator(self):
-        """signal_from_composite() her iki engine için aynı sonuç üretmeli — D-149c."""
-        pytest.skip(
-            "D-149c bekliyor: signal_from_composite() calculator.py'de implement edilecek."
-        )
+        """signal_from_composite() SIGNAL_THRESHOLDS sinirlarini dogru uygular (D-149c)."""
+        from src.signals.calculator import signal_from_composite
+
+        assert signal_from_composite(75.0) == "BUY-STRONG"   # >= 72
+        assert signal_from_composite(65.0) == "BUY-WEAK"     # >= 60, < 72
+        assert signal_from_composite(50.0) == "HOLD"         # >= 48, < 60
+        assert signal_from_composite(40.0) == "SELL-WEAK"    # >= 32, < 48
+        assert signal_from_composite(20.0) == "SELL-STRONG"  # < 32
 
     def test_no_l3_l4_l5_neutral_stub_in_backtest_post_faz2(self):
         """backtest L3/L4/L5 neutral stub kaldırıldı mı? — D-149d / Faz 2."""
