@@ -4,11 +4,13 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
 from src.analysis.portfolio import PositionAnalysis, portfolio_summary
+from src.risk.transaction_cost import round_trip_cost_pct
 from src.signals.thresholds import (
     EXECUTION_WINDOW_AFTERNOON_END,
     EXECUTION_WINDOW_AFTERNOON_START,
     EXECUTION_WINDOW_MORNING_END,
     EXECUTION_WINDOW_MORNING_START,
+    MIN_NET_EXPECTED_VALUE_PCT,
     PORTFOLIO_TARGET_VOL_ANNUAL,  # noqa: F401 — raporlama sabiti
 )
 from src.utils.config import get_reports_dir
@@ -41,6 +43,20 @@ def _build_context(
         ma20_diff = None
         if a.ma20:
             ma20_diff = (a.current_price - a.ma20) / a.ma20 * 100
+        # D-146: Net EV debug log (proxy: profit_target as expected return)
+        if a.avg_cost and a.profit_target_price and a.avg_cost > 0:
+            _gross_ev = a.profit_target_price / a.avg_cost - 1.0
+            _rt_cost = round_trip_cost_pct(a.ticker)
+            _net_ev = _gross_ev - _rt_cost
+            _tradeable = _net_ev >= MIN_NET_EXPECTED_VALUE_PCT
+            logger.debug(
+                "%s: gross=%.2f%%, cost=%.2f%%, net=%.2f%%, tradeable=%s",
+                a.ticker,
+                _gross_ev * 100,
+                _rt_cost * 100,
+                _net_ev * 100,
+                _tradeable,
+            )
         positions.append({
             "ticker": a.ticker,
             "quantity": a.quantity,
