@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 
 import pandas as pd
+from src.backtest.validation_constants import CRISIS_WINDOWS  # noqa: F401 — D-150e
 
 logger = logging.getLogger(__name__)
 
