@@ -384,6 +384,16 @@ EXECUTION_WINDOW_MORNING_END:     str = "11:30"
 EXECUTION_WINDOW_AFTERNOON_START: str = "14:00"
 EXECUTION_WINDOW_AFTERNOON_END:   str = "15:30"
 
+# --- Net EV check + transaction cost (D-146, RR-015) ---
+# Ref: Almgren & Chriss (2001), Ekinci (2003) BIST spread/commission analysis.
+# net_ev = expected_return - round_trip_cost; enter only if net_ev >= MIN_NET_EV.
+ROUND_TRIP_COST_PCT_DEFAULT: float = 0.009   # %0.9 fallback (unknown broker tier)
+MIN_NET_EXPECTED_VALUE_PCT:  float = 0.005   # %0.5 minimum net EV to enter
+BROKER_TIER: str = "A"                       # Default broker: Garanti BBVA (Tier A)
+# Hisse-bazlı override: mikro-cap / dar spread likidite (1.3% round-trip)
+HIGH_COST_TICKERS: tuple = ("ENERY", "AYGAZ", "GUBRF")
+HIGH_COST_RT_PCT: float = 0.013             # %1.3 mikro-cap round-trip
+
 # --- Staged take-profit (SPEC_STAGED_TP_1) ---
 TP1_PCT_EXIT: float = 0.50             # First resistance
 TP2_PCT_EXIT: float = 0.30             # Fib 0.618
