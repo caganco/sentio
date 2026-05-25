@@ -96,3 +96,22 @@ Faz 2 kapsamı:
 6. DSR + PBO hesaplama
 
 **Faz 2 için Architect specini yazmadan önce:** tarihsel KAP veri kaynağını netleştir (KAP API ~2020'den mi, yoksa daha kısa mı?).
+
+---
+
+## Faz 2 — İstatistiksel Validation (D-150)
+
+| Özellik | Modül | Sabit |
+|---------|-------|-------|
+| Purged K-Fold | cross_validation.PurgedKFold | k=5, purge=10g, embargo=5g |
+| CPCV | cross_validation.CombinatorialPurgedCV | N=6, k=2, 15 path |
+| DSR | statistical_validation.compute_dsr | threshold=0.95 |
+| PBO | statistical_validation.compute_pbo | threshold=0.50 (frekans) |
+| MinBTL | validation_constants.MIN_BACKTEST_DAYS | 553 gün (2.21 yıl) |
+| Kriz coverage | validation_constants.CRISIS_WINDOWS | 7 dönem (2001→2023) |
+
+**Deployment gate:** deploy_ready = pass_dsr AND pass_pbo AND pass_btl
+**PBO notu:** Tek konfigürasyon — frekans yaklaşımı. Tam CSCV: D-153.
+**Önerilen pencere:** RECOMMENDED_START_DATE=2007-01-01 (~4750 gün)
+**CB-014 bağlantısı:** Gerçek BIST verisi ile DSR>0.95 + PBO<0.50
+  elde edildiğinde CB-014 CLOSED sayılır.
