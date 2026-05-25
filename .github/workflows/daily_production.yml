@@ -1,0 +1,92 @@
+name: BIST Daily Production
+
+on:
+  schedule:
+    - cron: '30 15 * * 1-5'  # 18:30 Istanbul (UTC+3), Pazartesi-Cuma
+  workflow_dispatch:           # Manuel tetikleme
+
+concurrency:
+  group: daily-prod
+  cancel-in-progress: false   # Cakisan run iptal edilmez
+
+permissions:
+  contents: write             # IC parquet commit icin zorunlu
+
+jobs:
+  daily-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25       # Job seviyesinde (workflow root'unda calismiyor)
+
+    steps:
+      - name: Heartbeat START
+        run: |
+          curl -fsS -m 10 --retry 3 -o /dev/null \
+            "${{ secrets.HEALTHCHECK_URL }}/start" || true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Decode positions.yaml
+        env:
+          POSITIONS_YAML_B64: ${{ secrets.POSITIONS_YAML_B64 }}
+        run: |
+          echo "$POSITIONS_YAML_B64" | base64 -d > positions.yaml
+
+      - name: Health check
+        continue-on-error: true  # OS_STATE.md cloud'da guncel olmayabilir (ilk run trap)
+        env:
+          EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
+        run: python scripts/health_check.py
+
+      - name: Run daily update
+        env:
+          EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        run: python scripts/daily_update.py --scan --generate-report
+
+      - name: IC state commit
+        run: |
+          git config user.name "bist-os-bot"
+          git config user.email "bot@bist-os"
+          git add -f data/analytics/ic_history.parquet
+          git diff --cached --quiet || \
+            git commit -m "chore: IC history update $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Heartbeat SUCCESS
+        if: success()
+        run: |
+          curl -fsS -m 10 --retry 3 -o /dev/null \
+            "${{ secrets.HEALTHCHECK_URL }}" || true
+
+      - name: Telegram failure notify
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "text=BIST Daily Production FAILED $(date -u +%Y-%m-%d) -- check Actions log" \
+            || true
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-logs-${{ github.run_id }}
+          path: logs/failures/
+          retention-days: 14
+          if-no-files-found: ignore
