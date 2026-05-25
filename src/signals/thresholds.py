@@ -166,16 +166,18 @@ BIST_FOREIGN_THRESHOLD_OUTFLOW: float = -0.2  # % daily change threshold
 BIST_FOREIGN_THRESHOLD_INFLOW: float = 0.2    # % daily change threshold
 
 # =============================================================================
-# EVDS TUFE CANONICAL CODES (D-151, RR-021 section 3.3)
+# EVDS TUFE + YI-UFE CANONICAL CODES (D-151, RR-021 section 3.3)
 # Gozlem modu -- inflation signals not yet integrated into L2 layer.
-# RR-021 live test (2026-05-25): TP.FG.J0 last obs 2026-1 (active, fresher);
-# TP.FE.OKTG01 last obs 2025-9 (stale, >8 months) -- TP.FG.J0 canonical.
 # =============================================================================
-EVDS_TUFE_SERIES: str = "TP.FG.J0"   # D-151: canonical TUFE (fresher than TP.FE.OKTG01)
-EVDS_TUFE_STALE_DAYS: int = 45       # monthly data; TUIK publishes ~day 3 of each month
-# TODO D-151: EVDS_YI_UFE_SERIES pending bie_tukfiy4 serieList query result.
-# TP.FG01 is DEAD (HTTP 400, RR-021 2026-05-25).
-# Query: GET /service/evds/serieList?code=bie_tukfiy4&type=json (key header)
+# TUFE: TP.FG.J0 last obs 2026-1 (active); TP.FE.OKTG01 last obs 2025-12 (stale).
+# TP.FG.J0 canonical (D-151 live test 2026-05-26).
+EVDS_TUFE_SERIES: str = "TP.FG.J0"    # D-151 canonical (fresher than TP.FE.OKTG01)
+EVDS_TUFE_STALE_DAYS: int = 45        # monthly; TUIK publishes ~day 3 of each month
+# YI-UFE: TP.FG01 DEAD (HTTP 400). TP.FG.J01 empirically inferred as Yi-UFE Genel
+# (2003=100) -- values match TUIK historical (662 vs 537 TUFE in May 2021).
+# EVDS serieList API returned 404 for bie_tukfiy4; inference from value levels only.
+# Confirm with TUIK/EVDS documentation before integrating into a live signal.
+EVDS_YI_UFE_SERIES: str = "TP.FG.J01"  # EMPIRICAL -- not confirmed via metadata API
 
 # D-144 Multi-window foreign flow (CB-011)
 # ASCII-only comments (cp1254 architecture-test safety).
