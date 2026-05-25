@@ -804,3 +804,10 @@ DD_SOFT_THRESHOLD: float = 0.05            # DD < %5  → dd_scalar = 1.00
 DD_MID_THRESHOLD: float = 0.10             # DD < %10 → dd_scalar = 0.50
 DD_HARD_THRESHOLD: float = 0.15            # DD < %15 → dd_scalar = 0.25; ≥ → 0.0
 MAX_SINGLE_VOL_CONTRIB: float = 0.40       # Tek hisse vol katkısı üst sınırı (Risk Parity Lite)
+
+# --- Backtest Kelly + Position constants (D-149c, RR-018 §8.2) ---
+KELLY_WIN_PROB_BASE: float = 0.50            # composite=50 → p=0.50 (neutral)
+KELLY_WIN_PROB_SLOPE: float = 0.005          # composite=100 → p=0.75; composite=0 → p=0.25
+BACKTEST_KELLY_VIX_THRESHOLD: float = 25.0  # VIX bu eşiğin üstünde → haircut uygulanır
+BACKTEST_KELLY_VIX_HAIRCUT: float = 0.75    # Yüksek VIX'te Kelly fraksiyonu çarpanı
+BACKTEST_MAX_POSITION_FRAC: float = 0.05    # Tek pozisyon maksimum portföy oranı

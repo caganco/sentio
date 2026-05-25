@@ -714,29 +714,38 @@ class TestBacktestEngineHardcodedValues:
 
 
 class TestSignalCalculatorSharedModule:
-    """D-149c'de aktive edilecek: src/signals/calculator.py shared module testleri.
+    """src/signals/calculator.py shared module testleri (D-149c).
 
-    D-149a: Tüm testler skip işaretli — modül henüz mevcut değil.
-    D-149c: calculator.py oluşturulunca skip'ler kaldırılır.
+    D-149a: Tum testler skip isareti tasiyordu — modul henuz mevcut degildi.
+    D-149c: calculator.py olusturuldu, skip'ler kaldirildi.
     """
 
     def test_calculator_module_exists(self):
-        """D-149c sonrası: src/signals/calculator.py mevcut olmalı."""
-        pytest.skip(
-            "D-149c bekliyor — src/signals/calculator.py henüz oluşturulmadı."
+        """src/signals/calculator.py mevcut olmali (D-149c)."""
+        calculator_path = Path(__file__).parent.parent / "src" / "signals" / "calculator.py"
+        assert calculator_path.exists(), (
+            "src/signals/calculator.py bulunamadi — D-149c implement edilmedi."
         )
 
     def test_calculator_compute_composite_importable(self):
-        """compute_composite_score() importlanabilmeli ve [0, 100] döndürmeli."""
-        pytest.skip("D-149c bekliyor — compute_composite_score() henüz yok.")
+        """compute_composite_score() import edilebilmeli ve float dondurmeli (D-149c)."""
+        from src.signals.calculator import compute_composite_score
+        result = compute_composite_score({"technical": 50.0, "macro": 50.0})
+        assert isinstance(result, float)
+        assert 0.0 <= result <= 100.0
 
     def test_calculator_validate_weights(self):
-        """validate_weights(MASTER_WEIGHTS) → True; validate_weights({'x': 2.0}) → False."""
-        pytest.skip("D-149c bekliyor — validate_weights() henüz yok.")
+        """validate_weights(MASTER_WEIGHTS) -> True; asiri agirlik -> False (D-149c)."""
+        from src.signals.calculator import validate_weights
+        assert validate_weights(MASTER_WEIGHTS) is True
+        assert validate_weights({"x": 2.0}) is False
 
     def test_calculator_neutral_input_gives_50(self):
-        """Tüm katmanlar 50.0 → composite 50.0 olmalı."""
-        pytest.skip("D-149c bekliyor — compute_composite_score() henüz yok.")
+        """Tum katmanlar 50.0 -> composite = 50.0 olmali (D-149c)."""
+        from src.signals.calculator import compute_composite_score
+        scores = {layer: 50.0 for layer in MASTER_WEIGHTS}
+        result = compute_composite_score(scores)
+        assert result == pytest.approx(50.0, abs=0.01)
 
 
 pytestmark = pytest.mark.baseline

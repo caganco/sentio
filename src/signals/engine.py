@@ -20,6 +20,7 @@ from src.signals.models import (
     MacroRegime,
     SignalResult,
 )
+from src.signals.calculator import compute_composite_score
 from src.signals.thresholds import (
     CONFLICT_THRESHOLD,
     MASTER_WEIGHTS,
@@ -40,12 +41,14 @@ logger = logging.getLogger(__name__)
 
 
 def _compute_weighted_sum(layer_scores: list[LayerScore]) -> float:
-    """WeightedSum = Σ(score_i × weight_i) / Σ(weight_i). Returns 0-100."""
-    total_weight = sum(ls.weight for ls in layer_scores)
-    if total_weight == 0:
-        return 50.0
-    weighted = sum(ls.score * ls.weight for ls in layer_scores)
-    return round(weighted / total_weight, 4)
+    """WeightedSum — calculator.compute_composite_score()'a delege eder. Returns 0-100.
+
+    Public API degismez; ic implementasyon shared module kullanir (D-149c).
+    Matematiksel olarak ozdes: Sigma(score_i x weight_i) / Sigma(weight_i).
+    """
+    scores_dict = {ls.layer: ls.score for ls in layer_scores}
+    weights_dict = {ls.layer: ls.weight for ls in layer_scores}
+    return compute_composite_score(scores_dict, weights_dict)
 
 
 def _score_to_signal(weighted_sum: float) -> FinalSignal:
