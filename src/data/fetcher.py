@@ -163,3 +163,48 @@ def get_portfolio_tickers() -> list[str]:
     if isinstance(positions, dict):
         return list(positions.keys())
     return [p["ticker"] for p in positions]
+
+
+def fetch_macro_symbol(symbol: str, period: str = "2d", retries: int = 3) -> float | None:
+    """
+    Fetch the latest closing price for a macro yfinance symbol.
+
+    Centralised retry + NaN guard for macro tickers — replaces per-caller inline yf calls
+    in cds_fallback.py, macro.py, macro_feed.py, dxy_client.py, etc.
+    Dayanak: SPEC_DATA_ROBUSTNESS_1 §S-2, D-148.
+
+    Args:
+        symbol: yfinance ticker string, e.g. "USDTRY=X", "^VIX", "BRENT=F", "TUR", "^DXY"
+        period: yfinance period string passed to .history() (default "2d" = last 2 trading days)
+        retries: number of attempts before returning None (default 3)
+
+    Returns:
+        Most recent Close price as float, or None if all retries fail / data is empty.
+        Never raises — callers can treat None as "unavailable".
+    """
+    for attempt in range(1, retries + 1):
+        try:
+            hist = yf.Ticker(symbol).history(period=period)
+            if hist.empty or "Close" not in hist.columns:
+                logger.warning(
+                    "fetch_macro_symbol(%s): empty/missing-Close on attempt %d/%d",
+                    symbol, attempt, retries,
+                )
+                continue
+            val = hist["Close"].dropna()
+            if val.empty:
+                logger.warning(
+                    "fetch_macro_symbol(%s): all-NaN Close on attempt %d/%d",
+                    symbol, attempt, retries,
+                )
+                continue
+            return float(val.iloc[-1])
+        except Exception as exc:
+            logger.warning(
+                "fetch_macro_symbol(%s) attempt %d/%d failed: %s",
+                symbol, attempt, retries, exc,
+            )
+            if attempt < retries:
+                time.sleep(_BACKOFF_BASE ** (attempt - 1))  # 1s, 2s backoff
+    logger.error("fetch_macro_symbol(%s): all %d retries exhausted — returning None", symbol, retries)
+    return None
