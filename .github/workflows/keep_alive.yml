@@ -1,0 +1,18 @@
+name: Keep Alive -- Sunday Healthcheck Ping
+
+on:
+  schedule:
+    - cron: '0 10 * * 0'  # Pazar 13:00 Istanbul (UTC+3)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping healthchecks.io (keep-alive)
+        # daily_production.yml Pazar calismiyor; bu ping check'i "stale" yapmaz.
+        run: |
+          curl -fsS -m 10 --retry 3 -o /dev/null \
+            "${{ secrets.HEALTHCHECK_URL }}" || true
