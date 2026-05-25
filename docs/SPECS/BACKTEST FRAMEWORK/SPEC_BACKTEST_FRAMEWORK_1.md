@@ -1,10 +1,12 @@
 # SPEC_BACKTEST_FRAMEWORK_1 — RR-018 Production Sync (Faz 1)
 
-**Spec:** D-149 (bu SPEC onaylanınca verilecek)  
-**Tarih:** 2026-05-25  
-**Referans:** RR-018-VERY-IMPORTANT.md §8 (C-1 closure roadmap), §15 (Faz 1 checklist)  
-**Audit bağlantısı:** AUDIT_REPORT_001 C-1 "backtest/engine.py production'dan diverge formül"  
-**Durum:** TASLAK — Orchestrator onayı bekleniyor  
+**Spec:** D-149a/b/c/d/e (tamamlandı)
+**Tarih:** 2026-05-25
+**Referans:** RR-018-VERY-IMPORTANT.md §8 (C-1 closure roadmap), §15 (Faz 1 checklist)
+**Audit bağlantısı:** AUDIT_REPORT_001 C-1 "backtest/engine.py production'dan diverge formül"
+**Durum:** ✅ FAZ 1 TAMAMLANDI — D-149a/b/c/d/e (2026-05-25)
+**Faz 1 Production Sync:** ✅ TAMAMLANDI (D-149a-e, 2026-05-25)
+Kalan: 50.0 neutral stub (intentional — Faz 2 D-150 kapsamı)
 **Platform:** Cowork — Architect, thinking ON, high effort
 
 ---
