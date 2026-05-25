@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """RETRACT eski backtest raporları + drift raporu üret (D-149b, RR-018 §8.4 Faz 1b).
+C-1 CLOSED: D-149e merge (2026-05-25) — AUDIT_REPORT_001 referans.
 
 Bu script iki iş yapar:
 1. Eski backtest raporlarının başına RETRACT NOTICE ekler
