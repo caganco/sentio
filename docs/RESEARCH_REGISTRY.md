@@ -22,6 +22,8 @@
 | [RR-018](research/RR-018-VERY-IMPORTANT.md) | López de Prado tabanlı backtesting framework — AUDIT_REPORT_001 D-061 C-1 closure, RR-014/015/016/017 entegrasyon | 25 May 2026 | RR-014, RR-015, RR-016, RR-017 §entegrasyon | ⏳ Uygulanmadı |
 | [RR-019](research/RR-019-MULTI-LLM.md) | Multi-LLM Orchestration — BIST OS için AI jüri sistemi (Phase 6+, Q1 2027+, nice-to-have) | 24 May 2026 | RR-010/011/012 §devam; Phase 6 sonrası | ⏳ Uygulanmadı |
 | [RR-020](research/RR-020-BIST-VERISI-MAP.md) | BIST veri kaynakları atlas (Rosetta Stone) — yfinance/Stooq/EVDS3/KAP/İş Yatırım/Takasbank stack haritası, single point of failure ve cross-validation kararları | 24 May 2026 | RR-005 §derinleştirme (fetcher atlas) | ⏳ Uygulanmadı |
+| [RR-021](research/RR-021-TCMB.md) | TCMB EVDS3 API operasyonel referans — 16 seri envanteri, auth header, URL formatı, dead/aktif durumu | 25 May 2026 | RR-008 §devam (D-135/D-136 sonrası) | ⏳ Uygulanmadı |
+| [RR-021b](research/RR-021-live-test-results.md) | EVDS3 canlı test sonuçları (script çıktısı) — 14 aktif, 2 dead; `scripts/test_evds3_connection.py` tarafından üretilir | 25 May 2026 | RR-021 §3 companion | ⏳ Snapshot |
 
 ---
 
