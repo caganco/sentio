@@ -726,6 +726,47 @@ class TestBacktestEngineHardcodedValues:
         )
 
 
+class TestBacktestCoverageScope:
+    """src/backtest/ altindaki TUM .py dosyalari thresholds.py kontratina uymali (D-149e).
+
+    test_no_standalone_hardcoded_thresholds_in_backtest_modules:
+      src/backtest/*.py SIGNAL_THRESHOLDS degerlerini hardcode etmemeli (72.0, 60.0, 48.0, 32.0).
+      Yorum satirlari atlaniyor.
+    test_backtest_modules_importable:
+      Tum backtest moduller import hatasi vermemeli.
+    """
+
+    def _get_backtest_files(self):
+        base = Path(__file__).parent.parent / "src" / "backtest"
+        return [f for f in base.glob("*.py") if f.name != "__init__.py"]
+
+    def test_no_standalone_hardcoded_thresholds_in_backtest_modules(self):
+        """src/backtest/*.py SIGNAL_THRESHOLDS degerlerini hardcode etmemeli (D-149e)."""
+        import re
+        forbidden = [r"\b72\.0\b", r"\b60\.0\b", r"\b48\.0\b", r"\b32\.0\b"]
+        for f in self._get_backtest_files():
+            source = f.read_text(encoding="utf-8")
+            for pat in forbidden:
+                for i, line in enumerate(source.split("\n"), 1):
+                    if line.strip().startswith("#"):
+                        continue
+                    if re.search(pat, line) and "SIGNAL_THRESHOLDS" not in line:
+                        pytest.fail(
+                            f"{f.name}:{i} hardcoded threshold {pat!r}. "
+                            "SIGNAL_THRESHOLDS kullan."
+                        )
+
+    def test_backtest_modules_importable(self):
+        """src/backtest/ altindaki tum moduller import hatasi vermemeli (D-149e)."""
+        import importlib
+        for f in self._get_backtest_files():
+            module_path = f"src.backtest.{f.stem}"
+            try:
+                importlib.import_module(module_path)
+            except ImportError as e:
+                pytest.fail(f"{module_path} import hatasi: {e}")
+
+
 class TestSignalCalculatorSharedModule:
     """src/signals/calculator.py shared module testleri (D-149c).
 
