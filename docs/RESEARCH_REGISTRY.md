@@ -20,6 +20,7 @@
 | [RR-016](research/RR-016-DRAWDOWN-AND-VOLATILITY-TARGETING.md) | Drawdown & volatility targeting — max drawdown kontrolü, volatility scaling, kriz dönemleri counterfactual analizi | 24 May 2026 | RR-012, RR-013, RR-014, RR-015 §devam | ⏳ Uygulanmadı |
 | [RR-017](research/RR-017-HMM.md) | HMM Regime Detection — BIST kalibrasyon ve aktivasyon roadmap; ENABLE_HMM_WEIGHTS=False, AG-001 bekleniyor | 25 May 2026 | RR-003 §Aşama 1; CB-002 interaction §11 | ⏳ Uygulanmadı |
 | [RR-018](research/RR-018-VERY-IMPORTANT.md) | López de Prado tabanlı backtesting framework — AUDIT_REPORT_001 D-061 C-1 closure, RR-014/015/016/017 entegrasyon | 25 May 2026 | RR-014, RR-015, RR-016, RR-017 §entegrasyon | ⏳ Uygulanmadı |
+| [RR-019](research/RR-019-MULTI-LLM.md) | Multi-LLM Orchestration — BIST OS için AI jüri sistemi (Phase 6+, Q1 2027+, nice-to-have) | 24 May 2026 | RR-010/011/012 §devam; Phase 6 sonrası | ⏳ Uygulanmadı |
 | [RR-020](research/RR-020-BIST-VERISI-MAP.md) | BIST veri kaynakları atlas (Rosetta Stone) — yfinance/Stooq/EVDS3/KAP/İş Yatırım/Takasbank stack haritası, single point of failure ve cross-validation kararları | 24 May 2026 | RR-005 §derinleştirme (fetcher atlas) | ⏳ Uygulanmadı |
 
 ---
