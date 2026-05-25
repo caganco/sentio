@@ -779,3 +779,18 @@ SIGNAL_LOG_BASE_PATH:   str = "data/signal_logs"
 RETURNS_LOG_PATH:       str = "data/signal_logs/returns.parquet"
 UNIVERSE_SNAPSHOT_PATH: str = "data/universe_snapshots"
 IC_CACHE_PATH:          str = "data/analytics/ic_cache.parquet"
+
+# =============================================================================
+# VOL TARGETING + SOFT DD GATE (D-147, RR-016 §6.3)
+# Gözlem modu Faz 1 — pozisyon kararına ETKİ YOK.
+# Dayanak: Moreira & Muir (2017), Harvey et al. (2018), RR-016 §5–6.
+# =============================================================================
+PORTFOLIO_TARGET_VOL_ANNUAL: float = 0.15   # Bridgewater Pure Alpha I tarzı hedef
+VOL_LOOKBACK_DAYS: int = 20                 # Birincil lookback (hızlı reaksiyon)
+VOL_LOOKBACK_DAYS_CHECK: int = 60           # İkincil kontrol (stabil ama gecikmeli)
+VOL_SCALAR_CAP: float = 1.50               # vol_scalar üst sınırı (kaldıraç kısıtı)
+VOL_SCALAR_FLOOR: float = 0.20             # vol_scalar alt sınırı (COVID-seviye vol)
+DD_SOFT_THRESHOLD: float = 0.05            # DD < %5  → dd_scalar = 1.00
+DD_MID_THRESHOLD: float = 0.10             # DD < %10 → dd_scalar = 0.50
+DD_HARD_THRESHOLD: float = 0.15            # DD < %15 → dd_scalar = 0.25; ≥ → 0.0
+MAX_SINGLE_VOL_CONTRIB: float = 0.40       # Tek hisse vol katkısı üst sınırı (Risk Parity Lite)
