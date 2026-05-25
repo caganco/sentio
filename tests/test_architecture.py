@@ -517,6 +517,31 @@ class TestADVCapConstants:
         assert EXECUTION_WINDOW_MORNING_END < EXECUTION_WINDOW_AFTERNOON_START
 
 
+class TestNetEVConstants:
+    """D-146 / RR-015: Net EV check design invariants — thresholds.py single source."""
+
+    def test_net_ev_constants(self):
+        """MIN_NET_EXPECTED_VALUE_PCT == 0.005, ROUND_TRIP_COST_PCT_DEFAULT == 0.009."""
+        from src.signals.thresholds import (
+            MIN_NET_EXPECTED_VALUE_PCT,
+            ROUND_TRIP_COST_PCT_DEFAULT,
+        )
+        assert MIN_NET_EXPECTED_VALUE_PCT == pytest.approx(0.005)
+        assert ROUND_TRIP_COST_PCT_DEFAULT == pytest.approx(0.009)
+
+    def test_high_cost_tickers_exist_and_contains_enery(self):
+        """HIGH_COST_TICKERS tuple, ≥1 eleman, ENERY icermeli."""
+        from src.signals.thresholds import HIGH_COST_TICKERS
+        assert isinstance(HIGH_COST_TICKERS, tuple)
+        assert len(HIGH_COST_TICKERS) >= 1
+        assert "ENERY" in HIGH_COST_TICKERS
+
+    def test_transaction_cost_module_importable(self):
+        """round_trip_cost_pct() importable; Tier A (Garanti) = 1.05%."""
+        from src.risk.transaction_cost import round_trip_cost_pct
+        assert round_trip_cost_pct("KCHOL") == pytest.approx(0.0105)
+
+
 class TestICFrameworkInvariants:
     """D-139 / SPEC_IC_FRAMEWORK_1 K-09: IC framework design invariants."""
 
