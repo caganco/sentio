@@ -32,6 +32,35 @@
 > *(Ekinci 2003 BIST intraday likidite paterni — bu bir rapor notudur, otomatik emir değildir)*
 
 ---
+{% if risk_metrics %}
+## Risk Metrikleri (Gözlem Modu — D-147)
+
+> ⚠️ Bu bölüm yalnızca gözlem amaçlıdır. vol_scalar **uygulanmaz**, pozisyon kararına ETKİ YOK.
+
+| Metrik | 20 Günlük | 60 Günlük | Hedef |
+|--------|----------:|----------:|------:|
+| Portföy σ_realized | {{ "%.1f"|format(risk_metrics.sigma_20d * 100) }}% | {{ "%.1f"|format(risk_metrics.sigma_60d * 100) }}% | %15 |
+| vol_scalar (öneri) | {{ "%.2f"|format(risk_metrics.vol_scalar) }} | — | — |
+
+### Ticker Vol Katkıları (Risk Parity Lite — RR-016 §5.5)
+
+| Ticker | σ_ticker | Katkı | Durum |
+|--------|----------:|------:|-------|
+{% for ticker, contrib in risk_metrics.vol_contributions.items() -%}
+| {{ ticker }} | {{ "%.1f"|format(risk_metrics.ticker_vols[ticker] * 100) }}% | {{ "%.1f"|format(contrib * 100) }}% | {{ "🔴 UYARI: Katkı >%40 (MAX_SINGLE_VOL_CONTRIB)" if contrib > 0.40 else "✅ Normal" }} |
+{% endfor %}
+{% if risk_metrics.ulcer_index is not none %}
+### Ek Risk Metrikleri
+
+| Metrik | Değer | Referans |
+|--------|------:|---------|
+| Ulcer Index (14g) | {{ "%.2f"|format(risk_metrics.ulcer_index) }} | <3 mükemmel, 3–5 iyi, 5–10 dikkat, >10 revize |
+| Calmar Ratio (36ay) | {{ "%.2f"|format(risk_metrics.calmar_ratio) if risk_metrics.calmar_ratio is not none else "N/A" }} | >1.5 çok iyi, >3.0 mükemmel |
+| Sortino Ratio (MAR=0) | {{ "%.2f"|format(risk_metrics.sortino_ratio) if risk_metrics.sortino_ratio is not none else "N/A" }} | — |
+| Current Drawdown | {{ "%.1f"|format(risk_metrics.current_drawdown * 100) }}% | DD < %5 normal, %5–10 dikkat, >%10 alarm |
+{% endif %}
+{% endif %}
+---
 
 ## Uyarılar
 {% if not alerts %}

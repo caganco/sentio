@@ -131,6 +131,83 @@
   <em>Ekinci 2003 BIST intraday likidite paterni — bu bir rapor notudur, otomatik emir değildir.</em>
 </div>
 
+{% if risk_metrics %}
+<h2 style="color:#e0c060;margin-top:24px;">⚡ Risk Metrikleri <small style="font-size:0.65em;color:#888;">(Gözlem Modu — D-147, ETKİ YOK)</small></h2>
+<table>
+  <thead>
+    <tr><th>Metrik</th><th>20 Günlük</th><th>60 Günlük</th><th>Hedef</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Portföy σ_realized</td>
+      <td>{{ "%.1f%%"|format(risk_metrics.sigma_20d * 100) }}</td>
+      <td>{{ "%.1f%%"|format(risk_metrics.sigma_60d * 100) }}</td>
+      <td>%15</td>
+    </tr>
+    <tr>
+      <td>vol_scalar <em>(öneri, uygulanmaz)</em></td>
+      <td><strong>{{ "%.2f"|format(risk_metrics.vol_scalar) }}</strong></td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 style="color:#aaa;margin-top:16px;">Ticker Vol Katkıları (Risk Parity Lite)</h3>
+<table>
+  <thead>
+    <tr><th>Ticker</th><th>σ_ticker</th><th>Katkı</th><th>Durum</th></tr>
+  </thead>
+  <tbody>
+  {% for ticker, contrib in risk_metrics.vol_contributions.items() %}
+    <tr {% if contrib > 0.40 %}style="background:#3a1a1a;"{% endif %}>
+      <td class="ticker">{{ ticker }}</td>
+      <td>{{ "%.1f%%"|format(risk_metrics.ticker_vols[ticker] * 100) }}</td>
+      <td {% if contrib > 0.40 %}style="color:#ff4444;font-weight:bold;"{% endif %}>
+        {{ "%.1f%%"|format(contrib * 100) }}
+      </td>
+      <td {% if contrib > 0.40 %}style="color:#ff4444;"{% endif %}>
+        {{ "🔴 UYARI: Katkı >%40" if contrib > 0.40 else "✅ Normal" }}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if risk_metrics.ulcer_index is not none %}
+<h3 style="color:#aaa;margin-top:16px;">Ek Risk Metrikleri</h3>
+<table>
+  <thead>
+    <tr><th>Metrik</th><th>Değer</th><th>Benchmark</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ulcer Index (14g)</td>
+      <td>{{ "%.2f"|format(risk_metrics.ulcer_index) }}</td>
+      <td style="color:#888;font-size:0.85em;">&lt;3 mükemmel, 3–5 iyi, 5–10 dikkat, &gt;10 revize</td>
+    </tr>
+    <tr>
+      <td>Calmar Ratio (36ay)</td>
+      <td>{{ "%.2f"|format(risk_metrics.calmar_ratio) if risk_metrics.calmar_ratio is not none else "N/A" }}</td>
+      <td style="color:#888;font-size:0.85em;">&gt;1.5 çok iyi, &gt;3.0 mükemmel</td>
+    </tr>
+    <tr>
+      <td>Sortino Ratio (MAR=0)</td>
+      <td>{{ "%.2f"|format(risk_metrics.sortino_ratio) if risk_metrics.sortino_ratio is not none else "N/A" }}</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Current Drawdown</td>
+      <td {% if risk_metrics.current_drawdown is not none and risk_metrics.current_drawdown > 0.10 %}style="color:#ff4444;"{% endif %}>
+        {{ "%.1f%%"|format(risk_metrics.current_drawdown * 100) if risk_metrics.current_drawdown is not none else "N/A" }}
+      </td>
+      <td style="color:#888;font-size:0.85em;">DD &lt;%5 normal, %5–10 dikkat, &gt;%10 alarm</td>
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+{% endif %}
+
 {% if alerts %}
 <h2>Uyarılar</h2>
 {% for al in alerts %}
