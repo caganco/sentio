@@ -15,8 +15,9 @@ Notes (RR-021 invariants):
     - Params are appended to the URL string directly (NO requests params=,
       NO leading '?') — EVDS3 rejects real query-strings with 404.
     - Date format DD-MM-YYYY (YYYY-MM-DD → 400 Bad Request).
-    - Auth header is ambiguous (brief says x-auth-token, community says key).
-      We probe 'key' first, fall back to 'x-auth-token' on 401.
+    - Auth header: 'key' confirmed (D-151, RR-021 live test 2026-05-25 — HTTP 200 on probe
+      series). 'x-auth-token' fallback kept for safety; community reports both accepted,
+      but evds_client.py + tcmb_client.py + bist_foreign_client.py all use 'key'.
     - Series value column is named after the code with dots → underscores
       (TP.DK.USD.A → TP_DK_USD_A). Weekend/holiday rows come back null.
 """
@@ -64,7 +65,7 @@ CATALOG: list[Series] = [
     # §3.3 Inflation
     Series("TP.FE.OKTG01", "TÜFE Genel (2003=100, TÜİK yeni seri)", "Enflasyon", "Aylık"),
     Series("TP.FG.J0", "TÜFE alternatif kodu", "Enflasyon", "Aylık", "OKTG01 daha yaygın"),
-    Series("TP.FG01", "Yİ-ÜFE", "Enflasyon", "Aylık", "veri grubu üzerinden teyit"),
+    Series("TP.FG01", "Yİ-ÜFE (DEAD)", "Enflasyon", "Aylık", "HTTP 400, D-151 confirmed dead — replacement via bie_tukfiy4 serieList query pending"),
     Series("TP.ENFBEK.PKA12ENF", "12-ay ileri enflasyon beklentisi", "Enflasyon", "Aylık", "nice-to-have"),
     # §3.4 Markets / investor behaviour
     Series("TP.MKNETHAR.M7", "BIST net işlem (genel)", "Borsa", "Haftalık", "datagroups ile tam tanım doğrula"),

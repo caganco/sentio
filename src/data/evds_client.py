@@ -220,3 +220,31 @@ def _normalise_date(raw: str) -> str:
             pass
     # Fallback: return as-is
     return raw
+
+
+def is_series_fresh(data: list[dict[str, Any]], stale_days: int) -> bool:
+    """
+    Check if the most recent observation in a fetch_series() result is within stale_days.
+
+    Dayanak: D-151, RR-021 §3.3 — freshness gate for monthly EVDS series.
+
+    Args:
+        data: list returned by fetch_series() — each item has "date" (ISO string) + "value"
+        stale_days: maximum acceptable age in calendar days
+
+    Returns:
+        True if last observation is ≤ stale_days old; False if empty, malformed, or stale.
+
+    Examples:
+        >>> # Monthly TÜFE: stale if last obs > 45 days ago
+        >>> is_series_fresh(data, stale_days=45)
+        True
+    """
+    if not data:
+        return False
+    try:
+        last_date = datetime.fromisoformat(data[-1]["date"]).date()
+    except (KeyError, ValueError):
+        return False
+    age = (datetime.now(timezone.utc).date() - last_date).days
+    return age <= stale_days

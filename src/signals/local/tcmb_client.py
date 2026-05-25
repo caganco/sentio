@@ -103,12 +103,11 @@ class TCMBClient:
     # SPA). We try the documented post-2024 endpoint with this expanded list,
     # then fall back to the YAML/cache value (DEC-002 fallback-chain pattern).
     _EVDS_POLICY_SERIES = (
-        "TP.APIFON4",          # D-089 Research Agent: confirmed policy-rate
-                               # series (1-week repo / weighted avg cost of
-                               # CB funding) — primary, tried first
-        "TP.PY.P01",           # policy (1-week repo) rate
-        "TP.FAIZ.PYUVDL",      # late-liquidity / policy corridor
+        "TP.APIFON4",          # D-089: confirmed primary (AOFM / weighted avg funding cost)
+        "TP.PY.P01",           # 1-week repo rate
         "TP.MK.IE.BSP",        # legacy code (kept last for compatibility)
+        # TP.FAIZ.PYUVDL removed D-151: RR-021 §3.1 confirmed dead
+        # (replaced by TLREF / TP.BISTTLREF.ORAN; produces silent 400 on every EVDS call)
     )
     # Documented endpoint after the 05/04/2024 change: query string starts
     # with "?series=" (no "?" -> server returns the SPA HTML), key in header.
