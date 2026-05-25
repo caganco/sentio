@@ -11,6 +11,7 @@ from src.signals.thresholds import (
     EXECUTION_WINDOW_MORNING_END,
     EXECUTION_WINDOW_MORNING_START,
     MIN_NET_EXPECTED_VALUE_PCT,
+    PORTFOLIO_TARGET_VOL_ANNUAL,  # noqa: F401 — raporlama sabiti
 )
 from src.utils.config import get_reports_dir
 from src.utils.logger import setup_logger
@@ -33,6 +34,7 @@ def _build_context(
     analyses: list[PositionAnalysis],
     momentum_df,
     report_date: date,
+    risk_metrics: dict | None = None,
 ) -> dict:
     summ = portfolio_summary(analyses)
 
@@ -103,6 +105,8 @@ def _build_context(
             f" veya "
             f"{EXECUTION_WINDOW_AFTERNOON_START}–{EXECUTION_WINDOW_AFTERNOON_END}"
         ),
+        # D-147: Vol-targeting Faz 1 — gözlem modu risk metrikleri (ETKİ YOK)
+        "risk_metrics": risk_metrics,
     }
 
 
@@ -110,9 +114,10 @@ def generate_markdown_report(
     analyses: list[PositionAnalysis],
     momentum_df,
     report_date: date | None = None,
+    risk_metrics: dict | None = None,
 ) -> Path:
     report_date = report_date or date.today()
-    ctx = _build_context(analyses, momentum_df, report_date)
+    ctx = _build_context(analyses, momentum_df, report_date, risk_metrics)
     env = _jinja_env()
     tmpl = env.get_template("markdown.jinja2")
     content = tmpl.render(**ctx)
@@ -128,9 +133,10 @@ def generate_html_report(
     analyses: list[PositionAnalysis],
     momentum_df,
     report_date: date | None = None,
+    risk_metrics: dict | None = None,
 ) -> Path:
     report_date = report_date or date.today()
-    ctx = _build_context(analyses, momentum_df, report_date)
+    ctx = _build_context(analyses, momentum_df, report_date, risk_metrics)
     env = _jinja_env()
     tmpl = env.get_template("html.jinja2")
     content = tmpl.render(**ctx)

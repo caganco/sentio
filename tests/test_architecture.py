@@ -624,4 +624,47 @@ class TestICFrameworkInvariants:
             )
 
 
+class TestVolTargetingConstants:
+    """D-147: Vol targeting sabitleri thresholds.py'de tanımlı ve tutarlı."""
+
+    def test_vol_targeting_constants(self):
+        """PORTFOLIO_TARGET_VOL_ANNUAL == 0.15, VOL_SCALAR_CAP > VOL_SCALAR_FLOOR."""
+        from src.signals.thresholds import (
+            DD_HARD_THRESHOLD,
+            DD_MID_THRESHOLD,
+            DD_SOFT_THRESHOLD,
+            MAX_SINGLE_VOL_CONTRIB,
+            PORTFOLIO_TARGET_VOL_ANNUAL,
+            VOL_LOOKBACK_DAYS,
+            VOL_LOOKBACK_DAYS_CHECK,
+            VOL_SCALAR_CAP,
+            VOL_SCALAR_FLOOR,
+        )
+        assert PORTFOLIO_TARGET_VOL_ANNUAL == 0.15
+        assert VOL_SCALAR_CAP > VOL_SCALAR_FLOOR
+        assert VOL_LOOKBACK_DAYS == 20
+        assert VOL_LOOKBACK_DAYS_CHECK == 60
+        assert DD_SOFT_THRESHOLD < DD_MID_THRESHOLD < DD_HARD_THRESHOLD
+        assert MAX_SINGLE_VOL_CONTRIB == 0.40
+
+
+class TestRiskModulesNotImportingEngine:
+    """D-147: src/risk/volatility.py + drawdown_metrics.py src.signals.engine import etmez (K-08)."""
+
+    def test_risk_modules_not_importing_engine(self):
+        """volatility.py ve drawdown_metrics.py engine bağımlılığı taşıyamaz."""
+        risk_dir = Path(__file__).parent.parent / "src" / "risk"
+        for fname in ["volatility.py", "drawdown_metrics.py"]:
+            f = risk_dir / fname
+            if not f.exists():
+                continue
+            content = f.read_text(encoding="utf-8")
+            assert "from src.signals.engine" not in content, (
+                f"{fname} src.signals.engine import ediyor — mimari ihlal (K-08)"
+            )
+            assert "import src.signals.engine" not in content, (
+                f"{fname} src.signals.engine import ediyor — mimari ihlal (K-08)"
+            )
+
+
 pytestmark = pytest.mark.baseline
