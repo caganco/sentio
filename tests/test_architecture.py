@@ -667,4 +667,76 @@ class TestRiskModulesNotImportingEngine:
             )
 
 
+class TestBacktestEngineHardcodedValues:
+    """D-149d'de enforce edilecek: backtest/engine.py hardcoded değerler thresholds'a taşınacak.
+
+    D-149a: Tüm testler skip işaretli — hardcoded değerler hâlâ mevcut (D-149d'ye ertelendi).
+    D-149d: skip'ler kaldırılır, assert not matches testleri aktive edilir.
+
+    Mevcut durum (backtest/engine.py):
+      Satır 432: entry_price * 0.92    → EXIT_STOP_LOSS = 0.92 (thresholds.py L240)
+      Satır 438: entry_price * 1.20    → EXIT_PROFIT_TARGET = 1.20 (thresholds.py L241)
+      Satır 422: dd <= -0.15           → DD_HARD_THRESHOLD = 0.15 (thresholds.py L805)
+      Satır 221: 50.0 × (kap+sent+sm) → intentional neutral stub (Faz 2'de kaldırılır)
+    """
+
+    def test_no_hardcoded_stop_loss_in_backtest(self):
+        """entry_price * 0.92 → EXIT_STOP_LOSS kullan. D-149d'de enforce edilecek."""
+        pytest.skip(
+            "D-149d bekliyor — entry_price * 0.92 hardcoded (satır 432). "
+            "Fix: from src.signals.thresholds import EXIT_STOP_LOSS; "
+            "stop_loss_price = entry_price * EXIT_STOP_LOSS"
+        )
+
+    def test_no_hardcoded_profit_target_in_backtest(self):
+        """entry_price * 1.20 → EXIT_PROFIT_TARGET kullan. D-149d'de enforce edilecek."""
+        pytest.skip(
+            "D-149d bekliyor — entry_price * 1.20 hardcoded (satır 438). "
+            "Fix: from src.signals.thresholds import EXIT_PROFIT_TARGET; "
+            "profit_target_price = entry_price * EXIT_PROFIT_TARGET"
+        )
+
+    def test_no_hardcoded_circuit_breaker_in_backtest(self):
+        """dd <= -0.15 → DD_HARD_THRESHOLD kullan. D-149d'de enforce edilecek."""
+        pytest.skip(
+            "D-149d bekliyor — dd <= -0.15 hardcoded (satır 422). "
+            "Fix: from src.signals.thresholds import DD_HARD_THRESHOLD; "
+            "self.circuit_breaker_active = dd <= -DD_HARD_THRESHOLD"
+        )
+
+    def test_no_l3_l4_l5_neutral_stub_post_d149(self):
+        """L3/L4/L5 = 50.0 neutral stub. D-149d / Faz 2'de enforce edilecek."""
+        pytest.skip(
+            "D-149d / Faz 2 bekliyor — 50.0 neutral stub intentional "
+            "(KAP historical, L4/L5 point-in-time backfill yok). "
+            "Faz 2: Purged K-Fold + tarihsel veri pipeline ile kaldırılacak."
+        )
+
+
+class TestSignalCalculatorSharedModule:
+    """D-149c'de aktive edilecek: src/signals/calculator.py shared module testleri.
+
+    D-149a: Tüm testler skip işaretli — modül henüz mevcut değil.
+    D-149c: calculator.py oluşturulunca skip'ler kaldırılır.
+    """
+
+    def test_calculator_module_exists(self):
+        """D-149c sonrası: src/signals/calculator.py mevcut olmalı."""
+        pytest.skip(
+            "D-149c bekliyor — src/signals/calculator.py henüz oluşturulmadı."
+        )
+
+    def test_calculator_compute_composite_importable(self):
+        """compute_composite_score() importlanabilmeli ve [0, 100] döndürmeli."""
+        pytest.skip("D-149c bekliyor — compute_composite_score() henüz yok.")
+
+    def test_calculator_validate_weights(self):
+        """validate_weights(MASTER_WEIGHTS) → True; validate_weights({'x': 2.0}) → False."""
+        pytest.skip("D-149c bekliyor — validate_weights() henüz yok.")
+
+    def test_calculator_neutral_input_gives_50(self):
+        """Tüm katmanlar 50.0 → composite 50.0 olmalı."""
+        pytest.skip("D-149c bekliyor — compute_composite_score() henüz yok.")
+
+
 pytestmark = pytest.mark.baseline
