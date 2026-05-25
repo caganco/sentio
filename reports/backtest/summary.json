@@ -1,0 +1,6 @@
+# RETRACT: Bu rapor diverge engine + 138-günlük pencere ile üretilmiştir.
+# MinBTL karşılanmıyor (138d < 553d). D-150 CPCV tamamlandıktan sonra
+# RECOMMENDED_START_DATE=2007-01-01 ile yeniden üretilecek.
+{
+  "retract_reason": "L3/L4/L5 neutral stub 50.0 — prod diverge"
+}
