@@ -250,9 +250,9 @@ class TestParityFutureChecks:
         assert signal_from_composite(20.0) == "SELL-STRONG"  # < 32
 
     def test_no_l3_l4_l5_neutral_stub_in_backtest_post_faz2(self):
-        """backtest L3/L4/L5 neutral stub kaldırıldı mı? — D-149d / Faz 2."""
+        """backtest L3/L4/L5 neutral stub — Faz 2 (D-150) kapsaminda kaldirilacak."""
         pytest.skip(
-            "D-149d / Faz 2 bekliyor: "
-            "L3/L4/L5 historical veri pipeline hazır olduğunda skip kaldır. "
-            "Mevcut: 50.0 neutral stub (intentional — veri kısıtı)."
+            "Faz 2 (D-150) bekliyor — 50.0 neutral stub intentional "
+            "(tarihsel KAP/L4/L5 pipeline yok). "
+            "Purged K-Fold + point-in-time veri ile kaldirilacak."
         )

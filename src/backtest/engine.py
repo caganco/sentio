@@ -11,11 +11,18 @@ from src.backtest.data_loader import build_macro_data, build_technical_data
 # with the backtest signal range); direct Kelly formula is used instead.
 from src.signals.layers.risk_layer import score_risk
 from src.signals.layers.technical_layer import score_technical
+from src.signals.calculator import compute_composite_score, kelly_win_prob
 from src.signals.thresholds import (
     ASSET_DIRECTIONS,
+    BACKTEST_KELLY_VIX_HAIRCUT,
+    BACKTEST_KELLY_VIX_THRESHOLD,
     BACKTEST_MACRO_MIN_SCORE,
+    BACKTEST_MAX_POSITION_FRAC,
     BACKTEST_USDTRY_SPIKE_THRESHOLD,
     BACKTEST_VIX_MAX,
+    DD_HARD_THRESHOLD,
+    EXIT_PROFIT_TARGET,
+    EXIT_STOP_LOSS,
     MASTER_WEIGHTS,
     SIGNAL_THRESHOLDS,
 )
@@ -189,12 +196,10 @@ class BacktestEngine:
     ) -> tuple[float, float]:
         """Compute 3-layer composite score (0-100) and return (composite, macro_score).
 
-        Formula: tech*W[technical] + macro*W[macro] + risk*W[risk]
-                 + 50*(W[kap] + W[sentiment] + W[smart_money])
-        All weights from MASTER_WEIGHTS (thresholds.py). KAP/sentiment/
-        smart_money have no backtest history → contribute their neutral
-        50.0 score. Since Σ(MASTER_WEIGHTS)=1.00, neutral inputs → 50.0
-        (0-100 scale preserved). No hardcoded weights (C-1 resolved, G-3).
+        Weights from thresholds.py; L3/L4/L5 stuck at 50.0 neutral stub (D-149d).
+        KAP/sentiment/smart_money have no backtest history — contribute their neutral
+        50.0 score. Since MASTER_WEIGHTS sum=1.00, neutral inputs give 50.0 composite.
+        Delegated to calculator.compute_composite_score() (D-149d).
 
         Uses _global_macro_score() instead of score_macro() to bypass the
         LOCAL_MACRO compositing that halves macro scores when TCMB/CDS are missing.
@@ -214,17 +219,17 @@ class BacktestEngine:
         except Exception:
             risk_score = 50.0
 
-        composite = (
-            tech_score * MASTER_WEIGHTS["technical"]
-            + macro_score * MASTER_WEIGHTS["macro"]
-            + risk_score * MASTER_WEIGHTS["risk"]
-            + 50.0 * (
-                MASTER_WEIGHTS["kap"]
-                + MASTER_WEIGHTS["sentiment"]
-                + MASTER_WEIGHTS["smart_money"]
-            )
+        composite = compute_composite_score(
+            {
+                "technical": tech_score,
+                "macro": macro_score,
+                "risk": risk_score,
+                "kap": 50.0,          # neutral stub — veri kisiti, Faz 2 (D-150)'de kaldirilir
+                "sentiment": 50.0,    # neutral stub
+                "smart_money": 50.0,  # neutral stub
+            }
         )
-        return max(0.0, min(100.0, composite)), macro_score
+        return composite, macro_score
 
     @staticmethod
     def _global_macro_score(macro_data: dict) -> float:
@@ -298,13 +303,13 @@ class BacktestEngine:
 
         Direct Kelly formula: win_prob derived linearly from composite score.
         composite=50 (neutral) -> p=0.50, composite=72 -> p=0.61, composite=100 -> p=0.75.
-        VIX > 25 applies 25% haircut. Position capped at 3% of portfolio.
+        VIX haircut ve position cap thresholds.py'den okunur (D-149d).
         """
-        win_prob = 0.50 + (composite - 50.0) / 200.0  # linear: 50->0.50, 100->0.75
+        win_prob = kelly_win_prob(composite)           # calculator: BASE + SLOPE*(c-50)
         kelly_raw = max(0.0, 2.0 * win_prob - 1.0)    # Kelly criterion (b=1 even-odds)
-        position_frac = min(kelly_raw * self.kelly_fraction, 0.05)
-        if vix_level and vix_level > 25.0:
-            position_frac *= 0.75
+        position_frac = min(kelly_raw * self.kelly_fraction, BACKTEST_MAX_POSITION_FRAC)
+        if vix_level and vix_level > BACKTEST_KELLY_VIX_THRESHOLD:
+            position_frac *= BACKTEST_KELLY_VIX_HAIRCUT
         return position_frac * self.portfolio_value
 
     def _execute_buy(
@@ -419,7 +424,7 @@ class BacktestEngine:
         if dd < self.max_dd:
             self.max_dd = dd
 
-        self.circuit_breaker_active = dd <= -0.15
+        self.circuit_breaker_active = dd <= -DD_HARD_THRESHOLD
 
         # Check stop-loss and profit-target exits for remaining positions
         symbols_to_exit = []
@@ -428,14 +433,14 @@ class BacktestEngine:
             entry_price = pos["entry_price"]
             current_price = pos.get("last_price", entry_price)
 
-            # Stop-loss: 8% below entry (entry_price * 0.92)
-            stop_loss_price = entry_price * 0.92
+            # Stop-loss: EXIT_STOP_LOSS below entry
+            stop_loss_price = entry_price * EXIT_STOP_LOSS
             if current_price <= stop_loss_price:
                 symbols_to_exit.append((sym, current_price, "stop_loss"))
                 continue
 
-            # Profit-target: 20% above entry (entry_price * 1.20)
-            profit_target_price = entry_price * 1.20
+            # Profit-target: EXIT_PROFIT_TARGET above entry
+            profit_target_price = entry_price * EXIT_PROFIT_TARGET
             if current_price >= profit_target_price:
                 symbols_to_exit.append((sym, current_price, "profit_target"))
                 continue

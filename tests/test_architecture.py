@@ -668,48 +668,61 @@ class TestRiskModulesNotImportingEngine:
 
 
 class TestBacktestEngineHardcodedValues:
-    """D-149d'de enforce edilecek: backtest/engine.py hardcoded değerler thresholds'a taşınacak.
+    """backtest/engine.py hardcoded değerler thresholds'a taşındı (D-149d).
 
-    D-149a: Tüm testler skip işaretli — hardcoded değerler hâlâ mevcut (D-149d'ye ertelendi).
-    D-149d: skip'ler kaldırılır, assert not matches testleri aktive edilir.
-
-    Mevcut durum (backtest/engine.py):
-      Satır 432: entry_price * 0.92    → EXIT_STOP_LOSS = 0.92 (thresholds.py L240)
-      Satır 438: entry_price * 1.20    → EXIT_PROFIT_TARGET = 1.20 (thresholds.py L241)
-      Satır 422: dd <= -0.15           → DD_HARD_THRESHOLD = 0.15 (thresholds.py L805)
-      Satır 221: 50.0 × (kap+sent+sm) → intentional neutral stub (Faz 2'de kaldırılır)
+    D-149a: Tüm testler skip işaretli — hardcoded değerler hâlâ mevcuttu.
+    D-149d: 3 skip kaldırıldı (stop-loss, profit-target, circuit-breaker PASS);
+            neutral stub Faz 2 (D-150)'ye kadar SKIP.
     """
 
     def test_no_hardcoded_stop_loss_in_backtest(self):
-        """entry_price * 0.92 → EXIT_STOP_LOSS kullan. D-149d'de enforce edilecek."""
-        pytest.skip(
-            "D-149d bekliyor — entry_price * 0.92 hardcoded (satır 432). "
-            "Fix: from src.signals.thresholds import EXIT_STOP_LOSS; "
-            "stop_loss_price = entry_price * EXIT_STOP_LOSS"
+        """backtest/engine.py stop-loss EXIT_STOP_LOSS kullanmali (D-149d)."""
+        path = Path(__file__).parent.parent / "src" / "backtest" / "engine.py"
+        source = path.read_text(encoding="utf-8")
+        import re
+        non_comment = "\n".join(
+            ln for ln in source.split("\n") if not ln.strip().startswith("#")
+        )
+        matches = re.findall(r"entry_price\s*\*\s*0\.9[0-9]", non_comment)
+        assert not matches, (
+            f"backtest/engine.py hardcoded stop-loss: {matches}. "
+            "EXIT_STOP_LOSS kullan: stop_loss_price = entry_price * EXIT_STOP_LOSS"
         )
 
     def test_no_hardcoded_profit_target_in_backtest(self):
-        """entry_price * 1.20 → EXIT_PROFIT_TARGET kullan. D-149d'de enforce edilecek."""
-        pytest.skip(
-            "D-149d bekliyor — entry_price * 1.20 hardcoded (satır 438). "
-            "Fix: from src.signals.thresholds import EXIT_PROFIT_TARGET; "
-            "profit_target_price = entry_price * EXIT_PROFIT_TARGET"
+        """backtest/engine.py profit-target EXIT_PROFIT_TARGET kullanmali (D-149d)."""
+        path = Path(__file__).parent.parent / "src" / "backtest" / "engine.py"
+        source = path.read_text(encoding="utf-8")
+        import re
+        non_comment = "\n".join(
+            ln for ln in source.split("\n") if not ln.strip().startswith("#")
+        )
+        matches = re.findall(r"entry_price\s*\*\s*1\.[0-9]{2}", non_comment)
+        assert not matches, (
+            f"backtest/engine.py hardcoded profit-target: {matches}. "
+            "EXIT_PROFIT_TARGET kullan: profit_target_price = entry_price * EXIT_PROFIT_TARGET"
         )
 
     def test_no_hardcoded_circuit_breaker_in_backtest(self):
-        """dd <= -0.15 → DD_HARD_THRESHOLD kullan. D-149d'de enforce edilecek."""
-        pytest.skip(
-            "D-149d bekliyor — dd <= -0.15 hardcoded (satır 422). "
-            "Fix: from src.signals.thresholds import DD_HARD_THRESHOLD; "
-            "self.circuit_breaker_active = dd <= -DD_HARD_THRESHOLD"
+        """backtest/engine.py circuit-breaker DD_HARD_THRESHOLD kullanmali (D-149d)."""
+        path = Path(__file__).parent.parent / "src" / "backtest" / "engine.py"
+        source = path.read_text(encoding="utf-8")
+        import re
+        non_comment = "\n".join(
+            ln for ln in source.split("\n") if not ln.strip().startswith("#")
+        )
+        matches = re.findall(r"dd\s*<=\s*-0\.\d+", non_comment)
+        assert not matches, (
+            f"backtest/engine.py hardcoded circuit-breaker: {matches}. "
+            "DD_HARD_THRESHOLD kullan: dd <= -DD_HARD_THRESHOLD"
         )
 
     def test_no_l3_l4_l5_neutral_stub_post_d149(self):
-        """L3/L4/L5 = 50.0 neutral stub. D-149d / Faz 2'de enforce edilecek."""
+        """L3/L4/L5 = 50.0 neutral stub — Faz 2 (D-150) kapsaminda kaldirilacak."""
         pytest.skip(
-            "D-149d / Faz 2 bekliyor — 50.0 neutral stub intentional "
-            "(KAP historical, L4/L5 point-in-time backfill yok). "
-            "Faz 2: Purged K-Fold + tarihsel veri pipeline ile kaldırılacak."
+            "Faz 2 (D-150) bekliyor — 50.0 neutral stub intentional "
+            "(tarihsel KAP/L4/L5 pipeline yok). "
+            "Purged K-Fold + point-in-time veri ile kaldirilacak."
         )
 
 
