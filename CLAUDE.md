@@ -138,14 +138,35 @@ bu test hatalı yazılmış demektir.
 
 ## TEST ÇALIŞTIRMA
 
-**HIZLI TEST KURALI (pytest-xdist):**
-- `pip install pytest-xdist` (bir kez, requirements'e eklenir)
-- **Full regression:** `python -m pytest tests/ -q -n auto` (paralel, tüm CPU çekirdek)
-- **PR öncesi — sadece etkilenen dosyalar:** `python -m pytest tests/test_XXXX.py -q` (hızlı feedback)
-- **Merge öncesi — full regression bir kez:** `python -m pytest tests/ -q --tb=short` (sırayla, tam göz önü)
+**Üç katmanlı strateji — her katman farklı amaca hizmet eder:**
 
-Paralel çalıştırma lokal feedback'i 4-10x hızlandırır; merge öncesi sırayla çalıştırma
-test order bağımlılığını yakalar (isolated test design).
+**Katman 1 — Geliştirme sırasında (her değişiklik sonrası):**
+```powershell
+python -m pytest tests/test_ETKILENEN.py -q
+```
+Sadece dokunulan modülle ilgili test — hızlı feedback (<10sn).
+
+**Katman 2 — Her commit'te (otomatik, Builder müdahalesi gerekmez):**
+Pre-commit hook Tier1 (Architecture) + Tier2 (Integration) + Ruff'ı çalıştırır.
+Builder ayrıca çalıştırmaz — hook halleder.
+
+**Katman 3 — Full regression:**
+- **Basit direktif** (1–3 dosya, izole değişiklik): CI'a bırak, Builder çalıştırmaz.
+  CI merge blocker — yeşil olmadan merge edilemez, güvenlik ağı var.
+- **Karmaşık direktif** (5+ dosya, cross-module, mimari değişiklik): Builder PR öncesi çalıştırır:
+  ```powershell
+  python -m pytest tests/ -q --tb=short
+  ```
+  Neden: CI'da hata çıkınca yeni commit + yeni CI döngüsü gerekir (ekstra 3–5dk + fail geçmişi).
+
+**Özet kural:**
+```
+geliştirme  → pytest tests/test_xxx.py          (sen çalıştır)
+commit      → pre-commit hook                   (otomatik)
+PR — basit  → CI yeterli                        (sen çalıştırma)
+PR — karmaşık → pytest tests/ -q --tb=short    (sen çalıştır)
+merge       → CI yeşil zorunlu                  (otomatik blocker)
+```
 
 ## Her Session Başında Oku (Builder Zorunlu)
 
