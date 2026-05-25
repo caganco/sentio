@@ -5,10 +5,18 @@ from src.backtest.cross_validation import (  # noqa: F401 — D-150b
     CombinatorialPurgedCV,
     PurgedKFold,
 )
+from src.backtest.statistical_validation import (  # noqa: F401 — D-150c
+    PathResult,
+    ValidationResult,
+    run_cpcv_validation,
+)
 
 __all__ = [
     "BacktestEngine",
     "validation_constants",
     "PurgedKFold",
     "CombinatorialPurgedCV",
+    "PathResult",
+    "ValidationResult",
+    "run_cpcv_validation",
 ]
