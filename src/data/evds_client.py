@@ -1,7 +1,13 @@
 """EVDS (Electronic Data Delivery System) native client (D-095).
 
-EVDS is the TCMB data API. Endpoint: https://evds3.tcmb.gov.tr/igmevdsms-dis/service/evds/
+EVDS is the TCMB data API.
 Auth: API key in 'key' request header (obtained from evds3.tcmb.gov.tr).
+
+URL format (confirmed D-151, RR-021 live test 2026-05-26):
+    Base: https://evds3.tcmb.gov.tr/igmevdsms-dis/
+    Query: series=CODE&startDate=DD-MM-YYYY&endDate=DD-MM-YYYY&type=json
+    NOTE: params are appended directly (no '?' prefix, no requests params= dict)
+    The /service/evds/ sub-path returns HTTP 404 for actual data queries.
 
 Usage:
     from src.data.evds_client import fetch_series, fetch_series_df
@@ -22,7 +28,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-_BASE_URL = "https://evds3.tcmb.gov.tr/igmevdsms-dis/service/evds/"
+_BASE_URL = "https://evds3.tcmb.gov.tr/igmevdsms-dis/"  # no /service/evds/ — D-151
 _DEFAULT_TIMEOUT = 10
 
 _LOOKBACK_WINDOWS: dict[str, int] = {
@@ -83,8 +89,9 @@ def fetch_series(
         dt_start = datetime.now(timezone.utc) - timedelta(days=days_back)
         start_date = dt_start.strftime("%d-%m-%Y")
 
+    # RR-021 / D-151: params concatenated directly (no '?' prefix) — EVDS rejects ?-query
     url = (
-        f"{_BASE_URL}?series={series_code}"
+        f"{_BASE_URL}series={series_code}"
         f"&startDate={start_date}&endDate={end_date}&type=json"
     )
     logger.debug("EVDS fetch: %s [%s → %s]", series_code, start_date, end_date)
@@ -222,14 +229,46 @@ def _normalise_date(raw: str) -> str:
     return raw
 
 
+def _parse_evds_date(raw: str) -> "datetime.date | None":
+    """
+    Parse an EVDS date string to a date object.
+
+    Handles three formats returned by the EVDS API:
+      - "YYYY-MM-DD"  — daily series (e.g. TP.APIFON4)
+      - "YYYY-MM"     — monthly series, zero-padded (e.g. "2025-10")
+      - "YYYY-M"      — monthly series, single-digit month (e.g. "2026-1")
+
+    Returns None on any parse failure.
+    """
+    if not raw:
+        return None
+    raw = raw.strip()
+    # ISO full date: YYYY-MM-DD
+    try:
+        return datetime.fromisoformat(raw).date()
+    except ValueError:
+        pass
+    # Monthly shorthand: YYYY-M or YYYY-MM → treat as 1st of that month
+    parts = raw.split("-")
+    if len(parts) == 2:
+        try:
+            year, month = int(parts[0]), int(parts[1])
+            from datetime import date as _date
+            return _date(year, month, 1)
+        except (ValueError, TypeError):
+            pass
+    return None
+
+
 def is_series_fresh(data: list[dict[str, Any]], stale_days: int) -> bool:
     """
     Check if the most recent observation in a fetch_series() result is within stale_days.
 
+    Handles both daily (YYYY-MM-DD) and monthly (YYYY-M / YYYY-MM) EVDS date formats.
     Dayanak: D-151, RR-021 §3.3 — freshness gate for monthly EVDS series.
 
     Args:
-        data: list returned by fetch_series() — each item has "date" (ISO string) + "value"
+        data: list returned by fetch_series() — each item has "date" (ISO or YYYY-M) + "value"
         stale_days: maximum acceptable age in calendar days
 
     Returns:
@@ -238,13 +277,13 @@ def is_series_fresh(data: list[dict[str, Any]], stale_days: int) -> bool:
     Examples:
         >>> # Monthly TÜFE: stale if last obs > 45 days ago
         >>> is_series_fresh(data, stale_days=45)
-        True
+        False  # e.g. last obs "2025-10" = 237 days ago
     """
     if not data:
         return False
-    try:
-        last_date = datetime.fromisoformat(data[-1]["date"]).date()
-    except (KeyError, ValueError):
+    raw = data[-1].get("date", "")
+    last_date = _parse_evds_date(raw)
+    if last_date is None:
         return False
     age = (datetime.now(timezone.utc).date() - last_date).days
     return age <= stale_days
