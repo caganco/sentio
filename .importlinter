@@ -10,6 +10,7 @@ name = Signal engine layering (no upward imports)
 type = layers
 layers =
     src.signals.engine
+    src.signals.calculator
     src.signals.layers
     src.signals.thresholds
 
