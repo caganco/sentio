@@ -10,6 +10,10 @@ with hard caps: max 4 BUY-STRONG, max 2 BUY-MEDIUM, max 6 total, single sector
 
 D-145 (RR-014): apply_adv_cap() post-processes size_position() output with a
 5% ADV cap (Almgren 2005). size_position() signature is unchanged.
+
+D-146 (RR-015): net_expected_value_check() post-processes any SizingDecision
+and overrides to NO-TRADE when net EV < MIN_NET_EXPECTED_VALUE_PCT.
+Gross EV logic unchanged (backtest reproducibility).
 """
 from __future__ import annotations
 
@@ -17,6 +21,7 @@ import logging
 from dataclasses import dataclass
 
 from src.signals.thresholds import (
+    BROKER_TIER,
     CONVICTION_COLLAPSE,
     CONVICTION_MEDIUM,
     CONVICTION_STRONG,
@@ -26,6 +31,7 @@ from src.signals.thresholds import (
     MAX_POSITIONS_STRONG,
     MAX_POSITIONS_TOTAL,
     MAX_SECTOR_CONCENTRATION,
+    MIN_NET_EXPECTED_VALUE_PCT,
     POSITION_MAX_ADV_PCT,
     POSITION_SIZE_MEDIUM,
     POSITION_SIZE_STRONG,
@@ -44,7 +50,8 @@ ACTION_WATCH = "WATCH"
 ACTION_WATCHLIST = "WATCHLIST"  # tier qualifies but a hard cap is full
 ACTION_HOLD = "HOLD"
 ACTION_EXIT = "EXIT"
-ACTION_BLOCKED = "BLOCKED"  # drawdown hard stop / bear regime
+ACTION_BLOCKED = "BLOCKED"   # drawdown hard stop / bear regime
+ACTION_NO_TRADE = "NO-TRADE" # net EV < MIN_NET_EXPECTED_VALUE_PCT (D-146)
 
 
 @dataclass(frozen=True)
@@ -270,3 +277,73 @@ def apply_adv_cap(
             f"({POSITION_MAX_ADV_PCT:.0%}×ADV={max_by_adv:,.0f} TL)"
         ),
     )
+
+
+# =============================================================================
+# D-146 / RR-015: Net Expected Value check
+# =============================================================================
+
+def net_expected_value_check(
+    ticker: str,
+    expected_return_pct: float,
+    decision: SizingDecision,
+) -> tuple[SizingDecision, dict]:
+    """Check if expected return clears round-trip costs (D-146, RR-015).
+
+    Post-processes any SizingDecision (typically after apply_adv_cap()).
+    If net EV < MIN_NET_EXPECTED_VALUE_PCT, overrides action to NO-TRADE
+    with position_size=0. Gross EV logic is unchanged (backtest reproducibility).
+
+    Passthrough rule: if decision.position_size == 0 (BLOCKED/WATCH/WATCHLIST),
+    cost check is computed for the audit dict but the original action is kept —
+    there is no active entry to block.
+
+    Args:
+        ticker: BIST ticker for round_trip_cost_pct lookup (e.g. "KCHOL").
+        expected_return_pct: Forward expected return estimate as fraction
+            (e.g. 0.05 = 5%). Caller responsibility to supply a valid estimate.
+        decision: SizingDecision from size_position() [optionally apply_adv_cap()].
+
+    Returns:
+        Tuple[SizingDecision, dict]:
+        - SizingDecision: original (passes EV check) or NO-TRADE override.
+        - dict: audit trail {"gross_ev", "rt_cost", "net_ev"}.
+
+    Caller pattern:
+        decision = size_position(...)
+        decision = apply_adv_cap(ticker, decision)           # D-145
+        decision, ev_audit = net_expected_value_check(       # D-146
+            ticker, expected_return_pct, decision
+        )
+    """
+    from src.risk.transaction_cost import round_trip_cost_pct
+
+    rt_cost = round_trip_cost_pct(ticker, BROKER_TIER)
+    net_ev = expected_return_pct - rt_cost
+    audit: dict = {
+        "gross_ev": expected_return_pct,
+        "rt_cost": rt_cost,
+        "net_ev": net_ev,
+    }
+
+    if decision.position_size <= 0.0:
+        # Already zero-size (BLOCKED/WATCH/WATCHLIST) — keep original action.
+        return decision, audit
+
+    if net_ev < MIN_NET_EXPECTED_VALUE_PCT:
+        return (
+            SizingDecision(
+                conviction_tier=decision.conviction_tier,
+                action=ACTION_NO_TRADE,
+                allocation_pct=0.0,
+                position_size=0.0,
+                macro_scaling=decision.macro_scaling,
+                reason=(
+                    f"net EV {net_ev:.2%} < threshold {MIN_NET_EXPECTED_VALUE_PCT:.2%} "
+                    f"(gross={expected_return_pct:.2%}, cost={rt_cost:.2%})"
+                ),
+            ),
+            audit,
+        )
+
+    return decision, audit
