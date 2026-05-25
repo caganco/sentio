@@ -214,7 +214,9 @@ Get-Content src/signals/thresholds.py | Select-Object -First 30
 2. **[src/signals/thresholds.py](src/signals/thresholds.py)** — ALL constants (hardcoded value yok)
 3. **[src/signals/engine.py](src/signals/engine.py)** — Signal composition logic
 4. **[tests/test_architecture.py](tests/test_architecture.py)** — design invariant'ları (executable, CI-enforced)
-5. **Bu bölüm:** Dokunulmaz Prensipler + Her Session Başında Oku bölümleri
+5. **[FEATURE_INDEX.md](FEATURE_INDEX.md)** — aktif feature'lar, faz durumu, neye dokunma özeti
+   (Büyük direktif vermeden önce ilgili `docs/features/FEATURE_NAME.md` de okunur)
+6. **Bu bölüm:** Dokunulmaz Prensipler + Her Session Başında Oku bölümleri
 
 ### STEP 3: Sistem Sağlığı — Daily Bootstrap (~12 sn)
 ```powershell
