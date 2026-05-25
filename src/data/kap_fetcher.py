@@ -2,6 +2,12 @@
 
 Wraps kap-client to fetch daily disclosures for BIST tickers.
 All network I/O goes through a single Kap() context manager session.
+
+TODO D-149: kap-client HT endpoint broken for BIST-listed companies since ~May 2026
+(KAP API infrastructure change — returns [] for all BIST tickers).
+kap_parser.py and kap_scheduler.py still import from here; full cleanup (delete this file +
+kap_client.py, migrate callers to kap_scraper.py) is deferred to D-149.
+See SPEC_DATA_ROBUSTNESS_1.md §S-1 for analysis.
 """
 
 import logging
