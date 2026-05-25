@@ -274,11 +274,21 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
 
     lookback_days = config.get("data", {}).get("lookback_days", 365)
     period = _days_to_period(lookback_days)
-    all_data = fetch_all_bist_batch(tickers, period=period)
+    # D-148 Alt-A: guard against network outages or DB errors — pipeline must not die here.
+    try:
+        all_data = fetch_all_bist_batch(tickers, period=period)
+    except Exception as _fetch_exc:
+        logger.warning(
+            "fetch_all_bist_batch failed — proceeding with empty data: %s", _fetch_exc
+        )
+        all_data = {}
 
     total_rows = 0
     for ticker, df in all_data.items():
-        total_rows += upsert_prices(df, ticker)
+        try:
+            total_rows += upsert_prices(df, ticker)
+        except Exception as _db_exc:
+            logger.warning("upsert_prices failed for %s (skipped): %s", ticker, _db_exc)
     logger.info("Stored %d price rows across %d tickers", total_rows, len(all_data))
 
     # Load from DB so analysis always uses canonical data
