@@ -2,8 +2,8 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 24 May 2026  
-**Total Decisions:** 16 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023)  
+**Last Updated:** 26 May 2026  
+**Total Decisions:** 19 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -32,6 +32,9 @@
 | **DEC-017** | Macro Gate Softening (CDS Percentile Overlay) | Signal Architecture / Risk Management | ✅ Implemented | 2026-05-20 | `src/signals/macro_regime_gate.py`, `src/signals/layers/macro_layer.py`, `src/signals/local/cache_store.py`, `src/signals/thresholds.py`, `scripts/daily_update.py` |
 | **DEC-022** | L6 Bayesian kalibrasyonu dışı — statik 0.03 | Signal Architecture / Analytics | ✅ Decided | 2026-05-24 | `src/signals/thresholds.py` |
 | **DEC-023** | MASTER_WEIGHTS manuel onay protokolü | Signal Architecture / Analytics | ✅ Decided | 2026-05-24 | `src/signals/thresholds.py`, `docs/DECISIONS.md` |
+| **DEC-030** | Multi-LLM Jury mimarisi (2-LLM MVP, Phase 6+) | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `src/signals/` (Phase 6+, Q1 2027+) |
+| **DEC-031** | TÜFE canonical kod: TP.FG.J0 | Data Sources | ✅ Decided | 2026-05-26 | `src/data/`, `src/signals/thresholds.py` |
+| **DEC-032** | DEC-010-v2: LLM "genuine input" rolü | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `strategist.py`, `src/signals/engine.py` |
 ---
 
 ## DECISION CATEGORIES
@@ -230,4 +233,104 @@ herhangi bir otomatik kalibrasyon başlamaz — IC_BAYESIAN_TAU_MIN_DAYS=60).
 
 **Owner:** Architect  
 **Maintained By:** Architect  
-**Last Review:** 24 May 2026
+**Last Review:** 26 May 2026
+
+---
+
+## DEC-030 — Multi-LLM Jury Mimarisi (2-LLM MVP)
+
+| Alan | Değer |
+|------|-------|
+| **ID** | DEC-030 |
+| **Başlık** | Multi-LLM Jury mimarisi: 2-LLM MVP (Bull=Claude, Bear=GPT) |
+| **Tarih** | 26 May 2026 |
+| **Alan** | Signal Architecture / AI |
+| **Durum** | ✅ Decided |
+| **Etkilenen Dosyalar** | `src/signals/` (Phase 6+, Q1 2027+) |
+
+### Gerekçe
+
+Tek LLM (Claude) hem bull hem bear argümanı ürettiğinde echo chamber riski vardır:
+kendi önceki output'una karşı "gerçek" itiraz üretemez, bias'ı amplifiye eder.
+
+**Mimari Karar:**
+- 2-LLM MVP: Bull rolü = Claude (Anthropic), Bear rolü = GPT-4o (OpenAI)
+- **Farklı sağlayıcı zorunlu** — aynı sağlayıcının farklı modelleri kabul edilmez
+- `llm_agreement_scalar`: iki LLM aynı yönde hemfikirse güven artar,
+  çelişkide ise `disagreement-aware sizing` devreye girer (pozisyon küçülür)
+- Phase 6+ kapsamı, Q1 2027+ hedef tarih
+
+**Kapsam Dışı (şimdilik):**
+- 3. LLM ekleme (Phase 7+)
+- Ağırlıklı jury (eşit oy — MVP simplicity)
+
+**Kaynak:** RR-019
+
+---
+
+## DEC-031 — TÜFE Canonical Kod: TP.FG.J0
+
+| Alan | Değer |
+|------|-------|
+| **ID** | DEC-031 |
+| **Başlık** | TÜFE canonical kod: TP.FG.J0 (TP.FE.OKTG01 deprecated, stale) |
+| **Tarih** | 26 May 2026 |
+| **Alan** | Data Sources |
+| **Durum** | ✅ Decided |
+| **Etkilenen Dosyalar** | `src/data/`, `src/signals/thresholds.py` |
+
+### Gerekçe
+
+D-151 empirik test sonucu: `TP.FE.OKTG01` kodu EVDS'te stale veri döndürüyor
+(son güncelleme tarihi geride kalıyor, güncel TÜFE rakamını yansıtmıyor).
+
+**Canonical Kodlar:**
+- **TÜFE (CPI):** `TP.FG.J0` — aktif, güncel veri ✅
+- **Yİ-ÜFE (PPI):** `TP.FG.J01` — aktif, güncel veri ✅
+- ~~`TP.FE.OKTG01`~~ — deprecated, stale, KULLANILMAZ
+
+**Staleness Guard:**
+- `EVDS_TUFE_STALE_DAYS = 45` — son veri 45 günden eskiyse uyarı üretilir
+- Neden 45: TÜFE aylık açıklanır (~30 gün), 45 gün yayın gecikmesi + buffer
+
+**Kaynak:** RR-021 + D-151 empirik test
+
+---
+
+## DEC-032 — DEC-010-v2: LLM "Genuine Input" Rolü
+
+| Alan | Değer |
+|------|-------|
+| **ID** | DEC-032 |
+| **Başlık** | DEC-010 → DEC-010-v2: LLM "reporter" rolünden "genuine input" rolüne geçiş |
+| **Tarih** | 26 May 2026 |
+| **Alan** | Signal Architecture / AI |
+| **Durum** | ✅ Decided |
+| **Etkilenen Dosyalar** | `strategist.py`, `src/signals/engine.py` |
+
+### Gerekçe
+
+DEC-010 (2026-05-19): LLM çıktısı read-only narrative — composite'e katkısı sıfır.
+Bu tasarım LLM'i salt raporcu konuma indirgiyordu; gerçek değer üretme kapasitesi bloke.
+
+**DEC-010-v2 ile Değişen:**
+
+| | DEC-010 (eski) | DEC-010-v2 (yeni) |
+|---|---|---|
+| LLM rolü | Reporter (narrative only) | Genuine input (composite etkisi var) |
+| Composite katkı | 0 | Çarpımsal multiplier ∈ [0.5, 1.2] |
+| Soft veto | — | conf < 0.30 → SKIP (güvensiz analiz dışlanır) |
+| Hard veto | — | **YASAK** (LLM tek başına BUY/SELL engelleyemez) |
+| BUY kararı | LLM etkileyemez | LLM agreement ile değişebilir — kasıtlı hibrit |
+
+**Korunan İlkeler:**
+- Cagan nihai override yetkisi korunur
+- Hard veto yasak: LLM sistemi tek başına durduramayz, sadece ölçeklendirir
+- Soft veto (conf < 0.30): güvensiz analiz sessizce atlanır, hata üretmez
+- `llm_agreement_scalar` ∈ [0.5, 1.2]: floor 0.5 (en kötü yarıya indirger),
+  cap 1.2 (en iyi %20 büyütür) — aşırı amplifikasyon engeli
+
+**DEC-010 ile ilişki:** DEC-010 superseded by DEC-010-v2 (bu karar).
+DEC-010 orijinal metni arşiv olarak korunur.
+
+**Kaynak:** CRR-001
