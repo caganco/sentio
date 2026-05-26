@@ -1,5 +1,5 @@
 # FEATURE INDEX — BIST OS
-**Son güncelleme:** 25 Mayıs 2026
+**Son güncelleme:** 26 Mayıs 2026
 **Protokol:** Her Orchestrator session başında bu dosya okunur.
 **Kural:** Yeni major feature eklenince bu dosyaya ve `docs/features/` dizinine eklenir.
 
@@ -21,7 +21,7 @@ Büyük özellik direktifi vermeden önce ilgili guide okunur.
 | NAV Tracker | `docs/features/NAV_TRACKER.md` | Faz 1 ✅ (KCHOL) / Faz 2 bekliyor | CB-012 rejim-shift riski |
 | Risk Layer | `docs/features/RISK_LAYER.md` | ADV+EV aktif ✅ / Vol gözlem modu | Vol_scalar henüz pasif |
 | Signal Engine | — | Production ✅ | MASTER_WEIGHTS değiştirme |
-| L1 ADX Regime | — | D-155 ✅ / ADX feed eksik ⚠️ | adx=None → transition mod (basit ort.); D-156: ADX fetch ekle |
+| L1 ADX Regime | — | D-155 ✅ / D-156 ✅ | Wilder-14 ADX aktif; < 28 gün → None → transition fallback |
 | HMM Regime | — | ENABLE=False | AG-001 ~Kasım 2026 |
 | Foreign Flow | — | Multi-window ✅ | CB-011 CLOSED (D-144) |
 | KAP Boost | — | Event-triggered ✅ | Boost constants test koruyor |
