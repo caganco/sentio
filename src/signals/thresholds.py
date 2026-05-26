@@ -77,6 +77,37 @@ PROXIMITY_HIGH_SCORE: float = 70.0
 PROXIMITY_LOW_SCORE: float = 30.0
 PROXIMITY_NEUTRAL_SCORE: float = 50.0
 
+# ── ADX regime thresholds (D-155) ─────────────────────────────────────────────
+# ADX > ADX_TREND_THRESHOLD → TREND  (MA/momentum dominant)
+# ADX < ADX_RANGE_THRESHOLD → RANGE  (RSI/proximity dominant)
+# ADX_RANGE_THRESHOLD <= ADX <= ADX_TREND_THRESHOLD → TRANSITION (equal weights)
+# adx=None (no data feed yet) → TRANSITION — geriye dönük uyumlu (D-156: ADX fetch)
+ADX_TREND_THRESHOLD: float = 25.0
+ADX_RANGE_THRESHOLD: float = 20.0
+
+# L1 internal sub-score weights per regime (each must sum to 1.0) (D-155)
+L1_WEIGHTS_TREND: dict[str, float] = {
+    "ma_alignment":  0.40,
+    "momentum":      0.30,
+    "volume":        0.15,
+    "52w_proximity": 0.10,
+    "rsi":           0.05,
+}
+L1_WEIGHTS_RANGE: dict[str, float] = {
+    "rsi":           0.40,
+    "52w_proximity": 0.20,
+    "volume":        0.15,
+    "ma_alignment":  0.15,
+    "momentum":      0.10,
+}
+L1_WEIGHTS_TRANSITION: dict[str, float] = {
+    "ma_alignment":  0.20,
+    "momentum":      0.20,
+    "volume":        0.20,
+    "52w_proximity": 0.20,
+    "rsi":           0.20,
+}
+
 # KAP layer category impacts (added to base 50)
 KAP_CATEGORY_IMPACT: dict[str, float] = {
     "temettu":          25.0,
