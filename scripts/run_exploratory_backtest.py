@@ -35,7 +35,6 @@ from src.backtest.engine import BacktestEngine
 from src.backtest.metrics import summarize
 from src.backtest.reporter import save_summary_json, save_trades_csv
 from src.signals.calculator import compute_composite_score, kelly_win_prob
-from src.signals.layers.risk_layer import score_risk
 from src.signals.layers.technical_layer import score_technical
 from src.signals.thresholds import MASTER_WEIGHTS
 from src.utils.logger import setup_logger
@@ -52,7 +51,7 @@ _PROD_EQUIV_WARNING = (
 )
 _STUB_FREE_WARNING = (
     "EXPLORATORY RUN -- STUB-FREE MODE. "
-    "L3/L4/L5 DISLANMIS. Sadece L1+L2+L6. CB-014 kapsamaz."
+    "L3/L4/L5 DISLANMIS. Sadece L1+L2. CB-014 kapsamaz."
 )
 
 _DEFAULT_START  = "2025-09-01"
@@ -60,12 +59,13 @@ _DEFAULT_END    = "2026-02-28"
 _DEFAULT_OUTPUT = "reports/backtest/exploratory/bist50_2025h2"
 _STUBFREE_OUTPUT = "reports/backtest/exploratory/bist50_2025h2_stubfree"
 
-# Stub-free mod: sadece bu 3 layer kullanilir, L3/L4/L5 normalizer'a girmez
+# Stub-free mod: sadece bu 2 layer kullanilir, L3/L4/L5 normalizer'a girmez
+# D-154: L6 (risk) composite'den cikarildi — artik sadece L1+L2.
+# Normalizer = tech_weight + macro_weight = 0.2577 + 0.2062 ≈ 0.4639
 _STUB_FREE_WEIGHTS = {
-    "technical": MASTER_WEIGHTS["technical"],  # 0.25
-    "macro":     MASTER_WEIGHTS["macro"],       # 0.20
-    "risk":      MASTER_WEIGHTS["risk"],        # 0.03
-    # kap / sentiment / smart_money: dahil degil
+    "technical": MASTER_WEIGHTS["technical"],  # 0.2577 (D-154 renorm)
+    "macro":     MASTER_WEIGHTS["macro"],       # 0.2062 (D-154 renorm)
+    # risk (L6) removed D-154; kap / sentiment / smart_money: kasitli dahil degil
 }
 
 _BIST50: list[str] = [
@@ -87,10 +87,11 @@ _BIST50: list[str] = [
 # ---------------------------------------------------------------------------
 
 class StubFreeBacktestEngine(BacktestEngine):
-    """BacktestEngine subclass: L3/L4/L5 dislanir, sadece L1+L2+L6 kullanilir.
+    """BacktestEngine subclass: L3/L4/L5 dislanir, sadece L1+L2 kullanilir.
 
-    Normalizer = 0.25+0.20+0.03 = 0.48
-    BUY sinyali uretebilir (production-equivalent modda composite maks ~58).
+    D-154: L6 (risk) composite'den cikarildi. Normalizer = tech+macro = 0.4639.
+    BUY sinyali uretebilir (production-equiv modda composite maks ~73, ama
+    kap/sent/sm stub'u %53.6 agirlik ceker -> pratikte <72 kalin sinyaller).
 
     src/backtest/engine.py degistirilmez -- sadece _compute_composite override.
     """
@@ -101,7 +102,7 @@ class StubFreeBacktestEngine(BacktestEngine):
         macro_data: dict,
         symbol: str,
     ) -> tuple[float, float]:
-        """L1+L2+L6 composite -- L3/L4/L5 dislanmis."""
+        """L1+L2 composite -- L3/L4/L5 dislanmis, L6 removed D-154."""
         try:
             tech_score = score_technical(technical_data).score
         except Exception:
@@ -110,17 +111,12 @@ class StubFreeBacktestEngine(BacktestEngine):
             macro_score = self._global_macro_score(macro_data)
         except Exception:
             macro_score = 50.0
-        try:
-            risk_score = score_risk(symbol, technical_data, macro_data).score
-        except Exception:
-            risk_score = 50.0
 
         composite = compute_composite_score(
             {
                 "technical": tech_score,
                 "macro":     macro_score,
-                "risk":      risk_score,
-                # kap / sentiment / smart_money: kasitli olarak dahil edilmedi
+                # kap / sentiment / smart_money / risk: kasitli olarak dahil edilmedi
             },
             weights=_STUB_FREE_WEIGHTS,
         )
@@ -234,7 +230,7 @@ def _run(args: argparse.Namespace) -> None:
             {k: v for k, v in _STUB_FREE_WEIGHTS.items()} if stub_free else None
         ),
         "note": (
-            "L3/L4/L5 dislanmis; normalizer=0.48 (L1+L2+L6)"
+            "L3/L4/L5 dislanmis; normalizer=0.4639 (L1+L2, D-154 sonrasi L6 cikarildi)"
             if stub_free else
             "L3/L4/L5=50.0 neutral stub; production composite paritesi"
         ),
@@ -246,7 +242,7 @@ def _run(args: argparse.Namespace) -> None:
 
     # --- Sonuc ozeti ------------------------------------------------------
     print(f"\n{sep}")
-    mode_label = "STUB-FREE (L1+L2+L6)" if stub_free else "PROD-EQUIV (L3/L4/L5=50)"
+    mode_label = "STUB-FREE (L1+L2)" if stub_free else "PROD-EQUIV (L3/L4/L5=50)"
     print(f"  SONUCLAR [{mode_label}]")
     print(f"  (L3/L4/L5=50 stub, 6 ay pencere -- beklenti yonetimi)")
     print(f"{sep}")
@@ -286,7 +282,7 @@ def main() -> None:
         choices=["production-equivalent", "stub-free"],
         help=(
             "production-equivalent: L3/L4/L5=50 stub, production paritesi. "
-            "stub-free: L3/L4/L5 dislanir, sadece L1+L2+L6."
+            "stub-free: L3/L4/L5 dislanir, sadece L1+L2 (D-154 sonrasi L6 cikarildi)."
         ),
     )
     args = parser.parse_args()
