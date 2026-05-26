@@ -50,3 +50,15 @@ CRISIS_WINDOWS: dict[str, tuple[str, str]] = {
     "2021_tcmb":      ("2021-03-01", "2022-02-01"),
     "2023_quake":     ("2023-02-01", "2023-08-01"),
 }
+
+# ── Pass/Fail Esikleri (D-161) ────────────────────────────────────────────────
+# TR %42 RF ortaminda Sharpe >= 1.0 matematiksel olarak erisilemez (8 ayda +31%
+# gerektirir). Period-adjusted excess return pozitif olmasi yeterli esik.
+# DSR/PBO bu esiklerden bagimsiz — Newey-West Sharpe kullanir (statistical_validation.py).
+SHARPE_PASS_THRESHOLD: float = 0.0    # pozitif excess return (TR yuksek RF ortami)
+SHARPE_WARN_THRESHOLD: float = 0.5    # iyi performans
+SHARPE_STRONG_THRESHOLD: float = 1.0  # mukemmel — uzun vadeli hedef
+
+# Information Ratio: IR = mean(active_return) / std(active_return) * sqrt(252)
+# active_return = portfolio_daily - benchmark_daily (BIST100)
+IR_PASS_THRESHOLD: float = 0.3        # anlamli alpha vs benchmark

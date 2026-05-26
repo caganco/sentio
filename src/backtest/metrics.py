@@ -7,6 +7,12 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pandas as pd
 
+from src.backtest.validation_constants import (
+    IR_PASS_THRESHOLD,
+    SHARPE_PASS_THRESHOLD,
+    SHARPE_STRONG_THRESHOLD,
+)
+
 if TYPE_CHECKING:
     from src.backtest.engine import BacktestEngine
 
@@ -28,7 +34,14 @@ def calculate_sharpe(
     equity_curve: list[float],
     rf_rate: float = RISK_FREE_RATE,
 ) -> float:
-    """Sharpe ratio = (annual_return - rf) / annual_vol. Returns 0.0 if insufficient data."""
+    """Period-adjusted Sharpe ratio. D-161: period mismatch duzeltildi.
+
+    Formula: (excess_period / annual_vol) * sqrt(252 / holding_days)
+    excess_period = total_return - rf_rate * (holding_days / 252)
+
+    Onceki formul yillik RF ile donem getirisini karsilastiriyordu (hata).
+    Returns 0.0 if insufficient data or zero volatility.
+    """
     if len(equity_curve) < 2:
         return 0.0
     arr = np.array(equity_curve, dtype=float)
@@ -36,8 +49,11 @@ def calculate_sharpe(
     annual_vol = float(np.std(daily_returns)) * np.sqrt(252)
     if annual_vol == 0:
         return 0.0
-    annual_return = (arr[-1] - arr[0]) / arr[0]
-    return (annual_return - rf_rate) / annual_vol
+    holding_days = len(daily_returns)
+    total_return = (arr[-1] - arr[0]) / arr[0]
+    rf_period = rf_rate * (holding_days / 252)
+    excess = total_return - rf_period
+    return float((excess / annual_vol) * np.sqrt(252 / holding_days))
 
 
 def calculate_max_drawdown(equity_curve: list[float]) -> float:
@@ -53,6 +69,26 @@ def calculate_max_drawdown(equity_curve: list[float]) -> float:
         if dd < max_dd:
             max_dd = dd
     return max_dd
+
+
+def calculate_ir(
+    portfolio_returns: list[float],
+    benchmark_returns: list[float],
+) -> float:
+    """Information Ratio = annualized(mean active return / std active return). D-161.
+
+    active_return = portfolio_daily - benchmark_daily (per day).
+    IR > IR_PASS_THRESHOLD (0.3) anlamli alpha olarak kabul edilir.
+    Returns 0.0 if insufficient data or zero tracking error.
+    """
+    if len(portfolio_returns) < 2 or len(benchmark_returns) < 2:
+        return 0.0
+    n = min(len(portfolio_returns), len(benchmark_returns))
+    active = np.array(portfolio_returns[:n]) - np.array(benchmark_returns[:n])
+    std_active = float(np.std(active))
+    if std_active == 0:
+        return 0.0
+    return float(np.mean(active) / std_active * np.sqrt(252))
 
 
 def calculate_alpha(
@@ -90,6 +126,27 @@ def summarize(
 
     win_rate = calculate_win_rate(trades)
     sharpe = calculate_sharpe(engine.equity_curve)
+
+    # IR hesabi: benchmark ile gunluk hizalanmis aktif getiri (D-161)
+    ir = 0.0
+    if (
+        benchmark_series is not None
+        and not benchmark_series.empty
+        and len(engine.daily_dates) >= 2
+    ):
+        dates = pd.DatetimeIndex(engine.daily_dates)
+        bench_aligned = benchmark_series.reindex(dates, method="ffill").ffill()
+        bench_daily = bench_aligned.pct_change().fillna(0)
+        arr_eq = np.array(engine.equity_curve, dtype=float)
+        port_daily = np.diff(arr_eq) / arr_eq[:-1]
+        bench_vals = bench_daily.values[1:]  # pct_change ilk deger NaN -> [1:]
+        min_len = min(len(port_daily), len(bench_vals))
+        if min_len >= 2:
+            ir = calculate_ir(
+                list(port_daily[:min_len]),
+                list(bench_vals[:min_len]),
+            )
+
     max_dd = engine.max_dd
 
     wins = [t["pnl_pct"] for t in sell_trades if t.get("pnl", 0) > 0]
@@ -111,7 +168,16 @@ def summarize(
 
     pass_fail = {
         "win_rate": f"{win_rate:.1%} {'PASS' if win_rate >= 0.52 else 'FAIL'} (threshold: >=52%)",
-        "sharpe": f"{sharpe:.2f} {'PASS' if sharpe >= 1.0 else 'FAIL'} (threshold: >=1.0)",
+        "sharpe": (
+            f"{sharpe:.2f} "
+            f"{'PASS' if sharpe >= SHARPE_PASS_THRESHOLD else 'FAIL'} "
+            f"(threshold: >={SHARPE_PASS_THRESHOLD:.1f}; strong: >={SHARPE_STRONG_THRESHOLD:.1f})"
+        ),
+        "ir": (
+            f"{ir:.3f} "
+            f"{'PASS' if ir >= IR_PASS_THRESHOLD else 'FAIL'} "
+            f"(threshold: >={IR_PASS_THRESHOLD})"
+        ),
         "max_drawdown": f"{max_dd:.1%} {'PASS' if max_dd >= -0.25 else 'FAIL'} (threshold: >=-25%)",
         "alpha": f"{alpha_data['alpha']:.1%} {'PASS' if alpha_data['alpha'] > 0 else 'FAIL'} (threshold: >0%)",
         "circuit_breaker": f"{circuit_breaker_triggers} triggers {'PASS' if circuit_breaker_triggers <= 2 else 'FAIL'} (threshold: <=2)",
@@ -132,6 +198,7 @@ def summarize(
         "profit_factor": round(profit_factor, 3),
         "max_drawdown_pct": round(max_dd * 100, 2),
         "sharpe_ratio": round(sharpe, 3),
+        "information_ratio": round(ir, 3),
         "system_return_pct": round(alpha_data["system_return"] * 100, 2),
         "benchmark_return_pct": round(alpha_data["benchmark_return"] * 100, 2),
         "alpha_pct": round(alpha_data["alpha"] * 100, 2),
