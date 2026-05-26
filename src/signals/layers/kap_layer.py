@@ -3,11 +3,13 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 
+from src.signals.layers.kap_earnings_parser import parse_earnings_surprise  # D-158
 from src.signals.models import LayerScore
 from src.signals.thresholds import (
     KAP_BASE_SCORE,
     KAP_CATEGORY_IMPACT,
     KAP_DUPLICATE_MULTIPLIER,
+    KAP_EARNINGS_IMPACT_SCALE,  # D-158
     KAP_EVENT_WINDOW_DAYS,
     KAP_HIGH_PRIORITY_MULTIPLIER,
     MASTER_WEIGHTS,
@@ -62,7 +64,20 @@ def score_kap(
 
     for ev in relevant:
         category = ev.get("category", "diger")
-        impact = KAP_CATEGORY_IMPACT.get(category, 0.0)
+
+        # D-158: finansal_rapor → numeric surprise score (Faz 1, regex-only, LLM yok)
+        if category == "finansal_rapor":
+            kap_text = ev.get("kap_text") or ev.get("text") or ""
+            if kap_text:
+                surprise = parse_earnings_surprise(kap_text)
+                if surprise.confidence > 0.0:
+                    impact = surprise.score * KAP_EARNINGS_IMPACT_SCALE
+                else:
+                    impact = KAP_CATEGORY_IMPACT.get(category, 0.0)  # 0.0 fallback
+            else:
+                impact = KAP_CATEGORY_IMPACT.get(category, 0.0)  # kap_text yok → 0.0 fallback
+        else:
+            impact = KAP_CATEGORY_IMPACT.get(category, 0.0)
 
         seen_count = category_seen.get(category, 0)
         multiplier = KAP_DUPLICATE_MULTIPLIER if seen_count > 0 else 1.0
