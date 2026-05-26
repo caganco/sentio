@@ -129,3 +129,25 @@ class TestL1RegimeAwareWeighting:
         assert sum(L1_WEIGHTS_TREND.values())      == pytest.approx(1.0, abs=1e-9)
         assert sum(L1_WEIGHTS_RANGE.values())      == pytest.approx(1.0, abs=1e-9)
         assert sum(L1_WEIGHTS_TRANSITION.values()) == pytest.approx(1.0, abs=1e-9)
+
+
+class TestVolumeSurgeGradient:
+    """3-level volume surge gradient (D-160): ekstrem > güçlü > zayıf > None."""
+
+    def test_ekstrem_scores_higher_than_guclu(self):
+        """volume_surge='ekstrem' → higher L1 score than 'güçlü' (all else equal, TRANSITION)."""
+        ekstrem = score_technical(_data(adx=22.0, volume_surge="ekstrem"))
+        guclu   = score_technical(_data(adx=22.0, volume_surge="güçlü"))
+        assert ekstrem.score > guclu.score
+
+    def test_guclu_scores_higher_than_zayif(self):
+        """volume_surge='güçlü' → higher L1 score than 'zayıf' (all else equal, TRANSITION)."""
+        guclu = score_technical(_data(adx=22.0, volume_surge="güçlü"))
+        zayif = score_technical(_data(adx=22.0, volume_surge="zayıf"))
+        assert guclu.score > zayif.score
+
+    def test_zayif_scores_higher_than_none(self):
+        """volume_surge='zayıf' → higher L1 score than None (all else equal, TRANSITION)."""
+        zayif    = score_technical(_data(adx=22.0, volume_surge="zayıf"))
+        no_surge = score_technical(_data(adx=22.0, volume_surge=None))
+        assert zayif.score > no_surge.score
