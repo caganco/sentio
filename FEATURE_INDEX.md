@@ -21,6 +21,7 @@ Büyük özellik direktifi vermeden önce ilgili guide okunur.
 | NAV Tracker | `docs/features/NAV_TRACKER.md` | Faz 1 ✅ (KCHOL) / Faz 2 bekliyor | CB-012 rejim-shift riski |
 | Risk Layer | `docs/features/RISK_LAYER.md` | ADV+EV aktif ✅ / Vol gözlem modu | Vol_scalar henüz pasif |
 | Signal Engine | — | Production ✅ | MASTER_WEIGHTS değiştirme |
+| L1 ADX Regime | — | D-155 ✅ / ADX feed eksik ⚠️ | adx=None → transition mod (basit ort.); D-156: ADX fetch ekle |
 | HMM Regime | — | ENABLE=False | AG-001 ~Kasım 2026 |
 | Foreign Flow | — | Multi-window ✅ | CB-011 CLOSED (D-144) |
 | KAP Boost | — | Event-triggered ✅ | Boost constants test koruyor |
