@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-RISK_FREE_RATE = 0.42  # Turkish risk-free rate = TCMB policy rate ~42% annual (2026)
+RISK_FREE_RATE = 0.37  # Turkish risk-free rate = TCMB Mayis 2026 MPK — OS_STATE
 
 
 def calculate_win_rate(trades: list[dict]) -> float:
