@@ -17,8 +17,6 @@ from src.signals.thresholds import (
     PROXIMITY_NEUTRAL_SCORE,
     RSI_SCORES,
     RSI_THRESHOLDS,
-    VOLUME_NO_SURGE_SCORE,
-    VOLUME_SURGE_SCORE,
 )
 
 
@@ -53,8 +51,28 @@ def _momentum_sub_score(momentum_score: float | None) -> float:
     return round((clamped + 1.0) / 2.0 * 100.0, 4)
 
 
-def _volume_sub_score(volume_surge: bool | None) -> float:
-    return VOLUME_SURGE_SCORE if volume_surge else VOLUME_NO_SURGE_SCORE
+def _volume_sub_score(volume_surge) -> float:
+    """Map volume_surge to sub-score.
+
+    3-level gradient (D-160):
+      "ekstrem" → 90.0  (×3.00+ avg)
+      "güçlü"  → 75.0  (×1.50–3.00 avg)
+      "zayıf"  → 60.0  (×1.10–1.50 avg)
+      None     → 40.0  (no surge)
+
+    Backward-compat (legacy binary):
+      True  → 75.0  (maps to "güçlü" — prior threshold was ×1.50)
+      False → 40.0  (no surge)
+    """
+    if volume_surge == "ekstrem":
+        return 90.0
+    if volume_surge == "güçlü":
+        return 75.0
+    if volume_surge == "zayıf":
+        return 60.0
+    if volume_surge is True:      # backward compat
+        return 75.0
+    return 40.0                   # False, None, or unknown → no surge
 
 
 def _proximity_sub_score(proximity_below_52w_high: float | None) -> float:
