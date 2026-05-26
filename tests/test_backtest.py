@@ -265,7 +265,8 @@ class TestMetrics:
         assert result == pytest.approx(3 / 5, rel=1e-5)
 
     def test_sharpe_ratio_reasonable_bounds(self):
-        # Use a realistic equity curve with noise so annual_vol > 0
+        # D-161: period-adjusted formula. rf_rate=0.15 ile 130 gunluk test.
+        # Beklenti: yaklasik 0.3-0.4 (pozitif drift, dusuk RF, period-adjusted).
         rng = np.random.default_rng(seed=99)
         daily_rets = rng.normal(0.001, 0.015, 130)  # positive drift, ~1.5% daily vol
         vals = [100_000.0]
