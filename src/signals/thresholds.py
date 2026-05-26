@@ -68,8 +68,13 @@ RSI_SCORES: dict[str, float] = {
 
 MA_SCORES: dict[int, float] = {3: 80.0, 2: 60.0, 1: 40.0, 0: 20.0}
 
-VOLUME_SURGE_SCORE: float = 65.0
-VOLUME_NO_SURGE_SCORE: float = 50.0
+VOLUME_SURGE_SCORE: float = 65.0       # legacy binary True → kept for backward compat
+VOLUME_NO_SURGE_SCORE: float = 50.0    # legacy binary False → kept for backward compat
+
+# Volume surge gradient thresholds (D-160) — vol_ratio = volume / vol_20d_avg
+VOLUME_SURGE_WEAK: float = 1.10     # ×1.10 → zayıf (60.0 sub-score)
+VOLUME_SURGE_STRONG: float = 1.50   # ×1.50 → güçlü (75.0 sub-score)
+VOLUME_SURGE_EXTREME: float = 3.00  # ×3.00 → ekstrem (90.0 sub-score)
 
 PROXIMITY_HIGH_THRESHOLD: float = 0.95  # price / 52w_high > 0.95
 PROXIMITY_LOW_THRESHOLD: float = 0.05   # proximity_below_52w_high < 0.05

@@ -177,12 +177,22 @@ def build_technical_data(df: pd.DataFrame, as_of: pd.Timestamp) -> dict | None:
     else:
         momentum = 0.0
 
-    # Volume surge (current > 1.5x 20-day avg)
+    # Volume surge — 3-level gradient (D-160)
+    # None = no surge, "zayıf" = ×1.10, "güçlü" = ×1.50, "ekstrem" = ×3.00
+    from src.signals.thresholds import VOLUME_SURGE_WEAK, VOLUME_SURGE_STRONG, VOLUME_SURGE_EXTREME
     vol_20d_avg = volume.rolling(20).mean().iloc[-1] if len(snap) >= 20 else None
     if vol_20d_avg and vol_20d_avg > 0:
-        volume_surge = bool(volume.iloc[-1] > 1.5 * vol_20d_avg)
+        vol_ratio = float(volume.iloc[-1]) / float(vol_20d_avg)
+        if vol_ratio >= VOLUME_SURGE_EXTREME:
+            volume_surge = "ekstrem"
+        elif vol_ratio >= VOLUME_SURGE_STRONG:
+            volume_surge = "güçlü"
+        elif vol_ratio >= VOLUME_SURGE_WEAK:
+            volume_surge = "zayıf"
+        else:
+            volume_surge = None
     else:
-        volume_surge = False
+        volume_surge = None
 
     # Proximity to 52-week high (fraction below high; 0 = at high)
     window = min(252, len(snap))
