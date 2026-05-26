@@ -615,11 +615,12 @@ class TestComputeSignal:
         with pytest.raises(ValueError):
             compute_signal("THYAO", TECH_NEUTRAL, MACRO_NEUTRAL, [], future)
 
-    def test_audit_has_6_layers(self):
+    def test_audit_has_5_layers(self):
+        # D-154: L6/risk removed from composite → 5 layers.
         r = compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], AS_OF)
-        assert len(r.audit.layer_scores) == 6  # Added smart_money layer
+        assert len(r.audit.layer_scores) == 5
         layer_names = {ls.layer for ls in r.audit.layer_scores}
-        assert layer_names == {"technical", "macro", "kap", "sentiment", "risk", "smart_money"}
+        assert layer_names == {"technical", "macro", "kap", "sentiment", "smart_money"}
 
     def test_audit_signal_summary_nonempty(self):
         r = compute_signal("THYAO", TECH_BULLISH, MACRO_NEUTRAL, [], AS_OF)

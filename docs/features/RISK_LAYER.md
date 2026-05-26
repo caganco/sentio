@@ -1,7 +1,13 @@
 # Feature Guide: Risk Layer (Vol Targeting + Net EV + ADV Cap)
-**Son güncelleme:** 25 Mayıs 2026 — D-145/D-146/D-147
+**Son güncelleme:** 26 Mayıs 2026 — D-154
 **Durum:** Vol targeting gözlem modu ✅ | Net EV check aktif ✅ | ADV cap aktif ✅
-**Sorumlu direktifler:** D-145 (ADV), D-146 (Net EV), D-147 (Vol)
+**Sorumlu direktifler:** D-145 (ADV), D-146 (Net EV), D-147 (Vol), D-154 (composite removal)
+
+> **D-154 Notu (2026-05-26):** `score_risk()` (L6) composite formülünden **çıkarıldı**.
+> Gerekçe: MASTER_WEIGHTS["risk"] = 0.03 → maksimum composite katkısı 2.1 puan (gürültü seviyesi).
+> `score_risk()` yalnızca **pozisyon boyutlandırma** tarafında (Kelly / ADV cap / Net EV / Vol scalar)
+> kullanılmaya devam ediyor — bu taraf değişmedi. MASTER_WEIGHTS'te "risk" anahtarı artık yok;
+> kalan 5 katman 0.97'ye bölünerek renormalize edildi (toplam = 1.000). Bkz. RR-022 §1.3.
 
 ---
 

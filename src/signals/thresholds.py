@@ -5,27 +5,27 @@
 # Verified against SPEC_SIGNAL_CONVICTION_1.md (l.75-77, 129-131, 283-291) and
 # OS_STATE.md (l.87-93). DO NOT reorder without re-verifying both sources.
 #
-#   engine name   SPEC   weight   runtime            note
-#   -----------   ----   ------   ----------------   -------------------------
-#   technical     L1     0.25     fixed              -
-#   macro         L2     0.20     fixed              also drives macro modulation
-#   kap           L3     0.30     fixed              -
-#   sentiment     L4     0.12     x l4_confidence    SUSPENDED -> conf=0 -> 0 contrib
-#   smart_money   L5     0.10     x l5_confidence    data-collection, conf~=0 early
-#   risk          L6     0.03     fixed              signal-only (not pos sizing)
+#   engine name   SPEC   weight        runtime            note
+#   -----------   ----   ------        ----------------   -------------------------
+#   technical     L1     0.25/0.97     fixed              -
+#   macro         L2     0.20/0.97     fixed              also drives macro modulation
+#   kap           L3     0.30/0.97     fixed              -
+#   sentiment     L4     0.12/0.97     x l4_confidence    SUSPENDED -> conf=0 -> 0 contrib
+#   smart_money   L5     0.10/0.97     x l5_confidence    data-collection, conf~=0 early
+#   risk          L6     REMOVED       D-154: composite'ten cikarildi; pos sizing tarafinda kalir
 #
 # Static sum = 1.00 (stays in architecture-safety band [0.85, 1.05]).
-# Effective runtime Sigma in [0.78, 1.00] via L4/L5 confidence scaling at
-# LayerScore creation (engine.py). The 0.78 floor is the EMERGENT normalizer
-# -- see docs/decisions/DEC-009.
+# Effective runtime Sigma in [0.7732, 1.00] via L4/L5 confidence scaling at
+# LayerScore creation (engine.py). The 0.7732 floor is the EMERGENT normalizer
+# -- see docs/decisions/DEC-009. (D-154: was 0.78 before L6 removal)
 # -----------------------------------------------------------------------------
 MASTER_WEIGHTS: dict[str, float] = {
-    "technical": round(0.25 / 1.00, 10),   # L1 0.2500 (Phase 4.5: was 0.20)
-    "macro":     round(0.20 / 1.00, 10),   # L2 0.2000 (Phase 4.5: was 0.35, less gatekeeping)
-    "kap":       round(0.30 / 1.00, 10),   # L3 0.3000 (Phase 4.5: was 0.15, events matter more)
-    "sentiment": round(0.12 / 1.00, 10),   # L4 0.1200 (× l4_confidence; SUSPENDED → 0 contrib)
-    "smart_money": round(0.10 / 1.00, 10), # L5 0.1000 (× l5_confidence; was 0.25)
-    "risk":      round(0.03 / 1.00, 10),   # L6 0.0300 (Phase 4.5: was 0.05, signal-only)
+    "technical":   round(0.25 / 0.97, 10),  # L1 ~0.2577 (D-154: renormalized ex-L6)
+    "macro":       round(0.20 / 0.97, 10),  # L2 ~0.2062 (D-154: renormalized ex-L6)
+    "kap":         round(0.30 / 0.97, 10),  # L3 ~0.3093 (D-154: renormalized ex-L6)
+    "sentiment":   round(0.12 / 0.97, 10),  # L4 ~0.1237 (x l4_confidence; SUSPENDED)
+    "smart_money": round(0.10 / 0.97, 10),  # L5 ~0.1031 (x l5_confidence)
+    # risk/L6: removed D-154 (weight was 0.03 = noise; pos sizing unchanged)
 }
 
 SIGNAL_THRESHOLDS: dict[str, float] = {
@@ -111,14 +111,19 @@ RISK_VIX_HIGH_THRESHOLD: float = 25.0
 
 # Macro layer
 ASSET_DIRECTIONS: dict[str, float] = {
-    "USDTRY":  -1.0,
-    "EURTRY":  -1.0,
-    "VIX":     -1.0,
-    "BRENT":   +0.5,
-    "GOLD":    -0.3,
-    "SP500":   +1.0,
-    "BIST100": +1.0,
+    "USDTRY":          -1.0,
+    "EURTRY":          -1.0,
+    "VIX":             -1.0,
+    "BRENT":           +0.5,
+    "GOLD":            -0.3,
+    "SP500":           +1.0,
+    # "BIST100": +1.0  — D-154: removed (circular: benchmark = signal). Replaced by EM_RELSTRENGTH.
+    "EM_RELSTRENGTH":  +1.0,  # D-154: BIST100/EEM 20d ratio momentum; bullish when BIST outperforms EM
 }
+
+# EM Relative Strength constants (D-154, RR-022 §B)
+EM_RELSTRENGTH_LOOKBACK: int = 20    # days — (XU100/EEM) ratio momentum window
+EM_RELSTRENGTH_SCALE: float = 0.15   # +/-15% ratio move → +/-1.0 normalized score
 
 # Regime thresholds
 REGIME_RISK_ON_VIX_MAX: float = 20.0
@@ -340,8 +345,9 @@ CONVICTION_MACRO_MULT_NEUTRAL: float = 1.0
 CONVICTION_MACRO_MULT_BEAR: float = 0.85
 
 # Emergent runtime normalizer floor (DEC-009). Dynamic normalizer preserved;
-# this is the documented floor when L4 (suspended) + L5 (conf≈0) → Σ = 0.78.
-RUNTIME_NORMALIZER_FLOOR: float = 0.78
+# this is the documented floor when L4 (suspended) + L5 (conf≈0) contribute 0.
+# D-154: L6 removed → floor changes from 0.78 to ~0.7732 (tech+macro+kap renormalized).
+RUNTIME_NORMALIZER_FLOOR: float = round(0.75 / 0.97, 10)  # ≈ 0.7731958763
 # Static MASTER_WEIGHTS sum must stay within this architecture-safety band.
 MASTER_WEIGHTS_SUM_MIN: float = 0.85
 MASTER_WEIGHTS_SUM_MAX: float = 1.05
@@ -768,34 +774,37 @@ HMM_FEATURE_NAMES: tuple[str, ...] = ("bist_log_return", "roll_vol_20d", "usdtry
 HMM_VOL_LOOKBACK: int = 20   # rolling vol window in trading days
 
 # Regime-conditional weight tables — Σ = 1.00 each; keys == MASTER_WEIGHTS.keys()
+# D-154: L6/risk removed from all tables (renormalized by dividing each by Σ_ex_risk).
 # BULL: momentum (L1) + smart money (L5) lead; macro (L2) less marginal in bull
+# Original ex-risk Σ = 0.98; each value divided by 0.98.
 HMM_WEIGHTS_BULL: dict[str, float] = {
-    "technical":   0.32,   # L1 ↑ momentum premium peaks in bull (Asness et al. 2013)
-    "macro":       0.17,   # L2 ↓ already supportive background in bull
-    "kap":         0.27,   # L3    corporate events always informative
-    "sentiment":   0.10,   # L4    suspended (confidence=0), kept for activation
-    "smart_money": 0.12,   # L5 ↑ institutional flows reliable in bull
-    "risk":        0.02,   # L6 ↓ risk-off rarely triggered in bull
+    "technical":   round(0.32 / 0.98, 10),  # L1 ↑ momentum premium peaks in bull (Asness et al. 2013)
+    "macro":       round(0.17 / 0.98, 10),  # L2 ↓ already supportive background in bull
+    "kap":         round(0.27 / 0.98, 10),  # L3    corporate events always informative
+    "sentiment":   round(0.10 / 0.98, 10),  # L4    suspended (confidence=0), kept for activation
+    "smart_money": round(0.12 / 0.98, 10),  # L5 ↑ institutional flows reliable in bull
+    # risk/L6: removed D-154
 }  # Σ = 1.00
 
 # NEUTRAL: identical to MASTER_WEIGHTS (architecture-tested invariant)
 HMM_WEIGHTS_NEUTRAL: dict[str, float] = {
-    "technical":   0.25,
-    "macro":       0.20,
-    "kap":         0.30,
-    "sentiment":   0.12,
-    "smart_money": 0.10,
-    "risk":        0.03,
+    "technical":   round(0.25 / 0.97, 10),  # D-154: mirrors new MASTER_WEIGHTS
+    "macro":       round(0.20 / 0.97, 10),
+    "kap":         round(0.30 / 0.97, 10),
+    "sentiment":   round(0.12 / 0.97, 10),
+    "smart_money": round(0.10 / 0.97, 10),
+    # risk/L6: removed D-154
 }  # Σ = 1.00  — must equal MASTER_WEIGHTS (test_architecture.py enforces this)
 
 # BEAR: macro (L2) dominant; technical (L1) reduced (false bullish risk in bear)
+# Original ex-risk Σ = 0.94; each value divided by 0.94.
 HMM_WEIGHTS_BEAR: dict[str, float] = {
-    "technical":   0.15,   # L1 ↓↓ oversold bounces produce false bullish signals
-    "macro":       0.30,   # L2 ↑↑ macro dominant; CDS+USDTRY+TCMB critical
-    "kap":         0.32,   # L3 ↑  corporate disclosures early warning in bear
-    "sentiment":   0.07,   # L4 ↓  noisy in bear environment
-    "smart_money": 0.10,   # L5    monitoring institutional exits
-    "risk":        0.06,   # L6 ↑↑ risk-off signal more frequently correct
+    "technical":   round(0.15 / 0.94, 10),  # L1 ↓↓ oversold bounces produce false bullish signals
+    "macro":       round(0.30 / 0.94, 10),  # L2 ↑↑ macro dominant; CDS+USDTRY+TCMB critical
+    "kap":         round(0.32 / 0.94, 10),  # L3 ↑  corporate disclosures early warning in bear
+    "sentiment":   round(0.07 / 0.94, 10),  # L4 ↓  noisy in bear environment
+    "smart_money": round(0.10 / 0.94, 10),  # L5    monitoring institutional exits
+    # risk/L6: removed D-154
 }  # Σ = 1.00
 
 # Signal log storage paths

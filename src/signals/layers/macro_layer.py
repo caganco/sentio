@@ -47,15 +47,23 @@ def score_macro(macro_data: dict) -> LayerScore:
     """
     # Normalise MacroSignal-style keys to ASSET_DIRECTIONS format
     score_key_map = {
-        "vix_score": "VIX",
-        "usdtry_score": "USDTRY",
-        "brent_score": "BRENT",
-        "bist100_score": "BIST100",
+        "vix_score":      "VIX",
+        "usdtry_score":   "USDTRY",
+        "brent_score":    "BRENT",
+        "bist100_score":  "BIST100",       # backward compat — maps old key (BIST100 removed D-154)
+        "em_relstrength": "EM_RELSTRENGTH",  # D-154: new canonical key
     }
     normalised: dict = dict(macro_data)
     for score_key, asset_key in score_key_map.items():
         if score_key in macro_data and asset_key not in macro_data:
             normalised[asset_key] = macro_data[score_key]
+
+    # D-154: BIST100 removed from ASSET_DIRECTIONS; EM_RELSTRENGTH added.
+    # Backtest fallback: if EM_RELSTRENGTH absent but BIST100 present, use BIST100
+    # as proxy (same directional signal, slightly different semantics).
+    # Production path: daily_update caller injects EM_RELSTRENGTH from macro_sources.py.
+    if "EM_RELSTRENGTH" not in normalised and "BIST100" in normalised:
+        normalised["EM_RELSTRENGTH"] = normalised["BIST100"]
 
     detail: dict = {}
     weighted_sum = 0.0

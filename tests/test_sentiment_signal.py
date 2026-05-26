@@ -300,7 +300,9 @@ class TestL4ConfidenceFormula:
         assert MASTER_WEIGHTS["sentiment"] * 0.0 == 0.0
 
     def test_engine_weight_scales_with_confidence(self):
-        """Engine: MASTER_WEIGHTS['sentiment'] × 0.75 ≈ 0.09."""
+        """Engine: MASTER_WEIGHTS['sentiment'] × 0.75 ≈ 0.0928 (D-154: renormalized)."""
         from src.signals.thresholds import MASTER_WEIGHTS
         effective = MASTER_WEIGHTS["sentiment"] * 0.75
-        assert abs(effective - 0.09) < 1e-6
+        # D-154: sentiment base weight renormalized 0.12 → 0.12/0.97; 0.75 × 0.12/0.97 ≈ 0.0928
+        expected = round(0.12 / 0.97, 10) * 0.75
+        assert abs(effective - expected) < 1e-9

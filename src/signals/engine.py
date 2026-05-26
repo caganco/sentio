@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta, timezone
 from src.signals.conviction_validator import compute_conviction
 from src.signals.layers.kap_layer import score_kap
 from src.signals.layers.macro_layer import score_macro
-from src.signals.layers.risk_layer import detect_regime, score_risk
+from src.signals.layers.risk_layer import detect_regime  # score_risk removed D-154 (composite)
 from src.signals.layers.sentiment_layer import score_sentiment
 from src.signals.layers.smart_money_layer import get_l5_layer
 from src.signals.layers.technical_layer import score_technical
@@ -256,16 +256,14 @@ def compute_signal(
         source=kap_ls.source,
     )
 
-    risk_ls = score_risk(symbol, technical_data, macro_data)
-    risk_ls = LayerScore(
-        layer=risk_ls.layer, score=risk_ls.score, confidence=risk_ls.confidence,
-        weight=_w("risk"), detail=risk_ls.detail, source=risk_ls.source,
-    )
+    # L6 risk_ls: REMOVED D-154. score_risk() still called for position sizing
+    # (Kelly/ADV/Net EV/Vol scalar) but no longer contributes to composite score.
+    # weight was 0.03 = 2.1 puan max → noise level. See RR-022 §1.3, RISK_LAYER.md.
 
     # L4 Sentiment — confidence-scaled at LayerScore creation (D-052, DEC-009).
-    # Effective weight = MASTER_WEIGHTS["sentiment"] (0.12) x layer confidence.
+    # Effective weight = MASTER_WEIGHTS["sentiment"] (~0.1237) x layer confidence.
     # SUSPENDED in production (no Turkish news source) → confidence=0.0 →
-    # effective weight 0.0 → zero contribution (emergent normalizer floor 0.78).
+    # effective weight 0.0 → zero contribution (emergent normalizer floor ~0.773).
     sentiment_ls = score_sentiment(symbol)
     sentiment_ls = LayerScore(
         layer=sentiment_ls.layer, score=sentiment_ls.score, confidence=sentiment_ls.confidence,
@@ -334,7 +332,8 @@ def compute_signal(
         )
 
     layer_scores: list[LayerScore] = [
-        tech_ls, macro_ls, kap_ls, risk_ls, smart_money_ls, sentiment_ls
+        tech_ls, macro_ls, kap_ls, smart_money_ls, sentiment_ls
+        # risk_ls removed D-154: L6 composite removal (weight was 0.03 = noise)
     ]
 
     weighted_sum = _compute_weighted_sum(layer_scores)
