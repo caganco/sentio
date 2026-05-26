@@ -1,5 +1,5 @@
 # FEATURE INDEX — BIST OS
-**Son güncelleme:** 26 Mayıs 2026
+**Son güncelleme:** 26 Mayıs 2026 (D-158)
 **Protokol:** Her Orchestrator session başında bu dosya okunur.
 **Kural:** Yeni major feature eklenince bu dosyaya ve `docs/features/` dizinine eklenir.
 
@@ -24,6 +24,7 @@ Büyük özellik speci vermeden önce ilgili guide okunur.
 | L1 ADX Regime | — | D-155 ✅ / D-156 ✅ | Wilder-14 ADX aktif; < 28 gün → None → transition fallback |
 | HMM Regime | — | ENABLE=False | AG-001 ~Kasım 2026 |
 | Foreign Flow | — | Multi-window ✅ | CB-011 CLOSED (D-144) |
+| KAP Earnings Parser | `docs/features/KAP_LAYER.md` | Faz 1 ✅ (regex D-158) / Faz 2 ~Eylül 2026 (LLM) | finansal_rapor: kap_text yok → 0.0 fallback; backtest'te hep fallback |
 | KAP Boost | — | Event-triggered ✅ | Boost constants test koruyor |
 
 ---
