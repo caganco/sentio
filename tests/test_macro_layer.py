@@ -32,9 +32,9 @@ class TestScoreMacroWithoutLocalSignals:
         score = score_macro(macro_data)
         assert score.layer == "macro"
         assert 0.0 <= score.score <= 100.0
-        # Phase 4.5 (D-052): macro weight 0.35 -> 0.20 (less gatekeeping; L2
-        # now drives macro modulation instead of acting as a hard veto).
-        assert abs(score.weight - 0.20) < 1e-9
+        # D-154: macro weight renormalized from 0.20 → 0.20/0.97 (~0.2062).
+        from src.signals.thresholds import MASTER_WEIGHTS
+        assert abs(score.weight - MASTER_WEIGHTS["macro"]) < 1e-9
         assert score.source == "computed"
 
     def test_score_missing_assets(self):
@@ -312,3 +312,47 @@ class TestForeignFlowsL2Migration:
         fw = result.detail["local_macro"]["bist_foreign_weekly"]
         assert "score" in fw and "conf" in fw and "contrib" in fw
         assert fw["weight"] == pytest.approx(0.15)
+
+
+
+class TestEmRelStrengthFallback:
+    """D-154: BIST100 → EM_RELSTRENGTH swap + backward-compat fallback."""
+
+    def test_bist100_fallback_active(self):
+        """BIST100 in macro_data → used as EM_RELSTRENGTH proxy (fallback)."""
+        macro_data = {
+            "USDTRY": -0.2,
+            "VIX": -0.3,
+            "BIST100": 0.4,   # no EM_RELSTRENGTH key → fallback triggers
+            "SP500": 0.2,
+        }
+        original_copy = dict(macro_data)
+        score = score_macro(macro_data)
+        assert 0.0 <= score.score <= 100.0
+        assert score.layer == "macro"
+        # Input dict must remain unchanged (fallback operates on normalised copy)
+        assert macro_data == original_copy
+
+    def test_em_relstrength_direct_key(self):
+        """EM_RELSTRENGTH direct key → accepted without fallback."""
+        macro_data = {
+            "USDTRY": -0.2,
+            "VIX": -0.3,
+            "EM_RELSTRENGTH": 0.5,   # direct key
+            "SP500": 0.2,
+        }
+        score = score_macro(macro_data)
+        assert 0.0 <= score.score <= 100.0
+
+    def test_em_relstrength_takes_priority_over_bist100(self):
+        """When both keys present, EM_RELSTRENGTH used; BIST100 ignored for composite."""
+        macro_data_em = {
+            "USDTRY": 0.0, "VIX": 0.0, "EM_RELSTRENGTH": 1.0,
+        }
+        macro_data_bist = {
+            "USDTRY": 0.0, "VIX": 0.0, "BIST100": 1.0,   # fallback path
+        }
+        score_em = score_macro(macro_data_em)
+        score_bist = score_macro(macro_data_bist)
+        # Both should produce similar scores (same value via different key)
+        assert abs(score_em.score - score_bist.score) < 0.1

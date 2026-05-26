@@ -107,14 +107,16 @@ class TestSentimentIntegration:
         # confidence-scaled at LayerScore creation in engine.py. SUSPENDED in
         # production (no Turkish news source) -> confidence 0.0 -> effective
         # weight 0.0 (zero contribution; emergent normalizer floor 0.78).
-        assert MASTER_WEIGHTS["sentiment"] == 0.12
+        # D-154: sentiment renormalized from 0.12 → 0.12/0.97 (~0.1237)
+        assert MASTER_WEIGHTS["sentiment"] == pytest.approx(round(0.12 / 0.97, 10))
 
     def test_all_6_layers_in_signal(self):
         with patch("yfinance.Ticker", return_value=_MOCK_TICKER):
             result = compute_signal("TEST", self.TECH_BULLISH, self.MACRO_NEUTRAL, [], date.today())
 
         layer_names = {ls.layer for ls in result.audit.layer_scores}
-        expected_layers = {"technical", "macro", "kap", "sentiment", "risk", "smart_money"}
+        # D-154: L6 risk removed from composite → 5 layers
+        expected_layers = {"technical", "macro", "kap", "sentiment", "smart_money"}
         assert layer_names == expected_layers
 
     def test_sentiment_returns_valid_result(self):
@@ -192,11 +194,11 @@ class TestSentimentIntegration:
                 date.today(),
             )
 
-        assert len(result.audit.layer_scores) == 6  # Now includes smart_money
+        assert len(result.audit.layer_scores) == 5  # D-154: L6 removed; was 6
 
         for layer in result.audit.layer_scores:
             assert 0 <= layer.score <= 100
             assert 0 <= layer.confidence <= 1.0
-            assert layer.layer in ("technical", "macro", "kap", "sentiment", "risk", "smart_money")
+            assert layer.layer in ("technical", "macro", "kap", "sentiment", "smart_money")
 
         assert result.final_signal in ("BUY-STRONG", "BUY-WEAK", "HOLD", "SELL-WEAK", "SELL-STRONG")

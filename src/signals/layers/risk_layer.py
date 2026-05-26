@@ -84,7 +84,7 @@ def score_risk(
         layer="risk",
         score=final_score,
         confidence=1.0,
-        weight=MASTER_WEIGHTS["risk"],
+        weight=MASTER_WEIGHTS.get("risk", 0.0),  # D-154: risk removed from composite; weight=0.0
         detail=detail,
         source="computed",
     )
