@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Playwright Chromium
+        run: python -m playwright install chromium --with-deps
+
       - name: Decode positions.yaml
         env:
           POSITIONS_YAML_B64: ${{ secrets.POSITIONS_YAML_B64 }}
@@ -60,10 +63,14 @@ jobs:
         run: |
           git config user.name "bist-os-bot"
           git config user.email "bot@bist-os"
-          git add -f data/analytics/ic_history.parquet
-          git diff --cached --quiet || \
-            git commit -m "chore: IC history update $(date -u +%Y-%m-%d)"
-          git push
+          if [ -f data/analytics/ic_history.parquet ]; then
+            git add -f data/analytics/ic_history.parquet
+            git diff --cached --quiet || \
+              git commit -m "chore: IC history update $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "ic_history.parquet not found - skipping (no signal logs yet)"
+          fi
 
       - name: Heartbeat SUCCESS
         if: success()
