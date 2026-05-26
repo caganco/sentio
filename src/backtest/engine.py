@@ -9,7 +9,7 @@ from src.backtest.data_loader import build_macro_data, build_technical_data
 
 # KellySizer is not used in the backtest loop (conviction mapping incompatible
 # with the backtest signal range); direct Kelly formula is used instead.
-from src.signals.layers.risk_layer import score_risk
+# score_risk import removed D-154: L6 no longer in composite (weight was 0.03 = noise)
 from src.signals.layers.technical_layer import score_technical
 from src.signals.calculator import compute_composite_score, kelly_win_prob
 from src.signals.thresholds import (
@@ -214,19 +214,14 @@ class BacktestEngine:
             macro_score = self._global_macro_score(macro_data)
         except Exception:
             macro_score = 50.0
-        try:
-            risk_score = score_risk(symbol, technical_data, macro_data).score
-        except Exception:
-            risk_score = 50.0
-
         composite = compute_composite_score(
             {
-                "technical": tech_score,
-                "macro": macro_score,
-                "risk": risk_score,
-                "kap": 50.0,          # neutral stub — veri kisiti, Faz 2 (D-150)'de kaldirilir
-                "sentiment": 50.0,    # neutral stub
-                "smart_money": 50.0,  # neutral stub
+                "technical":   tech_score,
+                "macro":       macro_score,
+                # risk removed D-154: L6 composite removal (weight was 0.03 = noise)
+                "kap":         50.0,   # neutral stub — veri kisiti, Faz 2 (D-150)'de kaldirilir
+                "sentiment":   50.0,   # neutral stub
+                "smart_money": 50.0,   # neutral stub
             }
         )
         return composite, macro_score

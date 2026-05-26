@@ -81,10 +81,11 @@ class TestKapEventBoost:
         assert w == pytest.approx(_KAP_BASE * KAP_EVENT_BOOST_MULTIPLIER)
 
     def test_master_weights_not_mutated(self):
+        # D-154: kap renormalized to 0.30/0.97 (~0.3093). Invariant: not mutated by compute_signal.
         before = MASTER_WEIGHTS["kap"]
         compute_signal("THYAO", TECH_NEUTRAL, MACRO_NEUTRAL,
                        _kap_for("THYAO", "temettu"), AS_OF)
-        assert MASTER_WEIGHTS["kap"] == before == pytest.approx(0.30)
+        assert MASTER_WEIGHTS["kap"] == before == pytest.approx(round(0.30 / 0.97, 10))
 
     def test_weight_multiplier_in_detail(self):
         r = compute_signal("THYAO", TECH_NEUTRAL, MACRO_NEUTRAL,
