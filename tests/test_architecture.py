@@ -120,8 +120,10 @@ class TestWeightSumValid:
         report = validate_master_weights()  # raises ValueError on violation
 
         assert 0.85 <= report["static_sum"] <= 1.05, report
-        # Emergent normalizer floor is the documented 0.78 (DEC-009).
-        assert abs(report["emergent_floor"] - 0.78) < 1e-9, report
+        # Emergent normalizer floor: D-154 changed 0.78 → ~0.7732 (L6 removed).
+        # Compare against RUNTIME_NORMALIZER_FLOOR (single source of truth).
+        from src.signals.thresholds import RUNTIME_NORMALIZER_FLOOR
+        assert abs(report["emergent_floor"] - RUNTIME_NORMALIZER_FLOOR) < 1e-9, report
 
     def test_weight_sum_validator_rejects_bad_weights(self, monkeypatch):
         """Validator must raise when the static sum leaves the safety band."""
@@ -481,9 +483,11 @@ class TestKapBoostConstants:
         assert len(KAP_BOOST_CATEGORIES) > 0
         assert all(c in valid for c in KAP_BOOST_CATEGORIES)
 
-    def test_master_weights_kap_unchanged(self):
+    def test_master_weights_kap_renormalized(self):
+        # D-154: L6 removed, remaining weights renormalized by /0.97.
+        # kap: 0.30/0.97 ≈ 0.3093 (was 0.30 before D-154).
         from src.signals.thresholds import MASTER_WEIGHTS
-        assert MASTER_WEIGHTS["kap"] == pytest.approx(0.30)
+        assert MASTER_WEIGHTS["kap"] == pytest.approx(round(0.30 / 0.97, 10))
 
 
 class TestADVCapConstants:
