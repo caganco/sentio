@@ -113,13 +113,18 @@ KAP_CATEGORY_IMPACT: dict[str, float] = {
     "temettu":          25.0,
     "sermaye_artirimi": 15.0,
     "ozel_durum":        0.0,
-    "finansal_rapor":    0.0,
+    "finansal_rapor":    0.0,   # DEPRECATED D-158: parse_earnings_surprise() kullanılır; Faz 2'de silinecek
     "insider":          10.0,
     "genel_kurul":       5.0,
     "diger":             0.0,
 }
 KAP_BASE_SCORE: float = 50.0
 KAP_DUPLICATE_MULTIPLIER: float = 0.5  # extra events of same category
+
+# ── KAP Earnings numeric parser thresholds (D-158) ────────────────────────────
+KAP_EARNINGS_NEUTRAL_BAND: float = 0.05     # ±%5 delta → score=0.0 (beklenti içinde)
+KAP_EARNINGS_STRONG_THRESHOLD: float = 0.20 # ±%20 delta → ±1.0 (güçlü sürpriz)
+KAP_EARNINGS_IMPACT_SCALE: float = 40.0    # surprise_score × scale → L3 impact (-40..+40)
 
 # D-131 (CB-004): KAP L3 event-triggered weight boost. KAP filings episodik --
 # sessiz gunlerde sabit weight KAP'in notr skorunu fazla sayar. Per-call carpan
