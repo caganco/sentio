@@ -86,6 +86,60 @@ def load_macro_series(start: str, end: str) -> pd.DataFrame:
     return pd.DataFrame(series).ffill()
 
 
+def _compute_adx(snap: pd.DataFrame, period: int = 14) -> float | None:
+    """Wilder's {period}-period Average Directional Index. Pure pandas (D-156).
+
+    Returns float in [0, 100] or None if:
+    - Insufficient data (< 2 * period rows)
+    - Missing High/Low/Close columns
+    - Resulting ADX is NaN (e.g., flat price series)
+
+    Minimum veri gereksinimi: 28 gün (14 ATR warmup + 14 ADX smoothing).
+    """
+    if len(snap) < 2 * period:
+        return None
+    if not {"High", "Low", "Close"}.issubset(snap.columns):
+        return None
+
+    high = snap["High"]
+    low = snap["Low"]
+    close = snap["Close"]
+    prev_close = close.shift(1)
+
+    # True Range: max(H-L, |H-prevClose|, |L-prevClose|)
+    tr = pd.concat([
+        high - low,
+        (high - prev_close).abs(),
+        (low - prev_close).abs(),
+    ], axis=1).max(axis=1)
+
+    # Directional Movement (raw)
+    up_move = high.diff()
+    down_move = -low.diff()
+    plus_dm = up_move.where((up_move > down_move) & (up_move > 0), 0.0)
+    minus_dm = down_move.where((down_move > up_move) & (down_move > 0), 0.0)
+
+    # Wilder's EWM smoothing (alpha = 1/period)
+    alpha = 1.0 / period
+    atr = tr.ewm(alpha=alpha, adjust=False, min_periods=period).mean()
+    plus_di = 100.0 * plus_dm.ewm(alpha=alpha, adjust=False, min_periods=period).mean() / atr
+    minus_di = 100.0 * minus_dm.ewm(alpha=alpha, adjust=False, min_periods=period).mean() / atr
+
+    # DX = |+DI - -DI| / (+DI + -DI) × 100; ADX = Wilder smooth of DX
+    di_sum = plus_di + minus_di
+    dx = (
+        (plus_di - minus_di).abs()
+        / di_sum.where(di_sum != 0, other=float("nan"))
+        * 100.0
+    )
+    adx_series = dx.ewm(alpha=alpha, adjust=False, min_periods=period).mean()
+
+    last_adx = adx_series.iloc[-1]
+    if pd.isna(last_adx):
+        return None
+    return round(float(last_adx), 4)
+
+
 def build_technical_data(df: pd.DataFrame, as_of: pd.Timestamp) -> dict | None:
     """Build technical_data dict for score_technical() from OHLCV snapshot.
 
@@ -149,6 +203,7 @@ def build_technical_data(df: pd.DataFrame, as_of: pd.Timestamp) -> dict | None:
         "volume_surge": volume_surge,
         "proximity_52w_high": proximity_52w_high,
         "prev_close": float(close.iloc[-2]) if len(snap) >= 2 else current_close,
+        "adx": _compute_adx(snap),  # D-156: Wilder-14 ADX, None if < 28 rows
     }
 
 
