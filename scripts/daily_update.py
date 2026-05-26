@@ -340,6 +340,16 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         logger.info("Fetching macro data (legacy)...")
         macro_data = fetch_macro_data()
 
+        # D-159: inject EM relative strength into macro_data feed
+        # On failure fetch_em_relative_strength() returns None; macro_layer.py BIST100 proxy fallback kicks in.
+        from src.data.macro_sources import fetch_em_relative_strength
+        em_rs = fetch_em_relative_strength()
+        if em_rs is not None:
+            macro_data["EM_RELSTRENGTH"] = em_rs
+            logger.info("EM_RELSTRENGTH injected: %.4f", em_rs)
+        else:
+            logger.warning("fetch_em_relative_strength returned None — BIST100 proxy fallback active")
+
         logger.info("Generating macro signal...")
         macro_signal = None
         try:
