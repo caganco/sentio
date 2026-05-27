@@ -335,10 +335,10 @@ STOP_HARD_FLOOR:       float = 0.20    # -20% absolute maximum (catastrophic los
 # position_size = (equity * RISK_PER_TRADE_PCT) / stop_distance
 RISK_PER_TRADE_PCT: float = 0.01
 
-# Backtest entry gatekeeping thresholds (prevent low-quality entries in risk-off regimes)
-BACKTEST_MACRO_MIN_SCORE: float = 45.0      # Minimum macro score to allow entry (< 45 = no entry)
-BACKTEST_VIX_MAX: float = 30.0              # VIX > 30 = no entry (extreme volatility risk-off)
-BACKTEST_USDTRY_SPIKE_THRESHOLD: float = 0.02  # USDTRY daily change > +2% = no entry (EM stress)
+# Backtest entry gatekeeping — kriz esikleri (D-166: L2 binary gate kaldirildi)
+# Macro Gate V2 (0.3x-1.0x scaling) dusuk-makro gunleri yonetiyor; sadece gercek krizde block.
+BACKTEST_MACRO_CRISIS_VIX: float = 35.0           # VIX > 35 = panic kriz, entry block
+BACKTEST_MACRO_CRISIS_USDTRY_SPIKE: float = 0.03  # USDTRY +%3/gun = EM outflow krizi, entry block
 
 # L5 Smart Money — D-055 (Phase 4.5 progressive build)
 # MASTER_WEIGHTS["smart_money"] stays at 0.25; L5_SMART_MONEY_WEIGHT is the ACTIVE weight
