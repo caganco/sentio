@@ -7,6 +7,7 @@ from src.signals.local_macro_signals import LocalMacroSignals
 from src.signals.models import LayerScore
 from src.signals.thresholds import (
     ASSET_DIRECTIONS,
+    BIST_DECOUPLING_BONUS,
     CDS_PERCENTILE_WINDOW,
     LOCAL_MACRO_ENABLED,
     MACRO_WEIGHTS_COMPOSITE,
@@ -96,6 +97,13 @@ def score_macro(macro_data: dict) -> LayerScore:
     normalized_signal = weighted_sum / total_weight
     global_score = round((normalized_signal + 1.0) / 2.0 * 100.0, 4)
     global_score = max(0.0, min(100.0, global_score))
+
+    # D-167: BIST decoupling bonus — global macro stresli ama BIST kendi trendinde
+    # Kosul: BIST100 > MA50 (trend saglikli) VE global_score < 50 (macro adverse)
+    # Etki: ceza hafifler, composite daha az baski goer; 8 puan flat ekleme.
+    if macro_data.get("bist100_above_ma50") and global_score < 50.0:
+        global_score = round(min(100.0, global_score + BIST_DECOUPLING_BONUS), 4)
+        detail["bist_decoupling_bonus"] = BIST_DECOUPLING_BONUS
 
     confidence = 1.0 if not missing_assets else 0.6
     if missing_assets:

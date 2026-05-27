@@ -890,3 +890,7 @@ BACKTEST_MAX_POSITION_FRAC: float = 0.05    # Tek pozisyon maksimum portföy ora
 BIST_TREND_SCALAR_BULL:    float = 1.25  # price > MA20 > MA50 (confirmed uptrend)
 BIST_TREND_SCALAR_NEUTRAL: float = 1.00  # price > MA50 only (weak uptrend / normal)
 BIST_TREND_SCALAR_BEAR:    float = 0.75  # price < MA50 (downtrend, reduce size)
+
+# D-167: BIST decoupling bonus — global macro stresli ama BIST kendi trendinde
+# Yalnizca global_score < 50 VE BIST100 > MA50 oldugunda aktif.
+BIST_DECOUPLING_BONUS: float = 8.0
