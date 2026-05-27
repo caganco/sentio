@@ -127,6 +127,58 @@ class StubFreeBacktestEngine(BacktestEngine):
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _debug_macro_analysis(audit_trail: list[dict], engine, out_dir: str) -> None:
+    """Print daily L2 macro score time-series and gate stats. Save audit_trail.csv."""
+    if not audit_trail:
+        print("  [DEBUG] audit_trail bos.")
+        return
+
+    # Group by date: macro_score is identical across all symbols per day
+    daily: dict[str, dict] = {}
+    for entry in audit_trail:
+        d = str(entry.get("date", ""))[:10]
+        if d not in daily:
+            daily[d] = {
+                "macro_score": float(entry.get("macro_score") or 0.0),
+                "any_gated": bool(entry.get("entry_gated", False)),
+                "vix": entry.get("vix_level"),
+                "usdtry_chg": entry.get("USDTRY_1d_change"),
+            }
+        elif entry.get("entry_gated", False):
+            daily[d]["any_gated"] = True
+
+    total_days = len(daily)
+    below45    = sum(1 for v in daily.values() if v["macro_score"] < 45.0)
+    gated_days = sum(1 for v in daily.values() if v["any_gated"])
+
+    sep = "=" * 70
+    print(f"\n{sep}")
+    print(f"  DEBUG: L2 Makro Skor Analizi — {total_days} islem gunu")
+    print(f"  Esik: BACKTEST_MACRO_CRISIS_VIX=35.0 | BACKTEST_MACRO_CRISIS_USDTRY_SPIKE=0.03 (D-166)")
+    print(f"{sep}")
+    print(f"  {'TARIH':<12} {'L2_SCORE':>10} {'VIX':>6} {'USDTRY_dg':>10} {'GATE':>6}")
+    print(f"  {'-'*12} {'-'*10} {'-'*6} {'-'*10} {'-'*6}")
+    for date in sorted(daily.keys()):
+        v    = daily[date]
+        ms   = v["macro_score"]
+        vix  = f"{v['vix']:.1f}" if v["vix"] is not None else "  N/A"
+        usd  = f"{v['usdtry_chg']:.4f}" if v["usdtry_chg"] is not None else "    N/A"
+        gate = "BLOCK" if v["any_gated"] else "OK"
+        flag = " <<<" if ms < 45.0 else ""
+        print(f"  {date:<12} {ms:>10.2f} {vix:>6} {usd:>10} {gate:>6}{flag}")
+    print(f"{sep}")
+    print(f"  Toplam islem gunu : {total_days}")
+    print(f"  L2 < 45 gun       : {below45}  ({100.0*below45/max(total_days,1):.1f}%)")
+    print(f"  Gated gunler      : {gated_days}  ({100.0*gated_days/max(total_days,1):.1f}%)")
+    print(f"{sep}\n")
+
+    out_path = Path(out_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    audit_csv = str(out_path / "audit_trail.csv")
+    engine.export_audit_trail_csv(audit_csv)
+    print(f"  audit_trail.csv   --> {audit_csv}")
+
+
 def _ticker_summary(trades: list[dict]) -> dict[str, dict]:
     """Per-ticker P&L ve trade sayisi (tamamlanan SELL'lerden)."""
     per_ticker: dict[str, dict] = {}
@@ -198,6 +250,10 @@ def _run(args: argparse.Namespace) -> None:
         quiet_warnings=True,
     )
     engine.run(price_data, macro_ts, benchmark_series)
+
+    # --- 3b. Debug macro scores (opsiyonel) --------------------------------
+    if getattr(args, "debug_scores", False):
+        _debug_macro_analysis(engine.audit_trail, engine, out_dir)
 
     # --- 4. Metrikler ve cikti -------------------------------------------
     print("  [4/4] Metrikler hesaplaniyor, dosyalar yaziliyor...")
@@ -272,10 +328,12 @@ def main() -> None:
         description="BIST50 Exploratory Backtest",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--start",      default=_DEFAULT_START)
-    parser.add_argument("--end",        default=_DEFAULT_END)
-    parser.add_argument("--output-dir", default=None,
+    parser.add_argument("--start",        default=_DEFAULT_START)
+    parser.add_argument("--end",          default=_DEFAULT_END)
+    parser.add_argument("--output-dir",   default=None,
                         help="Cikti dizini (varsayilan moda gore belirlenir)")
+    parser.add_argument("--debug-scores", action="store_true",
+                        help="Gunluk L2 makro skor time-series + gate stats yazdir, audit_trail.csv kaydet")
     parser.add_argument(
         "--mode",
         default="production-equivalent",

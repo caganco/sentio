@@ -16,10 +16,9 @@ from src.signals.thresholds import (
     ASSET_DIRECTIONS,
     BACKTEST_KELLY_VIX_HAIRCUT,
     BACKTEST_KELLY_VIX_THRESHOLD,
-    BACKTEST_MACRO_MIN_SCORE,
+    BACKTEST_MACRO_CRISIS_USDTRY_SPIKE,
+    BACKTEST_MACRO_CRISIS_VIX,
     BACKTEST_MAX_POSITION_FRAC,
-    BACKTEST_USDTRY_SPIKE_THRESHOLD,
-    BACKTEST_VIX_MAX,
     DD_HARD_THRESHOLD,
     EXIT_PROFIT_TARGET,
     EXIT_STOP_LOSS,
@@ -152,7 +151,7 @@ class BacktestEngine:
                 already_holding = symbol in self.positions
 
                 # Macro-gated entry: block entry if risk-off regime detected
-                entry_gated = self._is_entry_gated_by_macro(macro_snap, macro_score)
+                entry_gated = self._is_entry_gated_by_macro(macro_snap)
 
                 if signal in ("BUY-STRONG", "BUY-WEAK") and not already_holding and not self.circuit_breaker_active and not entry_gated:
                     self._execute_buy(symbol, current_date, close_price, composite, vix_level)
@@ -265,28 +264,21 @@ class BacktestEngine:
             return "SELL-WEAK"
         return "SELL-STRONG"
 
-    def _is_entry_gated_by_macro(self, macro_data: dict, macro_score: float) -> bool:
-        """Check if macro conditions block entry (risk-off regime).
+    def _is_entry_gated_by_macro(self, macro_data: dict) -> bool:
+        """Block entry only on genuine crisis conditions (D-166).
 
-        Returns True if entry is BLOCKED (risk-off).
-
-        Blocks entry if:
-        - macro_score < BACKTEST_MACRO_MIN_SCORE (bearish macro)
-        - VIX > BACKTEST_VIX_MAX (extreme volatility)
-        - USDTRY daily change > BACKTEST_USDTRY_SPIKE_THRESHOLD (EM stress)
+        L2 binary gate kaldirildi — Macro Gate V2 (0.3x-1.0x scaling)
+        dusuk-makro gunlerde kucuk pozisyon alarak riski yonetiyor.
+        Sadece gercek kriz sinyallerinde block uygulanir:
+          - VIX > 35 (panic level, not just elevated)
+          - USDTRY +%3/gun (EM capital outflow stress)
         """
-        # Macro score gate
-        if macro_score < BACKTEST_MACRO_MIN_SCORE:
-            return True
-
-        # VIX gate (extreme volatility)
         vix_level = macro_data.get("vix_level")
-        if vix_level is not None and vix_level > BACKTEST_VIX_MAX:
+        if vix_level is not None and vix_level > BACKTEST_MACRO_CRISIS_VIX:
             return True
 
-        # USDTRY spike gate (EM outflow stress)
         usdtry_1d_change = macro_data.get("USDTRY_1d_change")
-        if usdtry_1d_change is not None and usdtry_1d_change > BACKTEST_USDTRY_SPIKE_THRESHOLD:
+        if usdtry_1d_change is not None and usdtry_1d_change > BACKTEST_MACRO_CRISIS_USDTRY_SPIKE:
             return True
 
         return False
