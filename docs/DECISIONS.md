@@ -3,7 +3,7 @@
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
 **Last Updated:** 26 May 2026  
-**Total Decisions:** 19 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032)  
+**Total Decisions:** 20 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032, DEC-034)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -35,6 +35,7 @@
 | **DEC-030** | Multi-LLM Jury mimarisi (2-LLM MVP, Phase 6+) | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `src/signals/` (Phase 6+, Q1 2027+) |
 | **DEC-031** | TÜFE canonical kod: TP.FG.J0 | Data Sources | ✅ Decided | 2026-05-26 | `src/data/`, `src/signals/thresholds.py` |
 | **DEC-032** | DEC-010-v2: LLM "genuine input" rolü | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `strategist.py`, `src/signals/engine.py` |
+| **DEC-034** | D-163 backtest/production sizing divergence kabul | Position Sizing | ✅ Decided | 2026-05-28 | `scripts/daily_update.py`, `src/risk/position_sizer_v2.py` |
 ---
 
 ## DECISION CATEGORIES
@@ -334,3 +335,30 @@ Bu tasarım LLM'i salt raporcu konuma indirgiyordu; gerçek değer üretme kapas
 DEC-010 orijinal metni arşiv olarak korunur.
 
 **Kaynak:** CRR-001
+
+---
+
+## DEC-034 — D-163 Backtest/Production Sizing Divergence Kabul
+
+| Alan | Değer |
+|------|-------|
+| **ID** | DEC-034 |
+| **Başlık** | bist_trend_scalar production'da aktif; backtest engine'e entegre edilmedi |
+| **Tarih** | 28 May 2026 |
+| **Alan** | Position Sizing |
+| **Durum** | ✅ Decided |
+| **Etkilenen Dosyalar** | `scripts/daily_update.py`, `src/risk/position_sizer_v2.py` |
+
+### Gerekçe
+
+D-163 `bist_trend_scalar` production sizing'de aktif (daily_update.py kelly_result).
+Backtest engine'e entegre edilmedi.
+
+**Neden:** Backtest'te BIST100 MA serisi ayrı bir veri katmanı gerektirir
+(tarihi XU100 fiyat serisi ile MA20/MA50 hesabı). Bu veri akışı D-163'ün
+kapsamı dışındadır; ayrı direktif gerektirir.
+
+**Sonuç:** Live sizing ile backtest sizing arasında kasıtlı bir divergence
+oluşmuştur. Bu kabul edildi — backtest sonuçları D-163 skalasını yansıtmaz.
+
+**Kaynak:** D-163 direktifi
