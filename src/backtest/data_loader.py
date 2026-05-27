@@ -265,5 +265,10 @@ def build_macro_data(macro_ts: pd.DataFrame, as_of: pd.Timestamp) -> dict:
         curr_1d = float(today["BIST100"]) if not pd.isna(today["BIST100"]) else 0.0
         if prev_1d != 0:
             result["BIST100_1d_change"] = float((curr_1d - prev_1d) / prev_1d)
+        # D-167: BIST decoupling context — is BIST100 above its 50-day MA?
+        if len(snap) >= 50 and not pd.isna(today["BIST100"]):
+            ma50_bist = float(snap["BIST100"].rolling(50).mean().iloc[-1])
+            if not pd.isna(ma50_bist) and ma50_bist > 0:
+                result["bist100_above_ma50"] = float(today["BIST100"]) > ma50_bist
 
     return result

@@ -356,3 +356,56 @@ class TestEmRelStrengthFallback:
         score_bist = score_macro(macro_data_bist)
         # Both should produce similar scores (same value via different key)
         assert abs(score_em.score - score_bist.score) < 0.1
+
+
+class TestD167BistDecouplingBonus:
+    """D-167: global_score < 50 AND BIST100 > MA50 -> +8 puan bonus.
+
+    LOCAL_MACRO_ENABLED=False ile test edilir: global_score dogrudan final_score
+    olur ve bonus tam olarak olculebilir.
+    """
+
+    # Bearish global macro: USDTRY yuksek, VIX yuksek, SP500/EM dusuk -> global_score < 50
+    _BEARISH = {
+        "USDTRY":         0.3,
+        "VIX":            0.5,
+        "SP500":         -0.3,
+        "EM_RELSTRENGTH": -0.3,
+    }
+    # Bullish global macro -> global_score >= 50
+    _BULLISH = {
+        "USDTRY":         -0.3,
+        "VIX":            -0.3,
+        "SP500":           0.3,
+        "EM_RELSTRENGTH":  0.3,
+    }
+
+    def test_bonus_applied_when_bist_above_ma50_and_score_low(self):
+        """BIST > MA50 AND global_score < 50 -> score += BIST_DECOUPLING_BONUS(8)."""
+        from unittest.mock import patch
+        from src.signals.thresholds import BIST_DECOUPLING_BONUS
+        with patch("src.signals.layers.macro_layer.LOCAL_MACRO_ENABLED", False):
+            base = score_macro(self._BEARISH)
+            with_bonus = score_macro({**self._BEARISH, "bist100_above_ma50": True})
+        assert base.score < 50.0
+        assert with_bonus.score == pytest.approx(base.score + BIST_DECOUPLING_BONUS, abs=1e-3)
+        assert with_bonus.detail.get("bist_decoupling_bonus") == BIST_DECOUPLING_BONUS
+
+    def test_no_bonus_when_bist_below_ma50(self):
+        """BIST <= MA50 -> bonus uygulanmaz, skor degismez."""
+        from unittest.mock import patch
+        with patch("src.signals.layers.macro_layer.LOCAL_MACRO_ENABLED", False):
+            base = score_macro(self._BEARISH)
+            no_bonus = score_macro({**self._BEARISH, "bist100_above_ma50": False})
+        assert base.score == pytest.approx(no_bonus.score, abs=1e-9)
+        assert "bist_decoupling_bonus" not in no_bonus.detail
+
+    def test_no_bonus_when_global_score_above_50(self):
+        """global_score >= 50 -> bonus aktif degil (sadece adverse kosullarda)."""
+        from unittest.mock import patch
+        with patch("src.signals.layers.macro_layer.LOCAL_MACRO_ENABLED", False):
+            base = score_macro(self._BULLISH)
+            with_flag = score_macro({**self._BULLISH, "bist100_above_ma50": True})
+        assert base.score >= 50.0
+        assert base.score == pytest.approx(with_flag.score, abs=1e-9)
+        assert "bist_decoupling_bonus" not in with_flag.detail
