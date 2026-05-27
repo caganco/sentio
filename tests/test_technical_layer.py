@@ -151,3 +151,31 @@ class TestVolumeSurgeGradient:
         zayif    = score_technical(_data(adx=22.0, volume_surge="zayıf"))
         no_surge = score_technical(_data(adx=22.0, volume_surge=None))
         assert zayif.score > no_surge.score
+
+
+class TestD164TrendRSIOverride:
+    """D-164: TREND rejimde RSI overbought nötrleşme."""
+
+    _BASE = {
+        "rsi": 75.0, "close": 100.0, "ma20": 98.0, "ma50": 95.0,
+        "adx": 30.0, "momentum_score": 0.3,
+        "volume_surge": "güçlü", "proximity_52w_high": 0.05,
+    }
+
+    def test_trend_rsi_overbought_is_neutral(self):
+        """TREND rejim RSI=75 → skor >= 50.0 (pozitif alan)."""
+        r = score_technical(self._BASE)
+        assert r.detail["regime"] == "trend"
+        assert r.score >= 50.0
+
+    def test_trend_outscores_transition_at_rsi75(self):
+        """TREND rejim RSI=75, TRANSITION'dan daha yüksek skor alır."""
+        r_trend = score_technical(self._BASE)
+        r_trans = score_technical({**self._BASE, "adx": 22.0})
+        assert r_trend.score > r_trans.score
+
+    def test_range_rsi_overbought_still_penalized(self):
+        """RANGE rejim (ADX=15) RSI=75 override'dan etkilenmez — TREND'den düşük."""
+        r_trend = score_technical(self._BASE)
+        r_range = score_technical({**self._BASE, "adx": 15.0})
+        assert r_range.score < r_trend.score

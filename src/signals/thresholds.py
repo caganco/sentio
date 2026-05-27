@@ -66,6 +66,16 @@ RSI_SCORES: dict[str, float] = {
     "extreme_overbought": 10.0, # RSI > 80
 }
 
+# --- TREND rejim RSI skorlari (D-164) ---
+RSI_SCORES_TREND: dict[str, float] = {
+    "oversold":             80.0,  # RSI < 30 — RSI_SCORES ile ayni
+    "weak_bearish":         65.0,  # RSI 30-45 — RSI_SCORES ile ayni
+    "neutral":              50.0,  # RSI 45-55 — RSI_SCORES ile ayni
+    "mild_bearish":         45.0,  # RSI 55-70 — hafif duzeltme (was 60.0)
+    "overbought":           50.0,  # RSI 70-80 — NOTR (trend devam ediyor)
+    "extreme_overbought":   35.0,  # RSI > 80  — dikkat ama ceza yok
+}
+
 MA_SCORES: dict[int, float] = {3: 80.0, 2: 60.0, 1: 40.0, 0: 20.0}
 
 VOLUME_SURGE_SCORE: float = 65.0       # legacy binary True → kept for backward compat
