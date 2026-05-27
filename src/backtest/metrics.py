@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 
 from src.backtest.validation_constants import (
+    CALMAR_PASS_THRESHOLD,
+    CALMAR_STRONG_THRESHOLD,
     IR_PASS_THRESHOLD,
     SHARPE_PASS_THRESHOLD,
     SHARPE_STRONG_THRESHOLD,
@@ -102,8 +104,11 @@ def calculate_alpha(
 
     system_return = (equity_curve[-1] - initial_capital) / initial_capital
 
-    bmark_start = float(benchmark_series.iloc[0])
-    bmark_end = float(benchmark_series.iloc[-1])
+    valid = benchmark_series.dropna()
+    if valid.empty:
+        return {"system_return": system_return, "benchmark_return": float("nan"), "alpha": float("nan")}
+    bmark_start = float(valid.iloc[0])
+    bmark_end = float(valid.iloc[-1])
     if bmark_start == 0:
         benchmark_return = 0.0
     else:
@@ -166,12 +171,18 @@ def summarize(
         1 for d in engine.drawdown_curve if d <= -0.15
     )
 
+    # D-168: Calmar = toplam_getiri / abs(max_dd); Turkiye borsasinda ana risk metrik.
+    calmar: float | None = abs(system_return / max_dd) if max_dd < 0 else None
+
     pass_fail = {
         "win_rate": f"{win_rate:.1%} {'PASS' if win_rate >= 0.52 else 'FAIL'} (threshold: >=52%)",
-        "sharpe": (
-            f"{sharpe:.2f} "
-            f"{'PASS' if sharpe >= SHARPE_PASS_THRESHOLD else 'FAIL'} "
-            f"(threshold: >={SHARPE_PASS_THRESHOLD:.1f}; strong: >={SHARPE_STRONG_THRESHOLD:.1f})"
+        # D-168: Sharpe artik pass/fail kriteri degil — TRY RF=%37 nedeniyle yapisal negatif.
+        "sharpe": f"{sharpe:.3f} INFO (Turkiye RF=%37 nedeniyle kriter disinda; calmar bakınız)",
+        "calmar": (
+            f"{calmar:.2f} "
+            f"{'PASS' if calmar >= CALMAR_PASS_THRESHOLD else 'FAIL'} "
+            f"(threshold: >={CALMAR_PASS_THRESHOLD:.1f}; strong: >={CALMAR_STRONG_THRESHOLD:.1f})"
+            if calmar is not None else "N/A PASS (max_dd=0)"
         ),
         "ir": (
             f"{ir:.3f} "
@@ -182,7 +193,8 @@ def summarize(
         "alpha": f"{alpha_data['alpha']:.1%} {'PASS' if alpha_data['alpha'] > 0 else 'FAIL'} (threshold: >0%)",
         "circuit_breaker": f"{circuit_breaker_triggers} triggers {'PASS' if circuit_breaker_triggers <= 2 else 'FAIL'} (threshold: <=2)",
     }
-    overall_pass = all("PASS" in v for v in pass_fail.values())
+    # Sharpe kriter disinda — overall_pass hesabina dahil edilmez (D-168).
+    overall_pass = all("PASS" in v for k, v in pass_fail.items() if k != "sharpe")
 
     return {
         "period": f"{engine.start_date} to {engine.end_date}",
@@ -198,6 +210,7 @@ def summarize(
         "profit_factor": round(profit_factor, 3),
         "max_drawdown_pct": round(max_dd * 100, 2),
         "sharpe_ratio": round(sharpe, 3),
+        "calmar_ratio": round(calmar, 3) if calmar is not None else None,
         "information_ratio": round(ir, 3),
         "system_return_pct": round(alpha_data["system_return"] * 100, 2),
         "benchmark_return_pct": round(alpha_data["benchmark_return"] * 100, 2),
