@@ -875,3 +875,8 @@ KELLY_WIN_PROB_SLOPE: float = 0.005          # composite=100 → p=0.75; composi
 BACKTEST_KELLY_VIX_THRESHOLD: float = 25.0  # VIX bu eşiğin üstünde → haircut uygulanır
 BACKTEST_KELLY_VIX_HAIRCUT: float = 0.75    # Yüksek VIX'te Kelly fraksiyonu çarpanı
 BACKTEST_MAX_POSITION_FRAC: float = 0.05    # Tek pozisyon maksimum portföy oranı
+
+# --- BIST100 MA Trend Scalar (D-163) ---
+BIST_TREND_SCALAR_BULL:    float = 1.25  # price > MA20 > MA50 (confirmed uptrend)
+BIST_TREND_SCALAR_NEUTRAL: float = 1.00  # price > MA50 only (weak uptrend / normal)
+BIST_TREND_SCALAR_BEAR:    float = 0.75  # price < MA50 (downtrend, reduce size)
