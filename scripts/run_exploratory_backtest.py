@@ -300,7 +300,7 @@ def _run(args: argparse.Namespace) -> None:
     print(f"\n{sep}")
     mode_label = "STUB-FREE (L1+L2)" if stub_free else "PROD-EQUIV (L3/L4/L5=50)"
     print(f"  SONUCLAR [{mode_label}]")
-    print(f"  (L3/L4/L5=50 stub, 6 ay pencere -- beklenti yonetimi)")
+    print(f"  (L3/L4/L5 dislanmis; sadece L1+L2 skorlari etkin)")
     print(f"{sep}")
     print(f"  Donem      : {metrics['period']}")
     print(f"  Islem gunu : {metrics['trading_days']}")
@@ -308,9 +308,14 @@ def _run(args: argparse.Namespace) -> None:
           f" ({metrics['completed_trades']} kapandi)")
     print(f"  Getiri     : {metrics['total_return_pct']:+.2f}%"
           f"  vs  {metrics['benchmark_return_pct']:+.2f}% (BIST100)")
-    print(f"  Sharpe     : {metrics['sharpe_ratio']:.3f}")
+    calmar_val = metrics.get("calmar_ratio")
+    calmar_str = f"{calmar_val:.2f}" if calmar_val is not None else "N/A"
+    alpha_val = metrics["alpha_pct"]
+    alpha_str = f"{alpha_val:+.2f}%" if alpha_val == alpha_val else "N/A (benchmark eksik)"
+    print(f"  Sharpe     : {metrics['sharpe_ratio']:.3f} (bilgi; kriter degil)")
+    print(f"  Calmar     : {calmar_str}  (getiri/max_dd)")
     print(f"  Max DD     : {metrics['max_drawdown_pct']:.2f}%")
-    print(f"  Alpha      : {metrics['alpha_pct']:+.2f}%")
+    print(f"  Alpha      : {alpha_str}")
     print(f"  Win Rate   : {metrics['win_rate_pct']:.1f}%")
     print(f"{sep}")
     print(f"\n  summary.json      --> {out_dir}/summary.json")

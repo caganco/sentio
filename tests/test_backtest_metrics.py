@@ -1,14 +1,23 @@
-"""D-161: Period-adjusted Sharpe + Information Ratio unit tests.
+"""D-161/D-168: Period-adjusted Sharpe + IR + Calmar + benchmark NaN fix tests.
 
-Dayanak: validation_constants.SHARPE_PASS_THRESHOLD, IR_PASS_THRESHOLD
+Dayanak: validation_constants.SHARPE_PASS_THRESHOLD, IR_PASS_THRESHOLD,
+         CALMAR_PASS_THRESHOLD, CALMAR_STRONG_THRESHOLD
 """
 from __future__ import annotations
 
+import math
+
 import numpy as np
+import pandas as pd
 import pytest
 
-from src.backtest.metrics import calculate_ir, calculate_sharpe
-from src.backtest.validation_constants import IR_PASS_THRESHOLD, SHARPE_PASS_THRESHOLD
+from src.backtest.metrics import calculate_alpha, calculate_ir, calculate_sharpe
+from src.backtest.validation_constants import (
+    CALMAR_PASS_THRESHOLD,
+    CALMAR_STRONG_THRESHOLD,
+    IR_PASS_THRESHOLD,
+    SHARPE_PASS_THRESHOLD,
+)
 
 
 # ── TestSharpePeriodAdjusted ──────────────────────────────────────────────────
@@ -132,3 +141,55 @@ class TestIRCalculation:
         """Tek noktali listeler 0.0 dondurmeli."""
         assert calculate_ir([0.001], [0.001]) == 0.0
         assert calculate_ir([], []) == 0.0
+
+
+# ── TestBenchmarkNaNFix ───────────────────────────────────────────────────────
+
+
+class TestBenchmarkNaNFix:
+    """D-168: calculate_alpha() NaN baslangi degerini tolere etmeli."""
+
+    def test_nan_start_skipped_uses_first_valid(self):
+        """Baslangic NaN ise first_valid_index() kullanilmali (tatil gunu sorunu)."""
+        idx = pd.date_range("2024-01-01", periods=5)
+        series = pd.Series([float("nan"), 10_000.0, 10_200.0, 10_100.0, 10_500.0], index=idx)
+        equity = [100_000.0, 105_000.0]
+        result = calculate_alpha(equity, series, 100_000.0)
+        assert not math.isnan(result["benchmark_return"]), "NaN baslangic degerinin atlanmasi gerekiyor"
+        # 10_000 -> 10_500 = +%5
+        assert abs(result["benchmark_return"] - 0.05) < 1e-9
+
+    def test_all_nan_returns_nan(self):
+        """Tum degerler NaN ise benchmark_return=nan dondurmeli."""
+        series = pd.Series([float("nan"), float("nan")])
+        result = calculate_alpha([100_000.0, 105_000.0], series, 100_000.0)
+        assert math.isnan(result["benchmark_return"])
+        assert math.isnan(result["alpha"])
+
+    def test_valid_series_unchanged(self):
+        """NaN olmayan normal seriler onceki gibi calismalı."""
+        series = pd.Series([10_000.0, 11_000.0, 12_000.0])
+        result = calculate_alpha([100_000.0, 110_000.0], series, 100_000.0)
+        assert abs(result["benchmark_return"] - 0.2) < 1e-9   # 10k -> 12k = +%20
+        assert abs(result["system_return"] - 0.10) < 1e-9    # 100k -> 110k = +%10
+
+
+# ── TestCalmarRatio ───────────────────────────────────────────────────────────
+
+
+class TestCalmarRatio:
+    """D-168: Calmar Ratio sabitleri ve esik kontrolu."""
+
+    def test_calmar_pass_threshold_value(self):
+        assert CALMAR_PASS_THRESHOLD == 1.0
+
+    def test_calmar_strong_threshold_value(self):
+        assert CALMAR_STRONG_THRESHOLD == 3.0
+
+    def test_calmar_formula(self):
+        """Calmar = |toplam_getiri| / |max_dd| mantiği."""
+        total_return = 0.3995   # +39.95%
+        max_dd = -0.1087        # -10.87%
+        calmar = abs(total_return / max_dd)
+        assert abs(calmar - 3.674) < 0.01, f"Beklenen ~3.67, got {calmar:.3f}"
+        assert calmar >= CALMAR_STRONG_THRESHOLD

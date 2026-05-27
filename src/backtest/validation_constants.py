@@ -62,3 +62,8 @@ SHARPE_STRONG_THRESHOLD: float = 1.0  # mukemmel — uzun vadeli hedef
 # Information Ratio: IR = mean(active_return) / std(active_return) * sqrt(252)
 # active_return = portfolio_daily - benchmark_daily (BIST100)
 IR_PASS_THRESHOLD: float = 0.3        # anlamli alpha vs benchmark
+
+# Calmar Ratio: toplam_getiri / abs(max_drawdown) — Turkiye borsasi icin
+# ana risk-adjusted metrik (Sharpe yerine D-168).
+CALMAR_PASS_THRESHOLD: float = 1.0    # 1.0 iyi; 3.0+ mukemmel
+CALMAR_STRONG_THRESHOLD: float = 3.0  # uzun vadeli hedef
