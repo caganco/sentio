@@ -24,7 +24,7 @@ jobs:
             "${{ secrets.HEALTHCHECK_URL }}/start" || true
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
