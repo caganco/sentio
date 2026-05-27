@@ -16,6 +16,7 @@ from src.signals.thresholds import (
     PROXIMITY_LOW_THRESHOLD,
     PROXIMITY_NEUTRAL_SCORE,
     RSI_SCORES,
+    RSI_SCORES_TREND,
     RSI_THRESHOLDS,
 )
 
@@ -32,6 +33,21 @@ def _rsi_sub_score(rsi: float) -> float:
     if rsi > RSI_THRESHOLDS["oversold"]:
         return RSI_SCORES["weak_bearish"]
     return RSI_SCORES["oversold"]
+
+
+def _rsi_sub_score_trend(rsi: float) -> float:
+    """TREND rejimde RSI sub_score — overbought cezasi kaldirildi (D-164)."""
+    if rsi > RSI_THRESHOLDS["overbought"]:       # > 80
+        return RSI_SCORES_TREND["extreme_overbought"]  # 35.0
+    if rsi > RSI_THRESHOLDS["mild_overbought"]:  # > 70
+        return RSI_SCORES_TREND["overbought"]          # 50.0
+    if rsi > RSI_THRESHOLDS["neutral_upper"]:    # > 55
+        return RSI_SCORES_TREND["mild_bearish"]        # 45.0
+    if rsi > RSI_THRESHOLDS["weak_bearish"]:     # > 45
+        return RSI_SCORES_TREND["neutral"]             # 50.0
+    if rsi > RSI_THRESHOLDS["oversold"]:         # > 30
+        return RSI_SCORES_TREND["weak_bearish"]        # 65.0
+    return RSI_SCORES_TREND["oversold"]                # 80.0
 
 
 def _ma_sub_score(close: float, ma20: float | None, ma50: float | None, ma200: float | None) -> float:
@@ -162,6 +178,14 @@ def score_technical(technical_data: dict) -> LayerScore:
     regime_weights, regime = _select_regime_weights(adx)
     detail["adx"] = adx
     detail["regime"] = regime
+
+    # D-164: TREND rejimde RSI overbought nötrleşme
+    if regime == "trend" and "rsi" in sub_map:
+        rsi_val = technical_data.get("rsi")
+        if rsi_val is not None:
+            new_rsi_sub = _rsi_sub_score_trend(float(rsi_val))
+            sub_map["rsi"] = new_rsi_sub
+            detail["rsi_sub"] = new_rsi_sub
 
     if not sub_map:
         final_score = 50.0
