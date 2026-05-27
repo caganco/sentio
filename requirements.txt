@@ -22,4 +22,4 @@ playwright-stealth>=2.0.3  # D-116 bot-detection bypass (playwright ile birlikte
 hmmlearn>=0.3.0       # D-123 HMM regime-conditional weights
 scikit-learn>=1.3.0   # D-123 StandardScaler (hmmlearn dependency, explicit for clarity)
 pdfplumber>=0.11.0    # D-132 Is Yatirim aciga satis PDF parser
-import-linter>=2.0    # D-138 architecture/layering contracts (CI-enforced)
+import-linter>=2.11    # D-138 architecture/layering contracts (CI-enforced)
