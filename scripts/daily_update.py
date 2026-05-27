@@ -699,6 +699,24 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
         briefing["foreign_flow_freshness"] = _foreign_flow_freshness   # D-128 son foreign_flow tarihi
         briefing["short_interest_ticker_count"] = len(_short_interest_ratios)  # D-132 PDF ticker sayisi
 
+        # --- D-163: BIST100 MA Trend Scalar (computed once, applied per-ticker) ---
+        _bist_scalar = 1.0  # fallback: no change
+        try:
+            import yfinance as _yf
+            _xu = _yf.download("XU100.IS", period="60d", auto_adjust=True, progress=False)
+            if _xu is not None and len(_xu) >= 50:
+                _bist_close = float(_xu["Close"].iloc[-1])
+                _bist_ma20  = float(_xu["Close"].rolling(20).mean().iloc[-1])
+                _bist_ma50  = float(_xu["Close"].rolling(50).mean().iloc[-1])
+                from src.signals.layers.bist_trend_scalar import compute_bist_trend_scalar
+                _bist_scalar = compute_bist_trend_scalar(_bist_close, _bist_ma20, _bist_ma50)
+                logger.info(
+                    "D-163 bist_scalar=%.2f (close=%.1f MA20=%.1f MA50=%.1f)",
+                    _bist_scalar, _bist_close, _bist_ma20, _bist_ma50,
+                )
+        except Exception as _exc:
+            logger.warning("D-163 BIST100 MA fetch failed (bist_scalar=1.0 fallback): %s", _exc)
+
         # --- Kelly Criterion Position Sizing ---
         kelly_sizing = {}
         vix_val = macro_data.get("vix") if isinstance(macro_data, dict) else None
@@ -718,6 +736,9 @@ def run_update(scan: bool = False, generate_report: bool = False) -> None:
                     "vix": vix_val or 17,
                 }
                 kelly_result = kelly_sizer.size_position(a.ticker, signal_data, current_positions)
+                # D-163: apply BIST100 trend scalar to recommended size
+                if _bist_scalar != 1.0 and kelly_result.get("action") not in ("SELL", "HOLD", "BLOCKED"):
+                    kelly_result["recommended_size_pct"] = kelly_result["recommended_size_pct"] * _bist_scalar
                 kelly_sizing[a.ticker] = {
                     "conviction": kelly_result["conviction"],
                     "current_size_pct": round(kelly_result["current_size_pct"] * 100, 2),

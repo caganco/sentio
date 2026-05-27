@@ -21,6 +21,7 @@ import logging
 from dataclasses import dataclass
 
 from src.signals.thresholds import (
+    BIST_TREND_SCALAR_NEUTRAL,
     BROKER_TIER,
     CONVICTION_COLLAPSE,
     CONVICTION_MEDIUM,
@@ -276,6 +277,42 @@ def apply_adv_cap(
             f"{decision.reason}, clipped to ADV cap "
             f"({POSITION_MAX_ADV_PCT:.0%}×ADV={max_by_adv:,.0f} TL)"
         ),
+    )
+
+
+# =============================================================================
+# D-163: BIST100 MA Trend Scalar
+# =============================================================================
+
+def apply_bist_trend_scalar(
+    decision: SizingDecision,
+    portfolio_equity: float,
+    bist_scalar: float,
+) -> SizingDecision:
+    """Scale position_size by BIST100 MA trend scalar (D-163).
+
+    Applied after apply_adv_cap(), before net_expected_value_check().
+    Caller pattern:
+        decision = size_position(...)
+        decision = apply_adv_cap(ticker, decision)
+        decision = apply_bist_trend_scalar(decision, portfolio_equity, bist_scalar)
+        decision, ev_audit = net_expected_value_check(...)
+    """
+    if decision.position_size <= 0.0 or bist_scalar == BIST_TREND_SCALAR_NEUTRAL:
+        return decision
+    new_size = round(decision.position_size * bist_scalar, 4)
+    new_alloc = (
+        round(decision.allocation_pct * bist_scalar, 6)
+        if decision.allocation_pct > 0.0
+        else 0.0
+    )
+    return SizingDecision(
+        conviction_tier=decision.conviction_tier,
+        action=decision.action,
+        allocation_pct=new_alloc,
+        position_size=new_size,
+        macro_scaling=decision.macro_scaling,
+        reason=f"{decision.reason}, bist_scalar={bist_scalar:.2f}",
     )
 
 
