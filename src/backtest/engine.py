@@ -81,6 +81,8 @@ class BacktestEngine:
         self.peak_equity = initial_capital
         self.max_dd = 0.0
         self.circuit_breaker_active = False
+        self._benchmark_series: "pd.Series | None" = None
+        self._bist_ma_scalar_series: "pd.Series | None" = None
 
     # ── Public API ───────────────────────────────────────────────────────────
 
@@ -92,6 +94,7 @@ class BacktestEngine:
     ) -> "BacktestEngine":
         """Run backtest simulation. Returns self for chaining."""
         self._reset_state()
+        self._benchmark_series = benchmark_series  # D-173: stored for _run_loop
         if self.quiet_warnings:
             saved = {n: logging.getLogger(n).level for n in _NOISY_LOGGERS}
             for n in _NOISY_LOGGERS:
@@ -123,6 +126,8 @@ class BacktestEngine:
         self._xbrl_snapshot: "pd.DataFrame | None" = None
         self._xbrl_month = None
         self._current_date: "pd.Timestamp | None" = None
+        # D-173: BIST100 MA trend scalar — benchmark_series'ten run() icinde hesaplanir.
+        self._bist_ma_scalar_series: "pd.Series | None" = None
 
     def _run_loop(
         self,
@@ -141,6 +146,21 @@ class BacktestEngine:
             f"Backtest: {len(trading_dates)} days, {self.start_date} → {self.end_date}, "
             f"{len(price_data)} tickers, capital={self.initial_capital:,.0f} TL"
         )
+
+        # D-173: BIST100 MA trend scalar — benchmark_series varsa onceden hesapla.
+        # Look-ahead guard: shift(1) → bugunun kapanisi bugunun MA'sini etkilemez.
+        if self._benchmark_series is not None:
+            from src.signals.layers.bist_trend_scalar import compute_bist_trend_scalar
+            bist_clean = self._benchmark_series.dropna().sort_index()
+            ma20 = bist_clean.rolling(20).mean().shift(1)
+            ma50 = bist_clean.rolling(50).mean().shift(1)
+            scalars = {}
+            for d in bist_clean.index:
+                m20 = None if pd.isna(ma20.get(d, float("nan"))) else float(ma20[d])
+                m50 = None if pd.isna(ma50.get(d, float("nan"))) else float(ma50[d])
+                scalars[d] = compute_bist_trend_scalar(float(bist_clean[d]), m20, m50)
+            self._bist_ma_scalar_series = pd.Series(scalars)
+            logger.debug("D-173: BIST scalar serisi hesaplandi, %d tarih", len(scalars))
 
         # D-171: XBRL L3 yalnizca MKK kimlik bilgileri tanimliysa aktif olur.
         # Kimlik yoksa hicbir TUFE/API cagrisi yapilmaz -> L3 nötr 50.0'a düşer
@@ -359,6 +379,15 @@ class BacktestEngine:
     ) -> bool:
         """Open a long position. Returns True if executed."""
         allocation_tl = self._get_kelly_allocation_tl(composite, vix_level)
+        # D-173: apply BIST100 MA trend scalar (precomputed in _run_loop).
+        bist_scalar = 1.0
+        if self._bist_ma_scalar_series is not None:
+            bist_scalar = float(self._bist_ma_scalar_series.get(current_date, 1.0))
+        allocation_tl *= bist_scalar
+        logger.debug(
+            "D-173 BIST scalar: date=%s scalar=%.2f alloc=%.0f TL",
+            current_date, bist_scalar, allocation_tl,
+        )
         shares = int(allocation_tl / close_price)
         if shares <= 0:
             return False
