@@ -2,9 +2,15 @@
 from __future__ import annotations
 
 import logging
+import os
 
 import pandas as pd
 
+from src.analytics.kap_xbrl_scorer import (
+    build_universe_xbrl_snapshot,
+    score_xbrl_surprise,
+)
+from src.data.macro_sources import fetch_tufe_series
 from src.backtest.data_loader import build_macro_data, build_technical_data
 
 # KellySizer is not used in the backtest loop (conviction mapping incompatible
@@ -40,10 +46,11 @@ _NOISY_LOGGERS = [
 
 
 class BacktestEngine:
-    """Simulate daily BIST trading using Technical + Macro + Risk signals.
+    """Simulate daily BIST trading using Technical + Macro + KAP signals.
 
-    KAP, Smart Money, and Sentiment are hardcoded to 50 (neutral) because
-    historical data is not available for these layers.
+    L3 (KAP) uses XBRL cross-sectional surprise (D-171) when MKK credentials and
+    data are available; otherwise it falls back to 50 (neutral). Smart Money and
+    Sentiment remain hardcoded to 50 — no historical data for these layers.
     """
 
     def __init__(
@@ -111,6 +118,11 @@ class BacktestEngine:
         self.peak_equity = self.initial_capital
         self.max_dd = 0.0
         self.circuit_breaker_active = False
+        # D-171: XBRL L3 sinyali — kimlik yoksa devre disi, snapshot aylik yenilenir.
+        self._tufe_series: "pd.Series | None" = None
+        self._xbrl_snapshot: "pd.DataFrame | None" = None
+        self._xbrl_month = None
+        self._current_date: "pd.Timestamp | None" = None
 
     def _run_loop(
         self,
@@ -130,8 +142,36 @@ class BacktestEngine:
             f"{len(price_data)} tickers, capital={self.initial_capital:,.0f} TL"
         )
 
+        # D-171: XBRL L3 yalnizca MKK kimlik bilgileri tanimliysa aktif olur.
+        # Kimlik yoksa hicbir TUFE/API cagrisi yapilmaz -> L3 nötr 50.0'a düşer
+        # (mevcut davranis korunur; stub-free inheritance'i de etkilenmez).
+        xbrl_universe: list[str] = []
+        if os.getenv("MKK_VYK_BASE_URL") and os.getenv("MKK_VYK_TOKEN"):
+            xbrl_universe = list(price_data.keys())
+            try:
+                self._tufe_series = fetch_tufe_series(self.start_date, self.end_date)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("D-171 TUFE serisi alinamadi: %s", exc)
+                self._tufe_series = None
+
         for current_date in trading_dates:
             macro_snap = self._safe_macro(macro_ts, current_date)
+            self._current_date = current_date
+
+            # XBRL snapshot ceyrek veridir -> ayda bir yeniden hesaplanir.
+            if xbrl_universe:
+                month = current_date.to_period("M")
+                if month != self._xbrl_month:
+                    self._xbrl_month = month
+                    try:
+                        self._xbrl_snapshot = build_universe_xbrl_snapshot(
+                            xbrl_universe,
+                            current_date.strftime("%Y-%m-%d"),
+                            self._tufe_series,
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning("D-171 XBRL snapshot hata: %s", exc)
+                        self._xbrl_snapshot = None
 
             for symbol, df in price_data.items():
                 if current_date not in df.index:
@@ -195,9 +235,9 @@ class BacktestEngine:
     ) -> tuple[float, float]:
         """Compute 3-layer composite score (0-100) and return (composite, macro_score).
 
-        Weights from thresholds.py; L3/L4/L5 stuck at 50.0 neutral stub (D-149d).
-        KAP/sentiment/smart_money have no backtest history — contribute their neutral
-        50.0 score. Since MASTER_WEIGHTS sum=1.00, neutral inputs give 50.0 composite.
+        Weights from thresholds.py. L3 (kap) now uses XBRL cross-sectional surprise
+        (D-171) when MKK credentials + data exist; otherwise falls back to 50.0.
+        L4/L5 (sentiment/smart_money) stay at 50.0 neutral stub — no backtest history.
         Delegated to calculator.compute_composite_score() (D-149d).
 
         Uses _global_macro_score() instead of score_macro() to bypass the
@@ -213,12 +253,22 @@ class BacktestEngine:
             macro_score = self._global_macro_score(macro_data)
         except Exception:
             macro_score = 50.0
+        # D-171: L3 = XBRL cross-sectional surprise. score_xbrl_surprise veri yoksa
+        # 0.0 doner; kap_score = 50.0 + impact ([-40,+40]) -> [10,90] araliginda.
+        try:
+            as_of = self._current_date.strftime("%Y-%m-%d") if self._current_date else ""
+            xbrl_score = score_xbrl_surprise(symbol, as_of, self._xbrl_snapshot)
+            kap_score = max(0.0, min(100.0, 50.0 + xbrl_score))
+            logger.debug("L3 XBRL score: ticker=%s score=%.1f", symbol, kap_score)
+        except Exception as exc:  # noqa: BLE001
+            kap_score = 50.0
+            logger.warning("L3 XBRL fallback 50.0: ticker=%s reason=%s", symbol, exc)
         composite = compute_composite_score(
             {
                 "technical":   tech_score,
                 "macro":       macro_score,
                 # risk removed D-154: L6 composite removal (weight was 0.03 = noise)
-                "kap":         50.0,   # neutral stub — veri kisiti, Faz 2 (D-150)'de kaldirilir
+                "kap":         kap_score,   # D-171: XBRL surprise (veri yoksa 50.0)
                 "sentiment":   50.0,   # neutral stub
                 "smart_money": 50.0,   # neutral stub
             }

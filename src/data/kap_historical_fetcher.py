@@ -32,6 +32,7 @@ _CACHE_DIR = Path(__file__).parent.parent.parent / "data" / "cache"
 _COLS = [
     "date", "ticker", "year", "period",
     "revenue", "gross_profit", "net_income", "total_assets", "equity",
+    "publication_date",
 ]
 
 _XBRL_MAP: dict[str, str] = {
@@ -53,7 +54,7 @@ def fetch_fr_history(ticker: str, start_year: int, end_year: int) -> pd.DataFram
 
     Returns:
         DataFrame kolonlari: date, ticker, year, period, revenue, gross_profit,
-        net_income, total_assets, equity.
+        net_income, total_assets, equity, publication_date.
         Alan bulunamazsa: None. Credentials eksikse: bos DataFrame.
     """
     base_url = os.getenv("MKK_VYK_BASE_URL", "")
@@ -130,6 +131,8 @@ def _parse_xbrl(
     row["year"] = year
     row["date"] = str(disc.get("publishDate", ""))[:10] or None
     row["period"] = disc.get("period", disc.get("term", None))
+    # D-171: ayri look-ahead alani — "time" oncelikli, publishDate fallback.
+    row["publication_date"] = str(disc.get("time", disc.get("publishDate", "")))[:10] or None
 
     for item in items:
         name = item.get("name", "")
