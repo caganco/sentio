@@ -97,6 +97,10 @@ class StubFreeBacktestEngine(BacktestEngine):
     src/backtest/engine.py degistirilmez -- sadece _compute_composite override.
     """
 
+    def _xbrl_enabled(self) -> bool:
+        """Stub-free mod: _compute_composite XBRL kullanmaz, snapshot gerekmez."""
+        return False
+
     def _compute_composite(
         self,
         technical_data: dict,

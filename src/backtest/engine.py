@@ -163,10 +163,10 @@ class BacktestEngine:
             logger.debug("D-173: BIST scalar serisi hesaplandi, %d tarih", len(scalars))
 
         # D-171: XBRL L3 yalnizca MKK kimlik bilgileri tanimliysa aktif olur.
-        # Kimlik yoksa hicbir TUFE/API cagrisi yapilmaz -> L3 nötr 50.0'a düşer
-        # (mevcut davranis korunur; stub-free inheritance'i de etkilenmez).
+        # Kimlik yoksa veya _xbrl_enabled() False'sa hicbir TUFE/API cagrisi
+        # yapilmaz -> L3 nötr 50.0'a düşer.
         xbrl_universe: list[str] = []
-        if os.getenv("MKK_VYK_BASE_URL") and os.getenv("MKK_VYK_TOKEN"):
+        if self._xbrl_enabled() and os.getenv("MKK_VYK_BASE_URL") and os.getenv("MKK_VYK_TOKEN"):
             xbrl_universe = list(price_data.keys())
             try:
                 self._tufe_series = fetch_tufe_series(self.start_date, self.end_date)
@@ -244,6 +244,13 @@ class BacktestEngine:
             f"Backtest complete: {len(self.trades)} trades, "
             f"final={self.portfolio_value:,.0f} TL, max_dd={self.max_dd:.1%}"
         )
+
+    # ── Subclass hooks ────────────────────────────────────────────────────────
+
+    def _xbrl_enabled(self) -> bool:
+        """Return False in subclasses that don't use XBRL (e.g. stub-free) to
+        skip the monthly snapshot build and avoid unnecessary API calls."""
+        return True
 
     # ── Signal computation ────────────────────────────────────────────────────
 
