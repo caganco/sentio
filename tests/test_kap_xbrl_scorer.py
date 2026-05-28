@@ -34,11 +34,11 @@ def _hist(gp_prior: float, gp_cur: float, period: str = "FY") -> pd.DataFrame:
 
 
 def _patch_fetch(histories: dict[str, pd.DataFrame]):
-    """fetch_fr_history'i ticker -> hist sozlugu ile mock'lar."""
+    """fetch_fundamentals_with_fallback'i ticker -> hist sozlugu ile mock'lar."""
     def _side_effect(ticker, start_year, end_year):  # noqa: ARG001
         return histories.get(ticker, pd.DataFrame())
     return patch(
-        "src.analytics.kap_xbrl_scorer.fetch_fr_history",
+        "src.analytics.kap_xbrl_scorer.fetch_fundamentals_with_fallback",
         side_effect=_side_effect,
     )
 
