@@ -1,8 +1,9 @@
-"""EEM ETF ve EM Relative Strength fetch yardimcisi (D-154, RR-022 §B).
+"""EEM ETF / EM Relative Strength + TÜFE CPI fetch yardimcilari (D-154, D-169).
 
 Kullanim:
-    from src.data.macro_sources import fetch_em_relative_strength
-    em_rs = fetch_em_relative_strength()   # returns float in [-1, +1] or None
+    from src.data.macro_sources import fetch_em_relative_strength, fetch_tufe_series
+    em_rs      = fetch_em_relative_strength()          # float in [-1, +1] or None
+    tufe_daily = fetch_tufe_series("2024-01-01", "2026-04-30")  # pd.Series or None
 
 Formula:
     ratio_today = XU100.IS_close / EEM_close
@@ -105,3 +106,39 @@ def fetch_em_relative_strength(
         ratio_today, lookback_days, ratio_prev, raw, normalized,
     )
     return normalized
+
+
+def fetch_tufe_series(start: str, end: str) -> "pd.Series | None":
+    """TÜFE (TP.FG.J0) aylik CPI endeksini EVDS'den ceker, gunluk ffill ile doner. D-169.
+
+    Args:
+        start: "YYYY-MM-DD" format backtest baslangici
+        end:   "YYYY-MM-DD" format backtest bitisi
+
+    Returns:
+        pd.Series with daily DatetimeIndex, forward-filled monthly CPI values.
+        None on any failure (network, auth, empty data).
+    """
+    from src.data.evds_client import EvdsError, fetch_series
+    from src.signals.thresholds import EVDS_TUFE_SERIES
+
+    try:
+        start_evds = pd.to_datetime(start).strftime("%d-%m-%Y")
+        end_evds   = pd.to_datetime(end).strftime("%d-%m-%Y")
+        raw = fetch_series(EVDS_TUFE_SERIES, start_date=start_evds, end_date=end_evds)
+        df = pd.DataFrame(raw)
+        df["date"]  = pd.to_datetime(df["date"])
+        df["value"] = pd.to_numeric(df["value"], errors="coerce")  # EVDS bazen string doner
+        monthly = df.set_index("date")["value"].dropna().sort_index()
+        if monthly.empty:
+            logger.warning("fetch_tufe_series: EVDS veri alindi ama tum degerler NaN")
+            return None
+        daily_idx = pd.date_range(
+            start=pd.to_datetime(start),
+            end=pd.to_datetime(end),
+            freq="D",
+        )
+        return monthly.reindex(daily_idx, method="ffill")
+    except (EvdsError, Exception) as exc:
+        logger.warning("fetch_tufe_series: basarisiz — %s", exc)
+        return None
