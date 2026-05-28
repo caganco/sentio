@@ -24,6 +24,7 @@
 | [RR-020](research/RR-020-BIST-VERISI-MAP.md) | BIST veri kaynakları atlas (Rosetta Stone) — yfinance/Stooq/EVDS3/KAP/İş Yatırım/Takasbank stack haritası, single point of failure ve cross-validation kararları | 24 May 2026 | RR-005 §derinleştirme (fetcher atlas) | ⏳ Uygulanmadı |
 | [RR-021](research/RR-021-TCMB.md) | TCMB EVDS3 API operasyonel referans — 16 seri envanteri, auth header, URL formatı, dead/aktif durumu | 25 May 2026 | RR-008 §devam (D-135/D-136 sonrası) | ⏳ Uygulanmadı |
 | [RR-021b](research/RR-021-live-test-results.md) | EVDS3 canlı test sonuçları (script çıktısı) — 14 aktif, 2 dead; `scripts/test_evds3_connection.py` tarafından üretilir | 25 May 2026 | RR-021 §3 companion | ⏳ Snapshot |
+| [RR-022](research/CRITIC-2605-STRATEJIK-MIMARI-DEGERLENDIRME.md) | Stratejik Mimari Değerlendirme — L1/L2/L6 mimari teşhis, bot vs. danışman kimlik sorusu, LLM'in gerçek rolü, yol haritası; D-153b/c backtest bulgularına dayalı | 26 May 2026 | RR-003 §CB-010 derinleştirme; RR-017 §HMM bağlantısı; CB-002 §L2 circular | ⏳ Orchestrator incelemesinde |
 | [RR-031](research/RR-031-KAP-NEXTJS-MIGRATION.md) | KAP Next.js Migration — scraping infeasibility (memberDisclosureQuery ölü: tarpit/HTTP 666/429); MKK VYK API (D-170) YEŞİL kanal | 28 May 2026 | D-170 (MKK VYK API) | ✅ Applied → kap_scraper.py fallback confirmed |
 
 ---
