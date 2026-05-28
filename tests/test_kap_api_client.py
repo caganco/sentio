@@ -31,6 +31,23 @@ class TestKapApiClient:
         assert "/api/vyk/lastDisclosureIndex" in called_url
 
     # ------------------------------------------------------------------
+    def test_get_members_success(self):
+        """get_members() basarili yanit → list donmeli; endpoint dogru. D-172."""
+        client = _make_client()
+        payload = [
+            {"id": "1107", "title": "THY", "stockCode": "THYAO", "memberType": "IGS"},
+            {"id": "1383", "title": "FB", "stockCode": "FENER", "memberType": "IGS"},
+        ]
+        mock_resp = MagicMock(status_code=200)
+        mock_resp.json.return_value = payload
+
+        with patch.object(client._session, "get", return_value=mock_resp) as mock_get:
+            result = client.get_members()
+
+        assert result == payload
+        assert "/api/vyk/members" in mock_get.call_args[0][0]
+
+    # ------------------------------------------------------------------
     def test_get_disclosures_success(self):
         """get_disclosures() basarili yanit → list donmeli; endpoint ve paramlar dogru."""
         client = _make_client()
