@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 RISK_FREE_RATE = 0.37  # Turkish risk-free rate = TCMB Mayis 2026 MPK — OS_STATE
+TUFE_UNAVAILABLE: str = "TÜFE_UNAVAILABLE"
 
 
 def calculate_win_rate(trades: list[dict]) -> float:
@@ -121,9 +122,66 @@ def calculate_alpha(
     }
 
 
+def calculate_real_returns(
+    nominal_return: float,
+    benchmark_return: float,
+    tufe_series: pd.Series | None,
+    start_date: str,
+    end_date: str,
+    holding_days: int,
+) -> dict[str, float | str]:
+    """Nominal getirileri TÜFE CPI ile deflate eder. D-169.
+
+    Formula: real = (1 + nominal) / (1 + cumulative_inflation) - 1
+    Fallback: None/bos seri veya NaN degerler → TUFE_UNAVAILABLE sentinel.
+
+    Returns keys: real_return_pct, benchmark_real_return_pct, real_alpha_pct,
+                  avg_annual_tufe_pct.
+    """
+    import math
+
+    sentinel = TUFE_UNAVAILABLE
+    _na = {
+        "real_return_pct":           sentinel,
+        "benchmark_real_return_pct": sentinel,
+        "real_alpha_pct":            sentinel,
+        "avg_annual_tufe_pct":       sentinel,
+    }
+
+    if tufe_series is None or tufe_series.empty:
+        return _na
+    try:
+        t_start = float(tufe_series.asof(pd.Timestamp(start_date)))
+        t_end   = float(tufe_series.asof(pd.Timestamp(end_date)))
+        if math.isnan(t_start) or math.isnan(t_end) or t_start == 0:
+            return _na
+
+        cum_inf = t_end / t_start - 1.0
+        real_ret = (1.0 + nominal_return) / (1.0 + cum_inf) - 1.0
+
+        if math.isnan(benchmark_return):
+            real_bench_pct: float | str = sentinel
+            real_alpha_pct: float | str = sentinel
+        else:
+            real_bench_pct = round(float((1.0 + benchmark_return) / (1.0 + cum_inf) - 1.0) * 100, 2)
+            real_alpha_pct = round(float(real_ret) * 100 - float(real_bench_pct), 2)
+
+        ann_tufe = (1.0 + cum_inf) ** (252.0 / max(holding_days, 1)) - 1.0
+
+        return {
+            "real_return_pct":           round(real_ret * 100, 2),
+            "benchmark_real_return_pct": real_bench_pct,
+            "real_alpha_pct":            real_alpha_pct,
+            "avg_annual_tufe_pct":       round(ann_tufe * 100, 2),
+        }
+    except Exception:
+        return _na
+
+
 def summarize(
     engine: "BacktestEngine",
     benchmark_series: pd.Series | None = None,
+    tufe_series: pd.Series | None = None,
 ) -> dict[str, Any]:
     """Aggregate all backtest metrics into a summary dict with pass/fail evaluation."""
     trades = engine.trades
@@ -219,6 +277,15 @@ def summarize(
         "circuit_breaker_trigger_days": circuit_breaker_triggers,
         "pass_fail_evaluation": pass_fail,
         "overall_status": "PASS -- System ready for live test" if overall_pass else "FAIL -- Refine before live",
+        # D-169: TÜFE-deflate reel getiriler (TÜFE_UNAVAILABLE if EVDS unavailable)
+        **calculate_real_returns(
+            nominal_return=system_return,
+            benchmark_return=alpha_data["benchmark_return"],
+            tufe_series=tufe_series,
+            start_date=engine.start_date,
+            end_date=engine.end_date,
+            holding_days=len(engine.daily_dates),
+        ),
     }
 
 
