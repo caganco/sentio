@@ -22,7 +22,7 @@ from typing import Any
 
 import pandas as pd
 
-from src.data.kap_historical_fetcher import fetch_fr_history
+from src.data.kap_historical_fetcher import fetch_fundamentals_with_fallback
 from src.data.short_interest_normalizer import compute_universe_percentiles
 
 logger = logging.getLogger(__name__)
@@ -64,7 +64,7 @@ def build_universe_xbrl_snapshot(
     rows: list[dict[str, Any]] = []
     for ticker in tickers:
         try:
-            hist = fetch_fr_history(ticker, as_of_year - 1, as_of_year)
+            hist = fetch_fundamentals_with_fallback(ticker, as_of_year - 1, as_of_year)
         except Exception as exc:  # noqa: BLE001 - tek ticker hatasi tum snapshot'i bozmamali
             logger.debug("xbrl snapshot fetch hata: ticker=%s %s", ticker, exc)
             continue

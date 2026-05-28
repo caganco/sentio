@@ -272,3 +272,23 @@ def _parse_tr_date(raw: Any) -> "str | None":
         return None
     day, month, year = parts
     return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+
+
+def fetch_fundamentals_with_fallback(
+    ticker: str,
+    start_year: int,
+    end_year: int,
+) -> pd.DataFrame:
+    """MKK XBRL once, bossan yfinance fallback. D-175.
+
+    1. fetch_fr_history(ticker, start_year, end_year)
+    2. Bossan -> fetch_yf_fundamentals(ticker, start_year, end_year)
+    3. Ikisi de bossan -> bos DataFrame
+    """
+    df = fetch_fr_history(ticker, start_year, end_year)
+    if not df.empty:
+        return df
+    # Lazy import: circular dep yok (yfinance_fundamentals_fetcher bu module bagimli degil)
+    from src.data.yfinance_fundamentals_fetcher import fetch_yf_fundamentals
+    logger.debug("D-175 fallback: MKK bos, yfinance deneniyor. ticker=%s", ticker)
+    return fetch_yf_fundamentals(ticker, start_year, end_year)
