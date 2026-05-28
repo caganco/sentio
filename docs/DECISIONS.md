@@ -2,7 +2,7 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 26 May 2026  
+**Last Updated:** 28 May 2026  
 **Total Decisions:** 20 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032, DEC-034)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
@@ -35,7 +35,7 @@
 | **DEC-030** | Multi-LLM Jury mimarisi (2-LLM MVP, Phase 6+) | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `src/signals/` (Phase 6+, Q1 2027+) |
 | **DEC-031** | TÜFE canonical kod: TP.FG.J0 | Data Sources | ✅ Decided | 2026-05-26 | `src/data/`, `src/signals/thresholds.py` |
 | **DEC-032** | DEC-010-v2: LLM "genuine input" rolü | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `strategist.py`, `src/signals/engine.py` |
-| **DEC-034** | D-163 backtest/production sizing divergence kabul | Position Sizing | ✅ Decided | 2026-05-28 | `scripts/daily_update.py`, `src/risk/position_sizer_v2.py` |
+| **DEC-034** | D-163/D-173 backtest/production sizing divergence kapandi | Position Sizing | ✅ Closed | 2026-05-28 | `src/backtest/engine.py`, `src/risk/position_sizer_v2.py` |
 ---
 
 ## DECISION CATEGORIES
@@ -338,27 +338,32 @@ DEC-010 orijinal metni arşiv olarak korunur.
 
 ---
 
-## DEC-034 — D-163 Backtest/Production Sizing Divergence Kabul
+## DEC-034 — D-163/D-173 Backtest/Production Sizing Divergence ✅ KAPANDI
 
 | Alan | Değer |
 |------|-------|
 | **ID** | DEC-034 |
-| **Başlık** | bist_trend_scalar production'da aktif; backtest engine'e entegre edilmedi |
+| **Başlık** | bist_trend_scalar backtest engine'e entegre edildi (D-173) |
 | **Tarih** | 28 May 2026 |
 | **Alan** | Position Sizing |
-| **Durum** | ✅ Decided |
-| **Etkilenen Dosyalar** | `scripts/daily_update.py`, `src/risk/position_sizer_v2.py` |
+| **Durum** | ✅ Closed (D-173 ile kapandi) |
+| **Etkilenen Dosyalar** | `src/backtest/engine.py`, `src/risk/position_sizer_v2.py` |
 
-### Gerekçe
+### Gecmis (D-163)
 
-D-163 `bist_trend_scalar` production sizing'de aktif (daily_update.py kelly_result).
-Backtest engine'e entegre edilmedi.
+D-163 `bist_trend_scalar` production sizing'de aktif oldu (daily_update.py).
+Backtest engine'e entegre edilmedi — tarihi XU100 serisi ayri veri katmani
+gerektiriyordu; D-163 kapsami disindaydi.
 
-**Neden:** Backtest'te BIST100 MA serisi ayrı bir veri katmanı gerektirir
-(tarihi XU100 fiyat serisi ile MA20/MA50 hesabı). Bu veri akışı D-163'ün
-kapsamı dışındadır; ayrı direktif gerektirir.
+### Kapanis (D-173)
 
-**Sonuç:** Live sizing ile backtest sizing arasında kasıtlı bir divergence
-oluşmuştur. Bu kabul edildi — backtest sonuçları D-163 skalasını yansıtmaz.
+`BacktestEngine.run(benchmark_series=...)` parametresi artik BIST100 tarihi
+fiyat serisini kabul eder. `_run_loop` basinda:
+- `bist.rolling(20/50).mean().shift(1)` — look-ahead guard ile MA hesabi.
+- `compute_bist_trend_scalar(close, ma20, ma50)` → 0.75/1.00/1.25.
+- Per-date scalar serisi `_bist_ma_scalar_series`'e kaydedilir.
 
-**Kaynak:** D-163 direktifi
+`_execute_buy` icinde Kelly allocation × scalar uygulanir. Production ve
+backtest sizing artik ayni mantigi paylasiyor.
+
+**Kaynak:** D-163 + D-173 direktifleri
