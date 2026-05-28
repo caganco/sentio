@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.backtest.data_loader import load_macro_series, load_price_data
 from src.backtest.engine import BacktestEngine
 from src.backtest.metrics import summarize
+from src.data.macro_sources import fetch_tufe_series
 from src.backtest.reporter import save_summary_json, save_trades_csv
 from src.signals.calculator import compute_composite_score, kelly_win_prob
 from src.signals.layers.technical_layer import score_technical
@@ -241,6 +242,14 @@ def _run(args: argparse.Namespace) -> None:
         macro_ts["BIST100"] if "BIST100" in macro_ts.columns else None
     )
 
+    # --- 2b. TÜFE (reel getiri hesabi icin) ----------------------------------
+    print("  [2b/4] TÜFE serisi cekiliyor (EVDS TP.FG.J0)...")
+    tufe_series = fetch_tufe_series(args.start, args.end)
+    if tufe_series is None:
+        print("         UYARI: TÜFE verisi alinamadi — reel getiriler TÜFE_UNAVAILABLE olacak")
+    else:
+        print(f"         {len(tufe_series)} gunluk TÜFE serisi hazir")
+
     # --- 3. Backtest -------------------------------------------------------
     print(f"  [3/4] Backtest simulasyonu ({args.mode} modu)...")
     EngineClass = StubFreeBacktestEngine if stub_free else BacktestEngine
@@ -257,7 +266,7 @@ def _run(args: argparse.Namespace) -> None:
 
     # --- 4. Metrikler ve cikti -------------------------------------------
     print("  [4/4] Metrikler hesaplaniyor, dosyalar yaziliyor...")
-    metrics = summarize(engine, benchmark_series)
+    metrics = summarize(engine, benchmark_series, tufe_series=tufe_series)
     metrics["mode"]              = args.mode
     metrics["exploratory_warning"] = warning
     metrics["ticker_summary"]    = _ticker_summary(engine.trades)
@@ -316,6 +325,14 @@ def _run(args: argparse.Namespace) -> None:
     print(f"  Calmar     : {calmar_str}  (getiri/max_dd)")
     print(f"  Max DD     : {metrics['max_drawdown_pct']:.2f}%")
     print(f"  Alpha      : {alpha_str}")
+    rr = metrics.get("real_return_pct")
+    if rr == "TÜFE_UNAVAILABLE":
+        print("  Reel Getiri: TÜFE_UNAVAILABLE (EVDS baglantisi kontrol edin)")
+    else:
+        print(f"  Reel Getiri: {rr:+.2f}%  (sistem, TRY reel)")
+        print(f"  Reel Bench : {metrics['benchmark_real_return_pct']:+.2f}%  (BIST100, TRY reel)")
+        print(f"  Reel Alpha : {metrics['real_alpha_pct']:+.2f}%")
+        print(f"  Ort.Yil TUFE: {metrics['avg_annual_tufe_pct']:.1f}%")
     print(f"  Win Rate   : {metrics['win_rate_pct']:.1f}%")
     print(f"{sep}")
     print(f"\n  summary.json      --> {out_dir}/summary.json")
