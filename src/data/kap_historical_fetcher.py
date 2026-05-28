@@ -144,9 +144,11 @@ def fetch_fr_history(ticker: str, start_year: int, end_year: int) -> pd.DataFram
             continue
 
         rows = _fetch_year(client, ticker, year, ticker_to_id)
+        df_year = pd.DataFrame(rows, columns=_COLS)
+        # D-175: her zaman yaz (bos olsa da) — tekrarlanan basarisiz MKK
+        # API cagrilarini onler; yfinance fallback bos cache'i gorur ve devreye girer.
+        df_year.to_parquet(cache_path, index=False)
         if rows:
-            df_year = pd.DataFrame(rows, columns=_COLS)
-            df_year.to_parquet(cache_path, index=False)
             frames.append(df_year)
             logger.info(
                 "kap_fr fetched: ticker=%s year=%d rows=%d", ticker, year, len(rows)
@@ -290,5 +292,5 @@ def fetch_fundamentals_with_fallback(
         return df
     # Lazy import: circular dep yok (yfinance_fundamentals_fetcher bu module bagimli degil)
     from src.data.yfinance_fundamentals_fetcher import fetch_yf_fundamentals
-    logger.debug("D-175 fallback: MKK bos, yfinance deneniyor. ticker=%s", ticker)
+    logger.info("D-175 fallback: MKK bos, yfinance deneniyor. ticker=%s", ticker)
     return fetch_yf_fundamentals(ticker, start_year, end_year)
