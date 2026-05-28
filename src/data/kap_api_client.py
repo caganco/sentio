@@ -3,8 +3,9 @@
 Auth: Bearer (production) / Basic (test env — "user:pass" format).
 Rate limit: 1 istek/saniye (saygili; MKK politikasi).
 
-Endpoint'ler (spec-teyitli):
+Endpoint'ler (canli test API teyitli):
     GET /api/vyk/lastDisclosureIndex          → {"lastDisclosureIndex": N}
+    GET /api/vyk/members                      → [{"id","title","stockCode","memberType"}]
     GET /api/vyk/disclosures
         ?disclosureIndex={N}&disclosureClass={FR|ODA}[&companyId={M}]
     GET /api/vyk/disclosureDetail/{index}?fileType=data
@@ -75,6 +76,26 @@ class KapApiClient:
         if resp.status_code != 200:
             raise KapApiError(f"get_last_index: HTTP {resp.status_code}: {resp.text[:200]}")
         return int(resp.json()["lastDisclosureIndex"])
+
+    # ------------------------------------------------------------------
+    def get_members(self) -> list[dict[str, Any]]:
+        """Uye (sirket) listesini dondurur. D-172.
+
+        Returns:
+            list[dict] — her uye {id, title, stockCode, memberType[, kfifUrl]}.
+            id = companyId (str), stockCode = BIST ticker.
+
+        Raises:
+            KapApiError: API hatasi.
+        """
+        time.sleep(_RATE_LIMIT_SLEEP)
+        resp = self._session.get(
+            f"{self._base}/api/vyk/members",
+            timeout=_DEFAULT_TIMEOUT,
+        )
+        if resp.status_code != 200:
+            raise KapApiError(f"get_members: HTTP {resp.status_code}: {resp.text[:200]}")
+        return resp.json()
 
     # ------------------------------------------------------------------
     def get_disclosures(
