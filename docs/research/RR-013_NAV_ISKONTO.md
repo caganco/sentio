@@ -1,5 +1,7 @@
 # RR-013: BIST Holding Hisseleri için NAV İskontosu Hesabı ve Mean Reversion Alpha Stratejisi
 
+# GEÇERLİLİK: "Katman A holding faktörü adayı AMA long-only uyarısıyla"
+
 **Hazırlayan:** Research Layer (BIST OS) | **Tarih:** 24 Mayıs 2026 | **Önceki rapor:** RR-012 §B8 (20× detaylı versiyon)
 **Pilot kapsam:** KCHOL, SAHOL, AGHOL, KOZAL, DOHOL — pilot başlangıç KCHOL
 
