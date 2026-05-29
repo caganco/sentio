@@ -1,0 +1,64 @@
+{
+  "directive": "D-177",
+  "phase": "FAZ 0 -- Stage 0 pre-registration (SPEC_PIVOT_ARCHITECTURE_1 sec.2)",
+  "frozen_at_utc": "2026-05-29T16:05:31Z",
+  "discipline": "Written and frozen BEFORE measurement. Factor definitions, thresholds, horizons, benchmark and snapshot hash must NOT change after results are seen (post-hoc rationalization guard). N=1 single design.",
+  "config_version": "faz0-v1",
+  "snapshot": {
+    "file": "data/snapshots/faz0_prices_2024-01-01_2026-04-30.parquet",
+    "content_hash_sha256": "729855ac0868b52ef465f0fc1a7ed14ee6ed8d2232b42de565836bab15c2cb26",
+    "window": {"start": "2024-01-01", "end": "2026-04-30"},
+    "loaded_universe_n": 57,
+    "index_symbol": "XU100",
+    "n_rows": 33789,
+    "universe_note": "config-driven current BIST list (57 names available); not a full 100. Sufficient cross-section for rank-IC (>=5/day)."
+  },
+  "survivorship": {
+    "excluded_delisted": ["KOZAA", "KOZAL", "IPEKE", "TRALT"],
+    "reason": "not fetchable from yfinance (404) -> survivors-only snapshot",
+    "bias_direction": "Excluding delisted (mostly poor-outcome) names may make measured IC read OPTIMISTIC/inflated; in TEST 2 the missing left tail biases skewness UP (high-vol falsely good). Read Faz 0 as an upper-ish bound, not neutral. (Cagan condition: bias direction MUST be reported.)"
+  },
+  "factors": {
+    "rs_vs_xu100": {
+      "definition": "relative strength = stock_return(window) - xu100_return(window); RELATIVE (not absolute nominal, invariant 5).",
+      "lookbacks_days": {"rs6": 126, "rs12": 252},
+      "skip_days": 21,
+      "orientation": "higher RS -> higher rank (momentum hypothesis); standalone IC<=0 -> drop or reversal (Bildik-Gulay)."
+    },
+    "low_vol": {
+      "definition": "trailing realized volatility of daily log returns.",
+      "windows_days": {"lowvol20": 20, "lowvol60": 60},
+      "orientation": "lower vol -> higher rank (invert)."
+    },
+    "value": "DEFERRED to Faz 0b (market cap / EBITDA / net debt not available in any fetcher; Cagan decision)."
+  },
+  "composite": {
+    "rule": "equal-weight rank average (invariant 4: no z-score, no weight optimization)",
+    "members": {"rs": "rs12", "low_vol": "lowvol60"}
+  },
+  "ic_method": {
+    "metric": "Spearman rank-IC (NOT Pearson; keeps TEST 2 orthogonal)",
+    "primitive": "src.analytics.ic_calculator.ICCalculator.compute_ic",
+    "equivalence_rule": "local daily-IC series asserted == primitive at 5-decimal reporting precision (<1e-9); ic_source recorded primitive|fallback",
+    "horizons_trading_days": [1, 5, 10, 21, 63],
+    "primary_decision_horizon": 21,
+    "overlap_adjustment": "Newey-West HAC t (Bartlett, lags=5) reported alongside naive t for overlapping horizons",
+    "confidence_interval": "t-distribution 95% on the IC series mean"
+  },
+  "decision_rules": {
+    "keep_drop": "decision rests on STANDALONE rank-IC: keep if mean_ic > 0 AND ICIR >= 0.5",
+    "rs_rule": "standalone IC <= 0 -> drop OR convert to short-term reversal (EK KARAR 1)",
+    "test1_dilution": "equal-weight composite IC vs best single-factor IC; composite < best -> dilution flag (narrow factor SET, do not optimize weights)",
+    "test2_groupcond_skew": "DIAGNOSTIC ONLY (not gating): delta_skew = mean_t[skew(high-vol fwd) - skew(low-vol fwd)] + ex-ante realized skewness (Amaya); significance via block-bootstrap 95% CI (no threshold)."
+  },
+  "thresholds_reference": {
+    "source": "src/signals/thresholds.py (IMMUTABLE; read-only)",
+    "IC_INVESTABLE_MEAN_MIN": 0.03,
+    "IC_INVESTABLE_TSTAT_MIN": 2.0,
+    "IC_INVESTABLE_MONTHS_MIN": 6,
+    "ICIR_keep_min": 0.5
+  },
+  "benchmark_reference": "max(TUFE TP.FG.J0, TLREF TP.BISTTLREF.KAPANIS); RS/low-vol IC need no deflation (cross-sectional rank removes common inflation drift).",
+  "decision_owner": "Orchestrator+Cagan (DEC-039). Harness MEASURES and RECOMMENDS; does not finalize factor set.",
+  "config_budget": "N=1 (single frozen design; no variant sweep -- MinBTL/overfitting guard, SPEC sec.2)"
+}
