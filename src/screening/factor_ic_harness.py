@@ -216,11 +216,16 @@ def compute_factor_ic(
     prim = ICCalculator(signal_df, returns_df).compute_ic(col, horizon)
     ics = daily_ic_series(ranks[col], fwd_panels[horizon])
     local = ic_stats(ics)
-    # equivalence at ic_calculator reporting precision (5 decimals)
+    # equivalence at ic_calculator reporting precision (5 decimals).
+    # n-match guard (adversarial review): ICCalculator falls back to a single
+    # POOLED ic (n_obs=1) when < IC_MIN_OBSERVATIONS daily cross-sections exist.
+    # Require prim.n_obs == local n so a pooled value can never be mislabeled
+    # "primitive" by a coincidental rounded-mean match.
     prim_mean = prim.mean_ic
     local_mean_5 = round(local["mean_ic"], 5) if local["n_obs"] else float("nan")
+    n_match = prim.n_obs == local["n_obs"]
     if isinstance(prim_mean, float) and not math.isnan(prim_mean) and local["n_obs"]:
-        equiv_ok = abs(local_mean_5 - prim_mean) < 1e-9
+        equiv_ok = n_match and abs(local_mean_5 - prim_mean) < 1e-9
     else:
         equiv_ok = False
     ic_source = "primitive" if equiv_ok else "fallback"
