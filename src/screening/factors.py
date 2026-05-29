@@ -47,9 +47,16 @@ def realized_vol(close: pd.DataFrame, window: int) -> pd.DataFrame:
 
     Higher value = more volatile (the low-vol factor inverts this at rank stage).
     Look-ahead safe (trailing only).
+
+    min_periods = ceil(0.75*window): BIST names have scattered halt/non-trading
+    days, so on a union calendar each name carries ~few NaN returns. Requiring a
+    FULL gap-free window (default min_periods=window) nulls vol after any single
+    halt and collapses the low-vol cross-section (~113 vs ~560 usable dates here).
+    A 75%-present window keeps vol representative without look-ahead. (D-178.)
     """
     log_ret = np.log(close / close.shift(1))
-    return log_ret.rolling(window).std()
+    min_p = max(2, int(np.ceil(window * 0.75)))
+    return log_ret.rolling(window, min_periods=min_p).std()
 
 
 def forward_returns(close: pd.DataFrame, horizon: int) -> pd.DataFrame:

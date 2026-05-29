@@ -214,3 +214,34 @@ def test_lowvol_rank_inversion():
     rank = h.rank_panel(vol, invert=True)
     last = rank.dropna().iloc[-1]
     assert last["LOW"] > last["HIGH"]   # low vol -> higher rank
+
+
+# ---------------------------------------------------------------------------
+# 8. D-178: overlap-corrected honest_t deflates naive_t on autocorrelated series
+# ---------------------------------------------------------------------------
+
+def test_honest_t_below_naive_on_autocorrelated():
+    # AR(1) high-persistence series (overlap-like autocorr), positive mean.
+    rng = np.random.default_rng(42)
+    n, phi = 300, 0.85
+    x = np.empty(n)
+    x[0] = 0.0
+    for i in range(1, n):
+        x[i] = phi * x[i - 1] + 0.02 * rng.standard_normal()
+    x = x + 0.05  # positive mean so t-stats are non-trivial
+    s = h.ic_stats(x, hac_lag=30)   # bandwidth >> 1 -> HAC widens SE
+    assert abs(s["t_nw"]) < abs(s["t_naive"])   # honest_t deflates overlap-inflated naive_t
+    assert s["hac_lag"] == 30
+
+
+# ---------------------------------------------------------------------------
+# 9. D-178: non-overlapping stride subsample (count + determinism)
+# ---------------------------------------------------------------------------
+
+def test_nonoverlap_stride_subsample():
+    ics = np.arange(100, dtype=float)
+    r5 = h.nonoverlap_stats(ics, stride=5)
+    assert r5["n_obs"] == len(ics[::5])          # 20 disjoint points
+    assert r5["stride"] == 5
+    assert h.nonoverlap_stats(ics, stride=5) == r5   # deterministic
+    assert h.nonoverlap_stats(ics, stride=20)["n_obs"] < r5["n_obs"]  # bigger stride -> fewer

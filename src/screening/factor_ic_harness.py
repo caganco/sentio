@@ -105,14 +105,19 @@ def newey_west_se(ics: np.ndarray, lags: int = cfg.NW_LAGS) -> float:
     return math.sqrt(var_nw / n)
 
 
-def ic_stats(ics: np.ndarray, lags: int = cfg.NW_LAGS) -> dict:
-    """Aggregate IC series -> mean/std/ICIR/naive-t/p/CI + Newey-West HAC t/p."""
+def ic_stats(ics: np.ndarray, lags: int = cfg.NW_LAGS, hac_lag: int | None = None) -> dict:
+    """Aggregate IC series -> mean/std/ICIR/naive-t/p/CI + Newey-West HAC t/p.
+
+    hac_lag (D-178): Bartlett bandwidth for the HONEST (overlap-corrected) t.
+    For an h-day forward return the daily IC series is autocorrelated up to ~h;
+    pass hac_lag=h so honest_t deflates the overlap-inflated naive_t.
+    """
     n = int(len(ics))
     if n == 0:
         return {"n_obs": 0, "mean_ic": float("nan"), "std_ic": float("nan"),
                 "icir": float("nan"), "t_naive": float("nan"), "p_naive": float("nan"),
                 "ci95_low": float("nan"), "ci95_high": float("nan"),
-                "t_nw": float("nan"), "p_nw": float("nan")}
+                "t_nw": float("nan"), "p_nw": float("nan"), "hac_lag": hac_lag or lags}
     mean_ic = float(np.mean(ics))
     std_ic = float(np.std(ics, ddof=1)) if n > 1 else 0.0
     icir = mean_ic / std_ic if std_ic > 0 else 0.0
@@ -125,7 +130,8 @@ def ic_stats(ics: np.ndarray, lags: int = cfg.NW_LAGS) -> dict:
     else:
         t_naive = p_naive = 0.0
         ci_low = ci_high = mean_ic
-    se_nw = newey_west_se(ics, lags)
+    eff_lag = hac_lag if hac_lag is not None else lags
+    se_nw = newey_west_se(ics, eff_lag)
     if not math.isnan(se_nw) and se_nw > 0 and n > 1:
         t_nw = mean_ic / se_nw
         p_nw = float(2 * (1 - stats.t.cdf(abs(t_nw), df=n - 1)))
@@ -135,8 +141,28 @@ def ic_stats(ics: np.ndarray, lags: int = cfg.NW_LAGS) -> dict:
         "n_obs": n, "mean_ic": mean_ic, "std_ic": std_ic, "icir": icir,
         "t_naive": t_naive, "p_naive": p_naive,
         "ci95_low": ci_low, "ci95_high": ci_high,
-        "t_nw": t_nw, "p_nw": p_nw,
+        "t_nw": t_nw, "p_nw": p_nw, "hac_lag": eff_lag,
     }
+
+
+def nonoverlap_stats(ics: np.ndarray, stride: int) -> dict:
+    """Subsample the daily IC series at stride=h (disjoint forward windows) ->
+    independent-ish ICs. Reveals whether a horizon's ICIR rise is real or a
+    mechanical overlap artifact (smoother long-horizon returns shrink IC std).
+    """
+    if stride < 1:
+        stride = 1
+    sub = np.asarray(ics, dtype=float)[::stride]
+    n = int(len(sub))
+    if n < 2:
+        return {"n_obs": n, "mean_ic": float("nan"), "icir": float("nan"),
+                "t": float("nan"), "stride": stride}
+    mean_ic = float(np.mean(sub))
+    std_ic = float(np.std(sub, ddof=1))
+    icir = mean_ic / std_ic if std_ic > 0 else 0.0
+    t = mean_ic / (std_ic / math.sqrt(n)) if std_ic > 0 else 0.0
+    return {"n_obs": n, "mean_ic": round(mean_ic, 5), "icir": round(icir, 4),
+            "t": round(t, 4), "stride": stride}
 
 
 def _round_dict(d: dict, nd: int = 5) -> dict:
@@ -212,10 +238,13 @@ def compute_factor_ic(
     col: str,
     horizon: int,
 ) -> dict:
-    """Primitive IC (ICCalculator) + local series (NW/CI) + equivalence check."""
+    """Primitive IC (ICCalculator) + local series + honest_t (NW lag=h) +
+    non-overlapping ICIR (overlap-artifact diagnosis) + equivalence check."""
     prim = ICCalculator(signal_df, returns_df).compute_ic(col, horizon)
     ics = daily_ic_series(ranks[col], fwd_panels[horizon])
-    local = ic_stats(ics)
+    # D-178: honest t uses Newey-West HAC bandwidth = horizon (overlap-corrected).
+    local = ic_stats(ics, hac_lag=horizon)
+    nonoverlap = nonoverlap_stats(ics, stride=horizon)
     # equivalence at ic_calculator reporting precision (5 decimals).
     # n-match guard (adversarial review): ICCalculator falls back to a single
     # POOLED ic (n_obs=1) when < IC_MIN_OBSERVATIONS daily cross-sections exist.
@@ -235,7 +264,8 @@ def compute_factor_ic(
         "primitive": {"mean_ic": prim.mean_ic, "icir": prim.ir,
                       "t_stat": prim.t_stat, "p_value": prim.p_value,
                       "n_obs": prim.n_obs, "is_investable": prim.is_investable},
-        "series": _round_dict(local),
+        "series": _round_dict(local),                 # series.t_naive + series.t_nw (honest, lag=h)
+        "nonoverlap": nonoverlap,                      # overlap'siz ICIR/t (artifact check)
     }
 
 
@@ -351,12 +381,22 @@ def run_faz0(
     end: str = cfg.SNAPSHOT_END,
     universe: list[str] | None = None,
     out_dir: Path | str = _RESULTS_DIR,
-    snapshot_kwargs: dict | None = None,
+    tag: str = "",
+    adv_floor_tl: float | None = None,
+    directive: str = "D-177",
+    results_filename: str = "faz0_results.json",
 ) -> dict:
-    """Full Faz 0 measurement. Returns results dict and writes faz0_results.json."""
-    universe = universe or snapshot.resolve_universe()
+    """Full Faz 0 measurement. Returns results dict and writes results JSON.
+
+    D-178 v2 (tag="v2"): mechanical BIST100 candidate pool + ADV floor; keep
+    decision on OVERLAP-CORRECTED honest_t (NW lag=h) + non-overlapping ICIR
+    over the pre-registered PRIMARY_HORIZONS.
+    """
+    is_v2 = bool(tag == "v2" or adv_floor_tl is not None)
+    if universe is None:
+        universe = snapshot.resolve_universe_v2() if is_v2 else snapshot.resolve_universe()
     long_df, meta = snapshot.freeze_price_snapshot(
-        universe, start, end, **(snapshot_kwargs or {})
+        universe, start, end, adv_floor_tl=adv_floor_tl, tag=tag, directive=directive,
     )
     close, xu100 = snapshot.to_close_panel(long_df)
 
@@ -365,7 +405,8 @@ def run_faz0(
     signal_df = build_signal_df(ranks)
     returns_df = build_returns_df(close, cfg.IC_HORIZONS)
 
-    factor_cols = list(cfg.RS_LOOKBACKS_DAYS) + list(cfg.VOL_WINDOWS_DAYS) + ["composite"]
+    singles = list(cfg.RS_LOOKBACKS_DAYS) + list(cfg.VOL_WINDOWS_DAYS)
+    factor_cols = singles + ["composite"]
     per_factor: dict[str, dict] = {}
     for col in factor_cols:
         per_factor[col] = {
@@ -373,64 +414,95 @@ def run_faz0(
             for h in cfg.IC_HORIZONS
         }
 
-    # primary horizon for decisions (T21 ~ 1 month)
-    ph = "21"
+    ph = "21"  # reference horizon for TEST 1 + RS sign (comparable to D-177)
 
-    def _series_mean(col: str, h: str = ph) -> float:
+    def _mean(col: str, h: str = ph) -> float:
         return per_factor[col][h]["series"]["mean_ic"]
 
-    def _series_icir(col: str, h: str = ph) -> float:
-        return per_factor[col][h]["series"]["icir"]
-
-    # TEST 1 -- dilution: composite IC vs best single-factor IC (primary horizon)
-    singles = list(cfg.RS_LOOKBACKS_DAYS) + list(cfg.VOL_WINDOWS_DAYS)
-    best_single = max(singles, key=lambda c: _series_mean(c))
+    # TEST 1 -- dilution (new universe): composite IC vs best single-factor IC
+    best_single = max(singles, key=lambda c: _mean(c))
     test1 = {
         "primary_horizon": int(ph),
-        "composite_ic": _series_mean("composite"),
+        "composite_ic": _mean("composite"),
         "best_single_factor": best_single,
-        "best_single_ic": _series_mean(best_single),
-        "dilution_flag": bool(_series_mean("composite") < _series_mean(best_single)),
+        "best_single_ic": _mean(best_single),
+        "dilution_flag": bool(_mean("composite") < _mean(best_single)),
         "note": "composite < best single => equal-weight rank average dilutes; "
                 "narrow the factor SET (do not optimize weights, invariant 4).",
     }
 
-    # TEST 2 -- group-conditional skewness diagnostic
     test2 = run_test2(close)
 
-    # keep/drop + RS rule (decision on STANDALONE rank-IC)
-    keep_drop = {}
+    # ----- KEEP decision: OVERLAP-CORRECTED honest_t + non-overlap ICIR -----
+    # Pre-registered rule (STAGE0_v2): keep if ANY h in PRIMARY_HORIZONS has
+    # |honest_t| >= KEEP_HONEST_T_MIN AND non-overlap ICIR >= KEEP_ICIR_NONOVERLAP_MIN.
+    keep_drop: dict[str, dict] = {}
     for col in singles:
-        ic = _series_mean(col)
-        icir = _series_icir(col)
-        keep = bool(ic is not None and not math.isnan(ic)
-                    and ic > cfg.KEEP_IC_MIN and icir >= cfg.KEEP_ICIR_MIN)
-        keep_drop[col] = {"mean_ic": ic, "icir": icir, "keep": keep}
+        by_h = {}
+        keep_any = False
+        for h in cfg.PRIMARY_HORIZONS:
+            s = per_factor[col][str(h)]["series"]
+            no = per_factor[col][str(h)]["nonoverlap"]
+            honest_t = s["t_nw"]            # NW HAC, lag = h
+            icir_no = no["icir"]
+            # eligibility: enough independent obs for ICIR to be trustworthy
+            # (guards the tiny-n ICIR artifact at long horizons, e.g. h63 ~4 obs).
+            eligible = bool(no["n_obs"] >= cfg.FAZ0_MIN_NONOVERLAP_N)
+            ok = bool(
+                eligible
+                and honest_t is not None and not math.isnan(honest_t)
+                and abs(honest_t) >= cfg.KEEP_HONEST_T_MIN
+                and icir_no is not None and not math.isnan(icir_no)
+                and icir_no >= cfg.KEEP_ICIR_NONOVERLAP_MIN
+            )
+            keep_any = keep_any or ok
+            by_h[str(h)] = {
+                "mean_ic": s["mean_ic"], "t_naive": s["t_naive"],
+                "honest_t_nw_lag_h": honest_t, "icir_overlap": s["icir"],
+                "icir_nonoverlap": icir_no, "nonoverlap_n": no["n_obs"],
+                "eligible": eligible, "passes": ok,
+            }
+        keep_drop[col] = {"keep": keep_any, "by_horizon": by_h}
+
     rs_recos = {}
     for col in cfg.RS_LOOKBACKS_DAYS:
-        ic = _series_mean(col)
+        ic = _mean(col)
         if ic is None or math.isnan(ic):
             reco = "insufficient_data"
         elif ic <= 0.0:
             reco = "DROP or convert to short-term REVERSAL (Bildik-Gulay contrarian)"
         else:
-            reco = "KEEP (positive standalone IC)"
-        rs_recos[col] = {"mean_ic": ic, "recommendation": reco}
+            reco = "positive standalone IC (direction ok); keep gated on honest_t + non-overlap ICIR"
+        rs_recos[col] = {"mean_ic_h21": ic, "recommendation": reco}
 
     faz1_set = [c for c, v in keep_drop.items() if v["keep"]]
     results = {
-        "directive": "D-177",
-        "phase": "FAZ 0 -- Factor IC Validation (MEASUREMENT only; DEC-039)",
+        "directive": directive,
+        "phase": "FAZ 0 v2 -- Factor IC (overlap-corrected; MEASUREMENT only; DEC-039)",
         "window": {"start": start, "end": end},
         "snapshot": {
             "content_hash": meta.get("content_hash"),
             "timestamp_utc": meta.get("timestamp_utc"),
             "loaded_universe_n": meta.get("loaded_universe_n"),
+            "adv_filter": meta.get("adv_filter"),
             "survivorship": meta.get("survivorship"),
         },
         "config_version": cfg.CONFIG_VERSION,
         "ic_metric": "Spearman rank-IC (NOT Pearson; keeps TEST 2 orthogonal)",
         "horizons": list(cfg.IC_HORIZONS),
+        "keep_rule": {
+            "primary_horizons": list(cfg.PRIMARY_HORIZONS),
+            "honest_t_min": cfg.KEEP_HONEST_T_MIN,
+            "icir_nonoverlap_min": cfg.KEEP_ICIR_NONOVERLAP_MIN,
+            "min_nonoverlap_n": cfg.FAZ0_MIN_NONOVERLAP_N,
+            "honest_t_method": "Newey-West HAC, Bartlett bandwidth = horizon h",
+            "rule": "keep if ANY ELIGIBLE primary horizon (non-overlap n>=min_n) has "
+                    "|honest_t|>=honest_t_min AND non-overlap ICIR>=icir_min",
+            "bar_justification": "honest_t_min=IC_INVESTABLE_TSTAT_MIN (pre-D-177, result-independent) "
+                                 "+ classic t~=2; icir_min=ARCHITECTURE 7.1; min_nonoverlap_n guards "
+                                 "the tiny-sample ICIR artifact (result-independent, STRICTER). "
+                                 "Measured not estimated; below bar => drop, no rescue (DEC-039).",
+        },
         "per_factor_ic": per_factor,
         "test1_dilution": test1,
         "test2_groupcond_skew": test2,
@@ -442,7 +514,7 @@ def run_faz0(
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "faz0_results.json").write_text(
+    (out_dir / results_filename).write_text(
         json.dumps(results, ensure_ascii=False, indent=2, default=_json_default),
         encoding="utf-8",
     )
@@ -461,29 +533,36 @@ def _json_default(o):
 
 
 def _print_summary(r: dict) -> None:
-    sep = "=" * 70
-    print(f"\n{sep}\n  FAZ 0 -- Factor IC (MEASUREMENT; karar Orchestrator+Cagan)\n{sep}")
+    sep = "=" * 78
+    print(f"\n{sep}\n  {r['phase']}\n{sep}")
     print(f"  Window     : {r['window']['start']} -> {r['window']['end']}")
     sv = r["snapshot"]["survivorship"]
-    print(f"  Universe   : {r['snapshot']['loaded_universe_n']} loaded; "
-          f"excluded delisted: {sv.get('excluded_delisted')}")
-    print(f"  IC metric  : {r['ic_metric']}")
-    print(f"  {'-'*66}")
-    print(f"  {'factor':<12}{'meanIC@21':>12}{'ICIR@21':>10}{'keep':>7}")
+    advf = r["snapshot"].get("adv_filter")
+    print(f"  Universe   : {r['snapshot']['loaded_universe_n']} loaded"
+          + (f" (ADV-passed of {advf['candidates_n']} candidates, floor "
+             f"{advf['adv_floor_tl']:.0f} TL)" if advf else ""))
+    print(f"  Keep rule  : ANY h in {r['keep_rule']['primary_horizons']} with "
+          f"|honest_t|>={r['keep_rule']['honest_t_min']} AND non-overlap ICIR"
+          f">={r['keep_rule']['icir_nonoverlap_min']}  (honest_t = NW HAC lag=h)")
+    print(f"  {'-'*74}")
+    hs = [str(h) for h in r["keep_rule"]["primary_horizons"]]
+    hdr = "".join(f"  h{h}: naive_t/honest_t/ICIRno" for h in hs)
+    print(f"  {'factor':<10}{hdr}   keep")
     for col, v in r["keep_drop_decision"].items():
-        mic = v["mean_ic"]; icir = v["icir"]
-        print(f"  {col:<12}{mic:>12.4f}{icir:>10.3f}{str(v['keep']):>7}")
+        cells = ""
+        for h in hs:
+            b = v["by_horizon"][h]
+            tn = b["t_naive"]; ht = b["honest_t_nw_lag_h"]; io = b["icir_nonoverlap"]
+            cells += f"  {tn:+.2f}/{ht:+.2f}/{io:+.2f}"
+        print(f"  {col:<10}{cells}   {v['keep']}")
     t1 = r["test1_dilution"]
-    print(f"  {'-'*66}")
-    print(f"  TEST1 dilution: composite={t1['composite_ic']:.4f} vs "
-          f"best({t1['best_single_factor']})={t1['best_single_ic']:.4f} "
-          f"-> dilution={t1['dilution_flag']}")
+    print(f"  {'-'*74}")
+    print(f"  TEST1 dilution(@h{t1['primary_horizon']}): composite={t1['composite_ic']:.4f} vs "
+          f"best({t1['best_single_factor']})={t1['best_single_ic']:.4f} -> dilution={t1['dilution_flag']}")
     t2 = r["test2_groupcond_skew"]
     if "delta_skew" in t2:
         print(f"  TEST2 (diag) : delta_skew={t2['delta_skew']:.4f} "
               f"CI95={t2['block_bootstrap_ci95']} (gating DEGIL)")
-    print(f"  RS rule    : " + "; ".join(
-        f"{k}:{v['recommendation'].split('(')[0].strip()}" for k, v in r["rs_decision_rule"].items()))
     print(f"  Faz1 set   : {r['faz1_recommended_factor_set']}")
     print(f"  SURVIVORSHIP BIAS: {sv.get('bias_direction')}")
     print(f"{sep}\n")
@@ -491,12 +570,22 @@ def _print_summary(r: dict) -> None:
 
 def _main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    p = argparse.ArgumentParser(description="Faz 0 Factor IC Validation Harness (D-177)")
+    p = argparse.ArgumentParser(description="Faz 0 Factor IC Validation Harness")
     p.add_argument("--start", default=cfg.SNAPSHOT_START)
     p.add_argument("--end", default=cfg.SNAPSHOT_END)
     p.add_argument("--out-dir", default=str(_RESULTS_DIR))
+    p.add_argument("--tag", default="", help="v2 -> mechanical universe + ADV + overlap-corrected keep")
+    p.add_argument("--adv-floor", type=float, default=None)
     args = p.parse_args()
-    run_faz0(start=args.start, end=args.end, out_dir=args.out_dir)
+    is_v2 = args.tag == "v2" or args.adv_floor is not None
+    adv_floor = args.adv_floor if args.adv_floor is not None else (
+        cfg.FAZ0_ADV_FLOOR_TL if is_v2 else None)
+    run_faz0(
+        start=args.start, end=args.end, out_dir=args.out_dir,
+        tag=args.tag, adv_floor_tl=adv_floor,
+        directive="D-178" if is_v2 else "D-177",
+        results_filename="faz0_v2_results.json" if is_v2 else "faz0_results.json",
+    )
 
 
 if __name__ == "__main__":
