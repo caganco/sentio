@@ -1,0 +1,753 @@
+{
+  "directive": "D-177",
+  "phase": "FAZ 0 -- Factor IC Validation (MEASUREMENT only; DEC-039)",
+  "window": {
+    "start": "2024-01-01",
+    "end": "2026-04-30"
+  },
+  "snapshot": {
+    "content_hash": "729855ac0868b52ef465f0fc1a7ed14ee6ed8d2232b42de565836bab15c2cb26",
+    "timestamp_utc": "2026-05-29T16:05:31Z",
+    "loaded_universe_n": 57,
+    "survivorship": {
+      "excluded_delisted": [
+        "KOZAA",
+        "KOZAL",
+        "IPEKE",
+        "TRALT"
+      ],
+      "note": "survivors-only snapshot: delisted names not fetchable (yfinance 404), so excluded.",
+      "bias_direction": "Excluding delisted names removes their (mostly poor) outcomes -> measured IC may read OPTIMISTIC/inflated; in TEST 2 the missing left tail biases skewness UP -> high-vol group looks falsely good. Read Faz 0 results as an upper-ish bound, not a neutral estimate."
+    }
+  },
+  "config_version": "faz0-v1",
+  "ic_metric": "Spearman rank-IC (NOT Pearson; keeps TEST 2 orthogonal)",
+  "horizons": [
+    1,
+    5,
+    10,
+    21,
+    63
+  ],
+  "per_factor_ic": {
+    "rs6": {
+      "1": {
+        "factor": "rs6",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.00853,
+          "icir": 0.049,
+          "t_stat": 0.9816,
+          "p_value": 0.326898,
+          "n_obs": 402,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 402,
+          "mean_ic": 0.00853,
+          "std_ic": 0.17422,
+          "icir": 0.04896,
+          "t_naive": 0.98158,
+          "p_naive": 0.3269,
+          "ci95_low": -0.00855,
+          "ci95_high": 0.02561,
+          "t_nw": 1.04642,
+          "p_nw": 0.296
+        }
+      },
+      "5": {
+        "factor": "rs6",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01742,
+          "icir": 0.1015,
+          "t_stat": 2.0273,
+          "p_value": 0.0433,
+          "n_obs": 399,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 399,
+          "mean_ic": 0.01742,
+          "std_ic": 0.1716,
+          "icir": 0.10149,
+          "t_naive": 2.02728,
+          "p_naive": 0.0433,
+          "ci95_low": 0.00053,
+          "ci95_high": 0.0343,
+          "t_nw": 1.16405,
+          "p_nw": 0.2451
+        }
+      },
+      "10": {
+        "factor": "rs6",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01287,
+          "icir": 0.0739,
+          "t_stat": 1.4652,
+          "p_value": 0.143678,
+          "n_obs": 393,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 393,
+          "mean_ic": 0.01287,
+          "std_ic": 0.17411,
+          "icir": 0.07391,
+          "t_naive": 1.46516,
+          "p_naive": 0.14368,
+          "ci95_low": -0.0044,
+          "ci95_high": 0.03014,
+          "t_nw": 0.73546,
+          "p_nw": 0.4625
+        }
+      },
+      "21": {
+        "factor": "rs6",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01279,
+          "icir": 0.0916,
+          "t_stat": 1.791,
+          "p_value": 0.074092,
+          "n_obs": 382,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 382,
+          "mean_ic": 0.01279,
+          "std_ic": 0.13959,
+          "icir": 0.09163,
+          "t_naive": 1.79097,
+          "p_naive": 0.07409,
+          "ci95_low": -0.00125,
+          "ci95_high": 0.02683,
+          "t_nw": 0.81813,
+          "p_nw": 0.41379
+        }
+      },
+      "63": {
+        "factor": "rs6",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.07151,
+          "icir": 0.4926,
+          "t_stat": 9.1098,
+          "p_value": 0.0,
+          "n_obs": 342,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 342,
+          "mean_ic": 0.07151,
+          "std_ic": 0.14516,
+          "icir": 0.4926,
+          "t_naive": 9.10979,
+          "p_naive": 0.0,
+          "ci95_low": 0.05607,
+          "ci95_high": 0.08695,
+          "t_nw": 3.92148,
+          "p_nw": 0.00011
+        }
+      }
+    },
+    "rs12": {
+      "1": {
+        "factor": "rs12",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.0214,
+          "icir": 0.1188,
+          "t_stat": 2.04,
+          "p_value": 0.042244,
+          "n_obs": 295,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 295,
+          "mean_ic": 0.0214,
+          "std_ic": 0.18021,
+          "icir": 0.11877,
+          "t_naive": 2.04,
+          "p_naive": 0.04224,
+          "ci95_low": 0.00075,
+          "ci95_high": 0.04205,
+          "t_nw": 1.90944,
+          "p_nw": 0.05718
+        }
+      },
+      "5": {
+        "factor": "rs12",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03613,
+          "icir": 0.1983,
+          "t_stat": 3.3891,
+          "p_value": 0.000798,
+          "n_obs": 292,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 292,
+          "mean_ic": 0.03613,
+          "std_ic": 0.18216,
+          "icir": 0.19833,
+          "t_naive": 3.38912,
+          "p_naive": 0.0008,
+          "ci95_low": 0.01515,
+          "ci95_high": 0.05711,
+          "t_nw": 1.89778,
+          "p_nw": 0.05872
+        }
+      },
+      "10": {
+        "factor": "rs12",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04437,
+          "icir": 0.2488,
+          "t_stat": 4.207,
+          "p_value": 3.5e-05,
+          "n_obs": 286,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 286,
+          "mean_ic": 0.04437,
+          "std_ic": 0.17837,
+          "icir": 0.24877,
+          "t_naive": 4.20704,
+          "p_naive": 3e-05,
+          "ci95_low": 0.02361,
+          "ci95_high": 0.06513,
+          "t_nw": 2.01613,
+          "p_nw": 0.04472
+        }
+      },
+      "21": {
+        "factor": "rs12",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.05514,
+          "icir": 0.3115,
+          "t_stat": 5.1661,
+          "p_value": 0.0,
+          "n_obs": 275,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 275,
+          "mean_ic": 0.05514,
+          "std_ic": 0.17699,
+          "icir": 0.31153,
+          "t_naive": 5.1661,
+          "p_naive": 0.0,
+          "ci95_low": 0.03413,
+          "ci95_high": 0.07615,
+          "t_nw": 2.27578,
+          "p_nw": 0.02363
+        }
+      },
+      "63": {
+        "factor": "rs12",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.12209,
+          "icir": 0.8596,
+          "t_stat": 13.2334,
+          "p_value": 0.0,
+          "n_obs": 237,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 237,
+          "mean_ic": 0.12209,
+          "std_ic": 0.14203,
+          "icir": 0.8596,
+          "t_naive": 13.23342,
+          "p_naive": 0.0,
+          "ci95_low": 0.10391,
+          "ci95_high": 0.14026,
+          "t_nw": 5.67983,
+          "p_nw": 0.0
+        }
+      }
+    },
+    "lowvol20": {
+      "1": {
+        "factor": "lowvol20",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.02993,
+          "icir": 0.1812,
+          "t_stat": 3.227,
+          "p_value": 0.001382,
+          "n_obs": 317,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 317,
+          "mean_ic": 0.02993,
+          "std_ic": 0.16512,
+          "icir": 0.18125,
+          "t_naive": 3.22703,
+          "p_naive": 0.00138,
+          "ci95_low": 0.01168,
+          "ci95_high": 0.04817,
+          "t_nw": 3.22775,
+          "p_nw": 0.00138
+        }
+      },
+      "5": {
+        "factor": "lowvol20",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03072,
+          "icir": 0.1857,
+          "t_stat": 3.2915,
+          "p_value": 0.001111,
+          "n_obs": 314,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 314,
+          "mean_ic": 0.03072,
+          "std_ic": 0.16538,
+          "icir": 0.18575,
+          "t_naive": 3.29145,
+          "p_naive": 0.00111,
+          "ci95_low": 0.01236,
+          "ci95_high": 0.04908,
+          "t_nw": 1.88946,
+          "p_nw": 0.05975
+        }
+      },
+      "10": {
+        "factor": "lowvol20",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03667,
+          "icir": 0.2397,
+          "t_stat": 4.2273,
+          "p_value": 3.1e-05,
+          "n_obs": 311,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 311,
+          "mean_ic": 0.03667,
+          "std_ic": 0.15299,
+          "icir": 0.23971,
+          "t_naive": 4.22734,
+          "p_naive": 3e-05,
+          "ci95_low": 0.0196,
+          "ci95_high": 0.05374,
+          "t_nw": 2.15161,
+          "p_nw": 0.0322
+        }
+      },
+      "21": {
+        "factor": "lowvol20",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03651,
+          "icir": 0.2373,
+          "t_stat": 4.1923,
+          "p_value": 3.6e-05,
+          "n_obs": 312,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 312,
+          "mean_ic": 0.03651,
+          "std_ic": 0.15382,
+          "icir": 0.23734,
+          "t_naive": 4.19235,
+          "p_naive": 4e-05,
+          "ci95_low": 0.01937,
+          "ci95_high": 0.05364,
+          "t_nw": 2.04014,
+          "p_nw": 0.04218
+        }
+      },
+      "63": {
+        "factor": "lowvol20",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03254,
+          "icir": 0.1906,
+          "t_stat": 3.1658,
+          "p_value": 0.00172,
+          "n_obs": 276,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 276,
+          "mean_ic": 0.03254,
+          "std_ic": 0.17079,
+          "icir": 0.19056,
+          "t_naive": 3.16583,
+          "p_naive": 0.00172,
+          "ci95_low": 0.01231,
+          "ci95_high": 0.05278,
+          "t_nw": 1.43461,
+          "p_nw": 0.15254
+        }
+      }
+    },
+    "lowvol60": {
+      "1": {
+        "factor": "lowvol60",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.02155,
+          "icir": 0.1232,
+          "t_stat": 1.2805,
+          "p_value": 0.203127,
+          "n_obs": 108,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 108,
+          "mean_ic": 0.02155,
+          "std_ic": 0.17491,
+          "icir": 0.12322,
+          "t_naive": 1.28053,
+          "p_naive": 0.20313,
+          "ci95_low": -0.01181,
+          "ci95_high": 0.05492,
+          "t_nw": 1.27256,
+          "p_nw": 0.20593
+        }
+      },
+      "5": {
+        "factor": "lowvol60",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01609,
+          "icir": 0.0882,
+          "t_stat": 0.9084,
+          "p_value": 0.365754,
+          "n_obs": 106,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 106,
+          "mean_ic": 0.01609,
+          "std_ic": 0.1824,
+          "icir": 0.08823,
+          "t_naive": 0.90839,
+          "p_naive": 0.36575,
+          "ci95_low": -0.01903,
+          "ci95_high": 0.05122,
+          "t_nw": 0.53297,
+          "p_nw": 0.59518
+        }
+      },
+      "10": {
+        "factor": "lowvol60",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": -0.00881,
+          "icir": -0.0583,
+          "t_stat": -0.5971,
+          "p_value": 0.551712,
+          "n_obs": 105,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 105,
+          "mean_ic": -0.00881,
+          "std_ic": 0.15113,
+          "icir": -0.05827,
+          "t_naive": -0.59714,
+          "p_naive": 0.55171,
+          "ci95_low": -0.03806,
+          "ci95_high": 0.02044,
+          "t_nw": -0.3095,
+          "p_nw": 0.75756
+        }
+      },
+      "21": {
+        "factor": "lowvol60",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": -0.0369,
+          "icir": -0.2335,
+          "t_stat": -2.4268,
+          "p_value": 0.016905,
+          "n_obs": 108,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 108,
+          "mean_ic": -0.0369,
+          "std_ic": 0.15801,
+          "icir": -0.23351,
+          "t_naive": -2.42675,
+          "p_naive": 0.01691,
+          "ci95_low": -0.06704,
+          "ci95_high": -0.00676,
+          "t_nw": -1.19534,
+          "p_nw": 0.2346
+        }
+      },
+      "63": {
+        "factor": "lowvol60",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": -0.01701,
+          "icir": -0.0837,
+          "t_stat": -0.7154,
+          "p_value": 0.476653,
+          "n_obs": 73,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 73,
+          "mean_ic": -0.01701,
+          "std_ic": 0.20308,
+          "icir": -0.08374,
+          "t_naive": -0.71544,
+          "p_naive": 0.47665,
+          "ci95_low": -0.06439,
+          "ci95_high": 0.03038,
+          "t_nw": -0.33291,
+          "p_nw": 0.74017
+        }
+      }
+    },
+    "composite": {
+      "1": {
+        "factor": "composite",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01865,
+          "icir": 0.1176,
+          "t_stat": 1.1705,
+          "p_value": 0.244652,
+          "n_obs": 99,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 99,
+          "mean_ic": 0.01865,
+          "std_ic": 0.15855,
+          "icir": 0.11764,
+          "t_naive": 1.17047,
+          "p_naive": 0.24465,
+          "ci95_low": -0.01297,
+          "ci95_high": 0.05027,
+          "t_nw": 1.14225,
+          "p_nw": 0.25613
+        }
+      },
+      "5": {
+        "factor": "composite",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.0199,
+          "icir": 0.1154,
+          "t_stat": 1.1424,
+          "p_value": 0.256115,
+          "n_obs": 98,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 98,
+          "mean_ic": 0.0199,
+          "std_ic": 0.17242,
+          "icir": 0.1154,
+          "t_naive": 1.14236,
+          "p_naive": 0.25611,
+          "ci95_low": -0.01467,
+          "ci95_high": 0.05447,
+          "t_nw": 0.68414,
+          "p_nw": 0.49552
+        }
+      },
+      "10": {
+        "factor": "composite",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.00618,
+          "icir": 0.0451,
+          "t_stat": 0.4463,
+          "p_value": 0.656364,
+          "n_obs": 98,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 98,
+          "mean_ic": 0.00618,
+          "std_ic": 0.13704,
+          "icir": 0.04508,
+          "t_naive": 0.44632,
+          "p_naive": 0.65636,
+          "ci95_low": -0.0213,
+          "ci95_high": 0.03365,
+          "t_nw": 0.23676,
+          "p_nw": 0.81334
+        }
+      },
+      "21": {
+        "factor": "composite",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": -0.02097,
+          "icir": -0.1764,
+          "t_stat": -1.7463,
+          "p_value": 0.083929,
+          "n_obs": 98,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 98,
+          "mean_ic": -0.02097,
+          "std_ic": 0.11887,
+          "icir": -0.1764,
+          "t_naive": -1.74627,
+          "p_naive": 0.08393,
+          "ci95_low": -0.0448,
+          "ci95_high": 0.00286,
+          "t_nw": -0.86146,
+          "p_nw": 0.39111
+        }
+      },
+      "63": {
+        "factor": "composite",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01047,
+          "icir": 0.0927,
+          "t_stat": 0.7301,
+          "p_value": 0.468128,
+          "n_obs": 62,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 62,
+          "mean_ic": 0.01047,
+          "std_ic": 0.11295,
+          "icir": 0.09272,
+          "t_naive": 0.73009,
+          "p_naive": 0.46813,
+          "ci95_low": -0.01821,
+          "ci95_high": 0.03916,
+          "t_nw": 0.34397,
+          "p_nw": 0.73205
+        }
+      }
+    }
+  },
+  "test1_dilution": {
+    "primary_horizon": 21,
+    "composite_ic": -0.02097,
+    "best_single_factor": "rs12",
+    "best_single_ic": 0.05514,
+    "dilution_flag": true,
+    "note": "composite < best single => equal-weight rank average dilutes; narrow the factor SET (do not optimize weights, invariant 4)."
+  },
+  "test2_groupcond_skew": {
+    "metric": "delta_skew = mean_t[skew(high_vol_fwd) - skew(low_vol_fwd)]",
+    "delta_skew": 0.95269,
+    "block_bootstrap_ci95": [
+      0.23561,
+      1.60769
+    ],
+    "realized_skew_diff_amaya": 0.01152,
+    "n_dates": 108,
+    "status": "DIAGNOSTIC (not gating)",
+    "warnings": [
+      "Diagnostic, not gating. low-vol keep/drop rests on standalone rank-IC (IC>0 + ICIR>=0.5), not on this test.",
+      "T~24 months + EM tails: tail measurement unreliable (SE large); not-detected != absent; read with the wide bootstrap CI.",
+      "SURVIVORSHIP: survivors-only snapshot drops the delisting left tail -> skewness biased UP -> high-vol group looks falsely good; read delta_skew skewed in that direction.",
+      "LITERATURE: 'low-vol misses multi-baggers' is likely invalid for an IR-maximizing screen (lottery/IVOL/MAX right-tail proxies negatively predict forward returns); valid for convex-targeted portfolios, not ours."
+    ]
+  },
+  "keep_drop_decision": {
+    "rs6": {
+      "mean_ic": 0.01279,
+      "icir": 0.09163,
+      "keep": false
+    },
+    "rs12": {
+      "mean_ic": 0.05514,
+      "icir": 0.31153,
+      "keep": false
+    },
+    "lowvol20": {
+      "mean_ic": 0.03651,
+      "icir": 0.23734,
+      "keep": false
+    },
+    "lowvol60": {
+      "mean_ic": -0.0369,
+      "icir": -0.23351,
+      "keep": false
+    }
+  },
+  "rs_decision_rule": {
+    "rs6": {
+      "mean_ic": 0.01279,
+      "recommendation": "KEEP (positive standalone IC)"
+    },
+    "rs12": {
+      "mean_ic": 0.05514,
+      "recommendation": "KEEP (positive standalone IC)"
+    }
+  },
+  "faz1_recommended_factor_set": [],
+  "decision_owner": "the project (harness recommends only, DEC-039)"
+}
