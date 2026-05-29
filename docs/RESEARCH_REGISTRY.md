@@ -26,6 +26,8 @@
 | [RR-021b](research/RR-021-live-test-results.md) | EVDS3 canlı test sonuçları (script çıktısı) — 14 aktif, 2 dead; `scripts/test_evds3_connection.py` tarafından üretilir | 25 May 2026 | RR-021 §3 companion | ⏳ Snapshot |
 | [RR-022](research/CRITIC-2605-STRATEJIK-MIMARI-DEGERLENDIRME.md) | Stratejik Mimari Değerlendirme — L1/L2/L6 mimari teşhis, bot vs. danışman kimlik sorusu, LLM'in gerçek rolü, yol haritası; D-153b/c backtest bulgularına dayalı | 26 May 2026 | RR-003 §CB-010 derinleştirme; RR-017 §HMM bağlantısı; CB-002 §L2 circular | ⏳ Orchestrator incelemesinde |
 | [RR-031](research/RR-031-KAP-NEXTJS-MIGRATION.md) | KAP Next.js Migration — scraping infeasibility (memberDisclosureQuery ölü: tarpit/HTTP 666/429); MKK VYK API (D-170) YEŞİL kanal | 28 May 2026 | D-170 (MKK VYK API) | ✅ Applied → kap_scraper.py fallback confirmed |
+| [RR-032](research/RR-032-FIZIBILITE.md) | Faz 0b value faktörü için BIST fundamental veri envanteri — 11 kaynak × 5 ham veri uyum matrisi; Yol A (İş Yatırım screener ext.) / B (MKK VYK + XBRL parser ext.) / C (hibrit, önerilen) | 25 May 2026 | NRR-002 (Faz 0b value); D-170/172/175; D-178 sonrası | ⏳ Karar bekliyor (Yol A/B/C — the project, DEC-039) |
+| [RR-033](research/RR-033-isyatirim-tms29-uyum-testi.md) | İş Yatırım Screener TMS 29 uyum testi — 4 ticker (THYAO/EREGL/BIMAS/TUPRS) × screener vs UFRS-TMS 29 KAP karşılaştırma metodolojisi; RR-032 Yol A önkoşulu | 25 May 2026 | RR-032 §6 Yol A; NRR-002 | ⏳ Bekleyen Builder execution (veri karşılaştırma, build yok) |
 
 ---
 
