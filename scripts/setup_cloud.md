@@ -10,12 +10,12 @@ Repo → Settings → Secrets and variables → Actions → New repository secre
 
 | Secret | Deger | Nereden |
 |--------|-------|---------|
-| `EVDS_API_KEY` | TCMB EVDS API anahtari | Zaten var — `.env`'den kopyala |
-| `ANTHROPIC_API_KEY` | Claude API anahtari | Zaten var (CI'da mevcut) |
-| `POSITIONS_YAML_B64` | `positions.yaml` base64 | Asagiya bak |
-| `TELEGRAM_BOT_TOKEN` | Bot token | Asagiya bak (§3) |
-| `TELEGRAM_CHAT_ID` | Chat ID | Asagiya bak (§3) |
-| `HEALTHCHECK_URL` | Ping URL | Asagiya bak (§4) |
+| `EVDS_API_KEY` | TCMB EVDS API anahtari | Zaten var — `.env`'den kopyala | ok
+| `ANTHROPIC_API_KEY` | Claude API anahtari | Zaten var (CI'da mevcut) |  ok
+| `POSITIONS_YAML_B64` | `positions.yaml` base64 | Asagiya bak |  ok
+| `TELEGRAM_BOT_TOKEN` | Bot token | Asagiya bak (§3) | OK
+| `TELEGRAM_CHAT_ID` | Chat ID | Asagiya bak (§3) | ok
+| `HEALTHCHECK_URL` | Ping URL | Asagiya bak (§4) | ok
 
 ### positions.yaml → Base64 encode
 
@@ -23,7 +23,7 @@ Repo → Settings → Secrets and variables → Actions → New repository secre
 ```powershell
 [Convert]::ToBase64String([System.IO.File]::ReadAllBytes("positions.yaml")) | Set-Clipboard
 ```
-Ciktisi `POSITIONS_YAML_B64` secret degeri olarak yapistir.
+Ciktisi `POSITIONS_YAML_B64` secret degeri olarak yapistir.  ### OK
 
 **Linux/Mac:**
 ```bash
@@ -39,7 +39,7 @@ Yoksa `daily_update.py` graceful devam eder (FMP adimi atlanir).
 
 ---
 
-## 3. Telegram Bot Kurma (~5 dakika)
+## 3. Telegram Bot Kurma (~5 dakika) ok
 
 1. Telegram'da `@BotFather`'a yaz → `/newbot`
 2. Bot ismi: `BIST OS Alerts` → username: `bist_os_bot` (benzersiz olmali)
@@ -51,14 +51,14 @@ Yoksa `daily_update.py` graceful devam eder (FMP adimi atlanir).
 
 ---
 
-## 4. healthchecks.io Check Kurma (~5 dakika)
+## 4. healthchecks.io Check Kurma (~5 dakika)   ok
 
 1. https://healthchecks.io → Sign up / Login
 2. "Add Check" → Name: `BIST Daily Production`
 3. Ayarlar:
    - Period: `1 day`
    - Grace time: `30 minutes`
-   - Schedule: `30 15 * * 1-5` (Mon-Fri 15:30 UTC = 18:30 Istanbul)
+   - Schedule: `30 15 * * 1-5` (Mon-Fri 15:30 UTC = 18:30 Istanbul) 
 4. "Copy URL" → `HEALTHCHECK_URL` secret
    - Format: `https://hc-ping.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 
