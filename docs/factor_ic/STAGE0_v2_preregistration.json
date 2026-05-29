@@ -1,0 +1,94 @@
+{
+  "directive": "D-178",
+  "phase": "FAZ 0 v2 -- Stage 0 pre-registration (revize: evren + horizon-overlap)",
+  "frozen_at_utc": "2026-05-29T21:18:27Z",
+  "supersedes_design_of": "D-177 STAGE0 (faz0-v1); D-177 sonuclari referans olarak KORUNUR (docs/factor_ic/faz0_results.json), ezilmez.",
+  "discipline": "Definitions/universe-rule/ADV-floor/horizons/keep-rule + snapshot hash frozen BEFORE measurement. N budget: this is the 2nd of <=3 designs.",
+  "config_version": "faz0-v2",
+
+  "fix1_universe": {
+    "problem_v1": "config.yaml portfolio.tickers = 57 curated names -> weak cross-sectional power (NOT a yfinance/liquidity drop; yfinance dropped 0).",
+    "candidate_pool_rule": "MECHANICAL: candidate pool = BIST 100 (XU100) index constituents; ALL constituents included; NO judgmental drop for liquidity, NO cherry-pick by expected IC. List accuracy is a documented DATA LIMIT, not selection bias.",
+    "candidate_source": "BIST 100 (XU100) index membership, point-in-time ~2025-2026 (frozen in faz0_config.FAZ0_BIST100_CONSTITUENTS)",
+    "candidate_list_n": 113,
+    "candidate_list": [
+      "AEFES","AGHOL","AKBNK","AKCNS","AKENR","AKFGY","AKFYE","AKSA","AKSEN","ALARK",
+      "ALBRK","ALCTL","ALFAS","ALGYO","ALKIM","ANSGR","ARCLK","ASELS","ASTOR","AYDEM",
+      "BAGFS","BERA","BIMAS","BIOEN","BIZIM","BRISA","BUCIM","CCOLA","CIMSA","CLEBI",
+      "CWENE","DEVA","DOAS","DOHOL","ECILC","EGEEN","EKGYO","ENERY","ENJSA","ENKAI",
+      "EREGL","ESEN","EUPWR","EUREN","FROTO","GARAN","GESAN","GLYHO","GSDHO","GUBRF",
+      "GWIND","HALKB","HEKTS","INDES","ISCTR","ISDMR","ISGYO","IZENR","KAPLM","KAREL",
+      "KARSN","KARTN","KCHOL","KLGYO","KLNMA","KONTR","KONYA","KORDS","KRDMD","LOGO",
+      "MAVI","MGROS","MPARK","NETAS","NTHOL","NUHCM","ODAS","OTKAR","OYAKC","PETKM",
+      "PGSUS","PNSUT","POLHO","QUAGR","REEDR","SAHOL","SASA","SELEC","SISE","SKBNK",
+      "SMRTG","SOKM","TATGD","TAVHL","TCELL","THYAO","TKFEN","TMSN","TOASO","TRGYO",
+      "TRKCM","TSKB","TTKOM","TTRAK","TUKAS","TUPRS","TURSG","ULKER","ULUUN","VAKBN",
+      "VESTL","YKBNK","ZOREN"
+    ],
+    "adv_floor_tl": 50000000.0,
+    "adv_method": "median daily TL volume (Close x Volume) over the snapshot window; >= floor passes",
+    "adv_min_days": 60,
+    "adv_floor_rationale": "result-independent frozen floor; illiquid tail would be dropped by Faz 1 ADV gate anyway -> measuring IC on untradeable names is misleading. NOT tuned to a target count.",
+    "mechanical_trim_result": {
+      "candidates_n": 113,
+      "fetched_n": 112,
+      "not_fetched_404": ["TRKCM"],
+      "adv_dropped_below_floor_n": 15,
+      "adv_dropped_below_floor": ["ALKIM","BAGFS","BIZIM","BRISA","DEVA","GSDHO","KAPLM","KARTN","KLNMA","KORDS","NETAS","NUHCM","PNSUT","TATGD","ULUUN"],
+      "tradeable_universe_n": 97
+    }
+  },
+
+  "snapshot": {
+    "file": "data/snapshots/faz0_v2_prices_2024-01-01_2026-04-30.parquet",
+    "content_hash_sha256": "a65887d90f2b840084d327da13c67da6c65f2acf4767966be4ad225974c0690b",
+    "window": {"start": "2024-01-01", "end": "2026-04-30"},
+    "loaded_universe_n": 97,
+    "index_symbol": "XU100",
+    "n_rows": 57027
+  },
+
+  "survivorship": {
+    "excluded_delisted": ["KOZAA","KOZAL","IPEKE","TRALT"],
+    "reason": "not fetchable from yfinance (404) -> survivors-only (D-177 ile ayni; alternatif kaynak YAPILMADI)",
+    "bias_direction": "Excluding delisted (mostly poor-outcome) names may make measured IC read OPTIMISTIC/inflated; TEST 2 skewness biased UP (high-vol falsely good). Read as upper-ish bound. (the maintainer condition: bias direction reported.)"
+  },
+
+  "fix2_overlap_correction": {
+    "problem_v1": "naive t inflated by overlapping daily forward-return windows (D-177 rs12 h63: naive t=13.23, ICIR 0.119->0.860 monotonic = possible mechanical artifact).",
+    "honest_t": "Newey-West HAC, Bartlett bandwidth = horizon h (not the fixed lag=5 used in v1).",
+    "nonoverlap_icir": "subsample daily IC series at stride=h (disjoint windows) -> ICIR + t; reveals if horizon ICIR rise is real (still rises) or artifact (flattens).",
+    "reported": "both naive_t and honest_t per factor x horizon; non-overlap ICIR/t per factor x horizon."
+  },
+
+  "fix3_keep_rule": {
+    "primary_horizons": [21, 63],
+    "primary_horizon_justification": "THEORY (3-12 month momentum literature), frozen BEFORE results -- NOT a post-hoc pick of h=63 because it looked good in D-177.",
+    "keep_rule": "KEEP a factor if ANY ELIGIBLE h in {21,63} has |honest_t| >= 2.0 AND non-overlap ICIR >= 0.5. A horizon is ELIGIBLE only if its non-overlap n >= 12 (min_nonoverlap_n).",
+    "min_nonoverlap_n": 12,
+    "bar_justification": {
+      "honest_t_min_2.0": "= thresholds.py IC_INVESTABLE_TSTAT_MIN (existed BEFORE D-177; result-independent) + classic t~=2 (~95%) convention. NOT chosen for this measurement.",
+      "icir_nonoverlap_min_0.5": "= ARCHITECTURE sec.7.1 ICIR threshold (result-independent).",
+      "min_nonoverlap_n_12": "ICIR=mean/std is meaningless on a handful of points (h=63 ~4 disjoint obs -> ICIR like 28.9 trivially clears 0.5). Require ~1yr of monthly-spaced independent obs. Result-independent and STRICTER (excludes thin horizons, never rescues)."
+    },
+    "rs_rule": "RS standalone IC <= 0 -> drop OR convert to short-term reversal (Bildik-Gulay).",
+    "DEC-039": "honest_t will be MEASURED, not estimated. If rs12 honest_t < 2.0 OR non-overlap ICIR < 0.5 -> rs12 DROPS. No rescue operation; honestly 'lead-but-not-confirmed'."
+  },
+
+  "stage0_dryrun_corrections": {
+    "note": "A Stage-0 dry-run shakedown (before recorded measurement) found TWO result-independent implementation flaws; both fixed here, both make the measurement MORE correct / the gate STRICTER (never a rescue).",
+    "fix_realized_vol_min_periods": "realized_vol used rolling(window).std() with default min_periods=window. BIST names have ~23 scattered halt/non-trading days each over 605 dates; on a union calendar a single NaN in a 60-day window nulled the vol, collapsing the low-vol cross-section to ~113 usable dates (vs ~560). Fixed: min_periods=ceil(0.75*window) -> halt-gap robust, still look-ahead safe. Windows 20/60 UNCHANGED.",
+    "fix_keep_min_nonoverlap_n": "Added FAZ0_MIN_NONOVERLAP_N=12 horizon eligibility (see keep_rule) to guard the tiny-sample ICIR artifact at h63."
+  },
+  "unchanged_from_v1": "factors (RS 6/12 skip-1 + low-vol 20/60; value still Faz 0b) - IC=SPEARMAN - TEST 1 dilution (re-measured) - TEST 2 group-conditional skewness (diagnostic, block-bootstrap CI, 3 warnings) - snapshot freeze+hash+determinism - Stage 0 ordering (commit BEFORE measurement) - screening/ isolation - ic_source equivalence (+ D-177 n-match hardening) - cp1254 ASCII comments.",
+
+  "ic_method": {
+    "metric": "Spearman rank-IC (NOT Pearson; keeps TEST 2 orthogonal)",
+    "primitive": "src.analytics.ic_calculator.ICCalculator.compute_ic",
+    "equivalence_rule": "local daily-IC series == primitive at 5-decimal precision (<1e-9) AND n_obs match; ic_source recorded primitive|fallback",
+    "horizons_trading_days": [1, 5, 10, 21, 63]
+  },
+
+  "decision_owner": "the project (DEC-039). Harness MEASURES and RECOMMENDS; does not finalize factor set.",
+  "config_budget": "N=2 of <=3 (1 remaining)"
+}
