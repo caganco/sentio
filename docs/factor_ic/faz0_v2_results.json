@@ -1,0 +1,1189 @@
+{
+  "directive": "D-178",
+  "phase": "FAZ 0 v2 -- Factor IC (overlap-corrected; MEASUREMENT only; DEC-039)",
+  "window": {
+    "start": "2024-01-01",
+    "end": "2026-04-30"
+  },
+  "snapshot": {
+    "content_hash": "a65887d90f2b840084d327da13c67da6c65f2acf4767966be4ad225974c0690b",
+    "timestamp_utc": "2026-05-29T21:18:27Z",
+    "loaded_universe_n": 97,
+    "adv_filter": {
+      "adv_floor_tl": 50000000.0,
+      "adv_min_days": 60,
+      "method": "median daily TL volume (Close x Volume) over window",
+      "candidates_n": 113,
+      "fetched_n": 112,
+      "not_fetched_404": [
+        "TRKCM"
+      ],
+      "adv_passed_n": 97,
+      "adv_dropped_below_floor": [
+        "ALKIM",
+        "BAGFS",
+        "BIZIM",
+        "BRISA",
+        "DEVA",
+        "GSDHO",
+        "KAPLM",
+        "KARTN",
+        "KLNMA",
+        "KORDS",
+        "NETAS",
+        "NUHCM",
+        "PNSUT",
+        "TATGD",
+        "ULUUN"
+      ],
+      "per_ticker_adv_tl": {
+        "AEFES": 844967520.0,
+        "AGHOL": 189906838.0,
+        "AKBNK": 4907519014.0,
+        "AKCNS": 94083136.0,
+        "AKENR": 108211617.0,
+        "AKFGY": 99894082.0,
+        "AKFYE": 105887336.0,
+        "AKSA": 155700269.0,
+        "AKSEN": 209591915.0,
+        "ALARK": 484348872.0,
+        "ALBRK": 111991562.0,
+        "ALCTL": 57160948.0,
+        "ALFAS": 134281041.0,
+        "ALGYO": 51166347.0,
+        "ALKIM": 33901470.0,
+        "ANSGR": 164444940.0,
+        "ARCLK": 347531843.0,
+        "ASELS": 3630263995.0,
+        "ASTOR": 1478602335.0,
+        "AYDEM": 61744727.0,
+        "BAGFS": 36021618.0,
+        "BERA": 167403319.0,
+        "BIMAS": 2306986705.0,
+        "BIOEN": 72255648.0,
+        "BIZIM": 12013283.0,
+        "BRISA": 24557479.0,
+        "BUCIM": 52067928.0,
+        "CCOLA": 359631346.0,
+        "CIMSA": 424101090.0,
+        "CLEBI": 142941351.0,
+        "CWENE": 249849304.0,
+        "DEVA": 41374665.0,
+        "DOAS": 343577581.0,
+        "DOHOL": 330275077.0,
+        "ECILC": 190728100.0,
+        "EGEEN": 173535235.0,
+        "EKGYO": 2590268442.0,
+        "ENERY": 178425755.0,
+        "ENJSA": 240462215.0,
+        "ENKAI": 738984966.0,
+        "EREGL": 4441902159.0,
+        "ESEN": 94185196.0,
+        "EUPWR": 248992823.0,
+        "EUREN": 225994041.0,
+        "FROTO": 1029377933.0,
+        "GARAN": 2739406904.0,
+        "GESAN": 225176383.0,
+        "GLYHO": 106790208.0,
+        "GSDHO": 44317592.0,
+        "GUBRF": 1025754032.0,
+        "GWIND": 90755346.0,
+        "HALKB": 1053717887.0,
+        "HEKTS": 521505803.0,
+        "INDES": 51837981.0,
+        "ISCTR": 5342473448.0,
+        "ISDMR": 92624900.0,
+        "ISGYO": 90807688.0,
+        "IZENR": 156671427.0,
+        "KAPLM": 33351313.0,
+        "KAREL": 62387967.0,
+        "KARSN": 186922120.0,
+        "KARTN": 27027739.0,
+        "KCHOL": 3554797237.0,
+        "KLGYO": 71803862.0,
+        "KLNMA": 2794611.0,
+        "KONTR": 700545752.0,
+        "KONYA": 84884008.0,
+        "KORDS": 49416691.0,
+        "KRDMD": 1346128263.0,
+        "LOGO": 76457244.0,
+        "MAVI": 321144056.0,
+        "MGROS": 886727132.0,
+        "MPARK": 184080223.0,
+        "NETAS": 43031892.0,
+        "NTHOL": 75639234.0,
+        "NUHCM": 37991220.0,
+        "ODAS": 316091178.0,
+        "OTKAR": 172281194.0,
+        "OYAKC": 470033273.0,
+        "PETKM": 1219602712.0,
+        "PGSUS": 2314290563.0,
+        "PNSUT": 18411258.0,
+        "POLHO": 78164804.0,
+        "QUAGR": 197142306.0,
+        "REEDR": 365645111.0,
+        "SAHOL": 2103975497.0,
+        "SASA": 1662819050.0,
+        "SELEC": 91134927.0,
+        "SISE": 1417430693.0,
+        "SKBNK": 312282885.0,
+        "SMRTG": 142232476.0,
+        "SOKM": 341949128.0,
+        "TATGD": 28068660.0,
+        "TAVHL": 594514879.0,
+        "TCELL": 2041624983.0,
+        "THYAO": 9063056486.0,
+        "TKFEN": 326322842.0,
+        "TMSN": 122068953.0,
+        "TOASO": 1008731317.0,
+        "TRGYO": 93253473.0,
+        "TSKB": 256853401.0,
+        "TTKOM": 1010632613.0,
+        "TTRAK": 166720754.0,
+        "TUKAS": 189935339.0,
+        "TUPRS": 2876749354.0,
+        "TURSG": 226968629.0,
+        "ULKER": 686088180.0,
+        "ULUUN": 34677770.0,
+        "VAKBN": 771935208.0,
+        "VESTL": 244300346.0,
+        "YKBNK": 5187332206.0,
+        "ZOREN": 280928726.0
+      }
+    },
+    "survivorship": {
+      "excluded_delisted": [
+        "KOZAA",
+        "KOZAL",
+        "IPEKE",
+        "TRALT"
+      ],
+      "note": "survivors-only snapshot: delisted names not fetchable (yfinance 404), so excluded.",
+      "bias_direction": "Excluding delisted names removes their (mostly poor) outcomes -> measured IC may read OPTIMISTIC/inflated; in TEST 2 the missing left tail biases skewness UP -> high-vol group looks falsely good. Read Faz 0 results as an upper-ish bound, not a neutral estimate."
+    }
+  },
+  "config_version": "faz0-v2",
+  "ic_metric": "Spearman rank-IC (NOT Pearson; keeps TEST 2 orthogonal)",
+  "horizons": [
+    1,
+    5,
+    10,
+    21,
+    63
+  ],
+  "keep_rule": {
+    "primary_horizons": [
+      21,
+      63
+    ],
+    "honest_t_min": 2.0,
+    "icir_nonoverlap_min": 0.5,
+    "min_nonoverlap_n": 12,
+    "honest_t_method": "Newey-West HAC, Bartlett bandwidth = horizon h",
+    "rule": "keep if ANY ELIGIBLE primary horizon (non-overlap n>=min_n) has |honest_t|>=honest_t_min AND non-overlap ICIR>=icir_min",
+    "bar_justification": "honest_t_min=IC_INVESTABLE_TSTAT_MIN (pre-D-177, result-independent) + classic t~=2; icir_min=ARCHITECTURE 7.1; min_nonoverlap_n guards the tiny-sample ICIR artifact (result-independent, STRICTER). Measured not estimated; below bar => drop, no rescue (DEC-039)."
+  },
+  "per_factor_ic": {
+    "rs6": {
+      "1": {
+        "factor": "rs6",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.02204,
+          "icir": 0.1435,
+          "t_stat": 2.8775,
+          "p_value": 0.004222,
+          "n_obs": 402,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 402,
+          "mean_ic": 0.02204,
+          "std_ic": 0.15355,
+          "icir": 0.14352,
+          "t_naive": 2.87752,
+          "p_naive": 0.00422,
+          "ci95_low": 0.00698,
+          "ci95_high": 0.03709,
+          "t_nw": 2.83279,
+          "p_nw": 0.00485,
+          "hac_lag": 1
+        },
+        "nonoverlap": {
+          "n_obs": 402,
+          "mean_ic": 0.02204,
+          "icir": 0.1435,
+          "t": 2.8775,
+          "stride": 1
+        }
+      },
+      "5": {
+        "factor": "rs6",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03462,
+          "icir": 0.231,
+          "t_stat": 4.6152,
+          "p_value": 5e-06,
+          "n_obs": 399,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 399,
+          "mean_ic": 0.03462,
+          "std_ic": 0.14984,
+          "icir": 0.23105,
+          "t_naive": 4.61517,
+          "p_naive": 1e-05,
+          "ci95_low": 0.01987,
+          "ci95_high": 0.04937,
+          "t_nw": 2.62769,
+          "p_nw": 0.00893,
+          "hac_lag": 5
+        },
+        "nonoverlap": {
+          "n_obs": 80,
+          "mean_ic": 0.02596,
+          "icir": 0.163,
+          "t": 1.4579,
+          "stride": 5
+        }
+      },
+      "10": {
+        "factor": "rs6",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03572,
+          "icir": 0.2375,
+          "t_stat": 4.7079,
+          "p_value": 3e-06,
+          "n_obs": 393,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 393,
+          "mean_ic": 0.03572,
+          "std_ic": 0.1504,
+          "icir": 0.23748,
+          "t_naive": 4.70791,
+          "p_naive": 0.0,
+          "ci95_low": 0.0208,
+          "ci95_high": 0.05063,
+          "t_nw": 2.07501,
+          "p_nw": 0.03864,
+          "hac_lag": 10
+        },
+        "nonoverlap": {
+          "n_obs": 40,
+          "mean_ic": 0.03334,
+          "icir": 0.205,
+          "t": 1.2967,
+          "stride": 10
+        }
+      },
+      "21": {
+        "factor": "rs6",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04111,
+          "icir": 0.3155,
+          "t_stat": 6.1662,
+          "p_value": 0.0,
+          "n_obs": 382,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 382,
+          "mean_ic": 0.04111,
+          "std_ic": 0.13032,
+          "icir": 0.31549,
+          "t_naive": 6.16621,
+          "p_naive": 0.0,
+          "ci95_low": 0.028,
+          "ci95_high": 0.05422,
+          "t_nw": 1.84218,
+          "p_nw": 0.06623,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 19,
+          "mean_ic": 0.02164,
+          "icir": 0.1353,
+          "t": 0.5897,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "rs6",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.07173,
+          "icir": 0.6847,
+          "t_stat": 12.6619,
+          "p_value": 0.0,
+          "n_obs": 342,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 342,
+          "mean_ic": 0.07173,
+          "std_ic": 0.10477,
+          "icir": 0.68468,
+          "t_naive": 12.66191,
+          "p_naive": 0.0,
+          "ci95_low": 0.06059,
+          "ci95_high": 0.08288,
+          "t_nw": 3.52112,
+          "p_nw": 0.00049,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 6,
+          "mean_ic": 0.08576,
+          "icir": 0.6786,
+          "t": 1.6622,
+          "stride": 63
+        }
+      }
+    },
+    "rs12": {
+      "1": {
+        "factor": "rs12",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.02742,
+          "icir": 0.1793,
+          "t_stat": 3.0804,
+          "p_value": 0.002263,
+          "n_obs": 295,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 295,
+          "mean_ic": 0.02742,
+          "std_ic": 0.15287,
+          "icir": 0.17935,
+          "t_naive": 3.08036,
+          "p_naive": 0.00226,
+          "ci95_low": 0.0099,
+          "ci95_high": 0.04493,
+          "t_nw": 2.93098,
+          "p_nw": 0.00364,
+          "hac_lag": 1
+        },
+        "nonoverlap": {
+          "n_obs": 295,
+          "mean_ic": 0.02742,
+          "icir": 0.1793,
+          "t": 3.0804,
+          "stride": 1
+        }
+      },
+      "5": {
+        "factor": "rs12",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04395,
+          "icir": 0.2767,
+          "t_stat": 4.7285,
+          "p_value": 4e-06,
+          "n_obs": 292,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 292,
+          "mean_ic": 0.04395,
+          "std_ic": 0.15883,
+          "icir": 0.27672,
+          "t_naive": 4.72855,
+          "p_naive": 0.0,
+          "ci95_low": 0.02566,
+          "ci95_high": 0.06225,
+          "t_nw": 2.54284,
+          "p_nw": 0.01151,
+          "hac_lag": 5
+        },
+        "nonoverlap": {
+          "n_obs": 59,
+          "mean_ic": 0.04272,
+          "icir": 0.2805,
+          "t": 2.1544,
+          "stride": 5
+        }
+      },
+      "10": {
+        "factor": "rs12",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04492,
+          "icir": 0.2759,
+          "t_stat": 4.6659,
+          "p_value": 5e-06,
+          "n_obs": 286,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 286,
+          "mean_ic": 0.04492,
+          "std_ic": 0.1628,
+          "icir": 0.2759,
+          "t_naive": 4.66587,
+          "p_naive": 0.0,
+          "ci95_low": 0.02597,
+          "ci95_high": 0.06387,
+          "t_nw": 1.88238,
+          "p_nw": 0.0608,
+          "hac_lag": 10
+        },
+        "nonoverlap": {
+          "n_obs": 29,
+          "mean_ic": 0.03697,
+          "icir": 0.1975,
+          "t": 1.0636,
+          "stride": 10
+        }
+      },
+      "21": {
+        "factor": "rs12",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.06235,
+          "icir": 0.3921,
+          "t_stat": 6.502,
+          "p_value": 0.0,
+          "n_obs": 275,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 275,
+          "mean_ic": 0.06235,
+          "std_ic": 0.15903,
+          "icir": 0.39209,
+          "t_naive": 6.50202,
+          "p_naive": 0.0,
+          "ci95_low": 0.04347,
+          "ci95_high": 0.08123,
+          "t_nw": 1.88097,
+          "p_nw": 0.06104,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 14,
+          "mean_ic": 0.06186,
+          "icir": 0.411,
+          "t": 1.5377,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "rs12",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.11246,
+          "icir": 0.9872,
+          "t_stat": 15.1971,
+          "p_value": 0.0,
+          "n_obs": 237,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 237,
+          "mean_ic": 0.11246,
+          "std_ic": 0.11392,
+          "icir": 0.98716,
+          "t_naive": 15.19714,
+          "p_naive": 0.0,
+          "ci95_low": 0.09788,
+          "ci95_high": 0.12704,
+          "t_nw": 5.09116,
+          "p_nw": 0.0,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 4,
+          "mean_ic": 0.13336,
+          "icir": 1.1321,
+          "t": 2.2642,
+          "stride": 63
+        }
+      }
+    },
+    "lowvol20": {
+      "1": {
+        "factor": "lowvol20",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03733,
+          "icir": 0.288,
+          "t_stat": 6.686,
+          "p_value": 0.0,
+          "n_obs": 539,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 539,
+          "mean_ic": 0.03733,
+          "std_ic": 0.12963,
+          "icir": 0.28799,
+          "t_naive": 6.68598,
+          "p_naive": 0.0,
+          "ci95_low": 0.02636,
+          "ci95_high": 0.0483,
+          "t_nw": 6.54302,
+          "p_nw": 0.0,
+          "hac_lag": 1
+        },
+        "nonoverlap": {
+          "n_obs": 539,
+          "mean_ic": 0.03733,
+          "icir": 0.288,
+          "t": 6.686,
+          "stride": 1
+        }
+      },
+      "5": {
+        "factor": "lowvol20",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04192,
+          "icir": 0.3136,
+          "t_stat": 7.2265,
+          "p_value": 0.0,
+          "n_obs": 531,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 531,
+          "mean_ic": 0.04192,
+          "std_ic": 0.13367,
+          "icir": 0.3136,
+          "t_naive": 7.22653,
+          "p_naive": 0.0,
+          "ci95_low": 0.03052,
+          "ci95_high": 0.05331,
+          "t_nw": 4.13589,
+          "p_nw": 4e-05,
+          "hac_lag": 5
+        },
+        "nonoverlap": {
+          "n_obs": 107,
+          "mean_ic": 0.04523,
+          "icir": 0.3496,
+          "t": 3.6162,
+          "stride": 5
+        }
+      },
+      "10": {
+        "factor": "lowvol20",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04398,
+          "icir": 0.3476,
+          "t_stat": 7.9636,
+          "p_value": 0.0,
+          "n_obs": 525,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 525,
+          "mean_ic": 0.04398,
+          "std_ic": 0.12653,
+          "icir": 0.34756,
+          "t_naive": 7.96361,
+          "p_naive": 0.0,
+          "ci95_low": 0.03313,
+          "ci95_high": 0.05483,
+          "t_nw": 3.3931,
+          "p_nw": 0.00074,
+          "hac_lag": 10
+        },
+        "nonoverlap": {
+          "n_obs": 53,
+          "mean_ic": 0.04324,
+          "icir": 0.3438,
+          "t": 2.5031,
+          "stride": 10
+        }
+      },
+      "21": {
+        "factor": "lowvol20",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.0474,
+          "icir": 0.3326,
+          "t_stat": 7.5396,
+          "p_value": 0.0,
+          "n_obs": 514,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 514,
+          "mean_ic": 0.0474,
+          "std_ic": 0.14254,
+          "icir": 0.33256,
+          "t_naive": 7.53961,
+          "p_naive": 0.0,
+          "ci95_low": 0.03505,
+          "ci95_high": 0.05976,
+          "t_nw": 2.24722,
+          "p_nw": 0.02505,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 25,
+          "mean_ic": 0.03685,
+          "icir": 0.2265,
+          "t": 1.1326,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "lowvol20",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.07894,
+          "icir": 0.6461,
+          "t_stat": 14.0962,
+          "p_value": 0.0,
+          "n_obs": 476,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 476,
+          "mean_ic": 0.07894,
+          "std_ic": 0.12218,
+          "icir": 0.6461,
+          "t_naive": 14.09623,
+          "p_naive": 0.0,
+          "ci95_low": 0.06794,
+          "ci95_high": 0.08995,
+          "t_nw": 3.06759,
+          "p_nw": 0.00228,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 8,
+          "mean_ic": 0.05314,
+          "icir": 0.4178,
+          "t": 1.1818,
+          "stride": 63
+        }
+      }
+    },
+    "lowvol60": {
+      "1": {
+        "factor": "lowvol60",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03507,
+          "icir": 0.2484,
+          "t_stat": 5.6641,
+          "p_value": 0.0,
+          "n_obs": 520,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 520,
+          "mean_ic": 0.03507,
+          "std_ic": 0.1412,
+          "icir": 0.24839,
+          "t_naive": 5.66409,
+          "p_naive": 0.0,
+          "ci95_low": 0.02291,
+          "ci95_high": 0.04724,
+          "t_nw": 5.71742,
+          "p_nw": 0.0,
+          "hac_lag": 1
+        },
+        "nonoverlap": {
+          "n_obs": 520,
+          "mean_ic": 0.03507,
+          "icir": 0.2484,
+          "t": 5.6641,
+          "stride": 1
+        }
+      },
+      "5": {
+        "factor": "lowvol60",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04126,
+          "icir": 0.2919,
+          "t_stat": 6.6047,
+          "p_value": 0.0,
+          "n_obs": 512,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 512,
+          "mean_ic": 0.04126,
+          "std_ic": 0.14135,
+          "icir": 0.29189,
+          "t_naive": 6.60468,
+          "p_naive": 0.0,
+          "ci95_low": 0.02899,
+          "ci95_high": 0.05353,
+          "t_nw": 3.65211,
+          "p_nw": 0.00029,
+          "hac_lag": 5
+        },
+        "nonoverlap": {
+          "n_obs": 103,
+          "mean_ic": 0.04269,
+          "icir": 0.3023,
+          "t": 3.0678,
+          "stride": 5
+        }
+      },
+      "10": {
+        "factor": "lowvol60",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.0484,
+          "icir": 0.3562,
+          "t_stat": 8.0206,
+          "p_value": 0.0,
+          "n_obs": 507,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 507,
+          "mean_ic": 0.0484,
+          "std_ic": 0.13588,
+          "icir": 0.35621,
+          "t_naive": 8.02056,
+          "p_naive": 0.0,
+          "ci95_low": 0.03654,
+          "ci95_high": 0.06026,
+          "t_nw": 3.21506,
+          "p_nw": 0.00139,
+          "hac_lag": 10
+        },
+        "nonoverlap": {
+          "n_obs": 51,
+          "mean_ic": 0.04631,
+          "icir": 0.3607,
+          "t": 2.576,
+          "stride": 10
+        }
+      },
+      "21": {
+        "factor": "lowvol60",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.06164,
+          "icir": 0.4307,
+          "t_stat": 9.5926,
+          "p_value": 0.0,
+          "n_obs": 496,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 496,
+          "mean_ic": 0.06164,
+          "std_ic": 0.1431,
+          "icir": 0.43072,
+          "t_naive": 9.59258,
+          "p_naive": 0.0,
+          "ci95_low": 0.04901,
+          "ci95_high": 0.07426,
+          "t_nw": 2.59206,
+          "p_nw": 0.00982,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 24,
+          "mean_ic": 0.07749,
+          "icir": 0.5113,
+          "t": 2.5047,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "lowvol60",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.08699,
+          "icir": 0.6794,
+          "t_stat": 14.5706,
+          "p_value": 0.0,
+          "n_obs": 460,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 460,
+          "mean_ic": 0.08699,
+          "std_ic": 0.12805,
+          "icir": 0.67936,
+          "t_naive": 14.57059,
+          "p_naive": 0.0,
+          "ci95_low": 0.07526,
+          "ci95_high": 0.09872,
+          "t_nw": 2.60921,
+          "p_nw": 0.00937,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 8,
+          "mean_ic": 0.08015,
+          "icir": 0.4478,
+          "t": 1.2667,
+          "stride": 63
+        }
+      }
+    },
+    "composite": {
+      "1": {
+        "factor": "composite",
+        "horizon": 1,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04048,
+          "icir": 0.2706,
+          "t_stat": 4.6485,
+          "p_value": 5e-06,
+          "n_obs": 295,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 295,
+          "mean_ic": 0.04048,
+          "std_ic": 0.14957,
+          "icir": 0.27064,
+          "t_naive": 4.64846,
+          "p_naive": 1e-05,
+          "ci95_low": 0.02334,
+          "ci95_high": 0.05762,
+          "t_nw": 4.46565,
+          "p_nw": 1e-05,
+          "hac_lag": 1
+        },
+        "nonoverlap": {
+          "n_obs": 295,
+          "mean_ic": 0.04048,
+          "icir": 0.2706,
+          "t": 4.6485,
+          "stride": 1
+        }
+      },
+      "5": {
+        "factor": "composite",
+        "horizon": 5,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.05028,
+          "icir": 0.2978,
+          "t_stat": 5.0889,
+          "p_value": 1e-06,
+          "n_obs": 292,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 292,
+          "mean_ic": 0.05028,
+          "std_ic": 0.16882,
+          "icir": 0.29781,
+          "t_naive": 5.08893,
+          "p_naive": 0.0,
+          "ci95_low": 0.03083,
+          "ci95_high": 0.06972,
+          "t_nw": 2.68561,
+          "p_nw": 0.00766,
+          "hac_lag": 5
+        },
+        "nonoverlap": {
+          "n_obs": 59,
+          "mean_ic": 0.04504,
+          "icir": 0.2615,
+          "t": 2.0086,
+          "stride": 5
+        }
+      },
+      "10": {
+        "factor": "composite",
+        "horizon": 10,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.053,
+          "icir": 0.3087,
+          "t_stat": 5.2211,
+          "p_value": 0.0,
+          "n_obs": 286,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 286,
+          "mean_ic": 0.053,
+          "std_ic": 0.17167,
+          "icir": 0.30873,
+          "t_naive": 5.2211,
+          "p_naive": 0.0,
+          "ci95_low": 0.03302,
+          "ci95_high": 0.07298,
+          "t_nw": 2.08379,
+          "p_nw": 0.03807,
+          "hac_lag": 10
+        },
+        "nonoverlap": {
+          "n_obs": 29,
+          "mean_ic": 0.03882,
+          "icir": 0.2202,
+          "t": 1.1856,
+          "stride": 10
+        }
+      },
+      "21": {
+        "factor": "composite",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.06718,
+          "icir": 0.3924,
+          "t_stat": 6.5077,
+          "p_value": 0.0,
+          "n_obs": 275,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 275,
+          "mean_ic": 0.06718,
+          "std_ic": 0.17118,
+          "icir": 0.39243,
+          "t_naive": 6.50772,
+          "p_naive": 0.0,
+          "ci95_low": 0.04686,
+          "ci95_high": 0.0875,
+          "t_nw": 1.71668,
+          "p_nw": 0.08717,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 14,
+          "mean_ic": 0.0515,
+          "icir": 0.267,
+          "t": 0.9989,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "composite",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.11888,
+          "icir": 0.9227,
+          "t_stat": 14.2043,
+          "p_value": 0.0,
+          "n_obs": 237,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 237,
+          "mean_ic": 0.11888,
+          "std_ic": 0.12884,
+          "icir": 0.92267,
+          "t_naive": 14.20429,
+          "p_naive": 0.0,
+          "ci95_low": 0.10239,
+          "ci95_high": 0.13536,
+          "t_nw": 2.58357,
+          "p_nw": 0.01038,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 4,
+          "mean_ic": 0.13678,
+          "icir": 1.2667,
+          "t": 2.5333,
+          "stride": 63
+        }
+      }
+    }
+  },
+  "test1_dilution": {
+    "primary_horizon": 21,
+    "composite_ic": 0.06718,
+    "best_single_factor": "rs12",
+    "best_single_ic": 0.06235,
+    "dilution_flag": false,
+    "note": "composite < best single => equal-weight rank average dilutes; narrow the factor SET (do not optimize weights, invariant 4)."
+  },
+  "test2_groupcond_skew": {
+    "metric": "delta_skew = mean_t[skew(high_vol_fwd) - skew(low_vol_fwd)]",
+    "delta_skew": 0.59463,
+    "block_bootstrap_ci95": [
+      0.05151,
+      1.1874
+    ],
+    "realized_skew_diff_amaya": -0.00733,
+    "n_dates": 496,
+    "status": "DIAGNOSTIC (not gating)",
+    "warnings": [
+      "Diagnostic, not gating. low-vol keep/drop rests on standalone rank-IC (IC>0 + ICIR>=0.5), not on this test.",
+      "T~24 months + EM tails: tail measurement unreliable (SE large); not-detected != absent; read with the wide bootstrap CI.",
+      "SURVIVORSHIP: survivors-only snapshot drops the delisting left tail -> skewness biased UP -> high-vol group looks falsely good; read delta_skew skewed in that direction.",
+      "LITERATURE: 'low-vol misses multi-baggers' is likely invalid for an IR-maximizing screen (lottery/IVOL/MAX right-tail proxies negatively predict forward returns); valid for convex-targeted portfolios, not ours."
+    ]
+  },
+  "keep_drop_decision": {
+    "rs6": {
+      "keep": false,
+      "by_horizon": {
+        "21": {
+          "mean_ic": 0.04111,
+          "t_naive": 6.16621,
+          "honest_t_nw_lag_h": 1.84218,
+          "icir_overlap": 0.31549,
+          "icir_nonoverlap": 0.1353,
+          "nonoverlap_n": 19,
+          "eligible": true,
+          "passes": false
+        },
+        "63": {
+          "mean_ic": 0.07173,
+          "t_naive": 12.66191,
+          "honest_t_nw_lag_h": 3.52112,
+          "icir_overlap": 0.68468,
+          "icir_nonoverlap": 0.6786,
+          "nonoverlap_n": 6,
+          "eligible": false,
+          "passes": false
+        }
+      }
+    },
+    "rs12": {
+      "keep": false,
+      "by_horizon": {
+        "21": {
+          "mean_ic": 0.06235,
+          "t_naive": 6.50202,
+          "honest_t_nw_lag_h": 1.88097,
+          "icir_overlap": 0.39209,
+          "icir_nonoverlap": 0.411,
+          "nonoverlap_n": 14,
+          "eligible": true,
+          "passes": false
+        },
+        "63": {
+          "mean_ic": 0.11246,
+          "t_naive": 15.19714,
+          "honest_t_nw_lag_h": 5.09116,
+          "icir_overlap": 0.98716,
+          "icir_nonoverlap": 1.1321,
+          "nonoverlap_n": 4,
+          "eligible": false,
+          "passes": false
+        }
+      }
+    },
+    "lowvol20": {
+      "keep": false,
+      "by_horizon": {
+        "21": {
+          "mean_ic": 0.0474,
+          "t_naive": 7.53961,
+          "honest_t_nw_lag_h": 2.24722,
+          "icir_overlap": 0.33256,
+          "icir_nonoverlap": 0.2265,
+          "nonoverlap_n": 25,
+          "eligible": true,
+          "passes": false
+        },
+        "63": {
+          "mean_ic": 0.07894,
+          "t_naive": 14.09623,
+          "honest_t_nw_lag_h": 3.06759,
+          "icir_overlap": 0.6461,
+          "icir_nonoverlap": 0.4178,
+          "nonoverlap_n": 8,
+          "eligible": false,
+          "passes": false
+        }
+      }
+    },
+    "lowvol60": {
+      "keep": true,
+      "by_horizon": {
+        "21": {
+          "mean_ic": 0.06164,
+          "t_naive": 9.59258,
+          "honest_t_nw_lag_h": 2.59206,
+          "icir_overlap": 0.43072,
+          "icir_nonoverlap": 0.5113,
+          "nonoverlap_n": 24,
+          "eligible": true,
+          "passes": true
+        },
+        "63": {
+          "mean_ic": 0.08699,
+          "t_naive": 14.57059,
+          "honest_t_nw_lag_h": 2.60921,
+          "icir_overlap": 0.67936,
+          "icir_nonoverlap": 0.4478,
+          "nonoverlap_n": 8,
+          "eligible": false,
+          "passes": false
+        }
+      }
+    }
+  },
+  "rs_decision_rule": {
+    "rs6": {
+      "mean_ic_h21": 0.04111,
+      "recommendation": "positive standalone IC (direction ok); keep gated on honest_t + non-overlap ICIR"
+    },
+    "rs12": {
+      "mean_ic_h21": 0.06235,
+      "recommendation": "positive standalone IC (direction ok); keep gated on honest_t + non-overlap ICIR"
+    }
+  },
+  "faz1_recommended_factor_set": [
+    "lowvol60"
+  ],
+  "decision_owner": "Orchestrator+Cagan (harness recommends only, DEC-039)"
+}
