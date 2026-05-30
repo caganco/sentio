@@ -65,3 +65,76 @@ def forward_returns(close: pd.DataFrame, horizon: int) -> pd.DataFrame:
     This is the IC LABEL -> intentionally uses future prices.
     """
     return close.shift(-horizon) / close - 1.0
+
+
+# ---------------------------------------------------------------------------
+# D-183 Faz 0b: value factors (P/B, EV/EBITDA) -- point-in-time, look-ahead safe
+# ---------------------------------------------------------------------------
+
+def _pit_index(funds: pd.DataFrame) -> dict[str, list[tuple[str, dict]]]:
+    """ticker -> [(pub_date, row_fields), ...] sorted ascending by pub_date."""
+    idx: dict[str, list[tuple[str, dict]]] = {}
+    for tkr, g in funds.groupby("ticker"):
+        recs = [(str(r["pub_date"]), r.to_dict())
+                for _, r in g.sort_values("pub_date").iterrows()]
+        idx[tkr] = recs
+    return idx
+
+
+def _latest_as_of(recs: list[tuple[str, dict]], asof: str) -> dict | None:
+    """Latest annual whose pub_date <= asof (point-in-time, no look-ahead)."""
+    chosen = None
+    for pub, row in recs:                      # recs sorted ascending
+        if pub <= asof:
+            chosen = row
+        else:
+            break
+    return chosen
+
+
+def value_ratios(
+    funds: pd.DataFrame,
+    close: pd.DataFrame,
+    dates: pd.DatetimeIndex,
+    par: float = 1.0,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Per-date cross-sectional P/B and EV/EBITDA panels (TL, point-in-time).
+
+    For each (date t, ticker): pick the latest annual with pub_date <= t.
+    shares = issued_capital / par; market_cap = shares * close(t).
+    P/B = market_cap / book_eaoop  (book<=0 -> NaN).
+    EV/EBITDA = (market_cap + total_liab - cash) / (op_profit + d_and_a)
+                (bank or missing comps -> NaN; EBITDA<=0 -> NaN).
+    Lower ratio = cheaper = higher value (inverted at rank stage). FX-free (TL);
+    USD conversion is rank-invariant (D-180) -> applied only for sanity/level.
+    """
+    pit = _pit_index(funds)
+    cols = sorted(close.columns)
+    pb = pd.DataFrame(index=dates, columns=cols, dtype=float)
+    ev = pd.DataFrame(index=dates, columns=cols, dtype=float)
+    for t in dates:
+        asof = pd.Timestamp(t).strftime("%Y-%m-%d")
+        for tkr in cols:
+            recs = pit.get(tkr)
+            if not recs:
+                continue
+            row = _latest_as_of(recs, asof)
+            if row is None:
+                continue
+            price = close.at[t, tkr] if tkr in close.columns else np.nan
+            ic = row.get("issued_capital")
+            book = row.get("book_eaoop")
+            if price is None or np.isnan(price) or ic is None or float(par) <= 0:
+                continue
+            shares = float(ic) / float(par)
+            mcap = shares * float(price)
+            if book is not None and float(book) > 0:
+                pb.at[t, tkr] = mcap / float(book)
+            if not bool(row.get("is_bank")):
+                tl = row.get("total_liab"); cash = row.get("cash")
+                op = row.get("operating_profit"); da = row.get("d_and_a")
+                if None not in (tl, cash, op, da):
+                    ebitda = float(op) + float(da)
+                    if ebitda > 0:
+                        ev.at[t, tkr] = (mcap + float(tl) - float(cash)) / ebitda
+    return pb, ev

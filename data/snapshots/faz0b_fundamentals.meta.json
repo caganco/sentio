@@ -1,0 +1,48 @@
+{
+  "directive": "D-183",
+  "source": "Is Yatirim MaliTablo (XI_29 / UFRS)",
+  "n_rows": 380,
+  "content_hash": "daedf8c8b63b8cea0881036654ae71ff60c44475eafbd1730bfdf8c6e4817ef9",
+  "timestamp_utc": "2026-05-30T12:56:38Z",
+  "fiscal_years": [
+    2025,
+    2024,
+    2023,
+    2022
+  ],
+  "annual_lag_days": 120,
+  "itemcodes_nonbank": {
+    "book_eaoop": "2O",
+    "issued_capital": "2OA",
+    "cash": "1AA",
+    "short_term_liab": "2A",
+    "long_term_liab": "2B",
+    "operating_profit": "3DF",
+    "d_and_a": "4CAB"
+  },
+  "itemcodes_bank": {
+    "book_eaoop": "2O",
+    "issued_capital": "2OA"
+  },
+  "coverage": {
+    "requested_n": 97,
+    "loaded_n": 95,
+    "null_tickers": [
+      "ANSGR",
+      "TURSG"
+    ],
+    "banks_n": 9,
+    "banks": [
+      "AKBNK",
+      "ALBRK",
+      "GARAN",
+      "HALKB",
+      "ISCTR",
+      "SKBNK",
+      "TSKB",
+      "VAKBN",
+      "YKBNK"
+    ]
+  },
+  "config_version": "faz0b-v1"
+}

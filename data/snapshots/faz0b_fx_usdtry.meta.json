@@ -1,0 +1,10 @@
+{
+  "directive": "D-183",
+  "series": "TP.DK.USD.A",
+  "n_obs": 420,
+  "content_hash": "126fb6eaa1518e657ef4e03b998f2c8000434f6b25f5df0265a885505d302ec9",
+  "window": {
+    "start": "2024-09-01",
+    "end": "2026-04-30"
+  }
+}
