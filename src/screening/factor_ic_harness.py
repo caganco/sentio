@@ -522,6 +522,168 @@ def run_faz0(
     return results
 
 
+def run_faz0b(
+    out_dir: Path | str = _RESULTS_DIR,
+    price_snapshot: str = "faz0_v2_prices_2024-01-01_2026-04-30",
+    fund_fetch_fn=None,
+) -> dict:
+    """Faz 0b value-factor IC (P/B + EV/EBITDA, standalone). D-183. N=3/3.
+
+    Reuses D-178 machinery (compute_factor_ic / honest_t NW lag=h / non-overlap
+    ICIR / min-n eligibility / keep rule). Price forward-returns reuse the frozen
+    faz0_v2 snapshot; value comes from the frozen MaliTablo fundamentals.
+    """
+    snap_dir = snapshot._SNAPSHOT_DIR
+    price_long = pd.read_parquet(snap_dir / f"{price_snapshot}.parquet")
+    close, _xu = snapshot.to_close_panel(price_long)
+    universe = sorted(close.columns)
+
+    funds, fmeta = snapshot.freeze_fundamental_snapshot(universe, fetch_fn=fund_fetch_fn)
+    null_set = set(snapshot.load_par_guard_null())
+
+    start = pd.Timestamp(cfg.FAZ0B_WINDOW_START)
+    end = pd.Timestamp(cfg.FAZ0B_WINDOW_END)
+    dates = close.index[(close.index >= start) & (close.index <= end)]
+    pb, ev = factors.value_ratios(funds, close, dates, par=cfg.FAZ0B_PAR_VALUE)
+    for tkr in null_set:                          # par-guard NULL (the maintainer)
+        if tkr in pb.columns:
+            pb[tkr] = float("nan")
+        if tkr in ev.columns:
+            ev[tkr] = float("nan")
+
+    ranks = {"pb": rank_panel(pb, invert=True), "ev_ebitda": rank_panel(ev, invert=True)}
+    horizons = cfg.FAZ0B_HORIZONS
+    fwd_panels = {h: factors.forward_returns(close, h) for h in horizons}
+    signal_df = build_signal_df(ranks)
+    returns_df = build_returns_df(close, horizons)
+
+    factor_cols = ["pb", "ev_ebitda"]
+    per_factor: dict[str, dict] = {}
+    for col in factor_cols:
+        per_factor[col] = {
+            str(h): compute_factor_ic(signal_df, returns_df, ranks, fwd_panels, col, h)
+            for h in horizons
+        }
+
+    # keep: ANY eligible h (non-overlap n>=min) with |honest_t|>=min AND ICIRno>=min
+    keep_drop: dict[str, dict] = {}
+    for col in factor_cols:
+        by_h, keep_any = {}, False
+        for h in horizons:
+            s = per_factor[col][str(h)]["series"]
+            no = per_factor[col][str(h)]["nonoverlap"]
+            ht, icir_no = s["t_nw"], no["icir"]
+            eligible = bool(no["n_obs"] >= cfg.FAZ0_MIN_NONOVERLAP_N)
+            ok = bool(eligible and ht is not None and not math.isnan(ht)
+                      and abs(ht) >= cfg.KEEP_HONEST_T_MIN
+                      and icir_no is not None and not math.isnan(icir_no)
+                      and icir_no >= cfg.KEEP_ICIR_NONOVERLAP_MIN)
+            keep_any = keep_any or ok
+            by_h[str(h)] = {"mean_ic": s["mean_ic"], "t_naive": s["t_naive"],
+                            "honest_t_nw_lag_h": ht, "icir_overlap": s["icir"],
+                            "icir_nonoverlap": icir_no, "nonoverlap_n": no["n_obs"],
+                            "eligible": eligible, "passes": ok}
+        keep_drop[col] = {"keep": keep_any, "by_horizon": by_h}
+
+    usd_sanity = _usd_rank_sanity(pb, dates)
+    coverage = {
+        "fundamental_loaded_n": fmeta.get("coverage", {}).get("loaded_n"),
+        "fundamental_null_tickers": fmeta.get("coverage", {}).get("null_tickers"),
+        "banks_n": fmeta.get("coverage", {}).get("banks_n"),
+        "par_guard_null": sorted(null_set),
+        "pb_names_per_date_median": int(pb.notna().sum(axis=1).median()) if len(pb) else 0,
+        "ev_names_per_date_median": int(ev.notna().sum(axis=1).median()) if len(ev) else 0,
+    }
+    value_keepers = [c for c, v in keep_drop.items() if v["keep"]]
+    faz1_set = (["lowvol60"] if True else []) + value_keepers  # lowvol60 from D-178
+
+    results = {
+        "directive": "D-183",
+        "phase": "FAZ 0b -- Value IC (P/B + EV/EBITDA, standalone; MEASUREMENT only; DEC-039; N=3/3)",
+        "window": {"start": cfg.FAZ0B_WINDOW_START, "end": cfg.FAZ0B_WINDOW_END},
+        "fundamental_snapshot_hash": fmeta.get("content_hash"),
+        "price_snapshot": price_snapshot,
+        "ic_metric": "Spearman rank-IC (TL ratios; USD rank-invariant per D-180)",
+        "horizons": list(horizons),
+        "keep_rule": {
+            "primary_horizons": list(horizons),
+            "honest_t_min": cfg.KEEP_HONEST_T_MIN,
+            "icir_nonoverlap_min": cfg.KEEP_ICIR_NONOVERLAP_MIN,
+            "min_nonoverlap_n": cfg.FAZ0_MIN_NONOVERLAP_N,
+            "rule": "keep if ANY eligible h has |honest_t(NW lag=h)|>=min AND non-overlap ICIR>=min",
+        },
+        "per_factor_ic": per_factor,
+        "keep_drop_decision": keep_drop,
+        "usd_rank_sanity": usd_sanity,
+        "coverage": coverage,
+        "value_keepers": value_keepers,
+        "faz1_recommended_factor_set": faz1_set,
+        "note": "Banks: F/DD only, EV/EBITDA NULL (D-182). Point-in-time annual, "
+                "conservative +120d lag, latest-public restated (RR-036).",
+        "decision_owner": "the project (harness recommends only, DEC-039)",
+    }
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "faz0b_results.json").write_text(
+        json.dumps(results, ensure_ascii=False, indent=2, default=_json_default),
+        encoding="utf-8")
+    _print_faz0b_summary(results)
+    return results
+
+
+def _usd_rank_sanity(pb_tl: pd.DataFrame, dates: pd.DatetimeIndex) -> dict:
+    """TL-rank == USD-rank sanity. FX(t) is common across tickers on date t, so
+    dividing every ratio by fx(t) cannot change the cross-sectional rank ->
+    Spearman rho == 1.0 by construction (D-180). Verified literally on a sample."""
+    try:
+        fx, _ = snapshot.freeze_fx_snapshot()
+        fxd = fx.reindex(pd.DatetimeIndex(sorted(set(fx.index) | set(dates)))).ffill()
+    except Exception:                              # noqa: BLE001
+        return {"checked": False, "note": "FX unavailable; rank-invariance holds by construction"}
+    rhos = []
+    sample = list(dates)[::5]
+    for t in sample:
+        row = pb_tl.loc[t].dropna()
+        if len(row) < 5:
+            continue
+        f = float(fxd.get(t, float("nan")))
+        if math.isnan(f) or f <= 0:
+            continue
+        usd = row / f
+        rho, _ = stats.spearmanr(row.to_numpy(), usd.to_numpy())
+        if not math.isnan(rho):
+            rhos.append(float(rho))
+    return {"checked": True, "n_dates": len(rhos),
+            "mean_spearman_rho": round(float(np.mean(rhos)), 6) if rhos else None,
+            "min_spearman_rho": round(float(np.min(rhos)), 6) if rhos else None,
+            "expected": 1.0, "note": "rho==1.0 confirms USD conversion is rank-invariant (D-180)"}
+
+
+def _print_faz0b_summary(r: dict) -> None:
+    sep = "=" * 78
+    print(f"\n{sep}\n  {r['phase']}\n{sep}")
+    print(f"  Window     : {r['window']['start']} -> {r['window']['end']}")
+    cov = r["coverage"]
+    print(f"  Coverage   : fundamentals {cov['fundamental_loaded_n']} loaded; "
+          f"par-guard NULL {cov['par_guard_null']}; banks {cov['banks_n']} (EV/EBITDA NULL)")
+    print(f"  Names/date : P/B~{cov['pb_names_per_date_median']}  EV/EBITDA~{cov['ev_names_per_date_median']}")
+    hs = [str(h) for h in r["keep_rule"]["primary_horizons"]]
+    print(f"  {'-'*74}")
+    print(f"  {'factor':<11}" + "".join(f"  h{h}:naive/honest/ICIRno(n)" for h in hs) + "  keep")
+    for col, v in r["keep_drop_decision"].items():
+        cells = ""
+        for h in hs:
+            b = v["by_horizon"][h]
+            cells += f"  {b['t_naive']:+.2f}/{b['honest_t_nw_lag_h']:+.2f}/{b['icir_nonoverlap']:+.2f}(n{b['nonoverlap_n']})"
+        print(f"  {col:<11}{cells}  {v['keep']}")
+    us = r["usd_rank_sanity"]
+    print(f"  {'-'*74}")
+    print(f"  USD sanity : TL-rank==USD-rank mean_rho={us.get('mean_spearman_rho')} (beklenen 1.0)")
+    print(f"  value keepers: {r['value_keepers']}")
+    print(f"  FAZ 1 set  : {r['faz1_recommended_factor_set']}  (lowvol60 D-178 + value)")
+    print(f"{sep}\n")
+
+
 def _json_default(o):
     if isinstance(o, (np.floating,)):
         return float(o)
@@ -576,7 +738,11 @@ def _main() -> None:
     p.add_argument("--out-dir", default=str(_RESULTS_DIR))
     p.add_argument("--tag", default="", help="v2 -> mechanical universe + ADV + overlap-corrected keep")
     p.add_argument("--adv-floor", type=float, default=None)
+    p.add_argument("--faz0b", action="store_true", help="D-183 value factor IC (MaliTablo)")
     args = p.parse_args()
+    if args.faz0b:
+        run_faz0b(out_dir=args.out_dir)
+        return
     is_v2 = args.tag == "v2" or args.adv_floor is not None
     adv_floor = args.adv_floor if args.adv_floor is not None else (
         cfg.FAZ0_ADV_FLOOR_TL if is_v2 else None)

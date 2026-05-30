@@ -245,3 +245,76 @@ def test_nonoverlap_stride_subsample():
     assert r5["stride"] == 5
     assert h.nonoverlap_stats(ics, stride=5) == r5   # deterministic
     assert h.nonoverlap_stats(ics, stride=20)["n_obs"] < r5["n_obs"]  # bigger stride -> fewer
+
+
+# ---------------------------------------------------------------------------
+# D-183 Faz 0b: value factor (P/B, EV/EBITDA) tests
+# ---------------------------------------------------------------------------
+
+def _funds(rows):
+    cols = ["ticker", "fiscal_year", "period_end", "pub_date", "is_bank",
+            "book_eaoop", "issued_capital", "cash", "total_liab",
+            "operating_profit", "d_and_a"]
+    return pd.DataFrame(rows, columns=cols)
+
+
+def test_value_ratios_pb_ev_computation():
+    funds = _funds([
+        {"ticker": "A", "fiscal_year": 2024, "period_end": "2024-12-31",
+         "pub_date": "2025-04-30", "is_bank": False, "book_eaoop": 1000.0,
+         "issued_capital": 100.0, "cash": 200.0, "total_liab": 500.0,
+         "operating_profit": 300.0, "d_and_a": 50.0},
+    ])
+    dates = pd.bdate_range("2025-06-02", periods=1)
+    close = pd.DataFrame({"A": [50.0]}, index=dates)
+    pb, ev = h.factors.value_ratios(funds, close, dates, par=1.0)
+    # shares=100, mcap=5000; P/B=5000/1000=5; EV=(5000+500-200)=5300; EBITDA=350
+    assert pb.iloc[0]["A"] == pytest.approx(5.0)
+    assert ev.iloc[0]["A"] == pytest.approx(5300.0 / 350.0)
+
+
+def test_value_ratios_point_in_time():
+    funds = _funds([
+        {"ticker": "A", "fiscal_year": 2023, "period_end": "2023-12-31",
+         "pub_date": "2024-04-30", "is_bank": False, "book_eaoop": 1000.0,
+         "issued_capital": 100.0, "cash": 0.0, "total_liab": 0.0,
+         "operating_profit": 100.0, "d_and_a": 0.0},
+        {"ticker": "A", "fiscal_year": 2024, "period_end": "2024-12-31",
+         "pub_date": "2025-04-30", "is_bank": False, "book_eaoop": 2000.0,
+         "issued_capital": 100.0, "cash": 0.0, "total_liab": 0.0,
+         "operating_profit": 100.0, "d_and_a": 0.0},
+    ])
+    dates = pd.DatetimeIndex(["2024-12-01", "2025-06-02"])
+    close = pd.DataFrame({"A": [50.0, 50.0]}, index=dates)
+    pb, _ = h.factors.value_ratios(funds, close, dates, par=1.0)
+    # 2024-12: only 2023 public (book 1000) -> P/B=5; 2025-06: 2024 public (book 2000) -> P/B=2.5
+    assert pb.loc["2024-12-01", "A"] == pytest.approx(5.0)
+    assert pb.loc["2025-06-02", "A"] == pytest.approx(2.5)
+
+
+def test_value_ratios_bank_ev_null_and_negative_book():
+    funds = _funds([
+        {"ticker": "BANK", "fiscal_year": 2024, "period_end": "2024-12-31",
+         "pub_date": "2025-04-30", "is_bank": True, "book_eaoop": 1000.0,
+         "issued_capital": 100.0, "cash": None, "total_liab": None,
+         "operating_profit": None, "d_and_a": None},
+        {"ticker": "NEG", "fiscal_year": 2024, "period_end": "2024-12-31",
+         "pub_date": "2025-04-30", "is_bank": False, "book_eaoop": -50.0,
+         "issued_capital": 100.0, "cash": 0.0, "total_liab": 0.0,
+         "operating_profit": 10.0, "d_and_a": 0.0},
+    ])
+    dates = pd.bdate_range("2025-06-02", periods=1)
+    close = pd.DataFrame({"BANK": [50.0], "NEG": [50.0]}, index=dates)
+    pb, ev = h.factors.value_ratios(funds, close, dates, par=1.0)
+    assert pb.iloc[0]["BANK"] == pytest.approx(5.0)     # bank P/B ok
+    assert np.isnan(ev.iloc[0]["BANK"])                 # bank EV/EBITDA NULL (D-182)
+    assert np.isnan(pb.iloc[0]["NEG"])                  # negative book -> NaN
+
+
+def test_usd_conversion_rank_invariant():
+    # dividing every ticker's ratio by the same FX(t) cannot change rank (D-180)
+    from scipy import stats as _st
+    row = np.array([5.0, 2.5, 8.0, 1.1, 3.3])
+    fx = 34.7
+    rho, _ = _st.spearmanr(row, row / fx)
+    assert rho == pytest.approx(1.0)
