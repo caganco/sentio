@@ -2,7 +2,7 @@
 
 **Tarih:** 30 Mayıs 2026
 **Yazar:** Claude Code (Builder) — çift-kaynak canlı probe (throwaway)
-**Status:** ✅ YEŞİL (cross-sectional tutarlı) — caveat'larla. MaliTablo Faz 0b value IC sıralaması için kullanılabilir; mutlak-değer için 1 bağımsız 3. kaynak teyidi önerilir.
+**Status:** ✅ YEŞİL (cross-sectional tutarlı + 3. kaynak teyitli). MaliTablo Faz 0b value IC için kullanılabilir; mutlak-değer stockanalysis.com ile doğrulandı (caveat kapandı).
 **Bağlı:** [RR-033 v2 (D-181)](RR-033-isyatirim-tms29-uyum-testi.md), [RR-032-V3](RR-032-V3-OPENSOURCE-VE-SMART-MONEY.md), NRR-002; pre-reg: [STAGE0_d182](../factor_ic/STAGE0_d182_preregistration.json)
 
 ---
@@ -13,9 +13,9 @@ D-181 MaliTablo'nun TMS 29 fidelity'sini BELİRSİZ bulmuştu (mutlak değer). A
 
 **Sonuç: ✅ YEŞİL.** Çözülen 9 ticker'da (big/mid/small/gyo/holding kesiti) MaliTablo EAOoP + net satış değerleri Mynet ile **birebir aynı (ratio = 1.000)**. Spearman ρ = 1.000 (hem özkaynak hem satış). Ratio CV ≈ 0. **Sektör kümeleme YOK** (banka/gyo/holding/sanayi hepsi 1.000). → Pre-registered GREEN eşiği (ρ≥0.95 & std/mean<0.15) kesin geçildi. **H1 doğrulandı.**
 
-**ÖNEMLİ — D-181 tension çözüldü:** D-181 MaliTablo TUPRS 2023 EAOoP=289.86bn'i KAP-summary sayfasının 200.76bn'i ile karşılaştırıp 1.44× sapma bulmuştu. Şimdi **bağımsız Mynet de 289.86bn gösteriyor** → iki bağımsız re-seller mutabık → 289.86 muhtemelen gerçek **konsolide** filed değer; D-181'in 200.76'sı muhtemelen **solo** (konsolide-vs-solo), MaliTablo baz hatası DEĞİL. Bu, D-181'in KIRMIZI-eğilimini büyük ölçüde **tersine çeviriyor**.
+**ÖNEMLİ — D-181 tension ÇÖZÜLDÜ (3 kaynak):** D-181 MaliTablo TUPRS 2023 EAOoP=289.86bn'i KAP-summary 200.76bn ile karşılaştırıp 1.44× sapma bulmuştu. **Üç bağımsız kaynak artık mutabık:** MaliTablo 289.86 = Mynet 289.86 = **stockanalysis.com 289.860mn (common/parent equity, as-reported TRY)**. → 289.86 gerçek **konsolide parent** filed değer; KAP-summary'nin 200.76'sı **solo** (konsolide-vs-solo artefaktı), MaliTablo baz hatası DEĞİL. D-181'in KIRMIZI-eğilimi **tersine döndü**.
 
-**Caveat (kullanıcı vurgusu):** ratio=1.000 şüphesiz-mükemmel → İş Yatırım & Mynet aynı KAP filed kaynağını paylaşıyor olabilir → bu **sıralama tutarlılığını** doğrular ama tam-bağımsız normalizasyon cross-check'i değil. Mutlak-değer için 1 gerçekten-bağımsız 3. kaynak (S&P/stockanalysis pro) final teyit olarak önerilir.
+**Caveat ÇÖZÜLDÜ (3. kaynak teyidi):** "ratio=1.000 şüphesiz-mükemmel → İş Yatırım & Mynet aynı KAP kaynağını paylaşıyor olabilir" şüphesi, **gerçekten-bağımsız** bir 3. kaynakla (stockanalysis.com — global S&P-beslemeli pipeline, Türk-portalı değil) kapatıldı: TUPRS parent equity 289.860mn (birebir), THYAO 15,563mn USD × ~29.44 ≈ 458bn TRY ≈ MaliTablo 457.26bn (≤%0.2). Üç bağımsız kaynak hem değerde hem sıralamada mutabık → MaliTablo hem cross-sectional tutarlı hem mutlak-değerde doğrulandı.
 
 ---
 
@@ -72,9 +72,9 @@ D-181 MaliTablo'nun TMS 29 fidelity'sini BELİRSİZ bulmuştu (mutlak değer). A
 
 ## Caveat'lar ve Açık Noktalar
 
-1. **Şüpheli-mükemmel eşleşme (kullanıcı vurgusu):** ratio=1.000 → İş Yatırım MaliTablo ve Mynet aynı KAP filed kaynağını re-serve ediyor olabilir. Bu, **sıralama tutarlılığını** kanıtlar (rank-IC için yeterli) ama iki **bağımsız normalizasyon yolu** karşılaştırması değil. Mutlak-değer doğruluğu için gerçekten-bağımsız 3. kaynak (S&P/Refinitiv beslemeli stockanalysis pro, veya KAP authoritative full-statement) final teyit olarak önerilir. stockanalysis.com free BIST URL'i bu turda 404 verdi — ayrı denenebilir.
+1. **Şüpheli-mükemmel eşleşme (kullanıcı vurgusu) — ÇÖZÜLDÜ:** ratio=1.000 İş Yatırım+Mynet'in aynı KAP kaynağını paylaşma ihtimalini doğuruyordu. **Gerçekten-bağımsız 3. kaynak `stockanalysis.com` (global S&P-beslemeli, Türk-portalı değil) ile kapatıldı:** TUPRS 2023 common/parent equity 289.860mn TRY (as-reported) = MaliTablo 289.86 = Mynet 289.86 (birebir, 3 kaynak); THYAO 15,563mn USD × ~29.44 (2023 yıl-sonu) ≈ 458bn TRY ≈ MaliTablo 457.26bn (≤%0.2). Üç bağımsız kaynak hem değer hem sıralamada mutabık → caveat artık geçerli değil. (URL formatı: `stockanalysis.com/quote/ist/{TICKER}/financials/balance-sheet/`.)
 
-2. **D-181 mutlak-sapma büyük ölçüde açıklandı:** TUPRS 289.86 (MaliTablo=Mynet, 2 bağımsız) vs KAP-summary 200.76 → muhtemelen konsolide-vs-solo. MaliTablo baz hatası DEĞİL. Yine de bir authoritative full-statement ile konsolide-baz teyidi (dipnot) iyi olur.
+2. **D-181 mutlak-sapma AÇIKLANDI:** TUPRS 289.86 (MaliTablo=Mynet=**stockanalysis**, 3 bağımsız) vs KAP-summary 200.76 → **konsolide-vs-solo**. 289.86 = konsolide parent (3 kaynak teyitli); 200.76 = solo. MaliTablo baz hatası DEĞİL — D-181'in nominal-şüphesi yanlış karşılaştırma hedefinden (solo KAP-summary) kaynaklanıyordu.
 
 3. **Kapsam boşlukları:** ALCTL/KLGYO Mynet 2023-12 boş (small-cap ince-raporlama) → 2. kaynak gap, tutarsızlık değil. Bankalar (AKBNK ✓, GARAN) toplam-özkaynak bazında eşleşiyor; banka value faktörü zaten ayrı ele alınmalı (F/DD banka için anlamlı, EV/EBITDA değil).
 
