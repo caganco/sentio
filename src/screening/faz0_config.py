@@ -196,3 +196,31 @@ ISYATIRIM_CARI_EVEBITDA_TANIMID = "29"  # Cari FD/FAVOK
 ISYATIRIM_TTM_EBITDA_TANIMID = "388"   # Yillik Cari FAVOK
 
 FAZ0B_CONFIG_VERSION = "faz0b-v1"
+
+# ===========================================================================
+# D-184: lowvol60 validity audit (CB-017 4-test diagnostics)
+# ===========================================================================
+
+# Test 1: D-regime proxy -- XU100 200-MA (ARCHITECTURE sec.3.1 primary switch).
+# L2 macro score (classify_regime) needs live TCMB/CDS data not frozen in the
+# snapshot -> use the deterministic price-based proxy instead.
+D184_REGIME_MA_WINDOW = 200   # trading days for XU100 MA warm-up
+
+# Test 3: multiple testing correction uses all (factor x horizon) p-values from
+# D-177 v1 + D-178 v2 eligible measurements (conservative: all attempted).
+
+# Test 4 OOS window (pre-D-178 period, different regime: TL crisis + covid + TCMB
+# shock). ADV floor NOT applied (2019 TL volumes << 50M TL in 2024 terms).
+D184_OOS_START = "2019-01-01"
+D184_OOS_END = "2023-08-31"
+
+# USDTRY aux snapshot for Test 2 macro-residual IC (yfinance ticker).
+D184_USDTRY_YF_TICKER = "USDTRY=X"
+
+# Test 1 regime thresholds (frozen):
+D184_REGIME_ON_PCT = 0.80   # >=80% IC from D=ON -> fail (same-bet hypothesis confirmed)
+
+# Macro residual IC honest_t threshold (same bar as keep rule):
+D184_RESIDUAL_T_MIN = 2.0
+
+D184_CONFIG_VERSION = "d184-v1"
