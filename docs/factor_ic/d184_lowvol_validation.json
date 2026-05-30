@@ -1,0 +1,733 @@
+{
+  "directive": "D-184",
+  "phase": "lowvol60 validity audit (CB-017); DIAGNOSTIC only; DEC-039",
+  "frozen_decision_rule": {
+    "2_fail": "Faz 1 with lowvol60 not rational",
+    "3_fail": "Architectural premise re-think (regime-conditional MV-BIST + liquidity gates)",
+    "source": "CB-017 CRITIC_BACKLOG.md (pre-registered before tests)"
+  },
+  "test_results": {
+    "T1_regime_ic": {
+      "test": "T1_regime_conditional_ic",
+      "regime_proxy": "XU100 > 200-day MA (ARCHITECTURE sec.3.1 primary switch)",
+      "warmup_excluded_dates": 198,
+      "n_total_with_regime": 298,
+      "n_don_dates": 172,
+      "n_doff_dates": 126,
+      "pct_days_on": 57.7,
+      "mean_ic_don": 0.09359,
+      "mean_ic_doff": 0.01343,
+      "ic_sum_don": 16.09743,
+      "ic_sum_total": 17.78904,
+      "pct_ic_from_don": 90.5,
+      "threshold_fail_pct": 80.0,
+      "verdict": "FAIL",
+      "verdict_rule": ">= 80% IC from D=ON => FAIL (same-bet hypothesis); ~50% => PASS (independent component)"
+    },
+    "T2_macro_residual": {
+      "test": "T2_macro_residual_ic",
+      "model_vars": [
+        "const",
+        "BIST_RV30",
+        "USDTRY_vol30"
+      ],
+      "n_aligned": 494,
+      "ols_coefs": {
+        "const": 0.184619,
+        "BIST_RV30": -7.989295,
+        "USDTRY_vol30": -4.621798
+      },
+      "intercept_value": 0.184619,
+      "r2_macro_explains_ic_variance": 0.0554,
+      "intercept_t_nw_hac": 2.8701,
+      "raw_ic_mean": 0.06218,
+      "verdict": "PASS",
+      "verdict_rule": "|t_HAC(intercept)| >= 2.0 => PASS (IC has positive mean independent of macro); < threshold => FAIL",
+      "note": "OLS residual mean is always 0 by construction when constant is included. The intercept coefficient measures IC mean orthogonal to macro variation. NW-HAC SE with lag=21 (matching primary horizon overlap)."
+    },
+    "T3_multiple_testing": {
+      "test": "T3_multiple_testing",
+      "n_tests_all_attempted": 40,
+      "n_tests_eligible_only": 16,
+      "bonferroni_threshold_all": 0.00125,
+      "bonferroni_threshold_eligible": 0.003125,
+      "lowvol60_verdict_conservative": {
+        "verdict": "BORDERLINE (BH only)",
+        "horizon": 21,
+        "p_nw": 0.00982,
+        "t_nw": 2.59206,
+        "holm_reject_null": false,
+        "bh_fdr_reject_null": true
+      },
+      "lowvol60_verdict_eligible_only": {
+        "verdict": "BORDERLINE (BH only)",
+        "horizon": 21,
+        "p_nw": 0.00982,
+        "t_nw": 2.59206,
+        "holm_reject_null": false,
+        "bh_fdr_reject_null": true
+      },
+      "full_table_all": [
+        {
+          "source": "D177_v1",
+          "factor": "rs6",
+          "horizon": 1,
+          "t_nw": 1.04642,
+          "p_nw": 0.296,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs6",
+          "horizon": 5,
+          "t_nw": 1.16405,
+          "p_nw": 0.2451,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs6",
+          "horizon": 10,
+          "t_nw": 0.73546,
+          "p_nw": 0.4625,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs6",
+          "horizon": 21,
+          "t_nw": 0.81813,
+          "p_nw": 0.41379,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs6",
+          "horizon": 63,
+          "t_nw": 3.92148,
+          "p_nw": 0.00011,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs12",
+          "horizon": 1,
+          "t_nw": 1.90944,
+          "p_nw": 0.05718,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs12",
+          "horizon": 5,
+          "t_nw": 1.89778,
+          "p_nw": 0.05872,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs12",
+          "horizon": 10,
+          "t_nw": 2.01613,
+          "p_nw": 0.04472,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs12",
+          "horizon": 21,
+          "t_nw": 2.27578,
+          "p_nw": 0.02363,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D177_v1",
+          "factor": "rs12",
+          "horizon": 63,
+          "t_nw": 5.67983,
+          "p_nw": 0.0,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol20",
+          "horizon": 1,
+          "t_nw": 3.22775,
+          "p_nw": 0.00138,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol20",
+          "horizon": 5,
+          "t_nw": 1.88946,
+          "p_nw": 0.05975,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol20",
+          "horizon": 10,
+          "t_nw": 2.15161,
+          "p_nw": 0.0322,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol20",
+          "horizon": 21,
+          "t_nw": 2.04014,
+          "p_nw": 0.04218,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol20",
+          "horizon": 63,
+          "t_nw": 1.43461,
+          "p_nw": 0.15254,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol60",
+          "horizon": 1,
+          "t_nw": 1.27256,
+          "p_nw": 0.20593,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol60",
+          "horizon": 5,
+          "t_nw": 0.53297,
+          "p_nw": 0.59518,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol60",
+          "horizon": 10,
+          "t_nw": -0.3095,
+          "p_nw": 0.75756,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol60",
+          "horizon": 21,
+          "t_nw": -1.19534,
+          "p_nw": 0.2346,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D177_v1",
+          "factor": "lowvol60",
+          "horizon": 63,
+          "t_nw": -0.33291,
+          "p_nw": 0.74017,
+          "n_nonoverlap": 0,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 1,
+          "t_nw": 2.83279,
+          "p_nw": 0.00485,
+          "n_nonoverlap": 402,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 5,
+          "t_nw": 2.62769,
+          "p_nw": 0.00893,
+          "n_nonoverlap": 80,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 10,
+          "t_nw": 2.07501,
+          "p_nw": 0.03864,
+          "n_nonoverlap": 40,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 21,
+          "t_nw": 1.84218,
+          "p_nw": 0.06623,
+          "n_nonoverlap": 19,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 63,
+          "t_nw": 3.52112,
+          "p_nw": 0.00049,
+          "n_nonoverlap": 6,
+          "eligible": false,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 1,
+          "t_nw": 2.93098,
+          "p_nw": 0.00364,
+          "n_nonoverlap": 295,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 5,
+          "t_nw": 2.54284,
+          "p_nw": 0.01151,
+          "n_nonoverlap": 59,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 10,
+          "t_nw": 1.88238,
+          "p_nw": 0.0608,
+          "n_nonoverlap": 29,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 21,
+          "t_nw": 1.88097,
+          "p_nw": 0.06104,
+          "n_nonoverlap": 14,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 63,
+          "t_nw": 5.09116,
+          "p_nw": 0.0,
+          "n_nonoverlap": 4,
+          "eligible": false,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 1,
+          "t_nw": 6.54302,
+          "p_nw": 0.0,
+          "n_nonoverlap": 539,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 5,
+          "t_nw": 4.13589,
+          "p_nw": 4e-05,
+          "n_nonoverlap": 107,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 10,
+          "t_nw": 3.3931,
+          "p_nw": 0.00074,
+          "n_nonoverlap": 53,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 21,
+          "t_nw": 2.24722,
+          "p_nw": 0.02505,
+          "n_nonoverlap": 25,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 63,
+          "t_nw": 3.06759,
+          "p_nw": 0.00228,
+          "n_nonoverlap": 8,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 1,
+          "t_nw": 5.71742,
+          "p_nw": 0.0,
+          "n_nonoverlap": 520,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 5,
+          "t_nw": 3.65211,
+          "p_nw": 0.00029,
+          "n_nonoverlap": 103,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 10,
+          "t_nw": 3.21506,
+          "p_nw": 0.00139,
+          "n_nonoverlap": 51,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 21,
+          "t_nw": 2.59206,
+          "p_nw": 0.00982,
+          "n_nonoverlap": 24,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 63,
+          "t_nw": 2.60921,
+          "p_nw": 0.00937,
+          "n_nonoverlap": 8,
+          "eligible": false,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        }
+      ],
+      "full_table_eligible": [
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 1,
+          "t_nw": 2.83279,
+          "p_nw": 0.00485,
+          "n_nonoverlap": 402,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 5,
+          "t_nw": 2.62769,
+          "p_nw": 0.00893,
+          "n_nonoverlap": 80,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 10,
+          "t_nw": 2.07501,
+          "p_nw": 0.03864,
+          "n_nonoverlap": 40,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs6",
+          "horizon": 21,
+          "t_nw": 1.84218,
+          "p_nw": 0.06623,
+          "n_nonoverlap": 19,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 1,
+          "t_nw": 2.93098,
+          "p_nw": 0.00364,
+          "n_nonoverlap": 295,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 5,
+          "t_nw": 2.54284,
+          "p_nw": 0.01151,
+          "n_nonoverlap": 59,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 10,
+          "t_nw": 1.88238,
+          "p_nw": 0.0608,
+          "n_nonoverlap": 29,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "rs12",
+          "horizon": 21,
+          "t_nw": 1.88097,
+          "p_nw": 0.06104,
+          "n_nonoverlap": 14,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": false
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 1,
+          "t_nw": 6.54302,
+          "p_nw": 0.0,
+          "n_nonoverlap": 539,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 5,
+          "t_nw": 4.13589,
+          "p_nw": 4e-05,
+          "n_nonoverlap": 107,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 10,
+          "t_nw": 3.3931,
+          "p_nw": 0.00074,
+          "n_nonoverlap": 53,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol20",
+          "horizon": 21,
+          "t_nw": 2.24722,
+          "p_nw": 0.02505,
+          "n_nonoverlap": 25,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 1,
+          "t_nw": 5.71742,
+          "p_nw": 0.0,
+          "n_nonoverlap": 520,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 5,
+          "t_nw": 3.65211,
+          "p_nw": 0.00029,
+          "n_nonoverlap": 103,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 10,
+          "t_nw": 3.21506,
+          "p_nw": 0.00139,
+          "n_nonoverlap": 51,
+          "eligible": true,
+          "holm_reject_null": true,
+          "bh_fdr_reject_null": true
+        },
+        {
+          "source": "D178_v2",
+          "factor": "lowvol60",
+          "horizon": 21,
+          "t_nw": 2.59206,
+          "p_nw": 0.00982,
+          "n_nonoverlap": 24,
+          "eligible": true,
+          "holm_reject_null": false,
+          "bh_fdr_reject_null": true
+        }
+      ],
+      "note": "Conservative (all attempted) includes D-177 v1 (methodologically flawed) for a worst-case correction. Eligible-only is more principled."
+    },
+    "T4_oos_stability": {
+      "test": "T4_oos_regime_stability",
+      "oos_window": "2019-01-01 to 2023-08-31",
+      "in_sample_window": "2024-01-01 to 2026-04-30 (D-178)",
+      "oos_n_tickers": 109,
+      "d178_mean_ic_h21_reference": 0.06164,
+      "oos_results_by_horizon": {
+        "21": {
+          "n_obs": 1068,
+          "mean_ic": 0.01695,
+          "t_nw_honest": 0.7063,
+          "icir_nonoverlap": 0.0708,
+          "nonoverlap_n": 51,
+          "eligible": true
+        },
+        "63": {
+          "n_obs": 1031,
+          "mean_ic": 0.00855,
+          "t_nw_honest": 0.2278,
+          "icir_nonoverlap": 0.1853,
+          "nonoverlap_n": 17,
+          "eligible": true
+        }
+      },
+      "sign_stable_h21": true,
+      "verdict": "PASS",
+      "verdict_rule": "sign-stable + honest_t positive direction => PASS; sign-flip or t~0 => FAIL",
+      "survivorship_bias_caveat": "2025-2026 BIST100 constituent list applied retroactively to 2019-2023. Bias direction: survivors-only inflates performance -> fail finding is conservative (real IC likely worse). Pass finding is overstated. ADV floor not applied (2019 TL volumes << 2024 scale)."
+    }
+  },
+  "verdict_summary": {
+    "T1": "FAIL",
+    "T2": "PASS",
+    "T3": "BORDERLINE (BH only)",
+    "T4": "PASS"
+  },
+  "fail_count": 1,
+  "pass_count": 2,
+  "borderline_count": 1,
+  "recommendation": "CONDITIONAL: 1 test fail -> proceed with explicit caveat noted.",
+  "decision_owner": "Orchestrator+Cagan (DEC-039). This module MEASURES + RECOMMENDS."
+}

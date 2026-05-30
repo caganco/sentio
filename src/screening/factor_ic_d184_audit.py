@@ -560,8 +560,10 @@ def freeze_oos_price_snapshot(
     Survivorship bias documented (current BIST100 list retroactively applied).
     Returns (close_panel, xu100_series).
     """
-    out_path = Path(out_dir) / "faz0_oos_2019_2023.parquet"
-    meta_path = Path(out_dir) / "faz0_oos_2019_2023.meta.json"
+    # File naming matches snapshot._paths: faz0_{tag}_prices_{start}_{end}.parquet
+    tag = "oos_2019_2023"
+    out_path = Path(out_dir) / f"faz0_{tag}_prices_{start}_{end}.parquet"
+    meta_path = Path(out_dir) / f"faz0_{tag}_prices_{start}_{end}.meta.json"
 
     if out_path.exists() and meta_path.exists():
         long_df = pd.read_parquet(out_path)
