@@ -237,9 +237,15 @@ def compute_factor_ic(
     fwd_panels: dict[int, pd.DataFrame],
     col: str,
     horizon: int,
-) -> dict:
+    return_series: bool = False,
+):
     """Primitive IC (ICCalculator) + local series + honest_t (NW lag=h) +
-    non-overlapping ICIR (overlap-artifact diagnosis) + equivalence check."""
+    non-overlapping ICIR (overlap-artifact diagnosis) + equivalence check.
+
+    return_series=True: returns (stats_dict, ic_array) instead of stats_dict.
+    Used by D-184 audit to extract the per-date IC time series without
+    re-implementing IC computation. Backwards-compatible (default False).
+    """
     prim = ICCalculator(signal_df, returns_df).compute_ic(col, horizon)
     ics = daily_ic_series(ranks[col], fwd_panels[horizon])
     # D-178: honest t uses Newey-West HAC bandwidth = horizon (overlap-corrected).
@@ -258,7 +264,7 @@ def compute_factor_ic(
     else:
         equiv_ok = False
     ic_source = "primitive" if equiv_ok else "fallback"
-    return {
+    result = {
         "factor": col, "horizon": horizon, "ic_source": ic_source,
         "equivalence_ok": bool(equiv_ok),
         "primitive": {"mean_ic": prim.mean_ic, "icir": prim.ir,
@@ -267,6 +273,9 @@ def compute_factor_ic(
         "series": _round_dict(local),                 # series.t_naive + series.t_nw (honest, lag=h)
         "nonoverlap": nonoverlap,                      # overlap'siz ICIR/t (artifact check)
     }
+    if return_series:
+        return result, ics
+    return result
 
 
 # ---------------------------------------------------------------------------

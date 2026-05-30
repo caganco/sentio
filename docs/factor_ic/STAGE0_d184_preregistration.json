@@ -1,0 +1,89 @@
+{
+  "directive": "D-184",
+  "phase": "lowvol60 Validity Audit -- Stage 0 pre-registration (CB-017, 4-test diagnostics)",
+  "frozen_at_utc": "2026-05-30T00:00:00Z",
+  "discipline": "All test definitions, thresholds, and the decision rule are frozen BEFORE any test is run. No post-hoc adjustment allowed. This is a diagnostic (BÜTÇE-DIŞI), not a new Faz 0 IC measurement.",
+
+  "context": {
+    "motivation": "lowvol60 is the sole marginal Faz-0 survivor (D-178: honest_t=2.59, ICIRno=0.51, h21). CB-017 hypothesis: lowvol60 ~= D-layer regime shadow + multiple-testing artifact. Faz 1 BLOCKED until this audit.",
+    "d178_lowvol60_reference": {"honest_t_h21": 2.59, "icir_nonoverlap_h21": 0.51, "mean_ic_h21": 0.06164, "p_nw_h21": 0.00982},
+    "budget_note": "N<=3 Faz 0 budget is CLOSED (D-177/D-178/D-183). This audit is diagnostic (CB-017 CRITIC_BACKLOG.md, 30 May 2026) -- NOT a new factor IC measurement."
+  },
+
+  "frozen_decision_rule": {
+    "2_tests_fail": "Faz 1 with lowvol60 as primary factor is not rational",
+    "3_tests_fail": "Architectural premise re-think: regime-conditional MV-BIST + liquidity gates is more parsimonious than quantamental ranking",
+    "rule_source": "CB-017 CRITIC_BACKLOG.md (pre-registered BEFORE running tests; no post-hoc adjustment)",
+    "decision_owner": "Orchestrator+Cagan (DEC-039). Module MEASURES + RECOMMENDS."
+  },
+
+  "tests": {
+    "T1_regime_conditional_ic": {
+      "description": "Split lowvol60 IC (h=21) into D=ON vs D=OFF dates using XU100 200-MA proxy.",
+      "regime_proxy": "XU100 price > 200-day MA (ARCHITECTURE sec.3.1 primary switch: 'primary rejim switch: XU100>200-MA + breadth'). L2 macro score (classify_regime) requires live TCMB/CDS not frozen in snapshot -> deterministic price-based proxy used instead.",
+      "ma_window": 200,
+      "warmup_caveat": "200-day MA warm-up: first ~200 trading days from 2024-01-01 (~2024-10) are excluded. ~380/588 dates used. Documented in result.",
+      "threshold_fail": ">=80% of total IC sum from D=ON dates => FAIL (same-bet hypothesis confirmed)",
+      "threshold_pass": "~50% (balanced) => PASS (independent alpha component)",
+      "threshold_grey": "50%-80% => GREY (partial dependency)",
+      "data_source": "Frozen faz0_v2_prices_2024-01-01_2026-04-30.parquet (D-178)"
+    },
+    "T2_macro_residual_ic": {
+      "description": "OLS: IC_t ~ const + b1*BIST_RV30_t [+ b2*USDTRY_vol30_t]. Test significance of intercept via NW-HAC.",
+      "method": "TIME-SERIES OLS (macro vars are market-wide scalars; cross-sectional regression meaningless for market-level variables). Intercept captures IC mean independent of macro level.",
+      "test_statistic": "|t_HAC(intercept)| >= D184_RESIDUAL_T_MIN (2.0); NW-HAC SE with Bartlett kernel lag=21",
+      "verdict_pass": "|t_HAC(intercept)| >= 2.0 => IC has positive mean independent of macro (PASS)",
+      "verdict_fail": "|t_HAC(intercept)| < 2.0 => IC mean fully attributable to macro (FAIL)",
+      "primary_model": "2-variable: const + BIST_RV30 (always available from frozen XU100 prices)",
+      "optional_extension": "3-variable: + USDTRY_vol30 (yfinance USDTRY=X; optional; if API unavailable, 2-var is primary)",
+      "data_sources": {
+        "bist_rv": "Rolling 30-day realized vol of XU100 returns (frozen faz0_v2 snapshot)",
+        "usdtry_vol": "Rolling 30-day USDTRY log-return vol from yfinance USDTRY=X (frozen as faz0_macro_aux.parquet)"
+      }
+    },
+    "T3_multiple_testing": {
+      "description": "Holm-Bonferroni + BH-FDR correction over all Faz-0 (factor x horizon) p-values.",
+      "correction_methods": ["Holm-Bonferroni (step-down, FWER)", "BH-FDR (Benjamini-Hochberg)"],
+      "significance_level": 0.05,
+      "counting_conservative": "ALL attempted tests from D-177 v1 + D-178 v2 (including D-177 v1 methodological flaws -- documented)",
+      "counting_principled": "ELIGIBLE only: non-overlap n >= 12 (from D-178 v2)",
+      "both_reported": true,
+      "verdict_pass": "lowvol60 h21 survives Holm-Bonferroni correction",
+      "verdict_fail": "lowvol60 h21 does NOT survive Holm correction (statistical artifact)",
+      "data_sources": ["docs/factor_ic/faz0_results.json (D-177)", "docs/factor_ic/faz0_v2_results.json (D-178)"],
+      "no_new_data": true
+    },
+    "T4_oos_regime_stability": {
+      "description": "Apply lowvol60 rank-IC to 2019-01-01 to 2023-08-31 (OOS, different regime).",
+      "oos_window": "2019-01-01 to 2023-08-31",
+      "in_sample_window": "2024-01-01 to 2026-04-30 (D-178)",
+      "horizons": [21, 63],
+      "verdict_pass": "sign-stable (same direction as D-178) + honest_t positive => OOS-robust (PASS)",
+      "verdict_fail": "sign-flip OR honest_t ~ 0 => single-window artifact (FAIL)",
+      "adv_floor": "NOT applied (2019 TL volumes incomparable to 2024 scale; documented caveat)",
+      "survivorship_bias": {
+        "caveat": "2025-2026 BIST100 constituent list applied retroactively to 2019-2023. Some current tickers not listed in 2019 -> silently dropped by yfinance (<20 rows). Bias direction: survivors-only inflates performance -> fail finding is CONSERVATIVE (real IC likely weaker), pass finding is OVERSTATED.",
+        "bias_is_conservative_for_fail": true
+      },
+      "data_source": "New yfinance fetch; frozen as data/snapshots/faz0_oos_2019_2023.parquet"
+    }
+  },
+
+  "config_constants": {
+    "D184_REGIME_MA_WINDOW": 200,
+    "D184_REGIME_ON_PCT": 0.80,
+    "D184_RESIDUAL_T_MIN": 2.0,
+    "D184_OOS_START": "2019-01-01",
+    "D184_OOS_END": "2023-08-31",
+    "D184_USDTRY_YF_TICKER": "USDTRY=X",
+    "source": "src/screening/faz0_config.py D184_* constants"
+  },
+
+  "output_files": [
+    "docs/factor_ic/d184_lowvol_validation.json",
+    "data/snapshots/faz0_macro_aux.parquet",
+    "data/snapshots/faz0_oos_2019_2023.parquet"
+  ],
+
+  "dokunulmaz": "engine/composite/conviction, thresholds.py, D-177/178/183 sonuc+snapshot dosyalari, ic_calculator.py"
+}
