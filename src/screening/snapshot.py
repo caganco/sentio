@@ -201,6 +201,254 @@ def to_close_panel(long_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     return stocks, xu
 
 
+# ===========================================================================
+# D-183 Faz 0b: fundamental (MaliTablo) + FX (EVDS) snapshots
+# ===========================================================================
+
+_FUND_COLS = [
+    "ticker", "fiscal_year", "period_end", "pub_date", "is_bank",
+    "book_eaoop", "issued_capital", "cash", "total_liab",
+    "operating_profit", "d_and_a",
+]
+
+
+def _hash_df(df: pd.DataFrame, sort_cols: list[str]) -> str:
+    """Deterministic sha256 of a DataFrame (parquet-metadata independent)."""
+    canon = df.sort_values(sort_cols).reset_index(drop=True)
+    return hashlib.sha256(
+        canon.to_csv(index=False, float_format="%.10g").encode("utf-8")
+    ).hexdigest()
+
+
+def freeze_fundamental_snapshot(
+    universe: list[str],
+    out_dir: Path | str = _SNAPSHOT_DIR,
+    fetch_fn: Callable | None = None,
+    timestamp: str | None = None,
+    tag: str = "faz0b",
+) -> tuple[pd.DataFrame, dict]:
+    """Freeze (or load) per-ticker annual MaliTablo fundamentals. D-183.
+
+    Idempotent. Banks (cfg.FAZ0B_BANKS) -> financialGroup=UFRS, book = total
+    equity, EV/EBITDA components NULL. Non-banks -> XI_29, full set. pub_date =
+    period_end + FAZ0B_ANNUAL_LAG_DAYS (conservative point-in-time).
+    fetch_fn(ticker, fiscal_years, is_bank) -> {field: [v1..v4]} (injectable for tests).
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pq = out_dir / f"{tag}_fundamentals.parquet"
+    mj = out_dir / f"{tag}_fundamentals.meta.json"
+    if pq.exists() and mj.exists():
+        df = pd.read_parquet(pq)
+        meta = json.loads(mj.read_text(encoding="utf-8"))
+        logger.info("fundamental snapshot frozen-load: %s (%d rows)", pq.name, len(df))
+        return df, meta
+
+    if fetch_fn is None:
+        fetch_fn = _default_malitablo_fetch
+
+    years = list(cfg.FAZ0B_FISCAL_YEARS)
+    rows: list[dict] = []
+    null_tickers: list[str] = []
+    bank_n = 0
+    for ticker in sorted(set(universe)):
+        is_bank = ticker in cfg.FAZ0B_BANKS
+        if is_bank:
+            bank_n += 1
+        try:
+            fields = fetch_fn(ticker, years, is_bank)
+        except Exception as exc:  # noqa: BLE001 - one ticker must not break snapshot
+            logger.warning("MaliTablo fetch failed ticker=%s: %s", ticker, exc)
+            null_tickers.append(ticker)
+            continue
+        if not fields or fields.get("book_eaoop") is None:
+            null_tickers.append(ticker)
+            continue
+        for i, yr in enumerate(years):
+            book = _nth(fields, "book_eaoop", i)
+            if book is None:
+                continue
+            period_end = f"{yr}-12-31"
+            pub = (pd.Timestamp(period_end)
+                   + pd.Timedelta(days=cfg.FAZ0B_ANNUAL_LAG_DAYS)).strftime("%Y-%m-%d")
+            if is_bank:
+                total_liab = op = da = cash = None
+            else:
+                stl = _nth(fields, "short_term_liab", i)
+                ltl = _nth(fields, "long_term_liab", i)
+                total_liab = (None if stl is None and ltl is None
+                              else (stl or 0.0) + (ltl or 0.0))
+                op = _nth(fields, "operating_profit", i)
+                da = _nth(fields, "d_and_a", i)
+                cash = _nth(fields, "cash", i)
+            rows.append({
+                "ticker": ticker, "fiscal_year": int(yr), "period_end": period_end,
+                "pub_date": pub, "is_bank": bool(is_bank),
+                "book_eaoop": book, "issued_capital": _nth(fields, "issued_capital", i),
+                "cash": cash, "total_liab": total_liab,
+                "operating_profit": op, "d_and_a": da,
+            })
+
+    df = pd.DataFrame(rows, columns=_FUND_COLS)
+    chash = _hash_df(df, ["ticker", "fiscal_year"]) if len(df) else "empty"
+    ts = timestamp or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    meta = {
+        "directive": "D-183", "source": "Is Yatirim MaliTablo (XI_29 / UFRS)",
+        "n_rows": int(len(df)), "content_hash": chash, "timestamp_utc": ts,
+        "fiscal_years": years, "annual_lag_days": cfg.FAZ0B_ANNUAL_LAG_DAYS,
+        "itemcodes_nonbank": cfg.MALITABLO_ITEMCODES,
+        "itemcodes_bank": cfg.MALITABLO_ITEMCODES_BANK,
+        "coverage": {
+            "requested_n": len(set(universe)),
+            "loaded_n": int(df["ticker"].nunique()) if len(df) else 0,
+            "null_tickers": sorted(null_tickers),
+            "banks_n": bank_n, "banks": list(cfg.FAZ0B_BANKS),
+        },
+        "config_version": cfg.FAZ0B_CONFIG_VERSION,
+    }
+    df.to_parquet(pq, index=False)
+    mj.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info("fundamental snapshot frozen: %s rows=%d hash=%s null=%d",
+                pq.name, len(df), chash[:12], len(null_tickers))
+    return df, meta
+
+
+def _nth(fields: dict, key: str, i: int):
+    seq = fields.get(key)
+    if not isinstance(seq, (list, tuple)) or i >= len(seq):
+        return None
+    return seq[i]
+
+
+def _default_malitablo_fetch(ticker: str, fiscal_years: list[int], is_bank: bool) -> dict:
+    """Live MaliTablo fetch + itemCode parse for one ticker (annual periods)."""
+    from src.data.isyatirim_malitablo_fetcher import fetch_malitablo, parse_values
+
+    group = cfg.MALITABLO_GROUP_BANK if is_bank else cfg.MALITABLO_GROUP_NONBANK
+    codes = cfg.MALITABLO_ITEMCODES_BANK if is_bank else cfg.MALITABLO_ITEMCODES
+    periods = [(int(y), 12) for y in fiscal_years]
+    rows = fetch_malitablo(ticker, periods, financial_group=group)
+    return parse_values(rows, codes)
+
+
+def freeze_fx_snapshot(
+    start: str = cfg.FAZ0B_WINDOW_START,
+    end: str = cfg.FAZ0B_WINDOW_END,
+    out_dir: Path | str = _SNAPSHOT_DIR,
+    fetch_fn: Callable | None = None,
+    tag: str = "faz0b",
+) -> tuple[pd.Series, dict]:
+    """Freeze (or load) EVDS USD/TRY (period-end) for USD ratios + sanity. D-183."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pq = out_dir / f"{tag}_fx_usdtry.parquet"
+    mj = out_dir / f"{tag}_fx_usdtry.meta.json"
+    if pq.exists() and mj.exists():
+        s = pd.read_parquet(pq)["usdtry"]
+        s.index = pd.to_datetime(pd.read_parquet(pq)["date"])
+        return s, json.loads(mj.read_text(encoding="utf-8"))
+
+    if fetch_fn is None:
+        def fetch_fn(a, b):  # noqa: E731
+            from src.data.evds_client import fetch_series
+            return fetch_series(cfg.EVDS_USDTRY_SERIES, start_date=a, end_date=b)
+
+    # EVDS wants DD-MM-YYYY
+    a = pd.Timestamp(start).strftime("%d-%m-%Y")
+    b = pd.Timestamp(end).strftime("%d-%m-%Y")
+    obs = fetch_fn(a, b)
+    fx = pd.Series(
+        {pd.Timestamp(o["date"]): float(o["value"]) for o in obs if o.get("value") is not None}
+    ).sort_index()
+    fx.name = "usdtry"
+    out = pd.DataFrame({"date": fx.index.strftime("%Y-%m-%d"), "usdtry": fx.to_numpy()})
+    chash = hashlib.sha256(
+        out.to_csv(index=False, float_format="%.10g").encode("utf-8")).hexdigest()
+    out.to_parquet(pq, index=False)
+    meta = {"directive": "D-183", "series": cfg.EVDS_USDTRY_SERIES,
+            "n_obs": int(len(fx)), "content_hash": chash,
+            "window": {"start": start, "end": end}}
+    mj.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    return fx, meta
+
+
+def freeze_par_guard(
+    funds: pd.DataFrame,
+    close: pd.DataFrame | None = None,
+    out_dir: Path | str = _SNAPSHOT_DIR,
+    par: float = cfg.FAZ0B_PAR_VALUE,
+    tol: float = cfg.FAZ0B_PB_CROSSCHECK_TOL,
+    shares_fn: Callable | None = None,
+    tag: str = "faz0b",
+) -> dict:
+    """Freeze the par!=1 / stale-shares NULL set (the maintainer guard). D-183.
+
+    Compares SHARES (price-independent): my_shares = issued_capital(latest) / par
+    vs an independent current share count (yfinance .info sharesOutstanding).
+    |ratio-1| > tol -> the ticker's value is NULLed (par!=1 or a capital change
+    not yet in the latest annual -> wrong market_cap). SHARES not market_cap:
+    a market_cap cross-check is contaminated by the price drift between the frozen
+    ref date and yfinance's current price (verified: it produced false positives
+    like FROTO/AEFES where shares actually matched 1.000). Frozen to JSON for
+    determinism. (close kept for signature compatibility; not used.)
+    """
+    out_dir = Path(out_dir)
+    jf = out_dir / f"{tag}_parguard.json"
+    if jf.exists():
+        return json.loads(jf.read_text(encoding="utf-8"))
+
+    if shares_fn is None:
+        shares_fn = _yf_shares
+
+    latest_ic: dict[str, float] = {}
+    for tkr, g in funds.groupby("ticker"):
+        g2 = g.sort_values("pub_date")
+        if len(g2) and g2.iloc[-1]["issued_capital"] is not None:
+            latest_ic[str(tkr)] = float(g2.iloc[-1]["issued_capital"])
+    tickers = sorted(latest_ic)
+    ext = shares_fn(tickers) or {}
+    details, null_set = {}, []
+    for tkr in tickers:
+        yf_sh = ext.get(tkr)
+        if not yf_sh or yf_sh <= 0:
+            continue                       # cannot cross-check -> leave as-is
+        ratio = (latest_ic[tkr] / par) / float(yf_sh)
+        details[tkr] = round(ratio, 4)
+        if abs(ratio - 1.0) > tol:
+            null_set.append(tkr)
+    out = {"method": "shares: issued_capital/par vs yfinance sharesOutstanding",
+           "tol": tol, "par": par, "null_tickers": sorted(null_set),
+           "ratio_myshares_over_yf": details, "n_crosschecked": len(details)}
+    jf.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info("par-guard frozen: crosschecked=%d null=%d", len(details), len(null_set))
+    return out
+
+
+def _yf_shares(tickers: list[str]) -> dict[str, float]:
+    """Current shares outstanding from yfinance .info (best-effort; never raises)."""
+    out: dict[str, float] = {}
+    try:
+        import yfinance as yf
+    except Exception:                      # noqa: BLE001
+        return out
+    for t in tickers:
+        try:
+            sh = yf.Ticker(f"{t}.IS").info.get("sharesOutstanding")
+            if sh:
+                out[t] = float(sh)
+        except Exception:                  # noqa: BLE001
+            continue
+    return out
+
+
+def load_par_guard_null(out_dir: Path | str = _SNAPSHOT_DIR, tag: str = "faz0b") -> list[str]:
+    """Read the frozen par-guard NULL ticker list (empty if not frozen yet)."""
+    jf = Path(out_dir) / f"{tag}_parguard.json"
+    if not jf.exists():
+        return []
+    return list(json.loads(jf.read_text(encoding="utf-8")).get("null_tickers", []))
+
+
 def resolve_universe() -> list[str]:
     """v1 (D-177) universe: config-driven 57 names. Fallback: BIST50."""
     try:
