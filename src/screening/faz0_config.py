@@ -119,3 +119,80 @@ KEEP_ICIR_NONOVERLAP_MIN = 0.5
 FAZ0_MIN_NONOVERLAP_N = 12
 
 CONFIG_VERSION = "faz0-v2"
+
+# ===========================================================================
+# D-183 Faz 0b: value factor (USD-based P/B + EV/EBITDA) via Is Yatirim MaliTablo
+# ===========================================================================
+
+# Window starts 2024-09 so all valuation points see PUBLIC TMS-29 restated
+# financials on a uniform basis (RR-036: SPK 2023/81 -> FY2023 restated public
+# ~mid-2024 + SPK +10wk extension). Price forward-returns reuse the frozen
+# faz0_v2 price snapshot (2024-01..2026-04); IC sub-window starts 2024-09.
+FAZ0B_WINDOW_START = "2024-09-01"
+FAZ0B_WINDOW_END = "2026-04-30"
+
+# Value is slower than momentum -> add a 6-month horizon. naive_t + honest_t
+# (NW lag=h) + non-overlap ICIR + min-n eligibility -- same machinery as D-178.
+FAZ0B_HORIZONS = (21, 63, 126)
+
+# Point-in-time, look-ahead-safe (Cagan): conservative deterministic lag. An
+# annual report for fiscal year-end Y is treated as PUBLIC only after
+# period_end + this many days (covers the SPK +10wk extension). A valuation
+# date t uses the latest annual whose (period_end + lag) <= t. Erring late is
+# conservative (never look-ahead).
+FAZ0B_ANNUAL_LAG_DAYS = 120
+
+# shares = IssuedCapital(point-in-time annual) / par. BIST standard nominal = 1.0 TL.
+# par!=1 GUARD (Cagan): a ticker whose latest-date computed P/B deviates
+# materially from Is Yatirim "Cari PD/DD" (tanimid 30) is flagged par!=1 / data
+# issue -> value set NULL + reported in coverage (no wrong market_cap into IC).
+FAZ0B_PAR_VALUE = 1.0
+FAZ0B_PB_CROSSCHECK_TOL = 0.20   # |computed/reported - 1| > tol -> NULL (par!=1 flag)
+
+# MaliTablo itemCode map -- LIVE-DISCOVERED on THYAO (XI_29) + AKBNK (UFRS),
+# D-183 Stage 0. Only 2O (EAOoP) was pre-confirmed (RR-035 rho=1.0); the rest
+# were verified by Turkish itemName against the live 147/192-row response.
+MALITABLO_ENDPOINT = (
+    "https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/"
+    "Data.aspx/MaliTablo"
+)
+MALITABLO_GROUP_NONBANK = "XI_29"
+MALITABLO_GROUP_BANK = "UFRS"
+# field -> itemCode (non-bank, XI_29):
+MALITABLO_ITEMCODES = {
+    "book_eaoop":        "2O",    # Ana Ortakliga Ait Ozkaynaklar (book value)
+    "issued_capital":    "2OA",   # Odenmis Sermaye (-> shares = value / par)
+    "cash":              "1AA",   # Nakit ve Nakit Benzerleri
+    "short_term_liab":   "2A",    # Kisa Vadeli Yukumlulukler
+    "long_term_liab":    "2B",    # Uzun Vadeli Yukumlulukler (TotalLiab = 2A + 2B)
+    "operating_profit":  "3DF",   # FAALIYET KARI (ZARARI)  (EBIT)
+    "d_and_a":           "4CAB",  # Amortisman & Itfa Paylari (EBITDA add-back; more
+                                  # complete than 4B depreciation-only; cross-check
+                                  # vs Is Yatirim tanimid 388 TTM FAVOK)
+}
+# banks (UFRS): code 2O = total OZKAYNAKLAR (D-182: banks match on total equity,
+# not EAOoP); F/DD only, EV/EBITDA = NULL. 2OA = issued capital.
+MALITABLO_ITEMCODES_BANK = {
+    "book_eaoop":     "2O",     # XVI. OZKAYNAKLAR (total equity for banks)
+    "issued_capital": "2OA",
+}
+# banks within the frozen 97-name faz0_v2 universe
+FAZ0B_BANKS = ("AKBNK", "ALBRK", "GARAN", "HALKB", "ISCTR", "SKBNK", "TSKB",
+               "VAKBN", "YKBNK")
+
+# Annual fiscal years to fetch (period=12). Covers the window + look-back so a
+# point-in-time pick always has a public restated annual available.
+FAZ0B_FISCAL_YEARS = (2025, 2024, 2023, 2022)   # 4-period MaliTablo call (mandatory)
+
+# USD/TRY period-end for the USD-based ratios + TL-rank==USD-rank sanity. NOTE
+# (D-180): F/DD and EV/EBITDA are dimensionless and FX(t) is common across all
+# tickers on date t -> USD conversion does NOT change cross-sectional rank. IC is
+# computed on TL ratios; USD is for NRR-002 compliance + level + the sanity test.
+EVDS_USDTRY_SERIES = "TP.DK.USD.A"
+
+# Is Yatirim current ratios (tanimid) for latest-date cross-checks only:
+ISYATIRIM_CARI_PB_TANIMID = "30"      # Cari PD/DD
+ISYATIRIM_CARI_EVEBITDA_TANIMID = "29"  # Cari FD/FAVOK
+ISYATIRIM_TTM_EBITDA_TANIMID = "388"   # Yillik Cari FAVOK
+
+FAZ0B_CONFIG_VERSION = "faz0b-v1"

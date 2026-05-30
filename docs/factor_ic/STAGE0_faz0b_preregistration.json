@@ -1,0 +1,100 @@
+{
+  "directive": "D-183",
+  "phase": "FAZ 0b -- Stage 0 pre-registration (value factor IC; N=3/3 LAST measurement)",
+  "frozen_at_utc": "2026-05-30T12:56:38Z",
+  "discipline": "Definitions / universe / itemCode map / window / horizons / keep rule + snapshot hashes frozen BEFORE measurement. N=3/3 -- after this there is NO further Faz 0 IC measurement. D-177/D-178 results untouched.",
+  "config_version": "faz0b-v1",
+
+  "approach": "STANDALONE PARALLEL (NOT composite): F/DD and EV/EBITDA measured separately (avoids the D-177 composite-dilution trap; composite, if any, is built in Faz 1).",
+
+  "factors": {
+    "fd_dd_pb": {
+      "formula": "market_cap / book_value; lower = cheaper = higher value rank (inverted)",
+      "book_value": "EAOoP itemCode 2O (non-bank) / total equity 2O under UFRS (bank, D-182); book<=0 -> NaN",
+      "market_cap": "shares * frozen price; shares = IssuedCapital(itemCode 2OA, point-in-time annual) / par",
+      "par": 1.0,
+      "par_guard": "shares cross-checked vs yfinance sharesOutstanding (price-independent); |ratio-1|>0.20 -> value NULL (par!=1 or capital change). FROZEN null set below."
+    },
+    "ev_ebitda": {
+      "formula": "(market_cap + TotalLiabilities - Cash) / EBITDA; lower = cheaper = higher value rank (inverted)",
+      "total_liabilities": "2A (short) + 2B (long)",
+      "cash": "itemCode 1AA",
+      "ebitda": "operating profit (3DF) + D&A (4CAB Amortisman & Itfa Paylari); EBITDA<=0 -> NaN",
+      "banks": "EV/EBITDA = NULL for banks (D-182: bank EBITDA not comparable); F/DD only"
+    },
+    "value_deferred_note": "value was deferred from D-177/D-178 (no data); now sourced via MaliTablo (RR-032-V3/D-181/D-182)."
+  },
+
+  "data_source": {
+    "endpoint": "https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/Data.aspx/MaliTablo?companyCode=X&exchange=TRY&financialGroup=XI_29&year1..4&period1..4 (4 periods MANDATORY)",
+    "financial_group_nonbank": "XI_29",
+    "financial_group_bank": "UFRS",
+    "itemcodes_LIVE_DISCOVERED": {
+      "book_eaoop": "2O", "issued_capital": "2OA", "cash": "1AA",
+      "short_term_liab": "2A", "long_term_liab": "2B",
+      "operating_profit": "3DF", "d_and_a": "4CAB"
+    },
+    "itemcode_discovery": "Live-discovered on THYAO (XI_29, 147 rows) + AKBNK (UFRS, 192 rows) at Stage 0. Only 2O (EAOoP) was pre-confirmed (RR-035 rho=1.0, 3-source); the other 6 verified by Turkish itemName against the live response. Smoke check: THYAO shares=1.38e9 (par=1 correct), restated values sane.",
+    "cross_sectional_consistency": "RR-035 (D-182): MaliTablo EAOoP Spearman rho=1.0 vs Mynet (+stockanalysis.com), all sectors -> uniform basis (NRR-002 rank-IC safe even if TMS29-absolute unknown)."
+  },
+
+  "tms29_uniform_basis": {
+    "window_start": "2024-09-01",
+    "rationale": "RR-036: SPK 2023/81 -> TMS 29 first mandatory FY2023 year-end; FY2023 restated public ~mid-2024 + SPK +10wk extension. 2024-01 start invalid (mixed nominal+restated basis + look-ahead). 2024-09 = first uniform-restated point.",
+    "ebitda_basis": "latest-public restated ANNUAL operating profit + D&A (uniform single-basis; NOT mixed-base TTM). Cagan.",
+    "point_in_time": "conservative deterministic lag: annual pub_date = period_end + 120 days; valuation date t uses latest annual with pub_date <= t. Look-ahead-safe (errs late, never early). Cagan."
+  },
+
+  "usd_note_D180": "F/DD and EV/EBITDA are dimensionless and FX(t) is common across all tickers on date t -> USD conversion does NOT change cross-sectional rank. IC is computed on TL ratios; USD (EVDS TP.DK.USD.A, frozen) is for NRR-002 compliance + level + the TL-rank==USD-rank sanity (rho==1.0 by construction).",
+
+  "window": {"start": "2024-09-01", "end": "2026-04-30"},
+  "horizons": [21, 63, 126],
+  "horizon_note": "value slower than momentum -> +126 (6mo). h=126 over ~20mo likely has non-overlap n<12 -> ICIR-ineligible (min-n guard handles); value decision rests on {21,63} in practice.",
+
+  "keep_rule": {
+    "rule": "KEEP if ANY eligible h in {21,63,126} has |honest_t(NW HAC lag=h)| >= 2.0 AND non-overlap ICIR >= 0.5; eligible = non-overlap n >= 12.",
+    "honest_t_min": 2.0, "icir_nonoverlap_min": 0.5, "min_nonoverlap_n": 12,
+    "bars": "SAME as D-178, result-independent: 2.0 = IC_INVESTABLE_TSTAT_MIN (pre-D-177) + classic t~=2; 0.5 = ARCHITECTURE 7.1; n>=12 tiny-sample ICIR guard.",
+    "DEC-039": "honest_t MEASURED; value < bar -> drops, NO rescue -> 'RS+low-vol+value weak as standalone cross-sectional factors in this universe/window' is honest info (premise re-think)."
+  },
+
+  "universe": {
+    "source": "SAME 97-name ADV-filtered faz0_v2 universe (D-178); price forward-returns reuse the frozen faz0_v2 price snapshot.",
+    "n": 97
+  },
+
+  "snapshots": {
+    "price_reused": "faz0_v2_prices_2024-01-01_2026-04-30 (D-178, frozen)",
+    "fundamental": {
+      "file": "data/snapshots/faz0b_fundamentals.parquet",
+      "content_hash_sha256": "daedf8c8b63b8cea0881036654ae71ff60c44475eafbd1730bfdf8c6e4817ef9",
+      "n_rows": 380, "fiscal_years": [2025, 2024, 2023, 2022]
+    },
+    "fx": {
+      "file": "data/snapshots/faz0b_fx_usdtry.parquet",
+      "series": "TP.DK.USD.A",
+      "content_hash_sha256": "126fb6eaa1518e657ef4e03b998f2c8000434f6b25f5df0265a885505d302ec9", "n_obs": 420
+    },
+    "par_guard": {
+      "file": "data/snapshots/faz0b_parguard.json",
+      "method": "shares: issued_capital/par vs yfinance sharesOutstanding (price-independent)",
+      "tol": 0.20,
+      "null_tickers": ["ALGYO", "BIMAS", "KONTR", "MPARK", "SMRTG"],
+      "note": "market_cap cross-check would be contaminated by price drift (frozen ref vs current); shares isolate par!=1 / capital changes. Verified: FROTO/AEFES shares ratio=1.000 (false positives removed)."
+    }
+  },
+
+  "coverage": {
+    "fundamental_loaded_n": 95,
+    "fundamental_null": ["ANSGR", "TURSG"],
+    "fundamental_null_reason": "insurance companies -> different financialGroup; empty XI_29 (2/97 documented gap)",
+    "banks_n": 9,
+    "banks": ["AKBNK", "ALBRK", "GARAN", "HALKB", "ISCTR", "SKBNK", "TSKB", "VAKBN", "YKBNK"],
+    "par_guard_null_n": 5,
+    "expected_pb_names": "~90 (95 loaded - 5 par-guard)",
+    "expected_ev_ebitda_names": "~81 (P/B names - 9 banks)"
+  },
+
+  "config_budget": "N=3 of <=3 (LAST). After this: no further Faz 0 IC measurement.",
+  "decision_owner": "Orchestrator+Cagan (DEC-039). Harness MEASURES and RECOMMENDS the final Faz 1 factor set (lowvol60 from D-178 + value keepers); does not finalize."
+}

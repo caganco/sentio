@@ -1,0 +1,340 @@
+{
+  "directive": "D-183",
+  "phase": "FAZ 0b -- Value IC (P/B + EV/EBITDA, standalone; MEASUREMENT only; DEC-039; N=3/3)",
+  "window": {
+    "start": "2024-09-01",
+    "end": "2026-04-30"
+  },
+  "fundamental_snapshot_hash": "daedf8c8b63b8cea0881036654ae71ff60c44475eafbd1730bfdf8c6e4817ef9",
+  "price_snapshot": "faz0_v2_prices_2024-01-01_2026-04-30",
+  "ic_metric": "Spearman rank-IC (TL ratios; USD rank-invariant per D-180)",
+  "horizons": [
+    21,
+    63,
+    126
+  ],
+  "keep_rule": {
+    "primary_horizons": [
+      21,
+      63,
+      126
+    ],
+    "honest_t_min": 2.0,
+    "icir_nonoverlap_min": 0.5,
+    "min_nonoverlap_n": 12,
+    "rule": "keep if ANY eligible h has |honest_t(NW lag=h)|>=min AND non-overlap ICIR>=min"
+  },
+  "per_factor_ic": {
+    "pb": {
+      "21": {
+        "factor": "pb",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.03406,
+          "icir": 0.2616,
+          "t_stat": 5.1464,
+          "p_value": 0.0,
+          "n_obs": 387,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 387,
+          "mean_ic": 0.03406,
+          "std_ic": 0.1302,
+          "icir": 0.2616,
+          "t_naive": 5.14635,
+          "p_naive": 0.0,
+          "ci95_low": 0.02105,
+          "ci95_high": 0.04707,
+          "t_nw": 1.50904,
+          "p_nw": 0.13211,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 19,
+          "mean_ic": 0.02846,
+          "icir": 0.2143,
+          "t": 0.9339,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "pb",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.06291,
+          "icir": 0.6532,
+          "t_stat": 12.1681,
+          "p_value": 0.0,
+          "n_obs": 347,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 347,
+          "mean_ic": 0.06291,
+          "std_ic": 0.0963,
+          "icir": 0.65322,
+          "t_naive": 12.16811,
+          "p_naive": 0.0,
+          "ci95_low": 0.05274,
+          "ci95_high": 0.07308,
+          "t_nw": 2.13072,
+          "p_nw": 0.03382,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 6,
+          "mean_ic": 0.0544,
+          "icir": 0.6766,
+          "t": 1.6574,
+          "stride": 63
+        }
+      },
+      "126": {
+        "factor": "pb",
+        "horizon": 126,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.12079,
+          "icir": 1.4961,
+          "t_stat": 25.212,
+          "p_value": 0.0,
+          "n_obs": 284,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 284,
+          "mean_ic": 0.12079,
+          "std_ic": 0.08074,
+          "icir": 1.49606,
+          "t_naive": 25.21204,
+          "p_naive": 0.0,
+          "ci95_low": 0.11136,
+          "ci95_high": 0.13022,
+          "t_nw": 4.28989,
+          "p_nw": 2e-05,
+          "hac_lag": 126
+        },
+        "nonoverlap": {
+          "n_obs": 3,
+          "mean_ic": 0.12601,
+          "icir": 1.12,
+          "t": 1.9398,
+          "stride": 126
+        }
+      }
+    },
+    "ev_ebitda": {
+      "21": {
+        "factor": "ev_ebitda",
+        "horizon": 21,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.01173,
+          "icir": 0.0769,
+          "t_stat": 1.5131,
+          "p_value": 0.13108,
+          "n_obs": 387,
+          "is_investable": false
+        },
+        "series": {
+          "n_obs": 387,
+          "mean_ic": 0.01173,
+          "std_ic": 0.15248,
+          "icir": 0.07691,
+          "t_naive": 1.51307,
+          "p_naive": 0.13108,
+          "ci95_low": -0.00351,
+          "ci95_high": 0.02697,
+          "t_nw": 0.41507,
+          "p_nw": 0.67832,
+          "hac_lag": 21
+        },
+        "nonoverlap": {
+          "n_obs": 19,
+          "mean_ic": 0.00292,
+          "icir": 0.021,
+          "t": 0.0916,
+          "stride": 21
+        }
+      },
+      "63": {
+        "factor": "ev_ebitda",
+        "horizon": 63,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.04536,
+          "icir": 0.3637,
+          "t_stat": 6.7746,
+          "p_value": 0.0,
+          "n_obs": 347,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 347,
+          "mean_ic": 0.04536,
+          "std_ic": 0.12473,
+          "icir": 0.36368,
+          "t_naive": 6.77456,
+          "p_naive": 0.0,
+          "ci95_low": 0.03219,
+          "ci95_high": 0.05853,
+          "t_nw": 1.25176,
+          "p_nw": 0.2115,
+          "hac_lag": 63
+        },
+        "nonoverlap": {
+          "n_obs": 6,
+          "mean_ic": 0.02584,
+          "icir": 0.1809,
+          "t": 0.4431,
+          "stride": 63
+        }
+      },
+      "126": {
+        "factor": "ev_ebitda",
+        "horizon": 126,
+        "ic_source": "primitive",
+        "equivalence_ok": true,
+        "primitive": {
+          "mean_ic": 0.09568,
+          "icir": 0.9228,
+          "t_stat": 15.5521,
+          "p_value": 0.0,
+          "n_obs": 284,
+          "is_investable": true
+        },
+        "series": {
+          "n_obs": 284,
+          "mean_ic": 0.09568,
+          "std_ic": 0.10368,
+          "icir": 0.92285,
+          "t_naive": 15.55214,
+          "p_naive": 0.0,
+          "ci95_low": 0.08357,
+          "ci95_high": 0.10779,
+          "t_nw": 2.17623,
+          "p_nw": 0.03037,
+          "hac_lag": 126
+        },
+        "nonoverlap": {
+          "n_obs": 3,
+          "mean_ic": 0.06696,
+          "icir": 0.5529,
+          "t": 0.9577,
+          "stride": 126
+        }
+      }
+    }
+  },
+  "keep_drop_decision": {
+    "pb": {
+      "keep": false,
+      "by_horizon": {
+        "21": {
+          "mean_ic": 0.03406,
+          "t_naive": 5.14635,
+          "honest_t_nw_lag_h": 1.50904,
+          "icir_overlap": 0.2616,
+          "icir_nonoverlap": 0.2143,
+          "nonoverlap_n": 19,
+          "eligible": true,
+          "passes": false
+        },
+        "63": {
+          "mean_ic": 0.06291,
+          "t_naive": 12.16811,
+          "honest_t_nw_lag_h": 2.13072,
+          "icir_overlap": 0.65322,
+          "icir_nonoverlap": 0.6766,
+          "nonoverlap_n": 6,
+          "eligible": false,
+          "passes": false
+        },
+        "126": {
+          "mean_ic": 0.12079,
+          "t_naive": 25.21204,
+          "honest_t_nw_lag_h": 4.28989,
+          "icir_overlap": 1.49606,
+          "icir_nonoverlap": 1.12,
+          "nonoverlap_n": 3,
+          "eligible": false,
+          "passes": false
+        }
+      }
+    },
+    "ev_ebitda": {
+      "keep": false,
+      "by_horizon": {
+        "21": {
+          "mean_ic": 0.01173,
+          "t_naive": 1.51307,
+          "honest_t_nw_lag_h": 0.41507,
+          "icir_overlap": 0.07691,
+          "icir_nonoverlap": 0.021,
+          "nonoverlap_n": 19,
+          "eligible": true,
+          "passes": false
+        },
+        "63": {
+          "mean_ic": 0.04536,
+          "t_naive": 6.77456,
+          "honest_t_nw_lag_h": 1.25176,
+          "icir_overlap": 0.36368,
+          "icir_nonoverlap": 0.1809,
+          "nonoverlap_n": 6,
+          "eligible": false,
+          "passes": false
+        },
+        "126": {
+          "mean_ic": 0.09568,
+          "t_naive": 15.55214,
+          "honest_t_nw_lag_h": 2.17623,
+          "icir_overlap": 0.92285,
+          "icir_nonoverlap": 0.5529,
+          "nonoverlap_n": 3,
+          "eligible": false,
+          "passes": false
+        }
+      }
+    }
+  },
+  "usd_rank_sanity": {
+    "checked": true,
+    "n_dates": 85,
+    "mean_spearman_rho": 1.0,
+    "min_spearman_rho": 1.0,
+    "expected": 1.0,
+    "note": "rho==1.0 confirms USD conversion is rank-invariant (D-180)"
+  },
+  "coverage": {
+    "fundamental_loaded_n": 95,
+    "fundamental_null_tickers": [
+      "ANSGR",
+      "TURSG"
+    ],
+    "banks_n": 9,
+    "par_guard_null": [
+      "ALGYO",
+      "BIMAS",
+      "KONTR",
+      "MPARK",
+      "SMRTG"
+    ],
+    "pb_names_per_date_median": 89,
+    "ev_names_per_date_median": 77
+  },
+  "value_keepers": [],
+  "faz1_recommended_factor_set": [
+    "lowvol60"
+  ],
+  "note": "Banks: F/DD only, EV/EBITDA NULL (D-182). Point-in-time annual, conservative +120d lag, latest-public restated (RR-036).",
+  "decision_owner": "Orchestrator+Cagan (harness recommends only, DEC-039)"
+}
