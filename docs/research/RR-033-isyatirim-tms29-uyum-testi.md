@@ -237,3 +237,53 @@ Bu, **Yol B parser extension'ı sırasında ayrı bir mini-research gerektirir**
 2. **MKK VYK pipeline doğrulaması:** Auth + pagination + XBRL extraction çalışıyor, prod token gelince kullanıma hazır
 3. **`_XBRL_MAP` hatası onaylandı:** `IssuedCapital ≠ Equity` (37-249× fark) — Yol B için kritik fix
 4. **EBITDA XBRL element ismi taxonomy sorunu:** Yol B parser extension'ında ayrı çözülmeli
+
+---
+
+## Sonuç v2 (MaliTablo) — D-181 execution, 30 May 2026
+
+**Verdict: ⚠️ BELİRSİZ → KIRMIZI eğilimli.** MaliTablo XI_29 değerleri, otoriter KAP-filed 2023 finansal özeti ile **tek-tip ~%44 sapma** gösteriyor; gelir tablosu şablonunda **parasal pozisyon kâr/zarar satırı yok**. MaliTablo'nun TMS 29-restated olduğu **doğrulanamadı** — tersine, basit yeniden-endeksleme veya nominal/İş Yatırım-normalize bir taban olabilir. **NRR-002 ("nominal F/DD YASAK") gereği MaliTablo Faz 0b value IC'ye OLDUĞU GİBİ bağlanmamalı**; basit muhasebe-uzmanı doğrulaması (full filed statement, solo/konsolide + VUK/TFRS/TMS29 ayrımı) şart. Bu, **direktif NOTE'unun işaret ettiği "kalite değerlendirmesi derin uzmanlık gerektirir" durumudur.**
+
+### Kanal değişikliği başarılı (RR-032-V3 doğrulandı)
+MaliTablo endpoint canlı çalışıyor; D-179'un MKK-dev-gateway-pre-TMS29 engeli aşıldı:
+- `GET .../Common/Data.aspx/MaliTablo?companyCode=X&exchange=TRY&financialGroup=XI_29` + **tam 4 dönem zorunlu** (3 dönem → boş `value`).
+- 4 ticker × (2024/2023/2022/2021 yıllık) → 147 satır/ticker, itemCode 2O = Ana Ortaklığa Ait Özkaynaklar (EAOoP) dahil tüm kalemler.
+
+### Test 1 — Parasal pozisyon satırı (TMS 29 binary imzası): ❌ YOK
+THYAO gelir tablosu (itemCode prefix 3/4) tam döküm: Brüt Kar → Faaliyet Karı → Finansman Gideri Öncesi → Finansal Gelir/Gider → Vergi Öncesi → Dönem Karı. **"Net Parasal Pozisyon Kâr/Zararı" satırı HİÇ YOK** (sadece `4BE` "Net Yabancı Para Pozisyonu" = FX, parasal-pozisyon değil). TMS 29-restated gelir tablosu bu satırı ZORUNLU içerir. İş Yatırım sabit şablonu bu kalemi katlamış olabilir → tek başına kesin değil, ama kırmızı bayrak.
+
+### Test 2 — Otoriter magnitude (TUPRS, KAP-filed 2023): material sapma
+Referans: KAP `sirket-finansal-bilgileri` sayfası (TUPRS, 31.12.2023 konsolide):
+
+| Alan | KAP-filed 2023 | MaliTablo XI_29 2023 | Oran (MaliTablo/KAP) |
+|---|---:|---:|:---:|
+| Ana Ortaklığa Ait Özkaynaklar | 200.763 bn | 289.860 bn | **1.444×** |
+| Dönem Net Kârı (parent) | 53.577 bn | 77.780 bn | **1.452×** |
+| Net Satış Geliri | 686.529 bn | 991.203 bn | **1.444×** |
+
+**Kritik gözlem:** Üç kalem de **aynı ~1.44-1.45 faktörüyle** ölçeklenmiş. Gerçek TMS 29 net kârı **tek-tip ölçeklemez** — parasal kazanç/kayıp kalem-spesifiktir (TUPRS net-nakit → TMS 29 parasal KAYIP → net kâr nominalden DÜŞER, yukarı değil). Üç kalemde birebir aynı çarpan = TMS 29 restatement DEĞİL, **uniform bir endeksleme/baz farkı** sinyali. Hangi tarafın hangi baz olduğu (nominal mi, restated mi, ara-baz mı) bu çarpan tek-tipliği + parasal-satır yokluğu nedeniyle **net değil**.
+
+### Test 3 — Yön kontrolü (user vurgusu): tutarsız/belirsiz
+MaliTablo değerleri KAP-filed'den sistematik YUKARI (1.44×). Restatement-up beklentisiyle (gelir/özkaynak) uyumlu görünse de, net kârın da aynı faktörle yukarı olması TMS 29 mekaniğiyle ÇELİŞİR. Yön, basis'i ayırt etmiyor.
+
+### Diğer 3 ticker (MaliTablo değerleri kayıtlı, otoriter KAP karşılaştırması yapılmadı)
+THYAO 2023 EAOoP 457.3bn / net kâr 163.0bn; EREGL 186.2bn / 4.33bn; BIMAS 99.8bn / 22.3bn. Bunların KAP-filed otoriter karşılığı bu turda çekilmedi (TUPRS authoritative case verdict için yeterli). Aynı `sirket-finansal-bilgileri` cross-check'i 3 ticker için tekrarlanmalı.
+
+### Konsolidasyon notu (user vurgusu)
+MaliTablo `financialGroup=XI_29` = borsapy'de "sanayi/konsolide" etiketli; KAP referansı da konsolide (31.12.2023). İkisi de konsolide olmasına rağmen ~%44 sapıyor → fark solo/konsolide değil, **baz (nominal vs restated vs normalize) farkı**. Endpoint'in solo/konsolide ayrı param'ı tespit edilemedi (4-dönem kuralı nedeniyle varyant testleri boş döndü; ayrıca araştırılmalı).
+
+### Karar Ağacı Çıktısı (RR-033 §4)
+- ❌ "Tüm ticker eşleşir → TMS 29-adjusted → YEŞİL" — gerçekleşmedi (TUPRS ~%44 sapma)
+- ❌ "Tümü nominal → KIRMIZI" — net kanıtlanamadı (yön/çarpan TMS 29 mekaniğiyle çelişiyor; saf nominal de değil)
+- ✅ **"BELİRSİZ → alan-bazlı incele + uzman doğrulaması"** — bu dala düştük
+
+### Öneri (DEC-039: ÖLÇER, seçmez — karar Orchestrator + Cagan)
+1. **MaliTablo'yu Faz 0b value IC'ye OLDUĞU GİBİ bağlama.** TMS 29 fidelity doğrulanmadı; ~%44 uniform sapma + parasal-satır yokluğu çözülmeden NRR-002 çıtası karşılanmıyor.
+2. **Muhasebe-uzmanı / full-statement doğrulaması:** TUPRS + THYAO 2023 KAP-filed TAM konsolide finansal tablo (dipnotlar dahil) ile MaliTablo satır-bazında karşılaştır. ~1.44 çarpanın kaynağını belirle (CPI restatement faktörü mü, sunum farkı mı, İş Yatırım normalizasyonu mu).
+3. **Pragmatik fallback testi:** Cross-sectional rank-IC için baz'ın saf-TMS29 olması şart değil — AMA tüm şirketlerde **aynı baz** uygulanmalı (yoksa farklı varlık-yaşı/enflasyon-maruziyeti olan şirketlerin rank'i bozulur — NRR-002'nin nominal-yasağının özü). MaliTablo'nun baz'ı uniform mu (tüm sektörlerde) ayrıca test edilmeli.
+4. **Alternatif kanallar hâlâ masada:** MKK VYK prod token (D-170, gerçek filed XBRL), EODHD trial (RR-032-V2). RR-032-V3'ün "MaliTablo Faz 0b'yi çözer" headline'ı bu bulguyla **niteliklendirildi**: kanal ücretsiz/derin/programatik ✓ ama **TMS 29 fidelity'si doğrulanana kadar value için güvenli değil**.
+
+### Kalıcı Çıktılar (D-181)
+1. MaliTablo endpoint operasyonel detay: 4-dönem zorunlu, itemCode haritası (2O=EAOoP, 3C=satış, 3DF=faaliyet karı, 3L=dönem karı, 4B=amortisman).
+2. Otoriter referans kanalı keşfi: KAP `sirket-finansal-bilgileri/{id}` sayfası (Next.js query API ölü olsa da bu özet sayfası WebFetch ile okunabilir) — gelecekteki KAP cross-check'ler için.
+3. TMS 29 binary imza yöntemi: parasal-pozisyon satırı varlığı (gelecek kaynak testlerinde kullanılabilir hızlı tell).
