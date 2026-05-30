@@ -1,0 +1,56 @@
+{
+  "directive": "D-182",
+  "title": "MaliTablo Cross-Sectional Tutarlilik Testi",
+  "phase": "Faz 0b on-dogrulama (value veri kaynagi)",
+  "frozen_at": "2026-05-30",
+  "discipline": "Ornek + esikler SONUC GORULMEDEN donduruldu. Post-hoc ornek genisletme / esik degisikligi YASAK (DEC-039).",
+  "depends_on": ["RR-033 v2 (D-181)", "RR-032-V3 (MaliTablo kanali)", "NRR-002"],
+  "hypothesis": "MaliTablo'nun baz'i (nominal/restated/normalize fark etmez) BIST kesitinde uniform mu? Uniform ise cross-sectional rank-IC icin sira korunur -> Faz 0b kullanilabilir.",
+
+  "sample": {
+    "source_universe": "D-178 FAZ0_BIST100_CONSTITUENTS, ADV-trim sonrasi 97 isim",
+    "n": 13,
+    "stratification": "3 big-cap + 3 mid-cap + 3 small-cap + 4 sektor (2 banka, 1 GYO, 1 holding)",
+    "big_cap": ["THYAO", "TUPRS", "EREGL"],
+    "mid_cap": ["BIMAS", "SAHOL", "KCHOL"],
+    "small_cap": ["ALCTL", "REEDR", "KLGYO"],
+    "small_cap_rule": "97-universe TradingView market_cap_basic ile siralandi; named-disi en kucuk 3 (ALCTL 5.11bn, REEDR 6.74bn, KLGYO 6.74bn TL). Deterministik, sonuc-bagimsiz stratifikasyon degiskeni (test metrigi DEGIL).",
+    "sector_diversity": {
+      "banka": ["AKBNK", "GARAN"],
+      "gyo": ["TRGYO"],
+      "holding": ["AGHOL"]
+    },
+    "substitution_note": "Spec KOZAA (holding) ister; KOZAA delisted + 97-universe'de YOK (faz0_config KNOWN_DELISTED). Mekanik zorunlu ikame: AGHOL (Anadolu Grubu Holding, universe'de, likit). Belgelenir."
+  },
+
+  "sources": {
+    "primary": "Is Yatirim MaliTablo (financialGroup=XI_29, 2023 yillik, 4-donem zorunlu). itemCode 2O=Ana Ortakliga Ait Ozkaynaklar (EAOoP), 3C=Net Satis Geliri.",
+    "secondary": "Mynet (finans.mynet.com/borsa/hisseler/{slug}) bilanco (EAOoP) + gelir-tablosu (net satis), 2023 yillik donem. Bagimsiz KAP scrape (borsa-mcp kanali, RR-032-V3).",
+    "fallback": "stockanalysis.com (RR-032-V3 §A) -- Mynet kirilirsa VEYA ru=1.00/std~0.00 supheli-mukemmel cikarsa ucuncu teyit.",
+    "fields": ["EquityAttributableToOwnersOfParent (EAOoP)", "Net Sales / Satis Gelirleri"]
+  },
+
+  "metrics": {
+    "per_ticker_ratio": "MaliTablo_deger / Mynet_deger (EAOoP ve net satis ayri)",
+    "ratio_distribution": "mean, std, IQR, std/mean (CV)",
+    "spearman_rho": "MaliTablo siralamasi vs Mynet siralamasi (EAOoP ve net satis ayri)",
+    "sector_clustering": "ratio'lar sektore gore kumeleniyor mu (banka/sanayi/gyo/holding)?"
+  },
+
+  "decision_thresholds": {
+    "GREEN_consistent": "spearman_rho >= 0.95 VE ratio_std_over_mean < 0.15 -> MaliTablo cross-sectional TUTARLI -> Faz 0b kullanilabilir (baz ne olursa olsun sira korunur)",
+    "RED_inconsistent": "spearman_rho < 0.80 VEYA ratio_std_over_mean > 0.30 -> TUTARSIZ -> value IC icin kullanilamaz",
+    "MIXED_field_based": "ara degerler -> alan-bazli routing (hangi kalem guvenilir isaretle)",
+    "bank_handling": "Banka muhasebesi farkli (EAOoP/satis tanimi sanayiden ayri). Bankalar AYRI raporlanir; ana karar sanayi+holding+gyo-only. Banka ek gozlem.",
+    "perfect_match_caveat": "rho=1.00 + std~0.00 (suphesiz mukemmel) cikarsa: Mynet ve MaliTablo ayni KAP kanalini paylasiyor olabilir -> gercek bagimsizlik supheli -> stockanalysis.com ile ucuncu teyit eklenir."
+  },
+
+  "prior_hypotheses": {
+    "H1_most_likely": "Yuksek rho + dar ratio dagilimi -> MaliTablo uniform baz -> Faz 0b YESIL",
+    "H2": "Dusuk rho VEYA sektor kumeleme -> tutarsiz -> KIRMIZI (kurtarma yok, EODHD/MKK'ya gec)",
+    "H3": "Karisik -> alan-bazli routing"
+  },
+
+  "decision_owner": "the project (DEC-039). Test OLCER; kaynak kullanim karari sonuc gelince.",
+  "build_constraint": "src/ dokunulmaz; throwaway scripts/_probe_*.py; build YOK."
+}
