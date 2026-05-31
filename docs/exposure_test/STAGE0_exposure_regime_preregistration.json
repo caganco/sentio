@@ -1,0 +1,93 @@
+{
+  "directive": "D-187",
+  "title": "Dürüst-Benchmark + Maruziyet-Rejimi Ayrım Testi -- Stage 0 pre-registration",
+  "preregistered_date": "2026-05-31",
+  "config_module": "src/screening/exposure_config.py",
+  "config_version": "exposure-d187-v1",
+  "discipline_note": "Committed BEFORE any backtest is run and BEFORE any result is seen. DEC-045 decision rule is FROZEN: no post-hoc relaxation ('disinflation -> full-period', threshold lowering) permitted.",
+  "motivation": "D-185/D-186 found no entry-alpha. Dogrulama-agent identified blind spot: maruziyet-rejimi (equity<->TLREF switch) was adopted with ZERO testing. Same discipline applied here. Baz-tahsis (static, no prediction) vs aktif-zamanlama (regime signal) tested SEPARATELY against a dumb-barbell benchmark in REAL + post-cost terms.",
+
+  "data": {
+    "window": {"start": "2019-01-01", "end": "2026-04-30"},
+    "xu100": {"source": "yfinance XU100.IS", "type": "price-only",
+              "caveat": "No dividends (~2-4%/yr). Equity side DISADVANTAGED ~2-4%/yr vs true total-return. If PASS with this handicap -> stronger result. Report states this explicitly."},
+    "tlref": {"source": "EVDS TP.BISTTLREF.KAPANIS", "type": "annualised overnight rate",
+              "compound_growth": "idx[t] = idx[t-1] * (1 + rate[t]/365); start=1.0. RATE is converted to COMPOUND-GROWTH INDEX. All comparisons use the index series -- never the raw rate."},
+    "tufe":  {"source": "EVDS TP.FG.J0", "type": "monthly CPI; ffill to daily compound index"},
+    "gold":  {"source": "yfinance GC=F (USD/oz) x EVDS TP.DK.USD.A", "type": "TL/gram daily; diagnostic B4 only"}
+  },
+
+  "benchmarks": {
+    "B1_TLREF": "100% TLREF compound-growth (real competitor ~40% nominal)",
+    "B2_BARBELL": "50% XU100 + 50% TLREF, monthly rebalance (dumb baseline -- main rival)",
+    "B3_XU100": "100% XU100 price-index (equity upper bound, dividend-free)",
+    "B4_GOLD_DIAG": "DIAGNOSTIC ONLY -- Gold TL/gram. Not in decision rule. Debasement check: if S-A beats TLREF+TUFE but NOT gold -> edge is debasement-beta, not real skill.",
+    "B5_TUFE": "TUFE compound-growth (real-zero line)"
+  },
+
+  "strategies": {
+    "S_A_static": {
+      "equity_ratios": [0.30, 0.50, 0.70],
+      "n_lock": "exactly 3 ratios, no additional post-hoc",
+      "rebalance_freq": "monthly",
+      "rebalance_cost_bps": 10,
+      "note": "static barbell; NO prediction required; equity = XU100 proxy"
+    },
+    "S_B_regime": {
+      "signal": "XU100 200-day MA: close>MA AND MA-slope>0 -> equity; else -> TLREF",
+      "look_ahead_guard": "signal at t-close, position from t+1-open",
+      "switch_cost_bps": 50,
+      "note": "active timing; requires prediction -> subject to random-switch null test"
+    }
+  },
+
+  "cost_model": {
+    "S_A_rebalance": "10 bps round-trip per rebalance event (conservative index-fund)",
+    "S_B_switch": "50 bps round-trip per equity<->TLREF switch (RR-038 calibrated)",
+    "rationale": "S-B switches more than S-A -> more cost; if S-B passes despite higher cost -> stronger result"
+  },
+
+  "real_deflation": {
+    "method": "TUFE compound-growth index; real = (1+nominal) / (TUFE_exit/TUFE_entry) - 1",
+    "note": "nominal results reported separately for transparency (drift illustration, D-186 lesson)"
+  },
+
+  "decision_rule_DEC045": {
+    "SA_passes_if": "best STATIC_EQUITY_RATIOS real annual return > B1_TLREF real AND > B5_TUFE real",
+    "SB_passes_if": "S-B real annual return > best_SA real AND S-B beats random-switch null >= 0.95 pctile",
+    "diagnostic_gold": "raporda görünür; karar kuralına girmiyor",
+    "no_post_hoc_relaxation": "frozen; not loosened after seeing results",
+    "disinflation_reported_separately": true
+  },
+
+  "random_switch_null": {
+    "method": "same number of switches as S-B in same slice, random dates, same switch cost, same equity/TLREF returns",
+    "seed": 12345,
+    "n_resamples": 1000
+  },
+
+  "significance": {
+    "method": "block-bootstrap CI (block=21, n_boot=2000) on daily portfolio return series",
+    "reuse": "factor_ic_harness.block_bootstrap_ci"
+  },
+
+  "regime_slices": [
+    ["pre_surge", "2019-01-01", "2021-09-30"],
+    ["high_inflation", "2021-10-01", "2024-06-30"],
+    ["disinflation", "2024-07-01", "2026-04-30"]
+  ],
+
+  "caveats": [
+    "XU100 price-only (no dividends) -> equity disadvantaged ~2-4%/yr -> conservative/muhafazakâr",
+    "BIST100 = endeks proxy (no stock selection -- this is exposure test, not selection test)",
+    "Disinflation slice ~20 months -> low statistical power; stated explicitly",
+    "TUFE deflation best-effort (monthly ffill to daily)",
+    "Gold B4 diagnostic: GC=F USD price x USDTRY daily close -> TL/gram approximation"
+  ],
+
+  "outputs": [
+    "docs/exposure_test/STAGE0_exposure_regime_preregistration.json (this file)",
+    "docs/exposure_test/exposure_results.json",
+    "docs/research/D-187-exposure-rapor.md"
+  ]
+}
