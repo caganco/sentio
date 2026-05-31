@@ -39,6 +39,7 @@ data/backups/
 # D-139 IC framework: personal signal data + IC time-series (public repo leak guard)
 data/analytics/
 data/signal_logs/
+data/event_logs/
 
 # Runtime / generated / local junk (not code)
 agents/intelligence/

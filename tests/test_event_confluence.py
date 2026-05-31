@@ -21,6 +21,7 @@ from src.screening import event_detect as ed
 from src.screening import event_null as en
 from src.screening import event_runner as er
 from src.screening import event_study as es
+from src.screening.event_forward_recorder import EventForwardRecorder, EventReturnFiller
 
 
 # ---------------------------------------------------------------------------
@@ -272,6 +273,74 @@ def test_run_event_confluence_test_structure():
 
 
 # ---------------------------------------------------------------------------
+# Forward recorder -- pre-registration guarantee + idempotent append-only
+# ---------------------------------------------------------------------------
+def _recorder_fixture(n: int = 120, event_pos: int = 50):
+    df = _spike_bar(_flat_ohlcv(n), event_pos)
+    df.iloc[event_pos + 1:, df.columns.get_loc("Close")] = 130.0
+    prices = {"AAA": df}
+    xu = _flat_ohlcv(n)["Close"]
+    ev_date = str(df.index[event_pos].date())
+    events = [{"ticker": "AAA", "event_date": ev_date, "event_type": "E1_earnings",
+               "surprise_real": 0.45}]
+    return prices, xu, ev_date, events, df
+
+
+def test_recorder_signal_has_no_forward_at_write(tmp_path):
+    """Pre-registration guarantee: the signal is recorded WITHOUT any forward outcome."""
+    prices, _xu, _ev, events, _df = _recorder_fixture()
+    rec = EventForwardRecorder(str(tmp_path))
+    n = rec.record_events(events, prices)
+    assert n == 1
+    sigs = rec.load_signals()
+    assert sigs.iloc[0]["signal_fired"] == True  # noqa: E712 (parquet bool)
+    # no forward-return columns exist in the immutable signal record
+    assert not any(c.startswith(("fwd", "rel", "gross", "return_t")) for c in sigs.columns)
+    assert "as_of_timestamp" in sigs.columns
+
+
+def test_recorder_idempotent(tmp_path):
+    prices, _xu, _ev, events, _df = _recorder_fixture()
+    rec = EventForwardRecorder(str(tmp_path))
+    assert rec.record_events(events, prices) == 1
+    assert rec.record_events(events, prices) == 0  # same natural_key -> no duplicate
+    assert len(rec.load_signals()) == 1
+
+
+def test_return_filler_fills_matured_horizon(tmp_path):
+    prices, xu, _ev, events, df = _recorder_fixture()
+    EventForwardRecorder(str(tmp_path)).record_events(events, prices)
+    filler = EventReturnFiller(str(tmp_path))
+    future = str(df.index[-1].date())   # all horizons matured by series end
+    n = filler.fill(future, prices, xu, horizons=(5,))
+    assert n == 1
+    rdf = filler.load_returns()
+    assert rdf.iloc[0]["horizon"] == 5 and rdf.iloc[0]["rel_net_return"] is not None
+    # idempotent: filling again adds nothing
+    assert filler.fill(future, prices, xu, horizons=(5,)) == 0
+
+
+def test_return_filler_skips_unmatured_horizon(tmp_path):
+    prices, xu, ev_date, events, _df = _recorder_fixture()
+    EventForwardRecorder(str(tmp_path)).record_events(events, prices)
+    filler = EventReturnFiller(str(tmp_path))
+    # 'today' == event date -> the t+1+5 exit is in the future -> nothing matured
+    assert filler.fill(ev_date, prices, xu, horizons=(5,)) == 0
+    assert filler.load_returns().empty
+
+
+def test_signal_immutable_after_fill(tmp_path):
+    """Filling returns must not alter the signal log (append-only separation)."""
+    prices, xu, _ev, events, df = _recorder_fixture()
+    rec = EventForwardRecorder(str(tmp_path))
+    rec.record_events(events, prices)
+    before = rec.load_signals().to_dict("records")
+    EventReturnFiller(str(tmp_path)).fill(str(df.index[-1].date()), prices, xu, horizons=(5,))
+    after = rec.load_signals().to_dict("records")
+    assert before == after
+
+
+# ---------------------------------------------------------------------------
 # Architecture invariant (strangler): no composite / engine / conviction imports
 # ---------------------------------------------------------------------------
 def test_no_composite_or_engine_imports():
@@ -279,7 +348,8 @@ def test_no_composite_or_engine_imports():
     forbidden_names = {"MASTER_WEIGHTS", "compute_composite_score", "compute_conviction"}
     src_dir = Path(__file__).parent.parent / "src" / "screening"
     for name in ("event_config.py", "event_detect.py", "event_confirm.py",
-                 "event_study.py", "event_null.py", "event_runner.py"):
+                 "event_study.py", "event_null.py", "event_runner.py",
+                 "event_forward_recorder.py"):
         tree = ast.parse((src_dir / name).read_text(encoding="utf-8"))
         modules, used = [], set()
         for node in ast.walk(tree):
