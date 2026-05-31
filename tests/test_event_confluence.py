@@ -21,7 +21,12 @@ from src.screening import event_detect as ed
 from src.screening import event_null as en
 from src.screening import event_runner as er
 from src.screening import event_study as es
-from src.screening.event_forward_recorder import EventForwardRecorder, EventReturnFiller
+from src.screening.event_forward_recorder import (
+    EventForwardRecorder,
+    EventReturnFiller,
+    classify_event_type,
+    events_from_news,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -307,6 +312,20 @@ def test_recorder_idempotent(tmp_path):
     assert len(rec.load_signals()) == 1
 
 
+def test_recorder_collapses_within_batch_duplicate_keys(tmp_path):
+    """Several same-day same-type disclosures for one ticker -> ONE event day."""
+    prices, _xu, ev_date, _events, _df = _recorder_fixture()
+    rec = EventForwardRecorder(str(tmp_path))
+    dupes = [
+        {"ticker": "AAA", "event_date": ev_date, "event_type": "E3_material_kap",
+         "surprise_real": None, "title": "disclosure 1"},
+        {"ticker": "AAA", "event_date": ev_date, "event_type": "E3_material_kap",
+         "surprise_real": None, "title": "disclosure 2"},  # same natural_key -> collapsed
+    ]
+    n = rec.record_events(dupes, prices)
+    assert n == 1 and len(rec.load_signals()) == 1
+
+
 def test_return_filler_fills_matured_horizon(tmp_path):
     prices, xu, _ev, events, df = _recorder_fixture()
     EventForwardRecorder(str(tmp_path)).record_events(events, prices)
@@ -338,6 +357,37 @@ def test_signal_immutable_after_fill(tmp_path):
     EventReturnFiller(str(tmp_path)).fill(str(df.index[-1].date()), prices, xu, horizons=(5,))
     after = rec.load_signals().to_dict("records")
     assert before == after
+
+
+# ---------------------------------------------------------------------------
+# Disclosure -> event-type mapping (forward capture, pure)
+# ---------------------------------------------------------------------------
+def test_classify_event_type_e1_e2_e3_and_noise():
+    assert classify_event_type("ABC Bilanco aciklandi") == "E1_earnings"
+    assert classify_event_type("Sirket 2025 finansal rapor") == "E1_earnings"
+    assert classify_event_type("XYZ BIST 100 endekse dahil edildi") == "E2_index_inclusion"
+    # E3 = any other CRITICAL/IMPORTANT disclosure; use an ASCII CRITICAL keyword (merger/acquisition)
+    assert classify_event_type("Company acquisition agreement signed") == "E3_material_kap"
+    # NOISE (faaliyet raporu) -> None
+    assert classify_event_type("Yillik faaliyet raporu yayinlandi") is None
+    assert classify_event_type("") is None
+
+
+def test_events_from_news_maps_and_filters():
+    news = [
+        {"ticker": "aaa", "title": "AAA bilanco aciklandi", "published": "2026-06-01T08:00:00+00:00",
+         "source": "kap_api"},
+        {"ticker": "BBB", "title": "BBB BIST 30 endeks dahil", "published": "2026-06-01", "source": "kap_api"},
+        {"ticker": "CCC", "title": "Yillik faaliyet raporu", "published": "2026-06-01"},  # NOISE -> dropped
+        {"ticker": "DDD", "title": "Onemli sozlesme imzalandi", "published": "not-a-date"},  # bad date -> dropped
+        {"ticker": "", "title": "AAA bilanco", "published": "2026-06-01"},  # empty ticker -> dropped
+    ]
+    events = events_from_news(news)
+    by = {e["ticker"]: e["event_type"] for e in events}
+    assert by == {"AAA": "E1_earnings", "BBB": "E2_index_inclusion"}
+    assert all(e["surprise_real"] is None for e in events)        # E1 magnitude pending
+    assert all(e["event_date"] == "2026-06-01" for e in events)   # parsed from published
+    assert events_from_news([]) == []
 
 
 # ---------------------------------------------------------------------------

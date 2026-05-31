@@ -39,6 +39,68 @@ def natural_key(event_date: str, ticker: str, event_type: str) -> str:
     return f"{event_date}|{ticker}|{event_type}"
 
 
+# ---------------------------------------------------------------------------
+# Disclosure -> event-type mapping (pure; Turkish keyword match, lower-cased)
+# ---------------------------------------------------------------------------
+# E1 earnings + E2 index by explicit keywords; E3 = any other CRITICAL/IMPORTANT
+# disclosure (per kap_scraper.classify_disclosure severity). NOISE is dropped.
+E1_EARNINGS_KEYWORDS = (
+    "bilanco", "bilanço", "finansal sonuc", "finansal sonuç", "finansal rapor",
+    "finansal tablo", "kar aciklandi", "kâr açıklandı", "zarar aciklandi",
+    "zarar açıklandı", "earnings", "ara donem finansal", "ara dönem finansal",
+)
+E2_INDEX_KEYWORDS = (
+    "endeks dahil", "endekse dahil", "endeks cikar", "endeks çıkar",
+    "endeksten cikar", "endeksten çıkar", "bist 30", "bist30", "bist 100",
+    "bist100", "endeks degisiklik", "endeks değişiklik",
+)
+
+
+def classify_event_type(title: str) -> str | None:
+    """Map a disclosure title to E1/E2/E3, or None (NOISE / unmapped).
+
+    E1/E2 by explicit keyword; E3 = any remaining CRITICAL/IMPORTANT disclosure
+    (reuses kap_scraper.classify_disclosure as the single severity source).
+    """
+    if not title:
+        return None
+    low = title.lower()
+    if any(k in low for k in E1_EARNINGS_KEYWORDS):
+        return "E1_earnings"
+    if any(k in low for k in E2_INDEX_KEYWORDS):
+        return "E2_index_inclusion"
+    from src.data.kap_scraper import classify_disclosure
+    if classify_disclosure(title) in ("CRITICAL", "IMPORTANT"):
+        return "E3_material_kap"
+    return None
+
+
+def events_from_news(news_items: list[dict]) -> list[dict]:
+    """Map auth-free KAP/news items -> event dicts (pure, network-free).
+
+    surprise_real is left None for E1 (the auth-free feed has no magnitude; it is
+    filled later when fundamentals/token arrive -- the maintainer's chosen scope: capture the
+    earnings DISCLOSURE + technical confirm now, magnitude later).
+    """
+    events: list[dict] = []
+    for it in news_items or []:
+        etype = classify_event_type(it.get("title", ""))
+        if etype is None:
+            continue
+        try:
+            ev_date = str(pd.Timestamp(it.get("published")).date())
+        except (ValueError, TypeError):
+            continue
+        ticker = str(it.get("ticker", "")).upper()
+        if not ticker:
+            continue
+        events.append({
+            "ticker": ticker, "event_date": ev_date, "event_type": etype,
+            "surprise_real": None, "title": it.get("title"), "source": it.get("source"),
+        })
+    return events
+
+
 class EventForwardRecorder:
     """Append-only, idempotent IMMUTABLE signal log for forward event capture."""
 
@@ -76,6 +138,10 @@ class EventForwardRecorder:
         if not records:
             return 0
         new = pd.DataFrame(records)
+        # Collapse within-batch duplicate identities: several distinct disclosures of
+        # the same type for one ticker on one day = ONE event day (same t+1 forward
+        # window) -> keep the first, avoid double-counting the same window.
+        new = new.drop_duplicates(subset="natural_key", keep="first")
         self._dir.mkdir(parents=True, exist_ok=True)
         if self._signals.exists():
             existing = pd.read_parquet(self._signals)
@@ -166,24 +232,70 @@ class EventReturnFiller:
         return pd.read_parquet(self._returns) if self._returns.exists() else pd.DataFrame()
 
 
-def run_manual(base_dir: str = _DEFAULT_DIR) -> dict:  # pragma: no cover
-    """MANUAL-TRIGGER forward pass (the maintainer runs ~weekly). Cron wiring deferred.
+def capture_once(universe: list[str] | None = None, price_lookback_days: int = 180,
+                 base_dir: str = _DEFAULT_DIR, today=None) -> dict:  # pragma: no cover (network)
+    """LIVE forward pass: capture today's catalyst disclosures + fill matured returns.
 
-    Scaffold: capture today's catalyst disclosures via the AUTH-FREE KAP feed
-    (src/data/kap_scraper.fetch_kap_news -> no token), record pre-registered signals,
-    then fill any matured forward returns. Network/access failures degrade to a logged
-    no-op (data_pending) -- never fabricated. Wiring the disclosure->structured-event
-    mapping + universe is completed when forward capture is activated.
+    1. fetch_kap_news(universe) -- AUTH-FREE, no token (recent ~24h; WAF-fragile).
+    2. map -> event dicts (events_from_news).
+    3. fetch OHLCV for ALL signal-log tickers + today's event tickers (so OLD signals
+       mature too, not just today's).
+    4. record_events (immutable, pre-registration) + fill matured t+5/+20/+60 returns.
+    Network/access failures degrade to a logged result; events are never fabricated.
     """
-    logger.info("D-188 forward recorder: manual pass (auth-free KAP feed). base=%s", base_dir)
-    return {
-        "status": "scaffold_ready",
-        "trigger": "manual (cron deferred)",
-        "source": "src/data/kap_scraper.fetch_kap_news (auth-free, no token)",
-        "note": "Activate disclosure->event mapping + universe to begin capture; "
-                "misses are logged, never fabricated.",
+    from datetime import date, timedelta
+
+    from src.backtest.data_loader import load_price_data
+    from src.data.kap_scraper import fetch_kap_news
+
+    if universe is None:
+        from src.screening.trend_config import TREND_UNIVERSE
+        universe = list(TREND_UNIVERSE)
+    today = today or date.today()
+
+    try:
+        news = fetch_kap_news(universe)
+    except Exception as exc:
+        logger.warning("capture_once: fetch_kap_news failed: %s", exc)
+        news = []
+    events = events_from_news(news)
+
+    rec = EventForwardRecorder(base_dir)
+    fil = EventReturnFiller(base_dir)
+    existing = rec.load_signals()
+    sig_tickers = set(existing["ticker"].tolist()) if not existing.empty else set()
+    price_tickers = sorted(sig_tickers | {e["ticker"] for e in events})
+
+    start = (today - timedelta(days=price_lookback_days)).isoformat()
+    end = (today + timedelta(days=1)).isoformat()
+    prices = load_price_data(price_tickers, start, end) if price_tickers else {}
+    xu = load_price_data(["XU100"], start, end).get("XU100")
+    xu100 = xu["Close"] if xu is not None else pd.Series(dtype=float)
+
+    n_rec = rec.record_events(events, prices, as_of=datetime.now(timezone.utc))
+    n_fill = fil.fill(today, prices, xu100)
+
+    by_type: dict[str, int] = {}
+    for e in events:
+        by_type[e["event_type"]] = by_type.get(e["event_type"], 0) + 1
+    summary = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "universe_n": len(universe), "news_n": len(news), "events_n": len(events),
+        "events_by_type": by_type, "recorded_new": n_rec, "returns_filled": n_fill,
+        "total_signals": int(len(rec.load_signals())),
+        "total_returns": int(len(fil.load_returns())),
+        "base_dir": str(base_dir),
     }
+    logger.info("D-188 capture_once: %s", summary)
+    return summary
+
+
+# Manual entrypoint retained as an alias; daily automation calls capture_once.
+def run_manual(base_dir: str = _DEFAULT_DIR) -> dict:  # pragma: no cover
+    """MANUAL-TRIGGER forward pass -- now a thin alias over capture_once (full universe)."""
+    return capture_once(base_dir=base_dir)
 
 
 if __name__ == "__main__":  # pragma: no cover
-    print(run_manual())
+    import json
+    print(json.dumps(capture_once(), ensure_ascii=False, indent=2))
