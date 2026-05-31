@@ -74,3 +74,6 @@ config/
 # Runtime-generated cache files (yanlislikla D-154'te commit edildi — D-154 hotfix)
 data/news_cache.json
 data/sentiment_cache.json
+
+# Obsidian editor config (personal, not tracked)
+.obsidian/
