@@ -1,0 +1,437 @@
+{
+  "directive": "D-187",
+  "config_version": "exposure-d187-v1",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30"
+  },
+  "caveats": {
+    "xu100": "price-only (no dividends ~2-4%/yr); equity side DISADVANTAGED -> conservative",
+    "disinflation_power": "~20 months -> low statistical power",
+    "gold": "GC=F USD/oz * USDTRY / 32.1507 (troy oz to gram); diagnostic only"
+  },
+  "benchmarks_full": {
+    "B1_TLREF": {
+      "n_days": 956,
+      "total_nominal": 2.688,
+      "total_real": 0.0022,
+      "annual_nominal": 0.4106,
+      "annual_real": 0.0006,
+      "max_drawdown": 0.0
+    },
+    "B2_BARBELL": {
+      "n_days": 956,
+      "total_nominal": 3.8887,
+      "total_real": 0.3284,
+      "annual_nominal": 0.5194,
+      "annual_real": 0.0777,
+      "max_drawdown": 0.104
+    },
+    "B3_XU100": {
+      "n_days": 956,
+      "total_nominal": 4.8562,
+      "total_real": 0.5913,
+      "annual_nominal": 0.5935,
+      "annual_real": 0.1303,
+      "max_drawdown": 0.2286
+    },
+    "B5_TUFE": {
+      "n_days": 956,
+      "total_nominal": 2.68,
+      "total_real": 0.0,
+      "annual_nominal": 0.4098,
+      "annual_real": 0.0,
+      "max_drawdown": 0.0
+    },
+    "B4_GOLD_DIAG": {
+      "n_days": 684,
+      "total_nominal": 2.922,
+      "total_real": 0.7187,
+      "annual_nominal": 0.6545,
+      "annual_real": 0.2208,
+      "max_drawdown": 0.1646
+    }
+  },
+  "benchmarks_disinflation": {
+    "B1_TLREF": {
+      "n_days": 460,
+      "total_nominal": 1.2526,
+      "total_real": 0.464,
+      "annual_nominal": 0.5603,
+      "annual_real": 0.2322,
+      "max_drawdown": 0.0
+    },
+    "B2_BARBELL": {
+      "n_days": 460,
+      "total_nominal": 0.7892,
+      "total_real": 0.1628,
+      "annual_nominal": 0.3753,
+      "annual_real": 0.0861,
+      "max_drawdown": 0.0813
+    },
+    "B3_XU100": {
+      "n_days": 460,
+      "total_nominal": 0.3836,
+      "total_real": -0.1008,
+      "annual_nominal": 0.1947,
+      "annual_real": -0.0565,
+      "max_drawdown": 0.2286
+    },
+    "B5_TUFE": {
+      "n_days": 460,
+      "total_nominal": 0.5387,
+      "total_real": 0.0,
+      "annual_nominal": 0.2663,
+      "annual_real": 0.0,
+      "max_drawdown": 0.0
+    },
+    "B4_GOLD_DIAG": {
+      "n_days": 460,
+      "total_nominal": 1.6752,
+      "total_real": 0.7386,
+      "annual_nominal": 0.7144,
+      "annual_real": 0.3539,
+      "max_drawdown": 0.1646
+    }
+  },
+  "SA_results": {
+    "SA_30": {
+      "equity_ratio": 0.3,
+      "n_rebalances": 25,
+      "total_cost": 0.000894,
+      "max_drawdown_full": 0.0604,
+      "metrics_full": {
+        "n_days": 956,
+        "total_nominal": 3.4241,
+        "total_real": 0.2022,
+        "annual_nominal": 0.4799,
+        "annual_real": 0.0497,
+        "max_drawdown": 0.0604
+      },
+      "metrics_disinflation": {
+        "n_days": 460,
+        "total_nominal": 0.9677,
+        "total_real": 0.2788,
+        "annual_nominal": 0.4489,
+        "annual_real": 0.1442,
+        "max_drawdown": 0.0462
+      }
+    },
+    "SA_50": {
+      "equity_ratio": 0.5,
+      "n_rebalances": 25,
+      "total_cost": 0.00121,
+      "max_drawdown_full": 0.104,
+      "metrics_full": {
+        "n_days": 956,
+        "total_nominal": 3.8887,
+        "total_real": 0.3284,
+        "annual_nominal": 0.5194,
+        "annual_real": 0.0777,
+        "max_drawdown": 0.104
+      },
+      "metrics_disinflation": {
+        "n_days": 460,
+        "total_nominal": 0.7892,
+        "total_real": 0.1628,
+        "annual_nominal": 0.3753,
+        "annual_real": 0.0861,
+        "max_drawdown": 0.0813
+      }
+    },
+    "SA_70": {
+      "equity_ratio": 0.7,
+      "n_rebalances": 25,
+      "total_cost": 0.001148,
+      "max_drawdown_full": 0.1489,
+      "metrics_full": {
+        "n_days": 956,
+        "total_nominal": 4.3159,
+        "total_real": 0.4445,
+        "annual_nominal": 0.5533,
+        "annual_real": 0.1018,
+        "max_drawdown": 0.1489
+      },
+      "metrics_disinflation": {
+        "n_days": 460,
+        "total_nominal": 0.62,
+        "total_real": 0.0528,
+        "annual_nominal": 0.3025,
+        "annual_real": 0.0286,
+        "max_drawdown": 0.1262
+      }
+    }
+  },
+  "SA_verdict_DEC045": {
+    "passes": true,
+    "best_sa_annual_real": 0.1018,
+    "b1_annual_real": 0.0006,
+    "b5_annual_real": 0.0
+  },
+  "SB_result": {
+    "n_switches": 17,
+    "total_cost": 0.154634,
+    "max_drawdown_full": 0.2219,
+    "metrics_full": {
+      "n_days": 956,
+      "total_nominal": 1.949,
+      "total_real": -0.1986,
+      "annual_nominal": 0.3299,
+      "annual_real": -0.0567,
+      "max_drawdown": 0.2219
+    },
+    "metrics_disinflation": {
+      "n_days": 460,
+      "total_nominal": 0.3744,
+      "total_real": -0.1068,
+      "annual_nominal": 0.1903,
+      "annual_real": -0.06,
+      "max_drawdown": 0.2219
+    },
+    "random_switch_null": {
+      "n_switches": 17,
+      "pool_size": 460,
+      "null_mean": 0.034,
+      "null_p95": 0.2114,
+      "null_std": 0.0993,
+      "strategy_annual_real": -0.06,
+      "random_pctile": 0.173,
+      "beats_random_95": false
+    }
+  },
+  "SB_verdict_DEC045": {
+    "passes": false,
+    "sb_annual_real": -0.0567,
+    "best_sa_annual_real": 0.1018,
+    "random_pctile": 0.173,
+    "beats_random_95": false,
+    "failures": [
+      "does_not_beat_static_barbell",
+      "fails_random_switch_null"
+    ]
+  },
+  "regime_slice_metrics": {
+    "pre_surge": {
+      "SA_30": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "SA_50": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "SA_70": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "S_B": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "B1_TLREF": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "B2_BARBELL": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "B3_XU100": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "B5_TUFE": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      },
+      "B4_GOLD_DIAG": {
+        "n_days": 0,
+        "total_nominal": NaN,
+        "total_real": NaN,
+        "annual_nominal": NaN,
+        "annual_real": NaN,
+        "max_drawdown": NaN
+      }
+    },
+    "high_inflation": {
+      "SA_30": {
+        "n_days": 496,
+        "total_nominal": 1.266,
+        "total_real": -0.022,
+        "annual_nominal": 0.5153,
+        "annual_real": -0.0112,
+        "max_drawdown": 0.0604
+      },
+      "SA_50": {
+        "n_days": 496,
+        "total_nominal": 1.7706,
+        "total_real": 0.1958,
+        "annual_nominal": 0.6783,
+        "annual_real": 0.0951,
+        "max_drawdown": 0.104
+      },
+      "SA_70": {
+        "n_days": 496,
+        "total_nominal": 2.3476,
+        "total_real": 0.4449,
+        "annual_nominal": 0.8476,
+        "annual_real": 0.2056,
+        "max_drawdown": 0.1489
+      },
+      "S_B": {
+        "n_days": 496,
+        "total_nominal": 1.2088,
+        "total_real": -0.0467,
+        "annual_nominal": 0.4957,
+        "annual_real": -0.024,
+        "max_drawdown": 0.1472
+      },
+      "B1_TLREF": {
+        "n_days": 496,
+        "total_nominal": 0.6349,
+        "total_real": -0.2943,
+        "annual_nominal": 0.2837,
+        "annual_real": -0.1623,
+        "max_drawdown": 0.0
+      },
+      "B2_BARBELL": {
+        "n_days": 496,
+        "total_nominal": 1.7706,
+        "total_real": 0.1958,
+        "annual_nominal": 0.6783,
+        "annual_real": 0.0951,
+        "max_drawdown": 0.104
+      },
+      "B3_XU100": {
+        "n_days": 496,
+        "total_nominal": 3.3571,
+        "total_real": 0.8806,
+        "annual_nominal": 1.1123,
+        "annual_real": 0.3783,
+        "max_drawdown": 0.2226
+      },
+      "B5_TUFE": {
+        "n_days": 496,
+        "total_nominal": 1.3169,
+        "total_real": 0.0,
+        "annual_nominal": 0.5325,
+        "annual_real": 0.0,
+        "max_drawdown": 0.0
+      },
+      "B4_GOLD_DIAG": {
+        "n_days": 224,
+        "total_nominal": 0.4668,
+        "total_real": 0.021,
+        "annual_nominal": 0.5388,
+        "annual_real": 0.0236,
+        "max_drawdown": 0.0534
+      }
+    },
+    "disinflation": {
+      "SA_30": {
+        "n_days": 460,
+        "total_nominal": 0.9677,
+        "total_real": 0.2788,
+        "annual_nominal": 0.4489,
+        "annual_real": 0.1442,
+        "max_drawdown": 0.0462
+      },
+      "SA_50": {
+        "n_days": 460,
+        "total_nominal": 0.7892,
+        "total_real": 0.1628,
+        "annual_nominal": 0.3753,
+        "annual_real": 0.0861,
+        "max_drawdown": 0.0813
+      },
+      "SA_70": {
+        "n_days": 460,
+        "total_nominal": 0.62,
+        "total_real": 0.0528,
+        "annual_nominal": 0.3025,
+        "annual_real": 0.0286,
+        "max_drawdown": 0.1262
+      },
+      "S_B": {
+        "n_days": 460,
+        "total_nominal": 0.3744,
+        "total_real": -0.1068,
+        "annual_nominal": 0.1903,
+        "annual_real": -0.06,
+        "max_drawdown": 0.2219
+      },
+      "B1_TLREF": {
+        "n_days": 460,
+        "total_nominal": 1.2526,
+        "total_real": 0.464,
+        "annual_nominal": 0.5603,
+        "annual_real": 0.2322,
+        "max_drawdown": 0.0
+      },
+      "B2_BARBELL": {
+        "n_days": 460,
+        "total_nominal": 0.7892,
+        "total_real": 0.1628,
+        "annual_nominal": 0.3753,
+        "annual_real": 0.0861,
+        "max_drawdown": 0.0813
+      },
+      "B3_XU100": {
+        "n_days": 460,
+        "total_nominal": 0.3836,
+        "total_real": -0.1008,
+        "annual_nominal": 0.1947,
+        "annual_real": -0.0565,
+        "max_drawdown": 0.2286
+      },
+      "B5_TUFE": {
+        "n_days": 460,
+        "total_nominal": 0.5387,
+        "total_real": 0.0,
+        "annual_nominal": 0.2663,
+        "annual_real": 0.0,
+        "max_drawdown": 0.0
+      },
+      "B4_GOLD_DIAG": {
+        "n_days": 460,
+        "total_nominal": 1.6752,
+        "total_real": 0.7386,
+        "annual_nominal": 0.7144,
+        "annual_real": 0.3539,
+        "max_drawdown": 0.1646
+      }
+    }
+  }
+}

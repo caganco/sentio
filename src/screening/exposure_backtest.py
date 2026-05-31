@@ -27,11 +27,21 @@ from src.screening.exposure_config import (
 # Helpers
 # ---------------------------------------------------------------------------
 def _align(*series: pd.Series) -> list[pd.Series]:
-    """Align multiple series to a common daily DatetimeIndex (inner join, ffill)."""
+    """Align series to a common index (intersection, ffill) with a JOINT mask.
+
+    All returned series share the SAME cleaned index -> equal length (positional
+    .iloc[i] is safe). A joint dropna drops any date where ANY series is NaN,
+    so series with different EVDS coverage (e.g. TLREF starts 2022-07) restrict
+    the common window correctly instead of producing mismatched lengths.
+    """
     idx = series[0].index
     for s in series[1:]:
         idx = idx.intersection(s.index)
-    return [s.reindex(idx).ffill().dropna() for s in series]
+    aligned = [s.reindex(idx).ffill() for s in series]
+    mask = aligned[0].notna()
+    for a in aligned[1:]:
+        mask &= a.notna()
+    return [a[mask] for a in aligned]
 
 
 def _rebase(s: pd.Series) -> pd.Series:
