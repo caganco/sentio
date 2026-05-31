@@ -1,0 +1,12 @@
+{
+  "content_hash": "e093835fca9077b2c09a103d11b38d8fad0fe607dd2f4d5b1ebc2914a4e7e380",
+  "n_obs": 2677,
+  "timestamp_utc": "2026-05-31T16:29:42Z",
+  "config_version": "exposure-d187-v1",
+  "series": "TP.FG.J0",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30"
+  },
+  "construction": "monthly pct_change ffill -> cumprod"
+}
