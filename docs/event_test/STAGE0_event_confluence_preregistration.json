@@ -1,0 +1,84 @@
+{
+  "directive": "D-188",
+  "title": "Olay-Tetikli Confluence Testi -- Stage 0 pre-registration (backtest engine + forward recorder)",
+  "preregistered_date": "2026-05-31",
+  "config_module": "src/screening/event_config.py",
+  "config_version": "event-confluence-v1",
+  "discipline_note": "Committed BEFORE any measurement is run and BEFORE results are seen. DEC-046 FROZEN; no post-hoc relaxation (no Holm->FDR, no >=0.95 -> >=0.90, no horizon/threshold widening). N-LOCK: exactly 3 event types, technical-confirmation parameters fixed now, NO parameter sweeping.",
+  "no_measurement_this_round": "No verdict is produced this round: no frozen historical event data (backtest is data_pending) and the forward recorder has only just started accruing. Deliverable = engines + pre-registration + data-feasibility. Verdict comes once a sufficient sample exists (backtest data/token OR forward accrual >= MIN_EVENTS_PER_TYPE).",
+  "basis": {
+    "final_research": "RR-040 (SWING: event-driven foundation -- PEAD/mechanical-events/hybrid; 'olay-driven mimari: GATE+TRIGGER+opsiyonel FILTER'); RR-041 (SINYAL: exit-stripped, look-ahead-free signal-quality measurement -- fixed-horizon forward return + mandatory random-benchmark)",
+    "structural_warning": "RR-040/RR-041 + the broader record warn that unconditional cross-sectional/IC/random-null tests can STRUCTURALLY MISS an event-driven, sparse, conditional edge -> D-185/D-186 'pure-technical eliminated' does NOT transfer to event-driven.",
+    "what_was_eliminated": "D-185/D-186 eliminated PURE-technical short-term swing (failed fair null; edge was nominal drift + exit-mechanism, not entry timing). D-187 eliminated active exposure-timing (200-MA switch). This test addresses the still-open EVENT-TRIGGERED subset.",
+    "drift_lesson": "D-186: ~72-80% of the apparent edge was nominal drift -> all returns measured XU100-relative; surprise measured as REAL (TUFE-deflated) YoY, not nominal.",
+    "relative_basis_support": "NRR-001-SCREENING sec.3 (measure RS relative-to-index, not absolute nominal). CAVEAT: NRR-001-SCREENING.md is currently UNTRACKED in this clone -> NOT record-grade evidence; a separate commit decision is left to the maintainer/Orchestrator. NRR_EXPLORE.md is only a probe BRIEF (no committed verdict in this clone) and is NOT cited as validation.",
+    "decision_authority": "DEC-039 (program MEASURES + recommends; promotion into the Yol-1 lab is an the project decision)."
+  },
+  "hypothesis": "When a CATALYST EVENT (E1 earnings-surprise / E2 index-inclusion / E3 material-KAP) ALIGNS with TECHNICAL CONFIRMATION (volume surge + breakout), the post-event short-term (5/20/60d) forward return significantly beats BOTH (a) an event-conditional random-technical null AND (b) a no-event random-technical null. Confluence = the intersection outperforms the sum of the parts; a standalone event OR standalone technical may suffice on its own.",
+  "two_components": {
+    "A_backtest_engine": {
+      "status": "built; synthetic-tested now; runs on history once data/token provided",
+      "data": "data_pending (E1 needs MKK_VYK_TOKEN via kap_historical_fetcher + KAP-4.0 depth; E2/E3 no frozen historical source)"
+    },
+    "B_forward_recorder": {
+      "status": "built; manual-trigger by default (cron deferred); starts accruing from FORWARD_RECORDING_START",
+      "data": "auth-free real-time KAP feed (src/data/kap_scraper.py _fetch_kap_api / fetch_kap_news) -> NO token needed; recent-only, WAF-fragile (handled gracefully)",
+      "preregistration_guarantee": "the signal (event + technical-confirm + entry price at t+1) is RECORDED with empty forward-return fields BEFORE the outcome is observed; t+5/+20/+60 returns are filled in a separate later pass. as_of_timestamp < fill_time -> look-ahead / overfit / survivorship are structurally impossible."
+    }
+  },
+  "event_types_N_locked": {
+    "E1_earnings": {"design": "active", "surprise_metric": "real_yoy (net_income primary, revenue corroborating, TUFE-deflated)", "high_surprise_threshold": 0.20, "yoy_requires_positive_base": true},
+    "E2_index_inclusion": {"design": "active", "note": "binary event; backtest data_pending (no frozen BIST index-membership-change source); forward via announcement disclosures if accessible"},
+    "E3_material_kap": {"design": "active", "note": "category event; backtest data_pending (ODA pagination needs token); forward via material-event disclosures (auth-free)"}
+  },
+  "technical_confirmation_frozen": {
+    "volume_surge": "event-day volume / trailing 20-bar volume MA (excl. event bar) > 1.5",
+    "breakout": "event-day close > prior 20-bar high (excl. event bar)",
+    "look_ahead": "uses only data up to and including the event bar"
+  },
+  "event_study": {
+    "event_day": "published_at (disclosure date)",
+    "action": "t+1 (enter the bar AFTER the disclosure; speed disadvantage modelled, not assumed away)",
+    "horizons_days": [5, 20, 60],
+    "return_basis_decisive": "xu100_relative (geometric excess over index)",
+    "real_cpi": "confirmatory, best-effort (TUFE-deflated)",
+    "cost_model": "50 bps round-trip (RR-038) + 20 bps event-day slippage = 70 bps total"
+  },
+  "two_nulls": {
+    "NULL_1_event_conditional": "on the SAME event days, technical confirmation assigned at RANDOM -> does technical add value to the event itself?",
+    "NULL_2_no_event": "on RANDOM non-event days, the SAME technical confirmation -> does the event add value to the technical signal?",
+    "seed": 12345,
+    "n_resamples": 1000,
+    "rule": "confluence is REAL only if it beats BOTH nulls"
+  },
+  "multiple_testing": "Holm-Bonferroni applied SEPARATELY PER EVENT TYPE (across the 3 horizons) -- NOT pooled across all types (the report's methodological correction; Faz 0 lowvol60 Holm-rejection lesson).",
+  "decision_rule_DEC046": {
+    "passes_if_ALL": [
+      "(1) beats NULL-1 (event-conditional) at >= 0.95 percentile",
+      "(2) beats NULL-2 (no-event) at >= 0.95 percentile",
+      "(3) XU100-relative forward return POSITIVE after cost+slippage",
+      "(4) Holm-Bonferroni (per event type) significant"
+    ],
+    "fails_if": "any of the above fails -> event-confluence does not carry edge for that type; if all 3 types fail, the last subset of swing closes too.",
+    "undetermined_if": "sample < MIN_EVENTS_PER_TYPE (30) -> 'undetermined, sample accruing' (NOT pass/fail; honest for slow forward accrual + sparse events)",
+    "null_pctile_min": 0.95,
+    "holm_alpha": 0.05,
+    "min_events_per_type": 30,
+    "no_post_hoc_relaxation": "rule is FROZEN; not loosened after seeing results."
+  },
+  "realistic_expectation": "Even if an edge exists, the prior is a FEW-POINTS XU100-relative edge, NOT a multiplier (Bessembinder: ex-ante top-name pre-selection is statistically very hard). 'No edge' is also a valid, valuable result (anchors to Yol 2).",
+  "caveats": [
+    "Backtest data_pending for all 3 event types (token / no frozen source) -> measurement deferred.",
+    "Forward accrual is SLOW (events are sparse) -> small-n for a long time; verdict gated on MIN_EVENTS_PER_TYPE.",
+    "Auth-free KAP feed is recent-only + WAF-fragile -> forward capture may be intermittent; misses are logged, not fabricated.",
+    "yfinance OHLCV survivors-only -> any eventual backtest is an UPPER BOUND.",
+    "E2/E3 backtest require a separate data-provisioning directive."
+  ],
+  "outputs": [
+    "docs/event_test/STAGE0_event_confluence_preregistration.json (this file)",
+    "src/screening/event_config.py, event_detect.py, event_confirm.py, event_study.py, event_null.py, event_runner.py, event_forward_recorder.py",
+    "tests/test_event_confluence.py",
+    "docs/event_test/D188_DATA_FEASIBILITY.json (read-only probe results)",
+    "docs/research/D-188-event-confluence-rapor.md (methodology + feasibility + 'measurement deferred, sample accruing')"
+  ]
+}

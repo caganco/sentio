@@ -2,8 +2,8 @@
 
 **System:** BIST Trading OS v5.0  
 **Location:** `docs/decisions/`  
-**Last Updated:** 28 May 2026  
-**Total Decisions:** 20 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032, DEC-034)  
+**Last Updated:** 31 May 2026  
+**Total Decisions:** 21 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032, DEC-034, DEC-046)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
 > **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
@@ -36,7 +36,21 @@
 | **DEC-031** | TÜFE canonical kod: TP.FG.J0 | Data Sources | ✅ Decided | 2026-05-26 | `src/data/`, `src/signals/thresholds.py` |
 | **DEC-032** | DEC-010-v2: LLM "genuine input" rolü | Signal Architecture / AI | ✅ Decided | 2026-05-26 | `strategist.py`, `src/signals/engine.py` |
 | **DEC-034** | D-163/D-173 backtest/production sizing divergence kapandi | Position Sizing | ✅ Closed | 2026-05-28 | `src/backtest/engine.py`, `src/risk/position_sizer_v2.py` |
+| **DEC-046** | D-188 olay-confluence karar-kurali FROZEN (iki-null + Holm-per-type + XU100-relative pozitif) | Screening / Measurement | ✅ Frozen (pre-registration) | 2026-05-31 | `src/screening/event_*.py`, `docs/event_test/` |
 ---
+
+> **DEC numara notu:** DEC-035..DEC-045 araligi diger feature/research dallarinda
+> tahsisli (orn. DEC-044 = D-186, DEC-045 = D-187), bu PR'lar henuz master'a merge
+> edilmedi -> bu dosyada gorunmuyor. D-188 sirayi DEC-046 ile surdurur; merge
+> sirasinda cakisma yok.
+
+**DEC-046 — D-188 olay-tetikli confluence karar-kurali (FROZEN, pre-registration).**
+Confluence "edge tasiyor" ANCAK: (1) NULL-1 (olay-kosullu rastgele-teknik) >=%95, VE
+(2) NULL-2 (olaysiz rastgele-teknik) >=%95, VE (3) XU100-relative pozitif (maliyet+slippage
+sonrasi), VE (4) Holm-Bonferroni (olay-tipi-basina AYRI) anlamli. Ornek < `MIN_EVENTS_PER_TYPE`
+(30) -> `undetermined` (pass/fail degil). Post-hoc gevsetme YASAK. Sonuc-oncesi donduruldu
+(`docs/event_test/STAGE0_event_confluence_preregistration.json`). DEC-039 geregi program
+OLCER + onerir; Yol-1 lab'a terfi the project karari.
 
 ## DECISION CATEGORIES
 
