@@ -1,0 +1,119 @@
+{
+  "directive": "D-185",
+  "title": "Trend-Motor Test Programi -- Stage 0 pre-registration",
+  "preregistered_date": "2026-05-31",
+  "config_module": "src/screening/trend_config.py",
+  "config_version": "trend-test-v1",
+  "discipline_note": "This document is committed BEFORE any backtest is run and BEFORE any result is seen. The dated commit is the pre-registration proof. Parameters are FROZEN: no post-hoc tuning (RR-039 + Faz 0 data-snooping lesson).",
+  "basis": {
+    "rules": "RR-039 sec.6 (variants A/B/C)",
+    "cost_and_regime": "RR-038 (BSMV on commission; round-trip >= 0.3-0.5%; modern BIST reversal-dominant, regime-dependent)",
+    "architecture": "ARCHITECTURE v2.0 sec.3 (Katman A funnel), sec.7.1 (per-trade expectancy gating)",
+    "decision_rule": "DEC-039 -- this program MEASURES; Katman A motor choice is the project"
+  },
+  "objective": "Measure whether the three trend rule variants carry real edge in BIST 2019-2026 via post-cost per-trade expectancy, beating a random-entry benchmark and a net-of-cost buy-and-hold, consistently across regimes. Precondition: no Katman A construction until edge is proven.",
+  "universe": {
+    "source": "faz0_config.FAZ0_BIST100_CONSTITUENTS (BIST 100 PIT ~2025-2026)",
+    "window": {"start": "2019-01-01", "end": "2026-04-30"},
+    "liquidity_floor": "median daily TL volume (snapshot._compute_adv) >= 50,000,000 TL over >= 60 days",
+    "adv_substitution_note": "Directive named is_adv_eligible (smart_money_layer); that requires a USD volume_3m_mn_usd shape the OHLCV snapshot does not carry. _compute_adv (TL median) is the fitting reuse. the maintainer-approved substitution."
+  },
+  "survivorship": {
+    "ideal": "delist/halt included (KOZAA/KOZAL/IPEKE/TRALT etc.)",
+    "reality": "delisted names are 404 on yfinance (same hard limit as Faz 0); the free channel carries no delisted prices",
+    "handling": "survivors-only snapshot; the gap and its bias DIRECTION are recorded in snapshot meta + reported explicitly",
+    "bias_framing": "Survivors-only INFLATES expectancy -> every result is read as an UPPER BOUND. If a variant cannot beat the random benchmark post-cost on survivors-only data, it definitely cannot in reality. No silent 'full coverage' claim."
+  },
+  "common_prefilter": {
+    "long_only": true,
+    "bars": "daily",
+    "timing": "signal at t close; entry at t+1 open (look-ahead guard)",
+    "fundamental_filter": "OUT OF SCOPE (liquidity + technical only for this test)",
+    "parabolic_avoidance": {
+      "tested": "ON and OFF (RR-039 evidence gap #2; within-variant comparison, not a new rule)",
+      "block_new_buy_if_any": [
+        "price > (1 + 0.20) x SMA(20)",
+        "RSI(14) > 75.0",
+        "distance from last swing low > 5.0 x ATR(14)"
+      ]
+    }
+  },
+  "variants": {
+    "A_sr_flip_retest": {
+      "swing_detection": "scipy find_peaks over trailing 252 days; distance=5 bars; prominence >= 1.0 x ATR",
+      "resistance_zones": "sklearn AgglomerativeClustering, merge distance ~ 1.0 x ATR, min 2 touches",
+      "trigger": "close > resistance x (1 + 0.005) AND breakout-bar volume >= 1.2 x avg(20)",
+      "entry": "retest within 10 bars: |price - level| <= 0.5 x ATR and close holds above level",
+      "stop": "level - 1.5 x ATR",
+      "exit": "20-day Donchian-low trailing (or stop)"
+    },
+    "B_consolidation_breakout": {
+      "consolidation": "BBW(20,2sigma) in bottom 25% of trailing 126 days OR NR7 (narrowest range of last 7)",
+      "box": "max high / min low over last 20 bars",
+      "trigger": "close > box upper AND volume >= 1.2 x avg(20)",
+      "filter": "ADX(14) > 20 or rising; HH/HL intact",
+      "stop": "consolidation lower bound (box low)",
+      "exit": "20-day Donchian-low trailing"
+    },
+    "C_donchian_retest": {
+      "structure": "higher-high + higher-low required; ADX(14) > 20",
+      "trigger": "Donchian-20 upper breakout",
+      "entry": "retest within 10 bars: pullback holds at 20-EMA / old Donchian-upper, |price - level| <= 0.5 x ATR",
+      "stop": "retest level - 1.5 x ATR",
+      "exit": "20-day Donchian-low trailing",
+      "parabolic_note": "parabolic filter is critical here (Donchian early-vs-late tension)"
+    }
+  },
+  "cost_model": {
+    "round_trip_bps_scenarios": [30, 50, 80],
+    "primary_bps": 50,
+    "rationale": "RR-038: BSMV (%5) charged on commission, not turnover; round-trip commission+spread+BSMV plausibly >= 0.3-0.5% (BIST-calibrated). Sensitivity at 0.3/0.5/0.8%."
+  },
+  "benchmarks": {
+    "random_entry": {
+      "method": "match each variant's trade count and holding-duration distribution; draw random (ticker, entry-date); recompute post-cost expectancy; repeat 1000 times -> null distribution",
+      "seed": 12345
+    },
+    "buy_and_hold": "equal-weight universe, post-cost, same window (net-of-cost)"
+  },
+  "significance": {
+    "expectancy": "per-trade R-multiple mean; one-sample HAC-robust t on time-ordered daily PnL (newey_west_se, lag=5) + block bootstrap CI (N=2000, block=21, seed=12345)",
+    "reuse": "factor_ic_harness.newey_west_se / ic_stats / nonoverlap_stats"
+  },
+  "regime_decomposition": {
+    "market_state": "XU100 200-day MA: bull = close>MA & MA rising; bear = close<MA & MA falling; sideways = otherwise",
+    "inflation_slices": [
+      ["pre_surge", "2019-01-01", "2021-09-30"],
+      ["high_inflation", "2021-10-01", "2024-06-30"],
+      ["disinflation", "2024-07-01", "2026-04-30"]
+    ]
+  },
+  "gating_AND": [
+    "post-cost per-trade expectancy > 0 AND HAC t >= 2.0",
+    "observed expectancy > 95th percentile of random-entry null (MOST CRITICAL)",
+    "regime-consistent: expectancy > 0 in >= 2 of {bull,bear,sideways} AND no single regime slice contributes > 80% of net PnL",
+    "beats net-of-cost buy-and-hold"
+  ],
+  "failure_thresholds_any": [
+    "post-cost expectancy <= 0",
+    "cannot beat random-entry benchmark",
+    "wins only in a single regime / the 2021-22 bubble",
+    "max drawdown > 35% (warn at 25%)"
+  ],
+  "n_lock": {
+    "variants": ["A_sr_flip_retest", "B_consolidation_breakout", "C_donchian_retest"],
+    "filter_modes": ["parabolic_on", "parabolic_off"],
+    "rule": "N<=3 variants. parabolic on/off and regime slices are within-variant comparisons, NOT new rules. Post-hoc parameter sweeping forbidden."
+  },
+  "tools": {
+    "indicators": "hand-rolled pandas (ATR/RSI/SMA/EMA/BBW/Donchian/ADX/NR7/inside-bar) -- no new heavy dependency",
+    "extrema": "scipy.signal.find_peaks (installed)",
+    "clustering": "sklearn AgglomerativeClustering (installed)",
+    "backtest": "own pandas event-study (keeps look-ahead guard in hand); NO vectorbt / pandas-ta added"
+  },
+  "outputs": [
+    "docs/trend_test/STAGE0_trend_motor_preregistration.json (this file)",
+    "docs/trend_test/trend_test_results.json (after run: variant x filter-on/off x regime x cost-scenario)",
+    "docs/research/D-185-trend-test-rapor.md (verdict + upper-bound framing + Katman A recommendation if any)"
+  ]
+}

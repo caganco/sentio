@@ -1,0 +1,1763 @@
+{
+  "directive": "D-185",
+  "config_version": "trend-test-v1",
+  "cost_scenarios_bps": [
+    30,
+    50,
+    80
+  ],
+  "primary_cost_bps": 50,
+  "survivorship_framing": "survivors-only -> expectancy is an UPPER BOUND; failing the random benchmark post-cost here is conclusive.",
+  "results": {
+    "A_sr_flip_retest": {
+      "parabolic_on": {
+        "n_setups": 1587,
+        "by_cost": {
+          "30": {
+            "n_trades": 1151,
+            "expectancy": {
+              "n_trades": 1151,
+              "expectancy_R": 1.3004,
+              "win_rate": 0.3727,
+              "avg_win_R": 4.9819,
+              "avg_loss_R": -0.8871,
+              "mean_net_return": 0.09237,
+              "t_naive": 8.814,
+              "t_hac": 6.246,
+              "ci95_low_R": 1.0133,
+              "ci95_high_R": 1.6201
+            },
+            "drawdown": {
+              "total_net_return": 2.876755898972186e+27,
+              "max_drawdown": 0.9912
+            },
+            "regime": {
+              "by_market_state": {
+                "bear": {
+                  "n_trades": 98,
+                  "expectancy_R": 1.8534,
+                  "mean_net_return": 0.14348,
+                  "pnl_share": 0.1323
+                },
+                "bull": {
+                  "n_trades": 934,
+                  "expectancy_R": 1.2254,
+                  "mean_net_return": 0.08411,
+                  "pnl_share": 0.7389
+                },
+                "sideways": {
+                  "n_trades": 119,
+                  "expectancy_R": 1.434,
+                  "mean_net_return": 0.11513,
+                  "pnl_share": 0.1289
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 299,
+                  "expectancy_R": 1.2051,
+                  "mean_net_return": 0.0948,
+                  "pnl_share": 0.2666
+                },
+                "high_inflation": {
+                  "n_trades": 483,
+                  "expectancy_R": 2.099,
+                  "mean_net_return": 0.1436,
+                  "pnl_share": 0.6524
+                },
+                "disinflation": {
+                  "n_trades": 369,
+                  "expectancy_R": 0.3324,
+                  "mean_net_return": 0.02334,
+                  "pnl_share": 0.081
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7389
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.09237,
+              "null_mean": 0.05967,
+              "null_p95": 0.07248,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.766,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "50": {
+            "n_trades": 1151,
+            "expectancy": {
+              "n_trades": 1151,
+              "expectancy_R": 1.268,
+              "win_rate": 0.3675,
+              "avg_win_R": 5.0225,
+              "avg_loss_R": -0.9135,
+              "mean_net_return": 0.09037,
+              "t_naive": 8.623,
+              "t_hac": 6.111,
+              "ci95_low_R": 0.9811,
+              "ci95_high_R": 1.5874
+            },
+            "drawdown": {
+              "total_net_return": 3.0547910655811552e+26,
+              "max_drawdown": 0.9925
+            },
+            "regime": {
+              "by_market_state": {
+                "bear": {
+                  "n_trades": 98,
+                  "expectancy_R": 1.8206,
+                  "mean_net_return": 0.14148,
+                  "pnl_share": 0.1333
+                },
+                "bull": {
+                  "n_trades": 934,
+                  "expectancy_R": 1.1933,
+                  "mean_net_return": 0.08211,
+                  "pnl_share": 0.7373
+                },
+                "sideways": {
+                  "n_trades": 119,
+                  "expectancy_R": 1.3995,
+                  "mean_net_return": 0.11313,
+                  "pnl_share": 0.1294
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 299,
+                  "expectancy_R": 1.1718,
+                  "mean_net_return": 0.0928,
+                  "pnl_share": 0.2668
+                },
+                "high_inflation": {
+                  "n_trades": 483,
+                  "expectancy_R": 2.0681,
+                  "mean_net_return": 0.1416,
+                  "pnl_share": 0.6575
+                },
+                "disinflation": {
+                  "n_trades": 369,
+                  "expectancy_R": 0.2988,
+                  "mean_net_return": 0.02134,
+                  "pnl_share": 0.0757
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7373
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.09037,
+              "null_mean": 0.05767,
+              "null_p95": 0.07048,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.764,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "80": {
+            "n_trades": 1151,
+            "expectancy": {
+              "n_trades": 1151,
+              "expectancy_R": 1.2195,
+              "win_rate": 0.3649,
+              "avg_win_R": 5.0137,
+              "avg_loss_R": -0.9605,
+              "mean_net_return": 0.08737,
+              "t_naive": 8.337,
+              "t_hac": 5.908,
+              "ci95_low_R": 0.9316,
+              "ci95_high_R": 1.5387
+            },
+            "drawdown": {
+              "total_net_return": 1.0474576463344636e+25,
+              "max_drawdown": 0.9942
+            },
+            "regime": {
+              "by_market_state": {
+                "bear": {
+                  "n_trades": 98,
+                  "expectancy_R": 1.7713,
+                  "mean_net_return": 0.13848,
+                  "pnl_share": 0.135
+                },
+                "bull": {
+                  "n_trades": 934,
+                  "expectancy_R": 1.1453,
+                  "mean_net_return": 0.07911,
+                  "pnl_share": 0.7347
+                },
+                "sideways": {
+                  "n_trades": 119,
+                  "expectancy_R": 1.3477,
+                  "mean_net_return": 0.11013,
+                  "pnl_share": 0.1303
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 299,
+                  "expectancy_R": 1.1217,
+                  "mean_net_return": 0.0898,
+                  "pnl_share": 0.267
+                },
+                "high_inflation": {
+                  "n_trades": 483,
+                  "expectancy_R": 2.0218,
+                  "mean_net_return": 0.1386,
+                  "pnl_share": 0.6657
+                },
+                "disinflation": {
+                  "n_trades": 369,
+                  "expectancy_R": 0.2486,
+                  "mean_net_return": 0.01834,
+                  "pnl_share": 0.0673
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7347
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08737,
+              "null_mean": 0.05467,
+              "null_p95": 0.06748,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.761,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          }
+        }
+      },
+      "parabolic_off": {
+        "n_setups": 1621,
+        "by_cost": {
+          "30": {
+            "n_trades": 1167,
+            "expectancy": {
+              "n_trades": 1167,
+              "expectancy_R": 1.2791,
+              "win_rate": 0.3702,
+              "avg_win_R": 4.9641,
+              "avg_loss_R": -0.8868,
+              "mean_net_return": 0.09126,
+              "t_naive": 8.802,
+              "t_hac": 6.245,
+              "ci95_low_R": 0.9816,
+              "ci95_high_R": 1.5997
+            },
+            "drawdown": {
+              "total_net_return": 2.5801561872107575e+27,
+              "max_drawdown": 0.9945
+            },
+            "regime": {
+              "by_market_state": {
+                "bear": {
+                  "n_trades": 100,
+                  "expectancy_R": 1.8299,
+                  "mean_net_return": 0.14638,
+                  "pnl_share": 0.1374
+                },
+                "bull": {
+                  "n_trades": 948,
+                  "expectancy_R": 1.2016,
+                  "mean_net_return": 0.08245,
+                  "pnl_share": 0.7339
+                },
+                "sideways": {
+                  "n_trades": 119,
+                  "expectancy_R": 1.434,
+                  "mean_net_return": 0.11513,
+                  "pnl_share": 0.1286
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 303,
+                  "expectancy_R": 1.1883,
+                  "mean_net_return": 0.095,
+                  "pnl_share": 0.2703
+                },
+                "high_inflation": {
+                  "n_trades": 493,
+                  "expectancy_R": 2.0514,
+                  "mean_net_return": 0.14037,
+                  "pnl_share": 0.6498
+                },
+                "disinflation": {
+                  "n_trades": 371,
+                  "expectancy_R": 0.327,
+                  "mean_net_return": 0.02296,
+                  "pnl_share": 0.08
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7339
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.09126,
+              "null_mean": 0.0593,
+              "null_p95": 0.07155,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.766,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "50": {
+            "n_trades": 1167,
+            "expectancy": {
+              "n_trades": 1167,
+              "expectancy_R": 1.2468,
+              "win_rate": 0.365,
+              "avg_win_R": 5.004,
+              "avg_loss_R": -0.9132,
+              "mean_net_return": 0.08926,
+              "t_naive": 8.609,
+              "t_hac": 6.108,
+              "ci95_low_R": 0.9496,
+              "ci95_high_R": 1.5677
+            },
+            "drawdown": {
+              "total_net_return": 2.6516912965633974e+26,
+              "max_drawdown": 0.9954
+            },
+            "regime": {
+              "by_market_state": {
+                "bear": {
+                  "n_trades": 100,
+                  "expectancy_R": 1.7975,
+                  "mean_net_return": 0.14438,
+                  "pnl_share": 0.1386
+                },
+                "bull": {
+                  "n_trades": 948,
+                  "expectancy_R": 1.1696,
+                  "mean_net_return": 0.08045,
+                  "pnl_share": 0.7322
+                },
+                "sideways": {
+                  "n_trades": 119,
+                  "expectancy_R": 1.3995,
+                  "mean_net_return": 0.11313,
+                  "pnl_share": 0.1292
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 303,
+                  "expectancy_R": 1.1552,
+                  "mean_net_return": 0.093,
+                  "pnl_share": 0.2705
+                },
+                "high_inflation": {
+                  "n_trades": 493,
+                  "expectancy_R": 2.0205,
+                  "mean_net_return": 0.13837,
+                  "pnl_share": 0.6549
+                },
+                "disinflation": {
+                  "n_trades": 371,
+                  "expectancy_R": 0.2935,
+                  "mean_net_return": 0.02096,
+                  "pnl_share": 0.0746
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7322
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08926,
+              "null_mean": 0.0573,
+              "null_p95": 0.06955,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.764,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "80": {
+            "n_trades": 1167,
+            "expectancy": {
+              "n_trades": 1167,
+              "expectancy_R": 1.1984,
+              "win_rate": 0.3625,
+              "avg_win_R": 4.9948,
+              "avg_loss_R": -0.9601,
+              "mean_net_return": 0.08626,
+              "t_naive": 8.319,
+              "t_hac": 5.903,
+              "ci95_low_R": 0.9017,
+              "ci95_high_R": 1.5201
+            },
+            "drawdown": {
+              "total_net_return": 8.65605237418405e+24,
+              "max_drawdown": 0.9964
+            },
+            "regime": {
+              "by_market_state": {
+                "bear": {
+                  "n_trades": 100,
+                  "expectancy_R": 1.7488,
+                  "mean_net_return": 0.14138,
+                  "pnl_share": 0.1404
+                },
+                "bull": {
+                  "n_trades": 948,
+                  "expectancy_R": 1.1216,
+                  "mean_net_return": 0.07745,
+                  "pnl_share": 0.7294
+                },
+                "sideways": {
+                  "n_trades": 119,
+                  "expectancy_R": 1.3477,
+                  "mean_net_return": 0.11013,
+                  "pnl_share": 0.1302
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 303,
+                  "expectancy_R": 1.1055,
+                  "mean_net_return": 0.09,
+                  "pnl_share": 0.2709
+                },
+                "high_inflation": {
+                  "n_trades": 493,
+                  "expectancy_R": 1.9743,
+                  "mean_net_return": 0.13537,
+                  "pnl_share": 0.6629
+                },
+                "disinflation": {
+                  "n_trades": 371,
+                  "expectancy_R": 0.2432,
+                  "mean_net_return": 0.01796,
+                  "pnl_share": 0.0662
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7294
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08626,
+              "null_mean": 0.0543,
+              "null_p95": 0.06655,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.761,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "B_consolidation_breakout": {
+      "parabolic_on": {
+        "n_setups": 1419,
+        "by_cost": {
+          "30": {
+            "n_trades": 857,
+            "expectancy": {
+              "n_trades": 857,
+              "expectancy_R": 0.7548,
+              "win_rate": 0.5029,
+              "avg_win_R": 2.0238,
+              "avg_loss_R": -0.5292,
+              "mean_net_return": 0.12933,
+              "t_naive": 8.461,
+              "t_hac": 6.493,
+              "ci95_low_R": 0.5875,
+              "ci95_high_R": 0.9473
+            },
+            "drawdown": {
+              "total_net_return": 1.2600081579630568e+29,
+              "max_drawdown": 0.9793
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 727,
+                  "expectancy_R": 0.5929,
+                  "mean_net_return": 0.10333,
+                  "pnl_share": 0.6778
+                },
+                "bear": {
+                  "n_trades": 53,
+                  "expectancy_R": 2.4385,
+                  "mean_net_return": 0.47846,
+                  "pnl_share": 0.2288
+                },
+                "sideways": {
+                  "n_trades": 76,
+                  "expectancy_R": 1.1516,
+                  "mean_net_return": 0.13707,
+                  "pnl_share": 0.094
+                },
+                "unknown": {
+                  "n_trades": 1,
+                  "expectancy_R": -0.9916,
+                  "mean_net_return": -0.06307,
+                  "pnl_share": -0.0006
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 232,
+                  "expectancy_R": 0.6714,
+                  "mean_net_return": 0.11183,
+                  "pnl_share": 0.2341
+                },
+                "high_inflation": {
+                  "n_trades": 380,
+                  "expectancy_R": 1.164,
+                  "mean_net_return": 0.19626,
+                  "pnl_share": 0.6729
+                },
+                "disinflation": {
+                  "n_trades": 245,
+                  "expectancy_R": 0.199,
+                  "mean_net_return": 0.0421,
+                  "pnl_share": 0.0931
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.6778
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.12933,
+              "null_mean": 0.08138,
+              "null_p95": 0.09935,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.766,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "50": {
+            "n_trades": 857,
+            "expectancy": {
+              "n_trades": 857,
+              "expectancy_R": 0.7414,
+              "win_rate": 0.5006,
+              "avg_win_R": 2.0203,
+              "avg_loss_R": -0.5406,
+              "mean_net_return": 0.12733,
+              "t_naive": 8.33,
+              "t_hac": 6.392,
+              "ci95_low_R": 0.5742,
+              "ci95_high_R": 0.9342
+            },
+            "drawdown": {
+              "total_net_return": 2.430211687007833e+28,
+              "max_drawdown": 0.9843
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 727,
+                  "expectancy_R": 0.5796,
+                  "mean_net_return": 0.10133,
+                  "pnl_share": 0.6751
+                },
+                "bear": {
+                  "n_trades": 53,
+                  "expectancy_R": 2.4277,
+                  "mean_net_return": 0.47646,
+                  "pnl_share": 0.2314
+                },
+                "sideways": {
+                  "n_trades": 76,
+                  "expectancy_R": 1.1366,
+                  "mean_net_return": 0.13507,
+                  "pnl_share": 0.0941
+                },
+                "unknown": {
+                  "n_trades": 1,
+                  "expectancy_R": -1.0231,
+                  "mean_net_return": -0.06507,
+                  "pnl_share": -0.0006
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 232,
+                  "expectancy_R": 0.6561,
+                  "mean_net_return": 0.10983,
+                  "pnl_share": 0.2335
+                },
+                "high_inflation": {
+                  "n_trades": 380,
+                  "expectancy_R": 1.1522,
+                  "mean_net_return": 0.19426,
+                  "pnl_share": 0.6765
+                },
+                "disinflation": {
+                  "n_trades": 245,
+                  "expectancy_R": 0.1849,
+                  "mean_net_return": 0.0401,
+                  "pnl_share": 0.09
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.6765
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.12733,
+              "null_mean": 0.07938,
+              "null_p95": 0.09735,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.764,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "80": {
+            "n_trades": 857,
+            "expectancy": {
+              "n_trades": 857,
+              "expectancy_R": 0.7213,
+              "win_rate": 0.4901,
+              "avg_win_R": 2.0442,
+              "avg_loss_R": -0.55,
+              "mean_net_return": 0.12433,
+              "t_naive": 8.134,
+              "t_hac": 6.242,
+              "ci95_low_R": 0.5542,
+              "ci95_high_R": 0.9145
+            },
+            "drawdown": {
+              "total_net_return": 2.044401066485724e+27,
+              "max_drawdown": 0.9898
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 727,
+                  "expectancy_R": 0.5595,
+                  "mean_net_return": 0.09833,
+                  "pnl_share": 0.6709
+                },
+                "bear": {
+                  "n_trades": 53,
+                  "expectancy_R": 2.4115,
+                  "mean_net_return": 0.47346,
+                  "pnl_share": 0.2355
+                },
+                "sideways": {
+                  "n_trades": 76,
+                  "expectancy_R": 1.1142,
+                  "mean_net_return": 0.13207,
+                  "pnl_share": 0.0942
+                },
+                "unknown": {
+                  "n_trades": 1,
+                  "expectancy_R": -1.0702,
+                  "mean_net_return": -0.06807,
+                  "pnl_share": -0.0006
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 232,
+                  "expectancy_R": 0.6333,
+                  "mean_net_return": 0.10683,
+                  "pnl_share": 0.2326
+                },
+                "high_inflation": {
+                  "n_trades": 380,
+                  "expectancy_R": 1.1345,
+                  "mean_net_return": 0.19126,
+                  "pnl_share": 0.6821
+                },
+                "disinflation": {
+                  "n_trades": 245,
+                  "expectancy_R": 0.1638,
+                  "mean_net_return": 0.0371,
+                  "pnl_share": 0.0853
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.6821
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.12433,
+              "null_mean": 0.07638,
+              "null_p95": 0.09435,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.761,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          }
+        }
+      },
+      "parabolic_off": {
+        "n_setups": 2249,
+        "by_cost": {
+          "30": {
+            "n_trades": 1014,
+            "expectancy": {
+              "n_trades": 1014,
+              "expectancy_R": 0.7284,
+              "win_rate": 0.5128,
+              "avg_win_R": 1.9036,
+              "avg_loss_R": -0.5087,
+              "mean_net_return": 0.13281,
+              "t_naive": 9.656,
+              "t_hac": 7.302,
+              "ci95_low_R": 0.5866,
+              "ci95_high_R": 0.8988
+            },
+            "drawdown": {
+              "total_net_return": 8.284021910717298e+35,
+              "max_drawdown": 0.9817
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 864,
+                  "expectancy_R": 0.5916,
+                  "mean_net_return": 0.1117,
+                  "pnl_share": 0.7167
+                },
+                "bear": {
+                  "n_trades": 63,
+                  "expectancy_R": 2.1255,
+                  "mean_net_return": 0.42404,
+                  "pnl_share": 0.1984
+                },
+                "sideways": {
+                  "n_trades": 86,
+                  "expectancy_R": 1.0992,
+                  "mean_net_return": 0.13376,
+                  "pnl_share": 0.0854
+                },
+                "unknown": {
+                  "n_trades": 1,
+                  "expectancy_R": -0.9916,
+                  "mean_net_return": -0.06307,
+                  "pnl_share": -0.0005
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 269,
+                  "expectancy_R": 0.5994,
+                  "mean_net_return": 0.10092,
+                  "pnl_share": 0.2016
+                },
+                "high_inflation": {
+                  "n_trades": 470,
+                  "expectancy_R": 1.1251,
+                  "mean_net_return": 0.20646,
+                  "pnl_share": 0.7206
+                },
+                "disinflation": {
+                  "n_trades": 275,
+                  "expectancy_R": 0.1767,
+                  "mean_net_return": 0.03811,
+                  "pnl_share": 0.0778
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7206
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.13281,
+              "null_mean": 0.08417,
+              "null_p95": 0.10005,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.766,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "50": {
+            "n_trades": 1014,
+            "expectancy": {
+              "n_trades": 1014,
+              "expectancy_R": 0.7159,
+              "win_rate": 0.5108,
+              "avg_win_R": 1.8989,
+              "avg_loss_R": -0.5196,
+              "mean_net_return": 0.13081,
+              "t_naive": 9.511,
+              "t_hac": 7.192,
+              "ci95_low_R": 0.574,
+              "ci95_high_R": 0.8863
+            },
+            "drawdown": {
+              "total_net_return": 1.1907858227397062e+35,
+              "max_drawdown": 0.9857
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 864,
+                  "expectancy_R": 0.5791,
+                  "mean_net_return": 0.1097,
+                  "pnl_share": 0.7146
+                },
+                "bear": {
+                  "n_trades": 63,
+                  "expectancy_R": 2.115,
+                  "mean_net_return": 0.42204,
+                  "pnl_share": 0.2005
+                },
+                "sideways": {
+                  "n_trades": 86,
+                  "expectancy_R": 1.085,
+                  "mean_net_return": 0.13176,
+                  "pnl_share": 0.0854
+                },
+                "unknown": {
+                  "n_trades": 1,
+                  "expectancy_R": -1.0231,
+                  "mean_net_return": -0.06507,
+                  "pnl_share": -0.0005
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 269,
+                  "expectancy_R": 0.5851,
+                  "mean_net_return": 0.09892,
+                  "pnl_share": 0.2006
+                },
+                "high_inflation": {
+                  "n_trades": 470,
+                  "expectancy_R": 1.1141,
+                  "mean_net_return": 0.20446,
+                  "pnl_share": 0.7245
+                },
+                "disinflation": {
+                  "n_trades": 275,
+                  "expectancy_R": 0.1632,
+                  "mean_net_return": 0.03611,
+                  "pnl_share": 0.0749
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7245
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.13081,
+              "null_mean": 0.08217,
+              "null_p95": 0.09805,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.764,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "80": {
+            "n_trades": 1014,
+            "expectancy": {
+              "n_trades": 1014,
+              "expectancy_R": 0.6971,
+              "win_rate": 0.5,
+              "avg_win_R": 1.9219,
+              "avg_loss_R": -0.5278,
+              "mean_net_return": 0.12781,
+              "t_naive": 9.293,
+              "t_hac": 7.027,
+              "ci95_low_R": 0.5551,
+              "ci95_high_R": 0.8676
+            },
+            "drawdown": {
+              "total_net_return": 6.438186527261777e+33,
+              "max_drawdown": 0.9902
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 864,
+                  "expectancy_R": 0.5604,
+                  "mean_net_return": 0.1067,
+                  "pnl_share": 0.7114
+                },
+                "bear": {
+                  "n_trades": 63,
+                  "expectancy_R": 2.0994,
+                  "mean_net_return": 0.41904,
+                  "pnl_share": 0.2037
+                },
+                "sideways": {
+                  "n_trades": 86,
+                  "expectancy_R": 1.0637,
+                  "mean_net_return": 0.12876,
+                  "pnl_share": 0.0854
+                },
+                "unknown": {
+                  "n_trades": 1,
+                  "expectancy_R": -1.0702,
+                  "mean_net_return": -0.06807,
+                  "pnl_share": -0.0005
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 269,
+                  "expectancy_R": 0.5638,
+                  "mean_net_return": 0.09592,
+                  "pnl_share": 0.1991
+                },
+                "high_inflation": {
+                  "n_trades": 470,
+                  "expectancy_R": 1.0976,
+                  "mean_net_return": 0.20146,
+                  "pnl_share": 0.7306
+                },
+                "disinflation": {
+                  "n_trades": 275,
+                  "expectancy_R": 0.1429,
+                  "mean_net_return": 0.03311,
+                  "pnl_share": 0.0703
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7306
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.12781,
+              "null_mean": 0.07917,
+              "null_p95": 0.09505,
+              "random_pctile": 1.0,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.761,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "C_donchian_retest": {
+      "parabolic_on": {
+        "n_setups": 1192,
+        "by_cost": {
+          "30": {
+            "n_trades": 775,
+            "expectancy": {
+              "n_trades": 775,
+              "expectancy_R": 1.1944,
+              "win_rate": 0.3884,
+              "avg_win_R": 4.5953,
+              "avg_loss_R": -0.9652,
+              "mean_net_return": 0.08551,
+              "t_naive": 7.297,
+              "t_hac": 5.375,
+              "ci95_low_R": 0.8854,
+              "ci95_high_R": 1.5203
+            },
+            "drawdown": {
+              "total_net_return": 2.538849170400205e+17,
+              "max_drawdown": 0.9079
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 683,
+                  "expectancy_R": 0.9915,
+                  "mean_net_return": 0.06529,
+                  "pnl_share": 0.6729
+                },
+                "sideways": {
+                  "n_trades": 59,
+                  "expectancy_R": 2.1959,
+                  "mean_net_return": 0.18628,
+                  "pnl_share": 0.1658
+                },
+                "bear": {
+                  "n_trades": 33,
+                  "expectancy_R": 3.6029,
+                  "mean_net_return": 0.32382,
+                  "pnl_share": 0.1612
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 198,
+                  "expectancy_R": 0.7984,
+                  "mean_net_return": 0.07692,
+                  "pnl_share": 0.2298
+                },
+                "high_inflation": {
+                  "n_trades": 380,
+                  "expectancy_R": 1.7239,
+                  "mean_net_return": 0.11019,
+                  "pnl_share": 0.6318
+                },
+                "disinflation": {
+                  "n_trades": 197,
+                  "expectancy_R": 0.5712,
+                  "mean_net_return": 0.04654,
+                  "pnl_share": 0.1384
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.6729
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08551,
+              "null_mean": 0.05845,
+              "null_p95": 0.07331,
+              "random_pctile": 0.997,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.766,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "50": {
+            "n_trades": 775,
+            "expectancy": {
+              "n_trades": 775,
+              "expectancy_R": 1.1617,
+              "win_rate": 0.3845,
+              "avg_win_R": 4.6097,
+              "avg_loss_R": -0.9924,
+              "mean_net_return": 0.08351,
+              "t_naive": 7.126,
+              "t_hac": 5.249,
+              "ci95_low_R": 0.8516,
+              "ci95_high_R": 1.4878
+            },
+            "drawdown": {
+              "total_net_return": 5.578138155540724e+16,
+              "max_drawdown": 0.9247
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 683,
+                  "expectancy_R": 0.9586,
+                  "mean_net_return": 0.06329,
+                  "pnl_share": 0.6679
+                },
+                "sideways": {
+                  "n_trades": 59,
+                  "expectancy_R": 2.1645,
+                  "mean_net_return": 0.18428,
+                  "pnl_share": 0.168
+                },
+                "bear": {
+                  "n_trades": 33,
+                  "expectancy_R": 3.5726,
+                  "mean_net_return": 0.32182,
+                  "pnl_share": 0.1641
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 198,
+                  "expectancy_R": 0.7627,
+                  "mean_net_return": 0.07492,
+                  "pnl_share": 0.2292
+                },
+                "high_inflation": {
+                  "n_trades": 380,
+                  "expectancy_R": 1.6941,
+                  "mean_net_return": 0.10819,
+                  "pnl_share": 0.6352
+                },
+                "disinflation": {
+                  "n_trades": 197,
+                  "expectancy_R": 0.5358,
+                  "mean_net_return": 0.04454,
+                  "pnl_share": 0.1356
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.6679
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08351,
+              "null_mean": 0.05645,
+              "null_p95": 0.07131,
+              "random_pctile": 0.997,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.764,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "80": {
+            "n_trades": 775,
+            "expectancy": {
+              "n_trades": 775,
+              "expectancy_R": 1.1126,
+              "win_rate": 0.3781,
+              "avg_win_R": 4.6404,
+              "avg_loss_R": -1.0319,
+              "mean_net_return": 0.08051,
+              "t_naive": 6.87,
+              "t_hac": 5.061,
+              "ci95_low_R": 0.8008,
+              "ci95_high_R": 1.4378
+            },
+            "drawdown": {
+              "total_net_return": 5708767124385745.0,
+              "max_drawdown": 0.9445
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 683,
+                  "expectancy_R": 0.9091,
+                  "mean_net_return": 0.06029,
+                  "pnl_share": 0.66
+                },
+                "sideways": {
+                  "n_trades": 59,
+                  "expectancy_R": 2.1173,
+                  "mean_net_return": 0.18128,
+                  "pnl_share": 0.1714
+                },
+                "bear": {
+                  "n_trades": 33,
+                  "expectancy_R": 3.527,
+                  "mean_net_return": 0.31882,
+                  "pnl_share": 0.1686
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 198,
+                  "expectancy_R": 0.7091,
+                  "mean_net_return": 0.07192,
+                  "pnl_share": 0.2282
+                },
+                "high_inflation": {
+                  "n_trades": 380,
+                  "expectancy_R": 1.6494,
+                  "mean_net_return": 0.10519,
+                  "pnl_share": 0.6406
+                },
+                "disinflation": {
+                  "n_trades": 197,
+                  "expectancy_R": 0.4827,
+                  "mean_net_return": 0.04154,
+                  "pnl_share": 0.1312
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.66
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08051,
+              "null_mean": 0.05345,
+              "null_p95": 0.06831,
+              "random_pctile": 0.997,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.761,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          }
+        }
+      },
+      "parabolic_off": {
+        "n_setups": 1345,
+        "by_cost": {
+          "30": {
+            "n_trades": 823,
+            "expectancy": {
+              "n_trades": 823,
+              "expectancy_R": 1.3395,
+              "win_rate": 0.3937,
+              "avg_win_R": 4.8768,
+              "avg_loss_R": -0.9572,
+              "mean_net_return": 0.09492,
+              "t_naive": 7.364,
+              "t_hac": 5.751,
+              "ci95_low_R": 0.99,
+              "ci95_high_R": 1.7252
+            },
+            "drawdown": {
+              "total_net_return": 1.685577687844722e+20,
+              "max_drawdown": 0.9428
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 725,
+                  "expectancy_R": 1.1636,
+                  "mean_net_return": 0.07682,
+                  "pnl_share": 0.713
+                },
+                "sideways": {
+                  "n_trades": 63,
+                  "expectancy_R": 2.1266,
+                  "mean_net_return": 0.17853,
+                  "pnl_share": 0.144
+                },
+                "bear": {
+                  "n_trades": 35,
+                  "expectancy_R": 3.5678,
+                  "mean_net_return": 0.31931,
+                  "pnl_share": 0.1431
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 203,
+                  "expectancy_R": 0.7679,
+                  "mean_net_return": 0.07423,
+                  "pnl_share": 0.1929
+                },
+                "high_inflation": {
+                  "n_trades": 419,
+                  "expectancy_R": 1.9664,
+                  "mean_net_return": 0.12676,
+                  "pnl_share": 0.6798
+                },
+                "disinflation": {
+                  "n_trades": 201,
+                  "expectancy_R": 0.6101,
+                  "mean_net_return": 0.04946,
+                  "pnl_share": 0.1273
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.713
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.09492,
+              "null_mean": 0.05972,
+              "null_p95": 0.07541,
+              "random_pctile": 0.999,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.766,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "50": {
+            "n_trades": 823,
+            "expectancy": {
+              "n_trades": 823,
+              "expectancy_R": 1.3069,
+              "win_rate": 0.3888,
+              "avg_win_R": 4.9058,
+              "avg_loss_R": -0.9826,
+              "mean_net_return": 0.09292,
+              "t_naive": 7.209,
+              "t_hac": 5.63,
+              "ci95_low_R": 0.9572,
+              "ci95_high_R": 1.6922
+            },
+            "drawdown": {
+              "total_net_return": 3.3924114591249314e+19,
+              "max_drawdown": 0.9483
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 725,
+                  "expectancy_R": 1.1307,
+                  "mean_net_return": 0.07482,
+                  "pnl_share": 0.7094
+                },
+                "sideways": {
+                  "n_trades": 63,
+                  "expectancy_R": 2.0954,
+                  "mean_net_return": 0.17653,
+                  "pnl_share": 0.1454
+                },
+                "bear": {
+                  "n_trades": 35,
+                  "expectancy_R": 3.5378,
+                  "mean_net_return": 0.31731,
+                  "pnl_share": 0.1452
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 203,
+                  "expectancy_R": 0.7324,
+                  "mean_net_return": 0.07223,
+                  "pnl_share": 0.1917
+                },
+                "high_inflation": {
+                  "n_trades": 419,
+                  "expectancy_R": 1.9366,
+                  "mean_net_return": 0.12476,
+                  "pnl_share": 0.6835
+                },
+                "disinflation": {
+                  "n_trades": 201,
+                  "expectancy_R": 0.5745,
+                  "mean_net_return": 0.04746,
+                  "pnl_share": 0.1247
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7094
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.09292,
+              "null_mean": 0.05772,
+              "null_p95": 0.07341,
+              "random_pctile": 0.999,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.764,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          },
+          "80": {
+            "n_trades": 823,
+            "expectancy": {
+              "n_trades": 823,
+              "expectancy_R": 1.258,
+              "win_rate": 0.384,
+              "avg_win_R": 4.92,
+              "avg_loss_R": -1.0244,
+              "mean_net_return": 0.08992,
+              "t_naive": 6.976,
+              "t_hac": 5.448,
+              "ci95_low_R": 0.9091,
+              "ci95_high_R": 1.6442
+            },
+            "drawdown": {
+              "total_net_return": 3.042879578939872e+18,
+              "max_drawdown": 0.9557
+            },
+            "regime": {
+              "by_market_state": {
+                "bull": {
+                  "n_trades": 725,
+                  "expectancy_R": 1.0814,
+                  "mean_net_return": 0.07182,
+                  "pnl_share": 0.7036
+                },
+                "sideways": {
+                  "n_trades": 63,
+                  "expectancy_R": 2.0485,
+                  "mean_net_return": 0.17353,
+                  "pnl_share": 0.1477
+                },
+                "bear": {
+                  "n_trades": 35,
+                  "expectancy_R": 3.4928,
+                  "mean_net_return": 0.31431,
+                  "pnl_share": 0.1486
+                }
+              },
+              "by_inflation_slice": {
+                "pre_surge": {
+                  "n_trades": 203,
+                  "expectancy_R": 0.6792,
+                  "mean_net_return": 0.06923,
+                  "pnl_share": 0.1899
+                },
+                "high_inflation": {
+                  "n_trades": 419,
+                  "expectancy_R": 1.8919,
+                  "mean_net_return": 0.12176,
+                  "pnl_share": 0.6893
+                },
+                "disinflation": {
+                  "n_trades": 201,
+                  "expectancy_R": 0.5212,
+                  "mean_net_return": 0.04446,
+                  "pnl_share": 0.1208
+                }
+              },
+              "positive_market_states": 3,
+              "max_single_slice_pnl_share": 0.7036
+            },
+            "random_benchmark": {
+              "strategy_mean_net": 0.08992,
+              "null_mean": 0.05472,
+              "null_p95": 0.07041,
+              "random_pctile": 0.999,
+              "beats_random_95": true
+            },
+            "buy_and_hold": {
+              "ew_total_net_return": 22.761,
+              "n_names": 88
+            },
+            "gate": {
+              "passes_gate": false,
+              "failures": [
+                "max_dd_exceeded"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "primary_summary": [
+    {
+      "variant": "A_sr_flip_retest",
+      "filter": "parabolic_on",
+      "cost_bps": 50,
+      "n_trades": 1151,
+      "expectancy_R": 1.268,
+      "t_hac": 6.111,
+      "beats_random_95": true,
+      "max_dd": 0.9925,
+      "passes_gate": false,
+      "failures": [
+        "max_dd_exceeded"
+      ]
+    },
+    {
+      "variant": "A_sr_flip_retest",
+      "filter": "parabolic_off",
+      "cost_bps": 50,
+      "n_trades": 1167,
+      "expectancy_R": 1.2468,
+      "t_hac": 6.108,
+      "beats_random_95": true,
+      "max_dd": 0.9954,
+      "passes_gate": false,
+      "failures": [
+        "max_dd_exceeded"
+      ]
+    },
+    {
+      "variant": "B_consolidation_breakout",
+      "filter": "parabolic_on",
+      "cost_bps": 50,
+      "n_trades": 857,
+      "expectancy_R": 0.7414,
+      "t_hac": 6.392,
+      "beats_random_95": true,
+      "max_dd": 0.9843,
+      "passes_gate": false,
+      "failures": [
+        "max_dd_exceeded"
+      ]
+    },
+    {
+      "variant": "B_consolidation_breakout",
+      "filter": "parabolic_off",
+      "cost_bps": 50,
+      "n_trades": 1014,
+      "expectancy_R": 0.7159,
+      "t_hac": 7.192,
+      "beats_random_95": true,
+      "max_dd": 0.9857,
+      "passes_gate": false,
+      "failures": [
+        "max_dd_exceeded"
+      ]
+    },
+    {
+      "variant": "C_donchian_retest",
+      "filter": "parabolic_on",
+      "cost_bps": 50,
+      "n_trades": 775,
+      "expectancy_R": 1.1617,
+      "t_hac": 5.249,
+      "beats_random_95": true,
+      "max_dd": 0.9247,
+      "passes_gate": false,
+      "failures": [
+        "max_dd_exceeded"
+      ]
+    },
+    {
+      "variant": "C_donchian_retest",
+      "filter": "parabolic_off",
+      "cost_bps": 50,
+      "n_trades": 823,
+      "expectancy_R": 1.3069,
+      "t_hac": 5.63,
+      "beats_random_95": true,
+      "max_dd": 0.9483,
+      "passes_gate": false,
+      "failures": [
+        "max_dd_exceeded"
+      ]
+    }
+  ],
+  "snapshot_meta": {
+    "directive": "D-185",
+    "window": {
+      "start": "2019-01-01",
+      "end": "2026-04-30"
+    },
+    "source": "yfinance OHLCV (auto_adjust)",
+    "requested_universe_n": 113,
+    "loaded_universe": [
+      "AEFES",
+      "AGHOL",
+      "AKBNK",
+      "AKFGY",
+      "AKFYE",
+      "AKSA",
+      "AKSEN",
+      "ALARK",
+      "ALBRK",
+      "ALFAS",
+      "ARCLK",
+      "ASELS",
+      "ASTOR",
+      "AYDEM",
+      "BERA",
+      "BIMAS",
+      "BIOEN",
+      "CCOLA",
+      "CIMSA",
+      "CWENE",
+      "DOAS",
+      "DOHOL",
+      "ECILC",
+      "EGEEN",
+      "EKGYO",
+      "ENERY",
+      "ENJSA",
+      "ENKAI",
+      "EREGL",
+      "ESEN",
+      "EUPWR",
+      "EUREN",
+      "FROTO",
+      "GARAN",
+      "GESAN",
+      "GLYHO",
+      "GSDHO",
+      "GUBRF",
+      "GWIND",
+      "HALKB",
+      "HEKTS",
+      "ISCTR",
+      "ISDMR",
+      "ISGYO",
+      "IZENR",
+      "KARSN",
+      "KCHOL",
+      "KLGYO",
+      "KONTR",
+      "KORDS",
+      "KRDMD",
+      "MAVI",
+      "MGROS",
+      "MPARK",
+      "NTHOL",
+      "ODAS",
+      "OTKAR",
+      "OYAKC",
+      "PETKM",
+      "PGSUS",
+      "POLHO",
+      "QUAGR",
+      "REEDR",
+      "SAHOL",
+      "SASA",
+      "SELEC",
+      "SISE",
+      "SKBNK",
+      "SMRTG",
+      "SOKM",
+      "TAVHL",
+      "TCELL",
+      "THYAO",
+      "TKFEN",
+      "TMSN",
+      "TOASO",
+      "TRGYO",
+      "TSKB",
+      "TTKOM",
+      "TTRAK",
+      "TUKAS",
+      "TUPRS",
+      "TURSG",
+      "ULKER",
+      "VAKBN",
+      "VESTL",
+      "YKBNK",
+      "ZOREN"
+    ],
+    "loaded_universe_n": 88,
+    "index_symbol": "XU100",
+    "n_rows": 149671,
+    "content_hash": "d1423f89a97820b636dc2cf84e7405a7fbffb9b2e7a59547898f3a4bff1fac50",
+    "timestamp_utc": "2026-05-31T02:01:01Z",
+    "config_version": "trend-test-v1",
+    "adv_filter": {
+      "adv_floor_tl": 50000000.0,
+      "adv_min_days": 60,
+      "method": "median daily TL volume (Close x Volume) over window [snapshot._compute_adv]",
+      "candidates_n": 113,
+      "fetched_n": 112,
+      "not_fetched_404": [
+        "TRKCM"
+      ],
+      "adv_passed_n": 88,
+      "adv_dropped_below_floor": [
+        "AKCNS",
+        "AKENR",
+        "ALCTL",
+        "ALGYO",
+        "ALKIM",
+        "ANSGR",
+        "BAGFS",
+        "BIZIM",
+        "BRISA",
+        "BUCIM",
+        "CLEBI",
+        "DEVA",
+        "INDES",
+        "KAPLM",
+        "KAREL",
+        "KARTN",
+        "KLNMA",
+        "KONYA",
+        "LOGO",
+        "NETAS",
+        "NUHCM",
+        "PNSUT",
+        "TATGD",
+        "ULUUN"
+      ]
+    },
+    "survivorship": {
+      "excluded_delisted": [
+        "KOZAA",
+        "KOZAL",
+        "IPEKE",
+        "TRALT"
+      ],
+      "note": "survivors-only OHLCV snapshot: delisted names not fetchable (yfinance 404), so excluded.",
+      "bias_direction": "Survivors-only INFLATES per-trade expectancy -> results are an UPPER BOUND. If a variant cannot beat the random-entry benchmark post-cost here, it definitely cannot in reality. No silent full-coverage claim (the maintainer condition)."
+    }
+  }
+}
