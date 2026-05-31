@@ -1,0 +1,56 @@
+{
+  "directive": "D-188",
+  "probe_timestamp_utc": "2026-05-31T19:44:49.973726+00:00",
+  "purpose": "Read-only data-feasibility probe: backtest vs forward access for E1/E2/E3.",
+  "questions": {
+    "a_without_token": {
+      "question": "How much historical earnings data is reachable WITHOUT MKK_VYK_TOKEN?",
+      "env": {
+        "mkk_vyk_token_present": false,
+        "mkk_vyk_base_present": false,
+        "evds_api_key_present": false,
+        "kap4_min_disclosure_index": 538004,
+        "notes": [
+          "KAP-4.0 cutoff: disclosures below this index are html-only (no XBRL) -> historical earnings depth is bounded below by KAP-4.0 (~2020/21+), not 2019.",
+          "MKK_VYK_TOKEN absent -> historical earnings fall back to yfinance fundamentals, where announcement dates are unreliable (look-ahead risk)."
+        ]
+      },
+      "fetch_fr_history_THYAO_2022_2023_rows": 0,
+      "verdict": "WITHOUT token: fetch_fr_history returns EMPTY (no XBRL earnings). Historical E1 backtest falls back to yfinance fundamentals only."
+    },
+    "b_kap4_depth": {
+      "question": "KAP-4.0 cutoff -> real historical depth (2020/21+ vs 2019)?",
+      "kap4_min_disclosure_index": 538004,
+      "verdict": "disclosureIndex below the cutoff is html-only (no XBRL). KAP 4.0 platform launched ~2021 -> XBRL earnings depth ~2021+, NOT 2019. Exact calendar date of the cutoff index requires the live API."
+    },
+    "c_yfinance_announcement_lookahead": {
+      "question": "yfinance fallback announcement-date reliability (look-ahead risk)?",
+      "yf_earnings_dates_available": true,
+      "yf_earnings_dates_rows": 25,
+      "quarterly_income_stmt_period_end_cols": [
+        "2026-03-31",
+        "2025-12-31",
+        "2025-09-30",
+        "2025-06-30",
+        "2025-03-31",
+        "2024-12-31"
+      ],
+      "verdict": "quarterly_income_stmt gives PERIOD-END dates only; announcement comes ~6-10 weeks later. If get_earnings_dates is empty/unreliable for .IS, using period-end as the event date is a SEVERE look-ahead error. Forward recorder avoids this entirely (real-time publication date)."
+    },
+    "d_e2_e3_and_forward": {
+      "question": "E2/E3 data-path? + which event type is reachable TODAY (auth-free)?",
+      "E2_index_inclusion_historical": "NO frozen source (data_pending; separate directive)",
+      "E3_material_kap_historical": "ODA pagination needs MKK_VYK_TOKEN (data_pending)",
+      "forward_kap_auth_free_fetch_kap_news_THYAO_count": 2,
+      "forward_kap_sample": {
+        "source": "gnews:AirportHaber",
+        "ticker": "THYAO",
+        "title": "THY Türbülansa Girdi ve Yılın En Kötü Performansını Gösterdi - AirportHaber",
+        "published": "2026-05-31T07:48:45+00:00",
+        "category": "NOISE",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPOHptb285RWhOS0pRdzNOSV9Dc3p2bmpKSl8wX0RvYnJzejVYeTZuTXI2Q2hPM3FDNWJrOGdJN3kxYkdVS1ZndmUxWndjSnd0VkU0ck5ma3dGODdRT012czhydDB3bkl3ZHE1S0ZfMWlQU2daS083Sm1PalUxcnRxdDJ5OTd5SFktSmlqTUYxZXBmS2w5QlBScFRNVlY2SGZCYnhLQ1RhbF94X3FTakE?oc=5"
+      },
+      "forward_verdict": "Auth-free KAP/news feed reachable -> forward E1/E3 capture can start today WITHOUT token (recent-only; WAF-fragile -> handled gracefully). This is the bypass for the token bottleneck."
+    }
+  }
+}
