@@ -1,0 +1,500 @@
+{
+  "directive": "D-186",
+  "config_version": "trend-d186-v1",
+  "cost_bps": 50,
+  "decisive_basis": "xu100_relative",
+  "real_cpi_available": true,
+  "decision_rule_DEC044": "disinflation slice + XU100-relative + fair null (matched exit+prefilter) beats random >=95 pctile AND portfolio max_dd<=0.35",
+  "results": {
+    "A_sr_flip_retest": {
+      "parabolic_on": {
+        "n_setups": 1587,
+        "n_trades": 1151,
+        "full_window_mean_nominal_net": 0.09037,
+        "full_window_mean_rel_net": 0.02547,
+        "portfolio": {
+          "max_drawdown": 0.2012,
+          "final_equity": 4.734,
+          "n_admitted": 481,
+          "n_skipped": 670
+        },
+        "by_inflation_slice": {
+          "pre_surge": {
+            "n_trades": 299,
+            "mean_nominal_net": 0.0928,
+            "mean_rel_net": 0.0479,
+            "mean_real_net": 0.0624
+          },
+          "high_inflation": {
+            "n_trades": 483,
+            "mean_nominal_net": 0.1416,
+            "mean_rel_net": 0.02469,
+            "mean_real_net": 0.05641
+          },
+          "disinflation": {
+            "n_trades": 369,
+            "mean_nominal_net": 0.02134,
+            "mean_rel_net": 0.00831,
+            "mean_real_net": -0.00095
+          }
+        },
+        "decision_slice": {
+          "slice": "disinflation",
+          "window": [
+            "2024-07-01",
+            "2026-04-30"
+          ],
+          "fair_null": {
+            "n_target": 369,
+            "pool_size": 38406,
+            "null_mean": 0.00453,
+            "null_p95": 0.02643,
+            "strategy_slice_mean_rel": 0.00831,
+            "random_pctile": 0.65,
+            "beats_fair_random_95": false
+          },
+          "cs_significance": {
+            "n_days": 153,
+            "mean": 0.00416,
+            "ci95_low": -0.02721,
+            "ci95_high": 0.04368,
+            "ci_excludes_zero": false
+          }
+        },
+        "verdict_DEC044": {
+          "passes_DEC044": false,
+          "slice_mean_rel_return": 0.00831,
+          "beats_fair_random_95": false,
+          "random_pctile": 0.65,
+          "portfolio_max_dd": 0.2012,
+          "dd_ok": true,
+          "cs_ci_excludes_zero": false,
+          "failures": [
+            "fails_fair_random_benchmark"
+          ]
+        }
+      },
+      "parabolic_off": {
+        "n_setups": 1621,
+        "n_trades": 1167,
+        "full_window_mean_nominal_net": 0.08926,
+        "full_window_mean_rel_net": 0.02468,
+        "portfolio": {
+          "max_drawdown": 0.2148,
+          "final_equity": 4.7587,
+          "n_admitted": 483,
+          "n_skipped": 684
+        },
+        "by_inflation_slice": {
+          "pre_surge": {
+            "n_trades": 303,
+            "mean_nominal_net": 0.093,
+            "mean_rel_net": 0.04801,
+            "mean_real_net": 0.06251
+          },
+          "high_inflation": {
+            "n_trades": 493,
+            "mean_nominal_net": 0.13837,
+            "mean_rel_net": 0.02273,
+            "mean_real_net": 0.05394
+          },
+          "disinflation": {
+            "n_trades": 371,
+            "mean_nominal_net": 0.02096,
+            "mean_rel_net": 0.0082,
+            "mean_real_net": -0.00137
+          }
+        },
+        "decision_slice": {
+          "slice": "disinflation",
+          "window": [
+            "2024-07-01",
+            "2026-04-30"
+          ],
+          "fair_null": {
+            "n_target": 371,
+            "pool_size": 40302,
+            "null_mean": 0.00504,
+            "null_p95": 0.02833,
+            "strategy_slice_mean_rel": 0.0082,
+            "random_pctile": 0.637,
+            "beats_fair_random_95": false
+          },
+          "cs_significance": {
+            "n_days": 153,
+            "mean": 0.00412,
+            "ci95_low": -0.02721,
+            "ci95_high": 0.04368,
+            "ci_excludes_zero": false
+          }
+        },
+        "verdict_DEC044": {
+          "passes_DEC044": false,
+          "slice_mean_rel_return": 0.0082,
+          "beats_fair_random_95": false,
+          "random_pctile": 0.637,
+          "portfolio_max_dd": 0.2148,
+          "dd_ok": true,
+          "cs_ci_excludes_zero": false,
+          "failures": [
+            "fails_fair_random_benchmark"
+          ]
+        }
+      }
+    },
+    "B_consolidation_breakout": {
+      "parabolic_on": {
+        "n_setups": 1419,
+        "n_trades": 857,
+        "full_window_mean_nominal_net": 0.12733,
+        "full_window_mean_rel_net": 0.02829,
+        "portfolio": {
+          "max_drawdown": 0.1485,
+          "final_equity": 6.0992,
+          "n_admitted": 275,
+          "n_skipped": 582
+        },
+        "by_inflation_slice": {
+          "pre_surge": {
+            "n_trades": 232,
+            "mean_nominal_net": 0.10983,
+            "mean_rel_net": 0.05995,
+            "mean_real_net": 0.0745
+          },
+          "high_inflation": {
+            "n_trades": 380,
+            "mean_nominal_net": 0.19426,
+            "mean_rel_net": 0.01714,
+            "mean_real_net": 0.07304
+          },
+          "disinflation": {
+            "n_trades": 245,
+            "mean_nominal_net": 0.0401,
+            "mean_rel_net": 0.0156,
+            "mean_real_net": 0.00713
+          }
+        },
+        "decision_slice": {
+          "slice": "disinflation",
+          "window": [
+            "2024-07-01",
+            "2026-04-30"
+          ],
+          "fair_null": {
+            "n_target": 245,
+            "pool_size": 38406,
+            "null_mean": 0.00479,
+            "null_p95": 0.03093,
+            "strategy_slice_mean_rel": 0.0156,
+            "random_pctile": 0.787,
+            "beats_fair_random_95": false
+          },
+          "cs_significance": {
+            "n_days": 103,
+            "mean": 0.03735,
+            "ci95_low": -0.03823,
+            "ci95_high": 0.12237,
+            "ci_excludes_zero": false
+          }
+        },
+        "verdict_DEC044": {
+          "passes_DEC044": false,
+          "slice_mean_rel_return": 0.0156,
+          "beats_fair_random_95": false,
+          "random_pctile": 0.787,
+          "portfolio_max_dd": 0.1485,
+          "dd_ok": true,
+          "cs_ci_excludes_zero": false,
+          "failures": [
+            "fails_fair_random_benchmark"
+          ]
+        }
+      },
+      "parabolic_off": {
+        "n_setups": 2249,
+        "n_trades": 1014,
+        "full_window_mean_nominal_net": 0.13081,
+        "full_window_mean_rel_net": 0.02458,
+        "portfolio": {
+          "max_drawdown": 0.1503,
+          "final_equity": 5.7768,
+          "n_admitted": 287,
+          "n_skipped": 727
+        },
+        "by_inflation_slice": {
+          "pre_surge": {
+            "n_trades": 269,
+            "mean_nominal_net": 0.09892,
+            "mean_rel_net": 0.05287,
+            "mean_real_net": 0.06505
+          },
+          "high_inflation": {
+            "n_trades": 470,
+            "mean_nominal_net": 0.20446,
+            "mean_rel_net": 0.0173,
+            "mean_real_net": 0.0771
+          },
+          "disinflation": {
+            "n_trades": 275,
+            "mean_nominal_net": 0.03611,
+            "mean_rel_net": 0.00934,
+            "mean_real_net": 0.00313
+          }
+        },
+        "decision_slice": {
+          "slice": "disinflation",
+          "window": [
+            "2024-07-01",
+            "2026-04-30"
+          ],
+          "fair_null": {
+            "n_target": 275,
+            "pool_size": 40302,
+            "null_mean": 0.00531,
+            "null_p95": 0.03126,
+            "strategy_slice_mean_rel": 0.00934,
+            "random_pctile": 0.651,
+            "beats_fair_random_95": false
+          },
+          "cs_significance": {
+            "n_days": 114,
+            "mean": 0.02712,
+            "ci95_low": -0.04061,
+            "ci95_high": 0.09807,
+            "ci_excludes_zero": false
+          }
+        },
+        "verdict_DEC044": {
+          "passes_DEC044": false,
+          "slice_mean_rel_return": 0.00934,
+          "beats_fair_random_95": false,
+          "random_pctile": 0.651,
+          "portfolio_max_dd": 0.1503,
+          "dd_ok": true,
+          "cs_ci_excludes_zero": false,
+          "failures": [
+            "fails_fair_random_benchmark"
+          ]
+        }
+      }
+    },
+    "C_donchian_retest": {
+      "parabolic_on": {
+        "n_setups": 1192,
+        "n_trades": 775,
+        "full_window_mean_nominal_net": 0.08351,
+        "full_window_mean_rel_net": 0.02209,
+        "portfolio": {
+          "max_drawdown": 0.1666,
+          "final_equity": 4.6411,
+          "n_admitted": 338,
+          "n_skipped": 437
+        },
+        "by_inflation_slice": {
+          "pre_surge": {
+            "n_trades": 198,
+            "mean_nominal_net": 0.07492,
+            "mean_rel_net": 0.05154,
+            "mean_real_net": 0.05409
+          },
+          "high_inflation": {
+            "n_trades": 380,
+            "mean_nominal_net": 0.10819,
+            "mean_rel_net": 0.00324,
+            "mean_real_net": 0.03064
+          },
+          "disinflation": {
+            "n_trades": 197,
+            "mean_nominal_net": 0.04454,
+            "mean_rel_net": 0.02886,
+            "mean_real_net": 0.02034
+          }
+        },
+        "decision_slice": {
+          "slice": "disinflation",
+          "window": [
+            "2024-07-01",
+            "2026-04-30"
+          ],
+          "fair_null": {
+            "n_target": 197,
+            "pool_size": 38406,
+            "null_mean": 0.00501,
+            "null_p95": 0.0355,
+            "strategy_slice_mean_rel": 0.02886,
+            "random_pctile": 0.906,
+            "beats_fair_random_95": false
+          },
+          "cs_significance": {
+            "n_days": 105,
+            "mean": 0.03153,
+            "ci95_low": -0.01683,
+            "ci95_high": 0.08406,
+            "ci_excludes_zero": false
+          }
+        },
+        "verdict_DEC044": {
+          "passes_DEC044": false,
+          "slice_mean_rel_return": 0.02886,
+          "beats_fair_random_95": false,
+          "random_pctile": 0.906,
+          "portfolio_max_dd": 0.1666,
+          "dd_ok": true,
+          "cs_ci_excludes_zero": false,
+          "failures": [
+            "fails_fair_random_benchmark"
+          ]
+        }
+      },
+      "parabolic_off": {
+        "n_setups": 1345,
+        "n_trades": 823,
+        "full_window_mean_nominal_net": 0.09292,
+        "full_window_mean_rel_net": 0.02581,
+        "portfolio": {
+          "max_drawdown": 0.1666,
+          "final_equity": 4.7186,
+          "n_admitted": 332,
+          "n_skipped": 491
+        },
+        "by_inflation_slice": {
+          "pre_surge": {
+            "n_trades": 203,
+            "mean_nominal_net": 0.07223,
+            "mean_rel_net": 0.04884,
+            "mean_real_net": 0.05162
+          },
+          "high_inflation": {
+            "n_trades": 419,
+            "mean_nominal_net": 0.12476,
+            "mean_rel_net": 0.01257,
+            "mean_real_net": 0.04181
+          },
+          "disinflation": {
+            "n_trades": 201,
+            "mean_nominal_net": 0.04746,
+            "mean_rel_net": 0.03016,
+            "mean_real_net": 0.022
+          }
+        },
+        "decision_slice": {
+          "slice": "disinflation",
+          "window": [
+            "2024-07-01",
+            "2026-04-30"
+          ],
+          "fair_null": {
+            "n_target": 201,
+            "pool_size": 40302,
+            "null_mean": 0.00527,
+            "null_p95": 0.03604,
+            "strategy_slice_mean_rel": 0.03016,
+            "random_pctile": 0.917,
+            "beats_fair_random_95": false
+          },
+          "cs_significance": {
+            "n_days": 104,
+            "mean": 0.03473,
+            "ci95_low": -0.01625,
+            "ci95_high": 0.08912,
+            "ci_excludes_zero": false
+          }
+        },
+        "verdict_DEC044": {
+          "passes_DEC044": false,
+          "slice_mean_rel_return": 0.03016,
+          "beats_fair_random_95": false,
+          "random_pctile": 0.917,
+          "portfolio_max_dd": 0.1666,
+          "dd_ok": true,
+          "cs_ci_excludes_zero": false,
+          "failures": [
+            "fails_fair_random_benchmark"
+          ]
+        }
+      }
+    }
+  },
+  "primary_summary": [
+    {
+      "variant": "A_sr_flip_retest",
+      "filter": "parabolic_on",
+      "disinflation_mean_rel": 0.00831,
+      "fair_random_pctile": 0.65,
+      "beats_fair_random_95": false,
+      "portfolio_max_dd": 0.2012,
+      "passes_DEC044": false,
+      "failures": [
+        "fails_fair_random_benchmark"
+      ]
+    },
+    {
+      "variant": "A_sr_flip_retest",
+      "filter": "parabolic_off",
+      "disinflation_mean_rel": 0.0082,
+      "fair_random_pctile": 0.637,
+      "beats_fair_random_95": false,
+      "portfolio_max_dd": 0.2148,
+      "passes_DEC044": false,
+      "failures": [
+        "fails_fair_random_benchmark"
+      ]
+    },
+    {
+      "variant": "B_consolidation_breakout",
+      "filter": "parabolic_on",
+      "disinflation_mean_rel": 0.0156,
+      "fair_random_pctile": 0.787,
+      "beats_fair_random_95": false,
+      "portfolio_max_dd": 0.1485,
+      "passes_DEC044": false,
+      "failures": [
+        "fails_fair_random_benchmark"
+      ]
+    },
+    {
+      "variant": "B_consolidation_breakout",
+      "filter": "parabolic_off",
+      "disinflation_mean_rel": 0.00934,
+      "fair_random_pctile": 0.651,
+      "beats_fair_random_95": false,
+      "portfolio_max_dd": 0.1503,
+      "passes_DEC044": false,
+      "failures": [
+        "fails_fair_random_benchmark"
+      ]
+    },
+    {
+      "variant": "C_donchian_retest",
+      "filter": "parabolic_on",
+      "disinflation_mean_rel": 0.02886,
+      "fair_random_pctile": 0.906,
+      "beats_fair_random_95": false,
+      "portfolio_max_dd": 0.1666,
+      "passes_DEC044": false,
+      "failures": [
+        "fails_fair_random_benchmark"
+      ]
+    },
+    {
+      "variant": "C_donchian_retest",
+      "filter": "parabolic_off",
+      "disinflation_mean_rel": 0.03016,
+      "fair_random_pctile": 0.917,
+      "beats_fair_random_95": false,
+      "portfolio_max_dd": 0.1666,
+      "passes_DEC044": false,
+      "failures": [
+        "fails_fair_random_benchmark"
+      ]
+    }
+  ],
+  "snapshot_meta": {
+    "content_hash": "d1423f89a97820b636dc2cf84e7405a7fbffb9b2e7a59547898f3a4bff1fac50",
+    "window": {
+      "start": "2019-01-01",
+      "end": "2026-04-30"
+    },
+    "loaded_universe_n": 88
+  }
+}
