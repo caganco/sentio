@@ -23,7 +23,6 @@ from src.screening.faz0_config import (  # reuse frozen Faz 0 inventory
     FAZ0_ADV_FLOOR_TL,
     FAZ0_ADV_MIN_DAYS,
     FAZ0_BIST100_CONSTITUENTS,
-    KNOWN_DELISTED,
 )
 
 CONFIG_VERSION = "trend-test-v1"
