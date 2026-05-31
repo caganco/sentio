@@ -1,0 +1,12 @@
+{
+  "content_hash": "5fe7584818351df850794cafd50f2c1c96b4f02d06d134937c96100af1a32842",
+  "n_obs": 1828,
+  "timestamp_utc": "2026-05-31T16:29:43Z",
+  "config_version": "exposure-d187-v1",
+  "symbol": "XU100.IS",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30"
+  },
+  "caveat": "price-only, no dividends; equity disadvantaged ~2-4%/yr"
+}

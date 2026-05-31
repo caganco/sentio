@@ -1,0 +1,15 @@
+{
+  "content_hash": "2189a883afde8efe295f7088285332e72f703205f28eb0a9f21b68764d207515",
+  "n_obs": 687,
+  "timestamp_utc": "2026-05-31T16:29:45Z",
+  "config_version": "exposure-d187-v1",
+  "sources": [
+    "GC=F",
+    "TP.DK.USD.A"
+  ],
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30"
+  },
+  "note": "GC=F USD/oz * USDTRY / 32.1507 troy-oz-to-gram"
+}

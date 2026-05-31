@@ -1,0 +1,12 @@
+{
+  "content_hash": "5ad0001eee2f89136ea4ea7c316a5dea7a50f2e25967f23af5d6f644f63c9dbd",
+  "n_obs": 2677,
+  "timestamp_utc": "2026-05-31T16:29:38Z",
+  "config_version": "exposure-d187-v1",
+  "series": "TP.BISTTLREF.KAPANIS",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30"
+  },
+  "construction": "TP.BISTTLREF.KAPANIS return-index used DIRECTLY (already compound-grown; no /365 conversion)"
+}
