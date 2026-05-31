@@ -1,0 +1,71 @@
+{
+  "directive": "D-186",
+  "title": "Trend-Motor Duzeltme Turu -- Stage 0 pre-registration",
+  "preregistered_date": "2026-05-31",
+  "config_module": "src/screening/trend_d186_config.py",
+  "config_version": "trend-d186-v1",
+  "builds_on": "D-185 (PR #142, merged) -- INCONCLUSIVE verdict",
+  "discipline_note": "Committed BEFORE any re-measurement is run and BEFORE any D-186 result is seen. The NET DECISION RULE (DEC-044) is FROZEN here and will NOT be relaxed post-hoc (no 'disinflation -> full-period', no threshold lowering). Validation round (like D-181/D-184): same variants/rules/snapshot/trades; ONLY the measurement methodology changes. N<=3 preserved -- no new edge search.",
+  "what_changes_vs_d185": "ONLY the metrics: (1) real portfolio drawdown replaces full-capital-cumprod artifact; (2) XU100-relative (+ best-effort real-CPI) returns replace nominal; (3) fair random null (matched exit + pre-filter) + cross-sectional-corrected significance replace the asymmetric null + IID/NW-only.",
+  "what_stays_identical": "Same 3 variants A/B/C, same parabolic on/off, same trend_config frozen params, same frozen OHLCV snapshot (content_hash d1423f89), same trades from trend_backtest.backtest_variant. Look-ahead guard (D-185 clean) preserved. Survivors-only (88 tickers) -> still an upper bound.",
+
+  "fix1_real_drawdown": {
+    "problem": "D-185 sequential_equity_max_dd compounded each trade at FULL capital (cumprod) -> total_net_return ~1e+26, max_dd~0.99 deterministic; zero real risk signal.",
+    "model": "concurrency-capped, equal-weight, daily mark-to-market portfolio",
+    "max_concurrent_positions": 10,
+    "slot_fraction": 0.10,
+    "initial_equity": 1.0,
+    "slot_contention": "admit earliest (entry_date, then ticker alphabetical); excess skipped and COUNTED (no silent drop)",
+    "drawdown": "real peak-to-trough on the daily equity curve (bounded 0..1); expected ~0.2-0.4 not ~0.99"
+  },
+
+  "fix2_drift_free_returns": {
+    "decisive_basis": "xu100_relative",
+    "xu100_relative_definition": "rel_net = (1 + gross_return) / (1 + xu100_return[entry_date..exit_date]) - 1 - cost_frac (geometric excess over index)",
+    "real_cpi": {
+      "status": "CONFIRMATORY, BEST-EFFORT",
+      "series": "EVDS TP.FG.J0 (monthly CPI)",
+      "rule": "frozen only if EVDS_API_KEY present; if absent, XU100-relative decides alone (directive 'REEL veya RELATIVE')",
+      "real_definition": "real_net = (1 + net_return) / (cpi_exit / cpi_entry) - 1"
+    },
+    "per_slice_null": "random null computed PER inflation slice (D-185 used a single global null) to isolate drift",
+    "intentional_tightening_note": "XU100-relative DISINFLATION numbers will be LOWER than D-185 nominal -- this is EXPECTED and INTENTIONAL, not an error: the index itself rises, so relative measures only excess-over-index ('how much you beat the market'). The decision rule is deliberately hard. The report states this upfront."
+  },
+
+  "fix3_entry_isolation_and_significance": {
+    "fair_null": {
+      "problem": "D-185 random null held a FIXED duration with NO stop, while the strategy used stop+trailing -> edge conflated entry-timing with exit-management.",
+      "exit_symmetry": "random entries get the SAME exit machinery: initial stop = entry - 1.5*ATR(14), Donchian-20 trailing (ratchet up), MAX_HOLD = 126 days",
+      "prefilter_symmetry": "random entries respect the SAME active pre-filter as the cell: ADV universe ALWAYS; parabolic-eligibility mask when parabolic_on (only non-parabolic-blocked day-ticker pairs). parabolic_off cells: ADV only. -> isolates the TRIGGER/RETEST timing, not the parabolic filter.",
+      "seed": 12345,
+      "n_resamples": 1000
+    },
+    "cross_sectional_significance": {
+      "method": "aggregate trades into a DAILY portfolio-return series (same-day trades collapse to one daily return -> cross-sectional same-day clustering resolved by aggregation), then block-bootstrap",
+      "reuse": "factor_ic_harness.block_bootstrap_ci (block=21, n_boot=2000, seed=12345)",
+      "block": 21,
+      "no_driscoll_kraay": "not needed -- daily aggregation handles the cross-sectional clustering that D-185 HAC-lag-5 missed; D-185 IID bootstrap (ignored block=21) is replaced by block bootstrap"
+    }
+  },
+
+  "net_decision_rule_DEC044": {
+    "passes_if": "at least one variant (C strongest candidate), in XU100-relative returns, vs the FAIR null (stop+trailing+pre-filter matched), in the DISINFLATION slice (2024-07-01..2026-04-30), with cross-sectional-corrected significance, beats the random null at >= 0.95 percentile AND real portfolio max_dd <= 0.35",
+    "fails_if": "edge vanishes at this intersection -> trend-motor is also weak in this universe/window (like Faz 0 cross-sectional) -> both paradigms tested (information, not failure)",
+    "random_pctile_min": 0.95,
+    "max_dd_max": 0.35,
+    "decision_slice": "disinflation",
+    "no_post_hoc_relaxation": "this rule is frozen; not loosened after seeing results"
+  },
+
+  "n_lock": {
+    "variants": ["A_sr_flip_retest", "B_consolidation_breakout", "C_donchian_retest"],
+    "filter_modes": ["parabolic_on", "parabolic_off"],
+    "rule": "N<=3 variants, same rules/params as D-185; only measurement methodology changes. No new variant/rule/parameter. Post-hoc parameter sweeping forbidden."
+  },
+
+  "outputs": [
+    "docs/trend_test/STAGE0_d186_preregistration.json (this file)",
+    "docs/trend_test/d186_results.json (after run: variant x filter x slice x [relative,real] x fair-null x real-DD)",
+    "docs/research/D-186-trend-duzeltme-rapor.md (DEC-044 verdict + Katman A recommendation or premise re-think)"
+  ]
+}
