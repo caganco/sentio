@@ -66,41 +66,58 @@ def _freeze(series: pd.Series, path: Path, meta_extra: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
-# TLREF compound-growth index
+# EVDS daily-series helper (mirrors macro_sources.fetch_tufe_series pattern)
 # ---------------------------------------------------------------------------
-def _tlref_to_compound(rate_series: pd.Series) -> pd.Series:
-    """Convert annualised overnight rate (%) to a compound-growth index (start=1.0).
+def _fetch_evds_daily(series_code: str, start: str, end: str) -> pd.Series:
+    """Fetch an EVDS series -> daily-calendar ffilled pd.Series.
 
-    Each day: idx[t] = idx[t-1] * (1 + rate[t] / 100 / 365).
-    NaN days carry forward the previous index level (no compounding on missing).
+    EVDS needs DD-MM-YYYY dates; fetch_series returns a list of {date,value} dicts.
+    Reindex to a daily CALENDAR so overnight accrual covers weekends/holidays.
     """
-    daily_factor = 1.0 + rate_series.fillna(0.0) / 100.0 / 365.0
-    return daily_factor.cumprod()
+    from src.data.evds_client import fetch_series
+    start_e = pd.to_datetime(start).strftime("%d-%m-%Y")
+    end_e = pd.to_datetime(end).strftime("%d-%m-%Y")
+    raw = fetch_series(series_code, start_date=start_e, end_date=end_e)
+    df = pd.DataFrame(raw)
+    df["date"] = pd.to_datetime(df["date"])
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    s = df.set_index("date")["value"].dropna().sort_index()
+    daily = pd.date_range(pd.to_datetime(start), pd.to_datetime(end), freq="D")
+    return s.reindex(daily, method="ffill")
 
 
+# ---------------------------------------------------------------------------
+# TLREF return-index (used DIRECTLY -- D-187 live-data correction)
+# ---------------------------------------------------------------------------
 def freeze_tlref_series(
     start: str = EXPOSURE_START, end: str = EXPOSURE_END,
     out_dir: Path | str = _SNAP, fetch_fn: Callable | None = None, tag: str = "d187",
 ) -> pd.Series:
-    """Freeze TLREF compound-growth index. Returns the index series (not raw rate)."""
+    """Freeze the TLREF return-index (TP.BISTTLREF.KAPANIS) DIRECTLY.
+
+    D-187 CORRECTION (live EVDS data): TP.BISTTLREF.KAPANIS is the official BIST
+    TLREF RETURN INDEX (already compound-grown; monotone-increasing 1573->5827
+    over 2019-2026), NOT a rate. It is used DIRECTLY as the cash-park growth series
+    -- NO /365 compounding (that would double-compound and inflate TLREF
+    astronomically, corrupting the main rival B1). The separate TP.BISTTLREF.ORAN
+    series (~46%) is the instantaneous rate; we do not use it.
+    """
     path = Path(out_dir) / f"exposure_{tag}_tlref.parquet"
     cached = _load_or_none(path)
     if cached is not None:
         logger.info("TLREF frozen-load: %d obs", len(cached))
         return cached
     if fetch_fn is None:
-        from src.data.evds_client import fetch_series
-        rate = fetch_series(TLREF_EVDS_SERIES, start, end)
-        if rate is None or len(rate) == 0:
+        idx = _fetch_evds_daily(TLREF_EVDS_SERIES, start, end)
+        if idx is None or idx.dropna().empty:
             raise RuntimeError("TLREF fetch returned empty")
-        rate = pd.Series(rate, name="tlref_rate")
     else:
-        rate = fetch_fn(start, end)
-    idx = _tlref_to_compound(rate)
+        idx = fetch_fn(start, end)
+    idx = idx.copy()
     idx.name = "tlref_index"
     _freeze(idx, path, {"series": TLREF_EVDS_SERIES, "window": {"start": start, "end": end},
-                        "construction": "compound daily: idx *= (1 + rate/100/365)"})
-    logger.info("TLREF frozen: %d obs compound-index", len(idx))
+                        "construction": "TP.BISTTLREF.KAPANIS return-index used DIRECTLY (already compound-grown; no /365 conversion)"})
+    logger.info("TLREF frozen: %d obs return-index (direct)", len(idx))
     return idx
 
 
@@ -180,15 +197,13 @@ def freeze_gold_series(
     try:
         if fetch_fn is None:
             import yfinance as yf
-
-            from src.data.evds_client import fetch_series
             gc = yf.download(GOLD_YFINANCE_SYMBOL, start=start, end=end,
                              auto_adjust=True, progress=False)["Close"].squeeze()
             gc.index = pd.to_datetime(gc.index)
-            usdtry = fetch_series(USDTRY_EVDS_SERIES, start, end)
-            if usdtry is None:
+            usdtry = _fetch_evds_daily(USDTRY_EVDS_SERIES, start, end)
+            if usdtry is None or usdtry.dropna().empty:
                 raise RuntimeError("USDTRY fetch failed")
-            usdtry = pd.Series(usdtry, name="usdtry").reindex(gc.index).ffill()
+            usdtry = usdtry.reindex(gc.index).ffill()
             s = (gc * usdtry / 32.1507).dropna()
             s.name = "gold_tl_gram"
         else:
