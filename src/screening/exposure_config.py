@@ -29,12 +29,13 @@ D187_CONFIG_VERSION = "exposure-d187-v1"
 EXPOSURE_START = "2019-01-01"
 EXPOSURE_END   = "2026-04-30"
 
-# TLREF compound-growth note: TP.BISTTLREF.KAPANIS is a RATE series (annualised
-# overnight reference). We convert to a compound-growth INDEX:
-#   idx[t] = idx[t-1] * (1 + rate[t] / 365)  (daily simple-interest step)
-# All comparisons use the INDEX series -- never the raw rate. This ensures
-# apples-to-apples with XU100 price series and TUFE growth index.
-TLREF_EVDS_SERIES   = "TP.BISTTLREF.KAPANIS"  # RR-021 live-verified
+# TLREF note (D-187 live-data correction): TP.BISTTLREF.KAPANIS is the official
+# BIST TLREF RETURN INDEX (already compound-grown; monotone-increasing
+# 1573->5827 over 2019-2026), NOT a rate. It is used DIRECTLY as the cash-park
+# growth series -- NO /365 conversion (that would double-compound). The separate
+# TP.BISTTLREF.ORAN (~46%) is the instantaneous rate; not used here. All
+# comparisons use this index series, apples-to-apples with XU100 price + TUFE index.
+TLREF_EVDS_SERIES   = "TP.BISTTLREF.KAPANIS"  # RR-021; return-index (not rate)
 TUFE_EVDS_SERIES    = "TP.FG.J0"               # D-186 confirmed active
 USDTRY_EVDS_SERIES  = "TP.DK.USD.A"            # faz0b fx snapshot
 

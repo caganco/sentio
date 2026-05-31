@@ -1,9 +1,9 @@
 """D-187 exposure regime test -- behavior tests (network-free, synthetic).
 
 Tests: rebalance cost, look-ahead guard (signal t -> position t+1),
-TLREF compound-growth math (CRITICAL: rate not used directly),
-real-return deflation, random-null determinism, DEC-045 verdict logic,
-no-composite import invariant.
+TLREF return-index used DIRECTLY (CRITICAL: KAPANIS is an index, not a rate;
+no /365 double-compounding), real-return deflation, random-null determinism,
+DEC-045 verdict logic, no-composite import invariant.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from src.screening.exposure_backtest import (
     slice_metrics,
 )
 from src.screening.exposure_config import REBALANCE_COST_BPS, SWITCH_COST_BPS
-from src.screening.exposure_data import _tlref_to_compound, freeze_tlref_series
+from src.screening.exposure_data import freeze_tlref_series
 from src.screening.exposure_null import random_switch_null
 from src.screening.exposure_runner import run_exposure_test
 
@@ -40,10 +40,14 @@ def _flat_xu100(n: int = 500, start_val: float = 1000.0) -> pd.Series:
                      index=idx, name="xu100")
 
 
-def _flat_tlref_rate(n: int = 500, annual_rate: float = 0.40) -> pd.Series:
-    """Constant annualised rate (percent) for testing."""
+def _synth_tlref_index(n: int = 500, annual: float = 0.40) -> pd.Series:
+    """Synthetic TLREF RETURN INDEX (monotone-grown), mimicking TP.BISTTLREF.KAPANIS.
+
+    This is what the live series IS (already compound), used directly -- NOT a rate.
+    """
     idx = _synth_idx(n)
-    return pd.Series(annual_rate * 100.0, index=idx, name="tlref_rate")
+    daily = (1.0 + annual) ** (1.0 / 252.0) - 1.0
+    return pd.Series(np.cumprod(1.0 + daily * np.ones(n)), index=idx, name="tlref_index")
 
 
 def _tufe_series(n: int = 500, annual_rate: float = 0.30) -> pd.Series:
@@ -53,37 +57,29 @@ def _tufe_series(n: int = 500, annual_rate: float = 0.30) -> pd.Series:
 
 
 # ---------------------------------------------------------------------------
-# TLREF compound-growth (CRITICAL test)
+# TLREF return-index used DIRECTLY (CRITICAL test -- D-187 live-data correction)
 # ---------------------------------------------------------------------------
-def test_tlref_compound_growth_math():
-    """40% annual rate -> compound index after 365 days should be ~1.492."""
-    rate = pd.Series([40.0] * 365, index=pd.date_range("2020-01-01", periods=365, freq="D"))
-    idx = _tlref_to_compound(rate)
-    # (1 + 0.40/365)^365 ≈ 1.4918
-    expected = (1.0 + 0.40 / 365.0) ** 365.0
-    assert abs(float(idx.iloc[-1]) - expected) < 0.002, \
-        f"TLREF compound index {idx.iloc[-1]:.4f} != expected {expected:.4f}"
-
-
-def test_tlref_compound_starts_at_one():
-    rate = pd.Series([20.0] * 100, index=pd.date_range("2020-01-01", periods=100, freq="D"))
-    idx = _tlref_to_compound(rate)
-    assert abs(float(idx.iloc[0]) - (1.0 + 0.20 / 365.0)) < 1e-9
-
-
-def test_tlref_freeze_injectable(tmp_path: Path):
-    """Freeze is idempotent and returns compound index, not raw rate."""
-    rate = _flat_tlref_rate(300)
+def test_tlref_freeze_uses_index_directly(tmp_path: Path):
+    """KAPANIS is a RETURN-INDEX (monotone), used DIRECTLY -- NOT re-compounded /365."""
+    index_series = _synth_tlref_index(300, annual=0.40)
 
     def fetch_fn(start, end):
-        return rate
+        return index_series
 
     s1 = freeze_tlref_series("2019-01-01", "2020-06-01", tmp_path, fetch_fn)
     s2 = freeze_tlref_series("2019-01-01", "2020-06-01", tmp_path, fetch_fn)  # idempotent
     assert s1.name == "tlref_index"
-    assert s2.iloc[0] == pytest.approx(s1.iloc[0])
-    # Values should be >1 (compound growth) not ~40 (raw rate)
-    assert float(s1.max()) < 10.0  # compound, not 40% rate value
+    # Stored DIRECTLY (no /365 transform): values must equal the injected index
+    assert float(s1.iloc[-1]) == pytest.approx(float(index_series.iloc[-1]), rel=1e-6)
+    assert float(s2.iloc[0]) == pytest.approx(float(s1.iloc[0]), rel=1e-6)
+
+
+def test_tlref_index_is_monotone_return_index():
+    """Return-index signature: monotone non-decreasing (never falls like a rate would)."""
+    idx = _synth_tlref_index(500, annual=0.40)
+    assert (idx.diff().dropna() >= 0).all(), "TLREF return-index must be monotone-increasing"
+    # ~40% annual over ~2 years (500 bdays) -> roughly doubles, not a flat ~40 rate value
+    assert 1.5 < float(idx.iloc[-1]) < 2.5
 
 
 # ---------------------------------------------------------------------------
@@ -91,8 +87,7 @@ def test_tlref_freeze_injectable(tmp_path: Path):
 # ---------------------------------------------------------------------------
 def test_barbell_cost_applied():
     xu = _flat_xu100(500)
-    rate = _flat_tlref_rate(500)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(500).reindex(xu.index).ffill()
     res = build_static_barbell(xu, tlref, 0.50, "monthly", REBALANCE_COST_BPS)
     assert res["n_rebalances"] > 0
     assert res["total_cost"] > 0.0
@@ -100,16 +95,14 @@ def test_barbell_cost_applied():
 
 def test_barbell_portfolio_starts_at_one():
     xu = _flat_xu100(300)
-    rate = _flat_tlref_rate(300)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(300).reindex(xu.index).ffill()
     res = build_static_barbell(xu, tlref, 0.50)
     assert abs(float(res["portfolio"].iloc[0]) - 1.0) < 0.02
 
 
 def test_barbell_100_equity_tracks_xu100():
     xu = _flat_xu100(300)
-    rate = _flat_tlref_rate(300)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(300).reindex(xu.index).ffill()
     res_full = build_static_barbell(xu, tlref, 1.00)
     xu_ret = float(xu.iloc[-1] / xu.iloc[0] - 1.0)
     port_ret = float(res_full["portfolio"].iloc[-1] / res_full["portfolio"].iloc[0] - 1.0)
@@ -123,8 +116,7 @@ def test_barbell_100_equity_tracks_xu100():
 def test_regime_signal_look_ahead_guard():
     """Position at t must be derived from signal at t-1 (signal[t] -> pos[t+1])."""
     xu = _flat_xu100(600)
-    rate = _flat_tlref_rate(600)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(600).reindex(xu.index).ffill()
     res = build_regime_switcher(xu, tlref)
     # The portfolio should exist and have same length as xu after alignment
     assert len(res["portfolio"]) > 0
@@ -140,8 +132,7 @@ def test_regime_signal_warmup_zero():
 
 def test_regime_switcher_cost_applied():
     xu = _flat_xu100(600)
-    rate = _flat_tlref_rate(600, 0.40)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(600, 0.40).reindex(xu.index).ffill()
     res = build_regime_switcher(xu, tlref, cost_bps=SWITCH_COST_BPS)
     # If there are any switches, total_cost > 0
     if res["n_switches"] > 0:
@@ -165,8 +156,7 @@ def test_real_return_math():
 # ---------------------------------------------------------------------------
 def test_random_null_deterministic():
     xu = _flat_xu100(500)
-    rate = _flat_tlref_rate(500)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(500).reindex(xu.index).ffill()
     tufe = _tufe_series(500)
     a = random_switch_null(xu, tlref, tufe, 5, "2019-01-01", "2020-12-31",
                            0.05, seed=42, n_resamples=100)
@@ -181,8 +171,7 @@ def test_random_null_deterministic():
 # ---------------------------------------------------------------------------
 def test_run_exposure_test_structure():
     xu = _flat_xu100(600, start_val=100.0)
-    rate = _flat_tlref_rate(600, 0.40)
-    tlref = _tlref_to_compound(rate).reindex(xu.index).ffill()
+    tlref = _synth_tlref_index(600, 0.40).reindex(xu.index).ffill()
     tufe = _tufe_series(600, 0.30)
     res = run_exposure_test(xu, tlref, tufe, gold=None)
     assert "SA_verdict_DEC045" in res
