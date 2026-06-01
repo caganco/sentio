@@ -1,0 +1,67 @@
+{
+  "directive": "D-192",
+  "config_version": "k3-d192-v1",
+  "title": "K3 Illiquidity + Reversal Test -- Stage-0 Pre-Registration",
+  "preregistered_date": "2026-06-01",
+  "discipline_note": "Committed BEFORE any backtest is run. DEC-039. No post-hoc relaxation permitted.",
+  "data": {
+    "window": {
+      "start": "2010-01-01",
+      "end": "2026-05-15"
+    },
+    "in_sample_end": "2019-12-31",
+    "out_sample_start": "2020-01-01",
+    "decay_split": "2020-01-01",
+    "universe": "TUM-BIST + KNOWN_DELISTED; kuralli-veri-kalite-filtresi",
+    "xu100": "yfinance XU100.IS (price-only, no dividends)",
+    "tufe": "EVDS TP.FG.J0 (monthly CPI ffill to daily)"
+  },
+  "factors": {
+    "H1_illiquidity": {
+      "formula": "ILLIQ_daily = |ret| / (vol * close); rolling mean(20d); log(+eps); lag=2mo",
+      "reference": "Amihud (2002), Brennan-Huh-Subrahmanyam (2013)",
+      "portfolio": "T1-T3 tercile spread (equal-weight), rebalance=21d, cost=200bps RT",
+      "lou_shu_control": "cross-sectional OLS: fwd_ret ~ illiq + log_vol_close"
+    },
+    "H2_reversal": {
+      "lookbacks": [
+        "5d",
+        "21d"
+      ],
+      "signal": "(-1) * past_return (contrarian: buy losers)",
+      "reference": "Jegadeesh (1990), Bildik-Gulay (2007), Celik-Ulku (2017)",
+      "portfolio": "bottom-20% reversal long, rebalance=5d, cost=60bps RT"
+    }
+  },
+  "cost_model": {
+    "liquid_rt_bps": 60,
+    "illiquid_rt_bps": 200,
+    "rationale": "Agresif-slippage: RR-OMEGA uyarisi -- illikidite-primini yiyebilir. Optimistik-fill YASAK."
+  },
+  "decision_rule": {
+    "H1_passes_if_ALL": [
+      "T1-T3 net TL-reel > 0 annualized",
+      "beats_fair_random_null >= 0.95",
+      "lou_shu_b_tstat > 1.96 (turnover kontrol sonrasi)",
+      "in_sample_ann_real > 0 AND out_sample_ann_real > 0"
+    ],
+    "H2_passes_if_ALL": [
+      "net TL-reel > 0 (yuksek-devir maliyet sonrasi)",
+      "beats_fair_random_null >= 0.95",
+      "post_split_ann_real > 0 (decay yok, split=2020-01-01)"
+    ],
+    "no_post_hoc_relaxation": true
+  },
+  "registered_caveats": [
+    "survivorship-bias: yfinance delisted hisseler eksik; illikit=yuksek delisting-riski -> sonuclar iyimser-biasli olabilir",
+    "XU100 price-only (no dividends) ~2-4%/yr benchmark handicap",
+    "Lou-Shu proxy log(vol*close); shares-outstanding yok -> ideal degil",
+    "Reversal haftalik: 5 gun rebalance, yilda ~52x * 60bps = ~3120bps maliyet drag",
+    "Kategori-3 not: out-of-sample (2020+) ve decay-split (2020) AYNI donem -- bagimsiz dogrulama degil; muhafazakar oku"
+  ],
+  "null_spec": {
+    "method": "random equal-weight portfolio (ayni n_stocks, ayni maliyet, rastgele secim)",
+    "seed": 12345,
+    "n_resamples": 1000
+  }
+}

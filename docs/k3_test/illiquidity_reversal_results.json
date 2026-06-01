@@ -1,0 +1,117 @@
+{
+  "directive": "D-192",
+  "config_version": "k3-d192-v1",
+  "run_date": "2026-06-01",
+  "status": "COMPLETE",
+  "quality_report": {
+    "n_input": 246,
+    "n_passed": 138,
+    "n_rejected": 108,
+    "pass_pct": 0.561,
+    "rejection_reasons": {
+      "empty_dataframe": 0,
+      "too_short": 0,
+      "low_coverage": 88,
+      "high_zero_vol": 20
+    },
+    "is_viable": true
+  },
+  "universe_n": 138,
+  "H1_illiquidity": {
+    "metrics_full": {
+      "label": "H1_illiq_T1_T3",
+      "n_days": 4137,
+      "ann_real": -0.03134727402700854,
+      "xu100_relative": -0.046293161142393124,
+      "in_sample_ann_real": 0.04374990917774335,
+      "out_sample_ann_real": -0.1361759055560805
+    },
+    "lou_shu": {
+      "n_days": 4032,
+      "mean_b_coef": 0.002649,
+      "b_tstat": 4.1187,
+      "mean_c_coef": -0.002528,
+      "verdict": "price_impact",
+      "passes_lou_shu": true
+    },
+    "null": {
+      "null_mean_ann_real": 0.1157,
+      "null_p95_ann_real": 0.1388,
+      "strategy_pctile": 0.0,
+      "beats_95": false,
+      "n_resamples": 1000
+    },
+    "verdict": {
+      "verdict": "FAIL",
+      "ann_real": -0.0313,
+      "in_sample_ann_real": 0.0437,
+      "out_sample_ann_real": -0.1362,
+      "c1_net_real_positive": false,
+      "c2_beats_null": false,
+      "c3_lou_shu": true,
+      "c4_in_out_both_positive": false,
+      "null_pctile": 0.0,
+      "lou_shu_b_tstat": 4.1187
+    }
+  },
+  "H2_reversal": {
+    "metrics_1wk": {
+      "label": "H2_reversal_1wk",
+      "n_days": 4190,
+      "ann_real": -0.2561002920235499,
+      "xu100_relative": -0.26858576308136484,
+      "in_sample_ann_real": -0.16996768190894573,
+      "out_sample_ann_real": -0.3721051424201305
+    },
+    "metrics_1mo": {
+      "label": "H2_reversal_1mo",
+      "n_days": 4175,
+      "ann_real": -0.2628947712278077,
+      "xu100_relative": -0.2781026157627585,
+      "in_sample_ann_real": -0.21465864513264066,
+      "out_sample_ann_real": -0.3307425356032073
+    },
+    "decay_1wk": {
+      "full_ann_real": -0.2561,
+      "pre_split_ann_real": -0.17,
+      "post_split_ann_real": -0.3721,
+      "split_date": "2020-01-01",
+      "decay_present": true
+    },
+    "decay_1mo": {
+      "full_ann_real": -0.2629,
+      "pre_split_ann_real": -0.2147,
+      "post_split_ann_real": -0.3307,
+      "split_date": "2020-01-01",
+      "decay_present": true
+    },
+    "null": {
+      "null_mean_ann_real": 0.1153,
+      "null_p95_ann_real": 0.1489,
+      "strategy_pctile": 0.0,
+      "beats_95": false,
+      "n_resamples": 1000
+    },
+    "verdict_1wk": {
+      "verdict": "FAIL",
+      "ann_real": -0.2561,
+      "c1_net_real_positive": false,
+      "c2_beats_null": false,
+      "c3_no_decay": false,
+      "null_pctile": 0.0,
+      "post_split_ann_real": -0.3721,
+      "decay_present": true
+    }
+  },
+  "summary": {
+    "H1_verdict": "FAIL",
+    "H2_verdict": "FAIL",
+    "conclusion": "En az biri FAIL -> ilgili nis Yol 2'ye GIRMEZ (Yol 1 lab ileri-donuk izleyebilir)"
+  },
+  "caveats": [
+    "survivorship-bias: delisted hisseler eksik; sonuclar iyimser-biasli",
+    "XU100 price-only (no dividends)",
+    "Lou-Shu proxy (log vol*close); ideal degil",
+    "Kategori-3: out-of-sample ve decay-split ayni 2020+ donemi -- bagimsiz degil"
+  ]
+}

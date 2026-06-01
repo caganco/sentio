@@ -22,6 +22,12 @@ import pandas as pd
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+except ImportError:
+    pass
+
 from src.screening import k3_config as cfg
 from src.screening.k3_illiquid_reversal import (
     apply_quality_filter,
