@@ -1,8 +1,8 @@
 # DATA HUB — Merkezi Veri Router
 
-**Tarih:** 2 Haziran 2026 (v2 — tam parametre dokumantasyonu)
+**Tarih:** 2 Haziran 2026 (v3 — rate limiting + clean/typed kaynaklar)
 **Dayanak:** SPEC_YOL2.md v3.0
-**Dosyalar:** `src/data/data_hub.py`, `src/data/_hub_sources.py`
+**Dosyalar:** `src/data/data_hub.py`, `src/data/_hub_sources.py`, `src/data/_hub_types.py`
 
 ---
 
@@ -19,12 +19,13 @@ smart_money.py  ──►  IsYatirimConnector()  (dogrudan)
 Baska bir proje ayni veriyi almak istediginde tum ic yapiyi ogrenmek zorundaydi.
 DataHub bu baglantilari kayit altina alir; disaridan tek bir API ile erisim saglanir.
 
-**v1 -> v2 duzeltmeleri:**
-- `local_macro_cache` -> `cache_store` import yolu duzeltildi (modul yoktu)
-- `cache.get_cds()` -> `cache.get_latest_cds()` (metod adi duzeltildi)
-- `kap_scraper` kaydi eklendi (kap fallback referans ediliyordu ama register edilmemisti)
-- 8 yeni kaynak eklendi: `tcmb`, `bist_foreign`, `dxy`, `macro_global`,
-  `kap_scraper`, `event_signals`, `event_returns`, `em_relative_strength`
+**v1 -> v2:** import yolu + metod adi duzeltmeleri, 8 yeni kaynak.
+
+**v2 -> v3:**
+- `_RateLimiter` eklendi: yfinance (1/s), evds (1/3s), kap (1/2s), isyatirim (1/2s), fintables (1/5s), macro_global (1/5s)
+- Paylasimli ham fetcher fonksiyonlari: raw + clean ayni limiter'i kullanir
+- Clean/typed kaynaklar: `yfinance_clean`, `macro_global_clean`, `kap_clean`, `evds_clean`
+- `src/data/_hub_types.py`: `MacroSnapshot` + `KAPItem` dataclass'lari
 
 ---
 
@@ -103,6 +104,18 @@ mevcut fetcher'lari cagirir; yazilan cache dosyalari ayni kalir.
 | `bist_datastore` | foreign | **EVET** | 2024-12 | aylik USD islem; SQLite |
 | `event_signals` | kap | **EVET** | 2026-06-01 | immutable, on-kayit, clone3 |
 | `event_returns` | kap | **EVET** | 2026-06-01+ | horizon olgunlasinca dolar |
+
+### Clean / Typed Kaynaklar (v3)
+
+| Kaynak | Ham Karsiligi | Donus Tipi | Rate Limit | Fallback |
+|--------|--------------|-----------|-----------|----------|
+| `yfinance_clean` | `yfinance` | `pd.DataFrame` (lowercase, DatetimeIndex) | paylasimli (_rl_yfinance) | — |
+| `macro_global_clean` | `macro_global` | `MacroSnapshot` dataclass | paylasimli (_rl_macro) | — |
+| `kap_clean` | `kap_scraper` | `list[KAPItem]` dataclass | paylasimli (_rl_kap) | — |
+| `evds_clean` | `evds` | `pd.DataFrame` (DatetimeIndex, sutun=seri_kodu) | paylasimli (_rl_evds) | — |
+
+**Clean kaynaklar icin fallback yok:** tip garantisi bozulamasin diye kasitli.
+Ham kaynak + snapshot fallback icin raw kaynagi kullan.
 
 ---
 
@@ -360,6 +373,128 @@ DataHub.get("event_returns",
 
 ---
 
+## Rate Limiting
+
+`_hub_sources.py` modul seviyesinde 6 `_RateLimiter` instance'i tutar.
+Tum cagrilar arasinda **paylasimli state** — singletons, process-level.
+
+| Limiter | Kaynak(lar) | Limit | Neden |
+|---------|------------|-------|-------|
+| `_rl_yfinance` | `yfinance`, `yfinance_clean` | 1 istek/sn | Yahoo Finance soft rate limit |
+| `_rl_macro` | `macro_global`, `macro_global_clean` | 1 istek/5 sn | ic olarak 5 yfinance cagrisi yapar |
+| `_rl_evds` | `evds`, `evds_clean` | 1 istek/3 sn | TCMB devlet API'si; agresif polling yasak |
+| `_rl_kap` | `kap_scraper`, `kap_clean` | 1 istek/2 sn | RSS/scraping —礼儀 (kibarca) |
+| `_rl_isyatirim` | `isyatirim` | 1 istek/2 sn | Is Yatirim screener scraping |
+| `_rl_fintables` | `fintables` | 1 istek/5 sn | Playwright oturumu, zaten yavas |
+
+Rate-limit **uygulanmayan** kaynaklar (dogrudan local DB/disk okuma):
+`cds`, `cds_fallback`, `tcmb`, `bist_foreign`, `dxy` — SQLite; `bist_datastore`, `event_*` — Parquet.
+
+---
+
+## Clean / Typed Kaynaklar
+
+Ham kaynaklar (`yfinance`, `macro_global`, vb.) veriyi oldugu gibi dondurur.
+Clean kaynaklar ayni ham fetcher fonksiyonunu cagirip normalize eder —
+**ekstra HTTP cagrisi yok, rate limiter paylasimli.**
+
+Tipler `src/data/_hub_types.py` dosyasinda tanimlanir.
+
+### `yfinance_clean`
+```python
+DataHub.get("yfinance_clean",
+    ticker   = "AKBNK.IS",   # str -- ZORUNLU
+    lookback = "1y",          # yfinance period
+    interval = "1d",          # "1d" | "1wk" | "1mo"
+)
+# -> pd.DataFrame
+#    index   : DatetimeIndex(date), tz-naive, artan
+#    sutunlar: [ticker, open, high, low, close, volume, adj_close]  (lowercase)
+```
+
+Ham karsiligi `yfinance` ile fark:
+- Sutun adlari lowercase (`Open` -> `open`)
+- `ticker` sutunu eklendi
+- Timezone temizlendi (tz-naive)
+- Artan sirali (yfinance varsayilani azalan olabilir)
+
+---
+
+### `macro_global_clean`
+```python
+snap = DataHub.get("macro_global_clean")
+# -> MacroSnapshot | None
+#    snap.usdtry               # float | None
+#    snap.usdtry_change_pct    # float | None
+#    snap.vix                  # float | None
+#    snap.vix_change_pct       # float | None
+#    snap.oil_brent            # float | None
+#    snap.oil_brent_change_pct # float | None
+#    snap.sp500                # float | None
+#    snap.sp500_change_pct     # float | None
+#    snap.gold                 # float | None
+#    snap.gold_change_pct      # float | None
+```
+
+Ham karsiligi `macro_global` ile fark:
+- `dict` yerine `MacroSnapshot` dataclass (IDE autocomplete + type checking)
+- `snap.vix` daha okunabilir, `snap["vix"]` yok (KeyError riski yok)
+
+---
+
+### `kap_clean`
+```python
+items = DataHub.get("kap_clean",
+    ticker            = "THYAO",
+    watchlist_tickers = ["AKBNK"],
+    company_names     = {"THYAO": "Turk Hava"},
+)
+# -> list[KAPItem]
+#    item.source       # str   ("google_news" | "mynet" vb.)
+#    item.ticker       # str | None
+#    item.title        # str
+#    item.published    # str   (ISO veya ham tarih string)
+#    item.category     # "CRITICAL" | "IMPORTANT" | "NOISE"
+#    item.url          # str
+#    item.is_critical  # bool  (property: category == "CRITICAL")
+
+criticals = [i for i in items if i.is_critical]
+```
+
+Ham karsiligi `kap_scraper` ile fark:
+- `list[dict]` yerine `list[KAPItem]` (attribute erisimi, is_critical property)
+- `dict.get()` yerine dogrudan `item.category` (KeyError riski yok)
+
+---
+
+### `evds_clean`
+```python
+df = DataHub.get("evds_clean",
+    series   = "TP.BISTTLREF.KAPANIS",
+    lookback = "1y",
+)
+# -> pd.DataFrame
+#    index   : DatetimeIndex(date), artan
+#    sutunlar: ["tp_bisttlref_kapanis"]  (nokta -> alt_cizgi, lowercase)
+#
+# Baska ornek:
+# DataHub.get("evds_clean", series="TP.APIFON4")
+# -> sutun: "tp_apifon4"
+```
+
+Ham karsiligi `evds` ile fark:
+- `date` sutunu yerine `DatetimeIndex` (pandas iloc/loc ile kolay erisim)
+- `value` sutunu yerine seri adini tasiyan sutun (hangi seri oldugu belli)
+- Artan tarih sirasi (analiz icin daha kulisanisli)
+
+**Not:** `evds_clean` icin EVDS_API_KEY gerekir; basarisiz olursa `evds_snapshot`'a
+dusmez (tip garantisi bozulamasin diye). Ham `evds` + snapshot fallback icin:
+```python
+df_raw = DataHub.get("evds", series="TP.BISTTLREF.KAPANIS")  # snapshot'a duser
+```
+
+---
+
 ## Kullanim
 
 ### Bu repoda
@@ -461,7 +596,9 @@ Sonra `register_all()` icindeki `makers` listesine `_make_my_source` ekle.
 
 ## Ne Degil
 
-- DataHub bir **ORM veya data warehouse degil** -- sadece routing ve fallback.
-- **Transformation/normalization yapmaz** -- ham veriyi oldugu gibi dondurur.
-- **Rate limiting / retry yapmaz** -- bu sorumluluk fetcher modullerine aittir.
-- **Yetkilendirme yapmaz** -- auth_required bir bilgi etiketi, erisim kontrolu degil.
+- DataHub bir **tam ORM veya data warehouse degil** — kalici depolama, sorgu motoru,
+  sema versiyonlama yok. ETL pipeline ihtiyaci varsa bu repoya degil ayri bir servise aittir.
+- **Retry yapmaz** — gecici ag hatalarinda yeniden deneme fetcher modullerinin sorumlulugunda.
+- **Yetkilendirme yapmaz** — `auth_required` bir bilgi etiketi, erisim kontrolu degil.
+- **Ham kaynaklar hala normalize etmez** — `yfinance` hala `pd.DataFrame(Open=...)` dondurur.
+  Normalize edilmis veri icin `yfinance_clean` gibi `_clean` varyantini kullan.

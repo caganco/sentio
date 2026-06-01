@@ -1,22 +1,23 @@
 """
 DataHub kaynak kayitlari — mevcut fetcher'larin hub registration'i.
 
-Her _make_* fonksiyonu bir DataSource dondurur veya hata durumunda None.
-Tum modul importlari fonksiyon govdelerinde lazy yapilir; modul-seviyesinde
-import yok, dolayisiyla circular import ve optional-dependency sorunu olmaz.
+Her _make_* fonksiyonu bir DataSource dondurur.
+Tum modul importlari fonksiyon govdelerinde lazy yapilir — circular import yok.
+Mevcut moduller DEGISMEZ; hub onlari wrapper olarak bilir.
 
-Mevcut moduller DEGISMEZ — hub bunlari sadece wrapper olarak bilir.
+v2: LocalMacroCache import yolu duzeltildi, get_cds() -> get_latest_cds(),
+    kap_scraper kaydi eklendi, 8 yeni kaynak eklendi.
 
-Duzeltmeler (v2):
-  - LocalMacroCache import yolu: local_macro_cache -> cache_store (dogrusu)
-  - cache.get_cds() -> cache.get_latest_cds() (metod adi duzeltildi)
-  - kap_scraper kaydi eklendi (kap fallback olarak referans ediliyordu ama yoktu)
-  - tcmb, bist_foreign, dxy, macro_global, event_signals, event_returns,
-    em_relative_strength kaynaklari eklendi
+v3: _RateLimiter eklendi (yfinance/evds/kap/isyatirim/fintables),
+    paylasimli ham fetcher fonksiyonlari (raw + clean icin ortak),
+    clean/typed kaynaklar: yfinance_clean, macro_global_clean, kap_clean, evds_clean,
+    _hub_types.py: MacroSnapshot + KAPItem dataclass'lari.
 """
 from __future__ import annotations
 
 import logging
+import threading
+import time
 from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
@@ -25,7 +26,138 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def register_all(hub: type[DataHub]) -> None:
+# ---------------------------------------------------------------------------
+# RATE LIMITER
+# ---------------------------------------------------------------------------
+
+
+class _RateLimiter:
+    """Thread-safe sabit-aralik bekleme (token bucket basitlesmis)."""
+
+    def __init__(self, calls_per_second: float) -> None:
+        self._min_interval = 1.0 / calls_per_second
+        self._lock = threading.Lock()
+        self._last_call: float = 0.0
+
+    def wait(self) -> None:
+        with self._lock:
+            elapsed = time.monotonic() - self._last_call
+            gap = self._min_interval - elapsed
+            if gap > 0:
+                time.sleep(gap)
+            self._last_call = time.monotonic()
+
+
+# Modul-seviyesi limiter'lar — tum cagrilar arasinda paylasimli state
+_rl_yfinance = _RateLimiter(1.0)     # 1 istek/sn   — Yahoo Finance soft limit
+_rl_macro = _RateLimiter(0.2)        # 1 istek/5 sn  — macro_global 5 yf cagrisi
+_rl_evds = _RateLimiter(0.33)        # 1 istek/3 sn  — TCMB devlet API'si
+_rl_kap = _RateLimiter(0.5)          # 1 istek/2 sn  — RSS/scraping
+_rl_isyatirim = _RateLimiter(0.5)    # 1 istek/2 sn  — Is Yatirim screener
+_rl_fintables = _RateLimiter(0.2)    # 1 istek/5 sn  — Playwright oturumu
+
+
+# ---------------------------------------------------------------------------
+# PAYLASIMLI HAM FETCHER FONKSIYONLARI
+# Raw source ile clean source ayni fonksiyonu kullanir — limiter bir kez uygulanir.
+# ---------------------------------------------------------------------------
+
+
+def _fetch_yfinance_raw(
+    ticker: str, lookback: str = "1y", interval: str = "1d", **_: Any
+) -> Any:
+    _rl_yfinance.wait()
+    import yfinance as yf
+
+    return yf.download(
+        ticker,
+        period=lookback,
+        interval=interval,
+        auto_adjust=True,
+        progress=False,
+    )
+
+
+def _fetch_macro_global_raw(**_: Any) -> Any:
+    _rl_macro.wait()
+    from src.data.macro import fetch_macro_data
+
+    return fetch_macro_data()
+
+
+def _fetch_kap_scraper_raw(
+    ticker: Optional[Any] = None,
+    watchlist_tickers: Optional[Any] = None,
+    company_names: Optional[Any] = None,
+    **_: Any,
+) -> Any:
+    _rl_kap.wait()
+    from src.data.kap_scraper import fetch_kap_news
+
+    return fetch_kap_news(
+        ticker_or_tickers=ticker,
+        watchlist_tickers=watchlist_tickers,
+        company_names=company_names,
+    )
+
+
+def _fetch_evds_raw(series: str, lookback: str = "1y", **_: Any) -> list:
+    _rl_evds.wait()
+    from src.data.evds_client import fetch_series
+
+    return fetch_series(series, lookback=lookback)
+
+
+# ---------------------------------------------------------------------------
+# NORMALIZASYON YARDIMCILARI
+# ---------------------------------------------------------------------------
+
+
+def _normalize_ohlcv(df: Any, ticker: Optional[str]) -> Any:
+    """yfinance DataFrame -> standart OHLCV.
+
+    Cikti: lowercase sutunlar, DatetimeIndex(date), tz-naive, ticker sutunu.
+    """
+    import pandas as pd
+
+    if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        return df
+    df = df.copy()
+    # Yeni yfinance surumlerinde MultiIndex donebilir
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+    df.columns = [str(c).lower() for c in df.columns]
+    if "adj close" in df.columns:
+        df = df.rename(columns={"adj close": "adj_close"})
+    keep = [c for c in ["open", "high", "low", "close", "volume", "adj_close"] if c in df.columns]
+    df = df[keep]
+    if ticker:
+        df.insert(0, "ticker", ticker)
+    df.index.name = "date"
+    if hasattr(df.index, "tz") and df.index.tz is not None:
+        df.index = df.index.tz_localize(None)
+    return df.sort_index()
+
+
+def _normalize_evds(rows: list, series: str) -> Any:
+    """EVDS list[{date, value}] -> DataFrame(DatetimeIndex, sutun = seri_kodu)."""
+    import pandas as pd
+
+    if not rows:
+        return pd.DataFrame()
+    df = pd.DataFrame(rows)
+    col = series.lower().replace(".", "_")
+    df = df.rename(columns={"value": col})
+    df["date"] = pd.to_datetime(df["date"])
+    return df.set_index("date").sort_index()
+
+
+# ---------------------------------------------------------------------------
+# KAYIT FONKSIYONU
+# ---------------------------------------------------------------------------
+
+
+def register_all(hub: type) -> None:
     """Tum kaynaklari hub'a kaydet. Basarisiz kayit warn + skip."""
     from src.data.data_hub import DataSource
 
@@ -52,6 +184,11 @@ def register_all(hub: type[DataHub]) -> None:
         _make_bist_datastore,
         _make_event_signals,
         _make_event_returns,
+        # --- Clean/typed kaynaklar (normalize edilmis sema, _hub_types.py) ---
+        _make_yfinance_clean,
+        _make_macro_global_clean,
+        _make_kap_clean,
+        _make_evds_clean,
     ]
     for fn in makers:
         try:
@@ -72,22 +209,15 @@ def _make_yfinance(DataSource: type) -> DataSource:
 
     Parametreler:
         ticker   : str   — ornek: "AKBNK.IS", "USDTRY=X", "^VIX", "GC=F"
-        lookback : str   — yfinance period: "1d","5d","1mo","3mo","6mo","1y","2y","5y","max"
+        lookback : str   — "1d","5d","1mo","3mo","6mo","1y","2y","5y","max"
         interval : str   — "1d" (varsayilan), "1wk", "1mo"
 
     Donus: pd.DataFrame  columns=[Open,High,Low,Close,Volume], DatetimeIndex
-    Forward-only: HAYIR — tarihsel veri mevcuttur
+    Rate limit: 1 istek/sn
+    Forward-only: HAYIR
     """
     def fetch(ticker: str, lookback: str = "1y", interval: str = "1d", **_: Any):
-        import yfinance as yf
-
-        return yf.download(
-            ticker,
-            period=lookback,
-            interval=interval,
-            auto_adjust=True,
-            progress=False,
-        )
+        return _fetch_yfinance_raw(ticker=ticker, lookback=lookback, interval=interval)
 
     return DataSource(
         name="yfinance",
@@ -108,13 +238,11 @@ def _make_macro_global(DataSource: type) -> DataSource:
     Donus: dict  {usdtry, usdtry_change_pct, vix, vix_change_pct,
                    oil_brent, oil_brent_change_pct, sp500, sp500_change_pct,
                    gold, gold_change_pct}
+    Rate limit: 1 istek/5 sn (ic yfinance cagrisi x5)
     Forward-only: HAYIR
-    Notlar: Her deger son kapanis veya None (indir basarisiz oldugunda)
     """
     def fetch(**_: Any):
-        from src.data.macro import fetch_macro_data
-
-        return fetch_macro_data()
+        return _fetch_macro_global_raw()
 
     return DataSource(
         name="macro_global",
@@ -131,24 +259,18 @@ def _make_evds(DataSource: type) -> DataSource:
     """TCMB EVDS — TLREF, TUFE, doviz, yabanci sahiplik serisi.
 
     Parametreler:
-        series   : str  — EVDS seri kodu, ornek:
-                          "TP.BISTTLREF.KAPANIS"   TLREF kapanis endeksi
-                          "TP.BISTTLREF.ORAN"      TLREF faiz orani
-                          "TP.MKBRGN.A"            BIST yabanci pay orani (haftalik)
-                          "TP.TUFE"                TUFE enflasyon endeksi
-                          "TP.APIFON4"             TCMB agirlikli ort. fonlama orani
+        series   : str  — EVDS seri kodu
         lookback : str  — "1y" (varsayilan), "2y", "5y" vb.
 
     Donus: pd.DataFrame  columns=[date, value], tarih azalan sirali
+    Rate limit: 1 istek/3 sn
     Auth: EVDS_API_KEY (env degiskeni) — eksikse evds_snapshot'a duser
     Forward-only: HAYIR
     """
     def fetch(series: str, lookback: str = "1y", **_: Any):
-        from src.data.evds_client import fetch_series
-
-        rows = fetch_series(series, lookback=lookback)
         import pandas as pd
 
+        rows = _fetch_evds_raw(series=series, lookback=lookback)
         return pd.DataFrame(rows) if rows else pd.DataFrame()
 
     return DataSource(
@@ -166,10 +288,10 @@ def _make_evds_snapshot(DataSource: type) -> DataSource:
     """EVDS frozen parquet snapshot — EVDS API yokken offline fallback.
 
     Parametreler:
-        series : str  — seri kodu (dosya adi: data/snapshots/{seri_kucuk}_series.parquet)
+        series : str  — seri kodu (data/snapshots/{seri_kucuk}_series.parquet)
 
     Donus: pd.DataFrame — snapshot tarihi itibarilye veri
-    Forward-only: HAYIR — dondurulmus tarihsel veri
+    Forward-only: HAYIR
     """
     def fetch(series: str, **_: Any):
         import pathlib
@@ -202,12 +324,10 @@ def _make_kap(DataSource: type) -> DataSource:
         ticker : str   — ornek: "THYAO", "AKBNK"
         days   : int   — kac gun geriye bakilacak (varsayilan 90)
 
-    Donus: list[dict]  her eleman:
-           {index, publish_datetime, company_name, subject, summary, ...}
-    Auth: kap-client ic auth (otomatik)
+    Donus: list[dict]  {index, publish_datetime, company_name, subject, summary, ...}
+    Auth: kap-client ic auth
     Forward-only: HAYIR
-    Notlar: HT endpoint ~May 2026 itibarilye bozuk; bos liste donebilir.
-            Basarisiz olursa kap_scraper fallback'e gecer.
+    Not: HT endpoint ~May 2026 bozuk; bos liste donebilir -> kap_scraper fallback
     """
     def fetch(ticker: str, days: int = 90, **_: Any):
         import datetime
@@ -235,18 +355,14 @@ def _make_kap_scraper(DataSource: type) -> DataSource:
     """KAP bildirimleri — Google News RSS + Mynet scraper (auth-free fallback).
 
     Parametreler:
-        ticker           : str | list[str] | None
-                           tek ticker: "THYAO"
-                           liste: ["THYAO","AKBNK"]
-                           None: config'deki PORTFOLIO_TICKERS kullanilir
-        watchlist_tickers: list[str] | None  — ek ticker listesi
-        company_names    : dict[str,str] | None  — {ticker: sirket_adi}
+        ticker            : str | list[str] | None
+        watchlist_tickers : list[str] | None
+        company_names     : dict[str,str] | None
 
-    Donus: list[dict]  her eleman:
-           {source, ticker, title, published, category, url}
+    Donus: list[dict]  {source, ticker, title, published, category, url}
            category: "CRITICAL" | "IMPORTANT" | "NOISE"
-    Auth: gerekmiyor
-    Forward-only: HAYIR — son ~24 saat haberi
+    Rate limit: 1 istek/2 sn
+    Forward-only: HAYIR
     """
     def fetch(
         ticker: Optional[Any] = None,
@@ -254,10 +370,8 @@ def _make_kap_scraper(DataSource: type) -> DataSource:
         company_names: Optional[Any] = None,
         **_: Any,
     ):
-        from src.data.kap_scraper import fetch_kap_news
-
-        return fetch_kap_news(
-            ticker_or_tickers=ticker,
+        return _fetch_kap_scraper_raw(
+            ticker=ticker,
             watchlist_tickers=watchlist_tickers,
             company_names=company_names,
         )
@@ -274,21 +388,21 @@ def _make_kap_scraper(DataSource: type) -> DataSource:
 
 
 def _make_isyatirim(DataSource: type) -> DataSource:
-    """Is Yatirim screener — yabanci saklama orani (custody) ve degisim.
+    """Is Yatirim screener — yabanci saklama orani ve degisim.
 
     Parametreler:
         ticker : str | None
-                 "AKBNK" -> sadece o ticker'in verisini dondurur (dict)
-                 None    -> tum BIST tickers (dict[str, dict])
+                 "AKBNK" -> tek ticker dict
+                 None    -> tum BIST dict[str, dict]
 
     Donus:
         ticker verilirse  : dict  {foreign_ratio, delta_1w_bps, delta_1m_bps}
-        ticker verilmezse : dict[str, dict]  {TICKER: {...}}
-    Auth: gerekmiyor (robots.txt onaylı endpoint)
-    Forward-only: HAYIR — anlik oran
-    Staleness: SMART_MONEY_STALE_HOURS (24h)
+        ticker verilmezse : dict[str, dict]
+    Rate limit: 1 istek/2 sn
+    Forward-only: HAYIR
     """
     def fetch(ticker: Optional[str] = None, **_: Any):
+        _rl_isyatirim.wait()
         from src.signals.layers.connectors.smart_money_connector import (
             IsYatirimScreenerConnector,
         )
@@ -315,29 +429,20 @@ def _make_news(DataSource: type) -> DataSource:
 
     Parametreler:
         ticker : str  — ornek: "EREGL", "THYAO"
-        days   : int  — kac gun geriye haberler cekilsin (varsayilan 7)
+        days   : int  — kac gun geriye (varsayilan 7)
 
-    Donus: list[dict]  her eleman: {title, date, source}
-    Auth: gerekmiyor
+    Donus: list[dict]  [{title, date, source}, ...]
     Forward-only: HAYIR
-    Cache: data/news_cache.json (24h TTL)
     """
     def fetch(ticker: str, days: int = 7, **_: Any):
         from src.data.news_fetcher import MynetNewsFetcher
 
         articles = MynetNewsFetcher().fetch(ticker, days=days)
-        return [
-            {
-                "title": a.title,
-                "date": a.date,
-                "source": a.source,
-            }
-            for a in articles
-        ]
+        return [{"title": a.title, "date": a.date, "source": a.source} for a in articles]
 
     return DataSource(
         name="news",
-        description="Finansal haberler — Mynet Finans (ticker bazli)",
+        description="Finansal haberler — Mynet Finans (ticker bazli, 24h cache)",
         data_type="news",
         fetcher=fetch,
         fallback=None,
@@ -352,11 +457,9 @@ def _make_viop(DataSource: type) -> DataSource:
     Parametreler:
         target_date : date | str | None  — None ise bugunun verisi
 
-    Donus: pd.DataFrame | None  — VIOP kontratlari
+    Donus: pd.DataFrame | None
            Sutunlar: ticker, type (call/put/future), expiry, strike, open_interest, ...
-    Auth: gerekmiyor
     Forward-only: HAYIR
-    Encoding: windows-1254, ayirici=";", ondalik=","
     """
     def fetch(target_date: Optional[Any] = None, **_: Any):
         from src.data.viop_fetcher import fetch_viop_csv
@@ -377,14 +480,15 @@ def _make_viop(DataSource: type) -> DataSource:
 def _make_fintables(DataSource: type) -> DataSource:
     """Fintables custody scraper — BIST50 yabanci saklama (Playwright).
 
-    Parametreler: yok (tum BIST50'yi toplu ceker)
+    Parametreler: yok (tum BIST50 toplu cekilir)
 
-    Donus: dict[str, bool]  — {ticker: scrape_basarili}
+    Donus: dict[str, bool]  {ticker: scrape_basarili}
+    Rate limit: 1 istek/5 sn (Playwright oturumu)
     Auth: FINTABLES_EMAIL + FINTABLES_PASSWORD (env) — ZORUNLU
     Forward-only: HAYIR
-    Notlar: Playwright gerektirir; ~30sn; sadece BIST50 kapsami
     """
     def fetch(**_: Any):
+        _rl_fintables.wait()
         from src.data.fintables_scraper import FintablesScraperConnector
 
         conn = FintablesScraperConnector()
@@ -411,10 +515,8 @@ def _make_cds(DataSource: type) -> DataSource:
 
     Parametreler: yok
 
-    Donus: dict | None  — {data_date, cds_bps, source, confidence, fetched_at}
-    Auth: gerekmiyor
+    Donus: dict | None  {data_date, cds_bps, source, confidence, fetched_at}
     Forward-only: HAYIR
-    Staleness: CDS_STALE_DAYS
     Fallback: cds_fallback (yfinance iShares TUR proxy modeli)
     """
     def fetch(**_: Any):
@@ -422,8 +524,7 @@ def _make_cds(DataSource: type) -> DataSource:
         from src.signals.local.cds_client import CDSClient
 
         cache = LocalMacroCache()
-        client = CDSClient(cache=cache)
-        client.fetch_and_store()
+        CDSClient(cache=cache).fetch_and_store()
         return cache.get_latest_cds()
 
     return DataSource(
@@ -442,18 +543,15 @@ def _make_cds_fallback(DataSource: type) -> DataSource:
 
     Parametreler: yok
 
-    Donus: dict | None  — {data_date, cds_bps, source, confidence, fetched_at}
-    Auth: gerekmiyor
+    Donus: dict | None  {data_date, cds_bps, source, confidence, fetched_at}
     Model: CDS_est = base + a*(USDTRY-baseline) + b*VIX + c*TUR_return
-    Sinirlar: [100, 800] bps
     """
     def fetch(**_: Any):
         from src.signals.local.cache_store import LocalMacroCache
         from src.signals.local.cds_fallback import CDSFallbackClient
 
         cache = LocalMacroCache()
-        client = CDSFallbackClient(cache=cache)
-        client.fetch_and_store()
+        CDSFallbackClient(cache=cache).fetch_and_store()
         return cache.get_latest_cds()
 
     return DataSource(
@@ -472,19 +570,16 @@ def _make_tcmb(DataSource: type) -> DataSource:
 
     Parametreler: yok
 
-    Donus: dict | None  — {decision_date, decision_type, rate_before, rate_after,
-                            source, confidence, fetched_at}
-    Auth: gerekmiyor (tcmb.gov.tr + EVDS ikili kaynak)
+    Donus: dict | None  {decision_date, decision_type, rate_before, rate_after,
+                          source, confidence, fetched_at}
     Forward-only: HAYIR
-    Staleness: TCMB_STALE_DAYS (tipik 7-30 gun)
     """
     def fetch(**_: Any):
         from src.signals.local.cache_store import LocalMacroCache
         from src.signals.local.tcmb_client import TCMBClient
 
         cache = LocalMacroCache()
-        client = TCMBClient(cache=cache)
-        client.fetch_and_store()
+        TCMBClient(cache=cache).fetch_and_store()
         return cache.get_latest_tcmb()
 
     return DataSource(
@@ -503,20 +598,16 @@ def _make_bist_foreign(DataSource: type) -> DataSource:
 
     Parametreler: yok
 
-    Donus: dict | None  — {week_ending_date, foreign_ownership_pct,
-                            pct_change_weekly, source, confidence, fetched_at}
-    Auth: EVDS_API_KEY (env) — eksikse YAML fallback
+    Donus: dict | None  {week_ending_date, foreign_ownership_pct,
+                          pct_change_weekly, source, confidence, fetched_at}
     Forward-only: HAYIR
-    Staleness: BIST_FOREIGN_STALE_DAYS (tipik 7 gun)
-    Not: Bu L2 makro context'i; L5 smart money icin bkz. isyatirim / bist_datastore
     """
     def fetch(**_: Any):
         from src.signals.local.bist_foreign_client import BistForeignOwnershipClient
         from src.signals.local.cache_store import LocalMacroCache
 
         cache = LocalMacroCache()
-        client = BistForeignOwnershipClient(cache=cache)
-        client.fetch_and_store()
+        BistForeignOwnershipClient(cache=cache).fetch_and_store()
         return cache.get_latest_bist_foreign()
 
     return DataSource(
@@ -535,19 +626,15 @@ def _make_dxy(DataSource: type) -> DataSource:
 
     Parametreler: yok
 
-    Donus: dict | None  — {data_date, close, weekly_change_pct, fetched_at}
-    Auth: gerekmiyor (yfinance DX-Y.NYB)
+    Donus: dict | None  {data_date, close, weekly_change_pct, fetched_at}
     Forward-only: HAYIR
-    Staleness: DXY_STALE_DAYS (tipik 3-5 gun)
-    Yorum: Yuksek DXY -> USD guclu -> EM sermaye cikisi -> BIST icin negatif
     """
     def fetch(**_: Any):
         from src.signals.local.cache_store import LocalMacroCache
         from src.signals.local.dxy_client import DXYClient
 
         cache = LocalMacroCache()
-        client = DXYClient(cache=cache)
-        client.fetch_and_store()
+        DXYClient(cache=cache).fetch_and_store()
         return cache.get_latest_dxy()
 
     return DataSource(
@@ -567,11 +654,7 @@ def _make_em_relative_strength(DataSource: type) -> DataSource:
     Parametreler:
         lookback_days : int | None  — varsayilan EM_RELSTRENGTH_LOOKBACK
 
-    Donus: float | None  — [-1.0, +1.0] araliginda
-           +1.0 = BIST EM'i guclu geciyor
-           -1.0 = BIST EM'in gerisinde
-           None = veri indirilemiyor
-    Auth: gerekmiyor
+    Donus: float | None  [-1.0, +1.0]
     Forward-only: HAYIR
     """
     def fetch(lookback_days: Optional[int] = None, **_: Any):
@@ -604,9 +687,7 @@ def _make_bist_datastore(DataSource: type) -> DataSource:
         ticker : str | None  — "AKBNK" -> sadece o ticker; None -> tum tablo
 
     Donus: pd.DataFrame  columns=[date, ticker, usd_net_trades, ...]
-    Auth: datastore_session.json (JWT + cookie) — aylik manuel yenileme
-    FORWARD-ONLY: EVET — 2024-12'den itibaren birikimli; oncesi yok
-    Kapsam: sadece ZIP olarak indirilen aylar mevcuttur (data/bist_datastore/)
+    FORWARD-ONLY: EVET — 2024-12'den itibaren birikimli
     """
     def fetch(ticker: Optional[str] = None, **_: Any):
         import pathlib
@@ -644,17 +725,13 @@ def _make_event_signals(DataSource: type) -> DataSource:
     """Olay sinyalleri on-kayit (degistirilemez) — FORWARD-ONLY.
 
     Parametreler:
-        ticker : str | None  — belirli ticker filtreleme (None = tumu)
-        after  : str | None  — "YYYY-MM-DD" formatinda baslangic filtresi
+        ticker : str | None  — belirli ticker filtreleme
+        after  : str | None  — "YYYY-MM-DD" baslangic filtresi
 
     Donus: pd.DataFrame  columns=[natural_key, event_date, ticker, event_type,
                                    surprise_real, technical_confirm, signal_fired,
                                    as_of_timestamp]
-    Auth: gerekmiyor (yerel dosya)
     FORWARD-ONLY: EVET — 2026-06-01'den itibaren birikimli
-    Immutable: natural_key uzerinde idempotent; uzerine yazma yoktur.
-    Neden forward-only: on-kayit garantisi — sinyal gelecek donus bilinmeden kaydedilir.
-    Task Scheduler: clone3/data/event_logs/, 19:00 gunluk
     """
     def fetch(ticker: Optional[str] = None, after: Optional[str] = None, **_: Any):
         import pathlib
@@ -683,19 +760,16 @@ def _make_event_signals(DataSource: type) -> DataSource:
 
 
 def _make_event_returns(DataSource: type) -> DataSource:
-    """Olay geriye-donuk getirileri — FORWARD-ONLY (horizon olgunlastikca dolar).
+    """Olay geriye-donuk getirileri — FORWARD-ONLY (horizon olgunlasinca dolar).
 
     Parametreler:
         ticker  : str | None  — belirli ticker filtreleme
-        horizon : int | None  — 1, 5, 20, 60 (gun olarak ufuk filtresi)
+        horizon : int | None  — 1 | 5 | 20 | 60 (gun)
 
     Donus: pd.DataFrame  columns=[natural_key, ticker, event_date, event_type,
                                    horizon, entry_date, exit_date,
                                    gross_return, rel_net_return, filled_at]
-    Auth: gerekmiyor
-    FORWARD-ONLY: EVET — 2026-06-01 on-kayitlari olgunlasinca dolmaya baslar
-                  t+1 = min 1 is gunu; t+60 = yaklasik Agustos 2026'dan itibaren
-    Not: event_signals.parquet dolmadan bu tablo bos kalabilir (normal durum).
+    FORWARD-ONLY: EVET — 2026-06-01 on-kayitlari olgunlasinca dolar
     """
     def fetch(ticker: Optional[str] = None, horizon: Optional[int] = None, **_: Any):
         import pathlib
@@ -720,4 +794,135 @@ def _make_event_returns(DataSource: type) -> DataSource:
         fallback=None,
         auth_required=False,
         tags=["event", "forward_only", "returns", "horizon"],
+    )
+
+
+# ---------------------------------------------------------------------------
+# CLEAN / TYPED KAYNAKLAR
+# Ham kaynak ile ayni rate limiter'i kullanir (paylasimli fonksiyon).
+# Fallback yok: clean kaynak hata verirse exception — degrade edilmis tip yok.
+# ---------------------------------------------------------------------------
+
+
+def _make_yfinance_clean(DataSource: type) -> DataSource:
+    """Yahoo Finance OHLCV — normalize edilmis format.
+
+    Parametreler: yfinance ile ayni (ticker, lookback, interval)
+
+    Donus: pd.DataFrame
+      index  : DatetimeIndex(date), tz-naive, artan sirali
+      sutunlar: [ticker, open, high, low, close, volume, adj_close]  (lowercase)
+    Rate limit: yfinance ile paylasimli (_rl_yfinance)
+    Ham karsıligi: "yfinance"
+    """
+    def fetch(ticker: str, lookback: str = "1y", interval: str = "1d", **_: Any):
+        raw = _fetch_yfinance_raw(ticker=ticker, lookback=lookback, interval=interval)
+        return _normalize_ohlcv(raw, ticker)
+
+    return DataSource(
+        name="yfinance_clean",
+        description="Yahoo Finance OHLCV — lowercase/DatetimeIndex/ticker sutunu (normalize)",
+        data_type="price",
+        fetcher=fetch,
+        fallback=None,
+        auth_required=False,
+        tags=["price", "ohlcv", "clean", "typed"],
+    )
+
+
+def _make_macro_global_clean(DataSource: type) -> DataSource:
+    """Global makro bundle — MacroSnapshot dataclass.
+
+    Parametreler: yok
+
+    Donus: MacroSnapshot | None
+      .usdtry, .usdtry_change_pct
+      .vix, .vix_change_pct
+      .oil_brent, .oil_brent_change_pct
+      .sp500, .sp500_change_pct
+      .gold, .gold_change_pct
+      Tum alanlar Optional[float] — indirilemeyen kaynak None doner.
+    Rate limit: macro_global ile paylasimli (_rl_macro)
+    Ham karsıligi: "macro_global"
+    """
+    def fetch(**_: Any):
+        from src.data._hub_types import MacroSnapshot
+
+        raw = _fetch_macro_global_raw()
+        if raw is None:
+            return None
+        return MacroSnapshot.from_dict(raw)
+
+    return DataSource(
+        name="macro_global_clean",
+        description="Global makro bundle — MacroSnapshot dataclass (typed, None-safe)",
+        data_type="macro",
+        fetcher=fetch,
+        fallback=None,
+        auth_required=False,
+        tags=["macro", "global", "clean", "typed"],
+    )
+
+
+def _make_kap_clean(DataSource: type) -> DataSource:
+    """KAP bildirimleri — list[KAPItem] typed.
+
+    Parametreler: kap_scraper ile ayni (ticker, watchlist_tickers, company_names)
+
+    Donus: list[KAPItem]
+      .source, .ticker, .title, .published, .category, .url
+      .is_critical -> bool  (category == "CRITICAL")
+    Rate limit: kap_scraper ile paylasimli (_rl_kap)
+    Ham karsıligi: "kap_scraper"
+    """
+    def fetch(
+        ticker: Optional[Any] = None,
+        watchlist_tickers: Optional[Any] = None,
+        company_names: Optional[Any] = None,
+        **_: Any,
+    ):
+        from src.data._hub_types import KAPItem
+
+        raw = _fetch_kap_scraper_raw(
+            ticker=ticker,
+            watchlist_tickers=watchlist_tickers,
+            company_names=company_names,
+        )
+        return [KAPItem.from_dict(d) for d in (raw or [])]
+
+    return DataSource(
+        name="kap_clean",
+        description="KAP bildirimleri — list[KAPItem] (source, ticker, title, category, url)",
+        data_type="kap",
+        fetcher=fetch,
+        fallback=None,
+        auth_required=False,
+        tags=["kap", "disclosure", "clean", "typed"],
+    )
+
+
+def _make_evds_clean(DataSource: type) -> DataSource:
+    """TCMB EVDS — normalize edilmis DataFrame.
+
+    Parametreler: evds ile ayni (series, lookback)
+
+    Donus: pd.DataFrame
+      index  : DatetimeIndex(date), artan sirali
+      sutunlar: [<seri_kodu_lowercase>]  ornk "tp_bisttlref_kapanis"
+    Rate limit: evds ile paylasimli (_rl_evds)
+    Auth: EVDS_API_KEY (env degiskeni) — eksikse exception (snapshot fallback yok)
+    Ham karsıligi: "evds"
+    """
+    def fetch(series: str, lookback: str = "1y", **_: Any):
+        rows = _fetch_evds_raw(series=series, lookback=lookback)
+        return _normalize_evds(rows, series)
+
+    return DataSource(
+        name="evds_clean",
+        description="TCMB EVDS — DatetimeIndex(date), sutun = seri_kodu_lowercase (normalize)",
+        data_type="macro",
+        fetcher=fetch,
+        fallback=None,
+        auth_required=True,
+        tags=["macro", "tcmb", "clean", "typed"],
     )
