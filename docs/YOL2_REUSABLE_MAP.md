@@ -1,6 +1,6 @@
 # YOL 2 — Reusable-vs-Yeni Haritası (D-190)
 
-**Tarih:** 1 Haziran 2026 — D-190 envanter  
+**Tarih:** 1 Haziran 2026 — D-192 sonrası güncelleme  
 **Dayanak:** SPEC_YOL2.md v3.0 + kod-gerçeği doğrulama (D-190)  
 **Kural:** Kod-gerçeği > strateji-varsayımı (DEC-039). "Şu çalışıyor sanıyordum ama yok" bulguları buraya yazılır.
 
@@ -13,7 +13,7 @@
 | **K0 Maliyet/Vergi** | Komisyon + vergi tam modeli | `src/risk/transaction_cost.py` | KISMI REUSABLE | Komisyon tier A/B/C + bid-ask var. **Vergi-katmanı YOK** → YENİ yazılmalı. |
 | **K1 Risk-Prim Zemini** | Statik maruziyet zeminini ölç (equity/TLREF) | `src/screening/exposure_*.py` (D-187) | REUSABLE | Veri pipeline (`exposure_data.py`) + metrikler REUSABLE. Sonuç: rejim-timing marjinal → statik zemin kullan. |
 | **K2 Faktör-Tilt** | Quality tilt (kasıtlı-mütevazı; momentum DIŞLANDI) | `src/screening/factors.py` (RS, lowvol, P/B, EV/EBITDA) | KISMI REUSABLE | value/lowvol REUSABLE. **Momentum kasıtlı dışlandı (Yol 2 kararı).** Quality faktörü (ROE/ROA/gross-margin) **YENİ** gerekli. |
-| **K3 İllikidite/Contrarian** | Amihud/küçük-lot premium + short-term reversal | Yok | YENİ | Design-flagged (CRITIC_BACKLOG); hiç kod yok. Amihud illikidite + reversal anomalisi tamamen yeni. |
+| **K3 İllikidite/Contrarian** | Amihud/küçük-lot premium + short-term reversal | `src/screening/k3_illiquid_reversal.py` (D-192) | REUSABLE (Stage-0) | Amihud+Lou-Shu+decay backtest tamamlandı. Stage-1 (canlı sinyal entegrasyonu) pending. |
 | **K4 İnsan-Testi** | Forward-recorder ile gerçek-dünya veri birikimi | `src/screening/event_forward_recorder.py` (D-188) | REUSABLE PATTERN | Mimari REUSABLE (look-ahead-free append-only). `data/event_logs/` henüz YOK (ilk `capture_once()` çalışınca auto-mkdir). |
 | **Execution (Fikir A)** | Disiplinli giriş/çıkış mekaniği | `src/order_engine/staged_exit_manager.py` | KISMI | Sadece çıkış merdiveni (TP1/TP2/TP3). **Canlı broker entegrasyonu YOK** → YENİ. Backtest motoru simülasyon-only. |
 
