@@ -1,0 +1,156 @@
+{
+  "directive": "D-191",
+  "title": "K2 Factor-Tilt PORTFOLIO Backtest -- Stage 0 pre-registration",
+  "preregistered_date": "2026-06-01",
+  "config_module": "src/screening/k2_tilt_config.py",
+  "config_version": "k2-tilt-v1",
+  "decision_owner": "the project (DEC-039). Harness MEASURES + RECOMMENDS; does not finalize K2 deployment.",
+
+  "discipline_note": "Committed BEFORE any backtest is run and BEFORE any D-191 result is seen. The NET DECISION RULE (DEC-K2) is FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no horizon/window widening, no factor-set post-hoc adjustment). MaliTablo profit itemCodes are frozen via a result-independent LIVE DISCOVERY (Faz B) before this file is committed; snapshot content hashes are backfilled below before the pre-results commit. composite-optimize FORBIDDEN (invariant 4): equal-weight rank average only.",
+
+  "builds_on": [
+    "SPEC_YOL2 v3.0 sec.1 KATMAN 2 (modest factor tilt) + sec.4 (degismez test-dersleri)",
+    "ARCHITECTURE v3.0 (disciplined exposure + cost-minimization + proven-modest-factor)",
+    "RR-OMEGA (value+quality+lowvol ~%55-65 prior; BIST-net-USD-real alpha UNTESTED -> kanit-boslugu)",
+    "D-177/D-178 (Faz 0 lowvol price factor), D-183 (Faz 0b value via MaliTablo, RR-035 rho=1.0)",
+    "D-185/D-186 (armored backtest lessons: real-DD, XU100-relative, fair-null, no nominal-drift)"
+  ],
+
+  "hypothesis": "A long-only, equal-weight, semi-annual-rebalanced tilt toward value + quality/profitability + low-vol beats an equal-weight random basket and a fair null on a NET (cost+tax+slippage) TL-real + benchmark-relative basis. Expectation REALISTIC: a few points, not multiples.",
+
+  "what_this_is_NOT": "NOT the Faz 0 cross-sectional rank-IC test (that measured single-name selection skill and was weak). This is FACTOR-PREMIUM HARVESTING: rule-based, equal-weight, low-turnover tilt -- a different claim (confirmed by the critique-agent).",
+
+  "window": {"start": "2019-01-01", "end": "2026-04-30",
+             "rebalance": "semi-annual (anchors Jun-30, Dec-31; last trading day on/before)",
+             "expected_rebalances": "~14 -> ~13 holding periods"},
+
+  "in_out_sample": {
+    "insample_end": "2022-12-31",
+    "rule": "in-sample = rebalance date < insample_end; out-of-sample = >=. Frozen as a DATE (not 'half').",
+    "thin_n_caveat": "~6-7 periods/slice -> wide CIs / low power. CONSCIOUSLY ACCEPTED data limit (factor tilt needs fundamentals; clean pre-2018 data unavailable). Reported, NOT over-interpreted; one passing slice is not over-read."
+  },
+
+  "universe": {
+    "pool": "frozen BIST 100 constituents (faz0_config.FAZ0_BIST100_CONSTITUENTS, 97 names)",
+    "adv_floor": "NONE (2019 TL volumes << 2024; a 2024-calibrated floor would wrongly trim the early window -- D-184 precedent)"
+  },
+
+  "survivorship": {
+    "mode": "survivors-only",
+    "excluded_delisted": ["KOZAA", "KOZAL", "IPEKE", "TRALT"],
+    "reason": "delisted names not fetchable from yfinance (404)",
+    "bias_direction": "OPTIMISTIC upper-bound: excluding (mostly poor-outcome) delisted names inflates the absolute level. The FAIR NULL draws from the SAME survivors pool, so the strategy-vs-null comparison stays fair; only the absolute level is inflated. Reported in Stage-0 + results + report (the maintainer condition)."
+  },
+
+  "factors": {
+    "profitability": {
+      "role": "PRIORITY (EM-FF5: the factor that survives factor-spanning in emerging markets)",
+      "primary": "GP/TA = gross_profit / total_assets",
+      "primary_ref": "Novy-Marx 2013, 'The Other Side of Value: The Gross Profitability Premium', JFE 108(1):1-28",
+      "robustness": "ROE = net_income / book_eaoop (equity attributable to parent)",
+      "em_ref": "Hanauer & Kodongo (EM FF5); profitability spanning in EM",
+      "orientation": "higher -> higher rank (invert=False)",
+      "banks": "GP/TA undefined for banks -> NULL (R3); ROE may be defined where bank net_income+book present",
+      "source": "Is Yatirim MaliTablo (clean, RR-035 rho=1.0); yfinance fallback only for MaliTablo-empty names (~67% reconcile caveat applied ONLY to fallback names)"
+    },
+    "value": {
+      "definition": "book-to-market = 1 / (P/B); P/B via factors.value_ratios (point-in-time)",
+      "ref": "Fama-French 1992/1993 HML",
+      "orientation": "low P/B (cheap) -> higher rank (invert=True on P/B)",
+      "source": "MaliTablo book_eaoop (2O) + issued_capital (2OA)"
+    },
+    "lowvol": {
+      "definition": "252-day trailing realized volatility of daily log returns (factors.realized_vol)",
+      "ref": "Blitz & van Vliet 2007 (Robeco); Baker-Bradley-Wurgler low-volatility anomaly",
+      "orientation": "low vol -> higher rank (invert=True)",
+      "role": "SECONDARY (profitability stronger in EM)"
+    },
+    "momentum": "EXCLUDED (BIST weak/negative; SPEC_YOL2 sec.7)"
+  },
+
+  "composite": {
+    "rule": "equal-weight average of per-factor cross-sectional ranks (invariant 4: NO weight optimization, NO z-score, NO regression weights)",
+    "require_all_factors": true,
+    "eligibility": "a name needs value + profitability + lowvol all present -> composite well-defined; per-date eligible-N reported (banks/par-guard reduce N)"
+  },
+
+  "selection_variants_N_lock": {
+    "rule": "N<=3 COMPOSITE selection variants; NO parameter sweep, NO new factors.",
+    "variants": ["composite_tercile (PRIMARY)", "composite_quintile", "tercile_intersection"],
+    "single_factor_diagnostics": "profitability / value / lowvol single-factor tercile portfolios are REQUIRED significance diagnostics for gate 4 -- NOT sweep variants, do NOT count against the N<=3 composite budget."
+  },
+
+  "cost_tax_slippage": {
+    "cost_model": "round_trip_cost_pct(ticker, tier A) reused (RR-015; 2x commission + spread embedded)",
+    "slippage": "RR-014 market impact: 20 bps/side added on turned-over notional",
+    "application": "per rebalance: cost = one_way_turnover * (avg_round_trip + 2*slippage_oneway); one_way_turnover = 0.5*sum|w_new-w_old|. First entry charged as a round trip (slightly conservative).",
+    "tax": "BIST equities 0% capital gains (K0). 15% dividend withholding: since yfinance auto_adjust embeds GROSS dividends in price, a frozen dividend-withholding DRAG approximates it (assumed annual yield 3% * 15% = 0.45%/yr, pro-rated). CAVEAT (assumed yield) reported."
+  },
+
+  "return_basis": {
+    "primary_GATE": "TL-real (TUFE-deflated): real = (1+net)/(cpi1/cpi0) - 1; cpi = EVDS TP.FG.J0 monthly, daily-ffill",
+    "reported_relative": "XU100-relative: (1+net)/(1+xu_ret) - 1 (geometric excess over index; D-186 nominal-drift control)",
+    "reported_usd": "USD-real: (1+net)*(fx0/fx1) - 1 then US-CPI-deflated if a frozen US-CPI series is supplied; else USD-NOMINAL (labeled). fx = EVDS TP.DK.USD.A. No silent fallback.",
+    "tl_real_absent_rule": "if TUFE unavailable -> PRIMARY gate INCONCLUSIVE (not silently replaced by relative)"
+  },
+
+  "fair_null": {
+    "design": "portfolio-level random-selection null: at each rebalance draw the SAME N names uniformly without replacement from the SAME eligible pool; SAME rebalance dates / holding / cost+tax. Randomizes ONLY name selection.",
+    "rationale": "the edge claim is 'the factor tilt picks better names than chance' -> the null randomizes name selection while holding the rebalance/holding/cost machinery fixed (analogous to D-186 isolating entry timing).",
+    "statistic": "full-window mean per-period net TL-real return",
+    "seed": 12345, "n_resamples": 2000,
+    "pass": "strategy >= 95th percentile of the null (random_pctile >= 0.95)"
+  },
+
+  "significance": {
+    "method": "block-bootstrap 95% CI of the per-period net TL-real series (factor_ic_harness.block_bootstrap_ci)",
+    "block": 1, "n_boot": 2000, "seed": 12345,
+    "note": "semi-annual holding periods are NON-overlapping -> near-independent -> block=1 (ordinary bootstrap)"
+  },
+
+  "decision_rule_DEC_K2": {
+    "passes_if": "ALL of: (1) PRIMARY net (cost+tax+slippage) TL-real expectation significantly POSITIVE (bootstrap 95% CI excludes zero AND CI_low > 0); (2) beats the fair portfolio null at >= 95th percentile (TL-real); (3) out-of-sample expectation also positive (in/out sign-consistent); (4) at least one factor -- especially profitability -- independently significant (its single-factor portfolio clears gates 1+2).",
+    "fails_if": "any gate fails -> modest-factor tilt weak at BIST scale -> K2 does NOT enter Yol 2; pure foundation (K0+K1) remains. (Wasted test-effort, not money lost.)",
+    "reported_not_gates": "USD-real + XU100-relative are ALWAYS reported but NEVER decide.",
+    "no_post_hoc_relaxation": "this rule is frozen; not loosened after seeing results.",
+    "tl_real_unavailable": "PRIMARY gate INCONCLUSIVE if TUFE absent."
+  },
+
+  "benchmark_decision_frozen": {
+    "primary": "TL-TUFE-real significantly POSITIVE decides 'works'.",
+    "secondary_reported": "USD-real ALWAYS in the table. USD-real-positive = superior/bonus; USD-real-loss-minimized + TL-real-positive = ACCEPTABLE (SPIVA: %86-90 of active funds miss the index -> USD-real-positive alpha is hard even for the best; perfectionism would needlessly eliminate the system).",
+    "tertiary_context": "XU100-relative (nominal-drift trap control, D-186)."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/snapshots/faz0_k2_prices_2019-01-01_2026-04-30.parquet",
+              "content_hash_sha256": "e13eb2affb65cc1b74f9746d43a21fc67e443685a1f25006375f49006f12eff0",
+              "loaded_universe_n": 112, "tag": "k2", "source": "yfinance Close auto_adjust"},
+    "fundamentals": {"file": "data/snapshots/k2_fundamentals.parquet",
+                     "content_hash_sha256": "e194fbf77f55ee296969d45299bce39a0dec06fd408ca3c6025c0bc4f6b86d14",
+                     "n_rows": 860, "loaded_n": 109, "banks_n": 9,
+                     "null_tickers": ["ANSGR", "KLNMA", "TRKCM", "TURSG"],
+                     "fiscal_years": [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018],
+                     "annual_lag_days": 120,
+                     "itemcodes_value": {"book_eaoop": "2O", "issued_capital": "2OA"},
+                     "itemcodes_profit": {"gross_profit": "3D", "total_assets": "1BL", "net_income": "3Z"},
+                     "itemcodes_profit_discovery": "EREGL XI_29, Faz B ascii-folded itemName match: 3D=BRUT KAR (gross profit, distinct from 3DF operating profit); 1BL=TOPLAM VARLIKLAR; 3Z=Ana Ortaklik Paylari (parent net income, consistent with book_eaoop=2O)"},
+    "fx": {"file": "data/snapshots/k2_fx_usdtry.parquet",
+           "content_hash_sha256": "6389bfae0be90bfbf912fb955f37bcc0f6eff5f8dbcbb85100c115fcbe1fce10",
+           "n_obs": 688, "series": "TP.DK.USD.A"}
+  },
+
+  "thresholds_reference": {
+    "source": "src/signals/thresholds.py (IMMUTABLE; read-only)",
+    "reused": ["BROKER_TIER=A", "round_trip_cost_pct via transaction_cost.py", "EVDS_TUFE_SERIES=TP.FG.J0"],
+    "note": "K2 measurement knobs live in k2_tilt_config.py (like faz0_config / trend_d186_config), NOT in thresholds.py."
+  },
+
+  "config_budget": "N<=3 composite selection variants (single-factor diagnostics excluded by design).",
+
+  "outputs": [
+    "docs/k2_test/STAGE0_factor_tilt_preregistration.json (this file)",
+    "docs/k2_test/factor_tilt_results.json (after run: factor x {single,composite} x {tl_real, xu100_relative, usd_real} x fair-null x {in,out} x post-cost + VERDICT)",
+    "docs/research/D-191-k2-factor-tilt-rapor.md (DEC-K2 verdict + K2 recommendation or premise re-think)"
+  ]
+}
