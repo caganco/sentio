@@ -228,6 +228,21 @@ def test_fair_null_deterministic_and_matched_n():
     assert bad["pool_ok"] is False
 
 
+def test_fair_null_skips_empty_first_period():
+    """An empty first period (size 0, e.g. lowvol undefined) must NOT abort the null;
+    it is dropped from both strategy and null (matched), like the real run."""
+    tickers = [f"T{i}" for i in range(10)]
+    close, _ = _close_panel(tickers=tickers)
+    close_ff = close.ffill()
+    rebal = k2.rebalance_dates(close.index)[:4]
+    cpi = pd.Series(np.linspace(100, 130, len(close_ff)), index=close_ff.index)
+    pools = [[], tickers, tickers]            # first period empty pool
+    sizes = [0, 3, 3]                          # first period empty basket
+    res = k2.fair_random_null_portfolio(close_ff, pools, sizes, rebal, cpi, 0.05, n_resamples=100)
+    assert res["pool_ok"] is True              # not aborted by the empty period
+    assert res["n_resamples"] > 0
+
+
 # ---------------------------------------------------------------------------
 # In/out split + verdict gating
 # ---------------------------------------------------------------------------
