@@ -1,5 +1,5 @@
 # FEATURE INDEX — BIST OS
-**Son güncelleme:** 28 Mayıs 2026 — Session #7 kapanış
+**Son güncelleme:** 1 Haziran 2026 — D-190 envanter (Session #11 kapanış)
 **Protokol:** Her Orchestrator session başında bu dosya okunur.
 **Kural:** Yeni major feature eklenince bu dosyaya ve docs/features/ dizinine eklenir.
 
@@ -31,6 +31,12 @@ Büyük özellik direktifi vermeden önce ilgili guide okunur.
 | Macro Gate (Crisis-Only) | — | D-166 ✅ | BACKTEST_MACRO_MIN_SCORE kaldırıldı; sadece VIX>35/USDTRY>%3 |
 | BIST Decoupling Bonus | — | D-167 ✅ | L2<50 AND BIST>MA50 → +8 puan düzeltme |
 | Cloud Deployment | docs/ (setup_cloud.md) | D-152 ✅ aktif | GitHub Actions cron 18:30 IST; IC parquet git persist |
+| Faz 0 IC Harness | docs/factor_ic/ | D-177/178/183 ✅ D-184 audit ✅ | lowvol60 CONDITIONAL (CB-017: 1 fail T1-rejim); Faz 1 BLOKE (O+Cagan karar) |
+| Trend Test | — | D-185 ✅ D-186 fair-null ✅ | ÇÜRÜDÜ (DEC-044): trend anlamlı değil; strangler korunur, SİLİNMEZ |
+| Exposure Backtest | — | D-187 ✅ | Rejim-timing istatistiksel anlamlılık yok; statik barbell üstünlüğü marjinal |
+| Event Confluence | — | D-188 forward-recorder ✅ | data/event_logs/ henüz YOK; Cagan ~haftalık elle; scheduler BAĞLI DEĞİL |
+| ARCHITECTURE v3.0 | docs/ARCHITECTURE.md | Session #11 ✅ | v2.0 (trend/swing) GEÇERSİZ; Yol 2 = statik-maruziyet+maliyet/vergi+quality |
+| SPEC_YOL2 | docs/SPECS/SPEC_YOL2.md | v3.0 1 Haz 2026 ✅ | TEK geçerli mimari SPEC; diğer SPEC'ler docs/archive/SPECS/ altında |
 
 ---
 
