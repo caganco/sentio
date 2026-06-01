@@ -78,3 +78,7 @@ data/sentiment_cache.json
 
 # Obsidian editor config (personal, not tracked)
 .obsidian/
+
+# Builder PR/commit artifacts (local workflow helpers; organized in pr-artifacts/)
+pr-artifacts/
+data/*.local.bak
