@@ -1,0 +1,169 @@
+{
+  "directive": "D-Y1-001",
+  "title": "Value-only Tilt -- REGIME-RESILIENCE test (Yol-1 Asama-1) -- Stage 0 pre-registration",
+  "preregistered_date": "2026-06-02",
+  "config_module": "src/screening/value_only_regime_config.py",
+  "config_version": "vor-v1",
+  "decision_owner": "the project (DEC-039). Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a PASS does not touch the main system -- Yol-2 OVERLAY candidate at most (<=10-20%), separate the project decision.",
+
+  "discipline_note": "Committed BEFORE any backtest is run and BEFORE any D-Y1-001 result is seen. The NET DECISION RULE (DEC-Y1, 4 gates) is FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no horizon/window widening, no factor post-hoc adjustment, no regime-boundary tuning). Single-factor VALUE only -- composite FORBIDDEN (value isolated). Snapshot content hashes are recorded below before this pre-results commit. Reproducibility: the run reads these frozen offline snapshots; their content hashes must match.",
+
+  "motivation": "Resolves the unresolved Faz-0 (D-183) <-> D-191 conflict for the VALUE factor in isolation: Faz-0 value cross-sectional rank-IC WEAK (honest_t<2) vs D-191 value-only tilt STRONG (fair-null ~99.6%, TL-real CI>0). RR-Y1.md sec.SORU-1 shows this is a known methodological signature (rank-IC spans the whole cross-section; tercile/decile tilt only the extreme deciles), NOT a bug. RR-Y1 also warns BIST value is REGIME-UNSTABLE (Eraslan weak-pos -> Aras NEGATIVE t=-2.90 -> Dogan momentum-dominant) -- weakening is macro-regime driven, NOT publication-decay. So the decisive question is regime-resilience, not a single t>2.",
+
+  "honest_expectation": "FAILING is LIKELY. BIST value is periodically negative and D-191 showed an in/out collapse. This test exists to KNOW DEFINITIVELY whether value-only carries a regime-resilient premium -- not in the hope that 'value saves us'. A FAIL is a clean 'tried-and-refuted' archive result, not wasted effort.",
+
+  "basis": [
+    "RR-Y1.md sec.SORU-1 (IC-vs-tilt conflict resolution)",
+    "RR-Y1.md Recommendations Soru-1 #1 (same-sample rank-IC + decile MR test)",
+    "RR-Y1.md Recommendations Soru-1 #3 (single-subperiod t>2 INSUFFICIENT; need >=2 independent subperiods consistent sign)",
+    "D-191 K2 armored-backtest infra (k2_factor_tilt) reused READ-ONLY (strangler)",
+    "D-183 Faz-0 value rank-IC method (factor_ic_harness honest_t Newey-West HAC)",
+    "D-186 frozen 3-way INFLATION_REGIMES (trend_config) reused READ-ONLY"
+  ],
+
+  "hypothesis": "A long-only, equal-weight, semi-annual-rebalanced VALUE-ONLY tilt (book-to-market PRIMARY; E/P robustness) carries a REGIME-RESILIENT net (cost+tax+slippage) TL-real premium -- positive and significant across at least 2 of 3 independent macro-inflation regimes, not just one subperiod. NULL/expectation: value is regime-dependent (fragile), consistent with the D-191 in/out collapse.",
+
+  "what_this_is_NOT": "NOT a composite (value isolated; no quality/lowvol). NOT a parameter sweep (tercile + quintile only; deciles are a monotonicity DIAGNOSTIC). NOT a deployment decision (MEASURE-ONLY; PASS -> overlay CANDIDATE only). The two AYAK-3 regime cuts (3-way + 2-way) are two views of the SAME measurement -> NOT a sweep variant, do NOT count against N<=3.",
+
+  "window": {"start": "2019-01-01", "end": "2026-04-30",
+             "rebalance": "semi-annual (anchors Jun-30, Dec-31; last trading day on/before)",
+             "expected_rebalances": "~14 -> ~13 holding periods",
+             "inherited_from": "K2 frozen calendar (k2_tilt_config) -> IDENTICAL sample, so AYAK-1 rank-IC and the tercile tilt are measured on the SAME observations (the whole point of the conflict-resolution leg)"},
+
+  "in_out_sample": {
+    "insample_end": "2022-12-31",
+    "rule": "in-sample = rebalance date < insample_end; out-of-sample = >=. Frozen as a DATE.",
+    "thin_n_caveat": "~6-7 periods/slice -> wide CIs / low power. Reported, NOT over-interpreted."
+  },
+
+  "universe": {
+    "pool": "K2 frozen BIST 100 constituent pool (reused READ-ONLY, loaded_universe_n=112)",
+    "adv_floor": "NONE (2019 TL volumes << 2024; a 2024-calibrated floor would wrongly trim the early window -- D-184 precedent)"
+  },
+
+  "survivorship": {
+    "mode": "survivors-only (reused K2 pool)",
+    "bias_direction": "OPTIMISTIC upper-bound: excluding (mostly poor-outcome) delisted names inflates the absolute level. The FAIR NULL draws from the SAME survivors pool, so the strategy-vs-null comparison stays fair; only the absolute level is inflated."
+  },
+
+  "value_factor": {
+    "primary": {
+      "definition": "book-to-market = 1 / (P/B); P/B via factors.value_ratios (point-in-time)",
+      "ref": "Fama-French 1992/1993 HML",
+      "orientation": "low P/B (cheap) -> higher rank (invert=True on P/B)",
+      "source": "MaliTablo book_eaoop (2O) + issued_capital (2OA)"
+    },
+    "robustness": {
+      "definition": "earnings yield E/P = net_income / market_cap; market_cap = (issued_capital/par)*close",
+      "orientation": "high E/P (cheap) -> higher rank (invert=False)",
+      "loss_makers": "net_income <= 0 -> NaN (E/P defined for profitable firms; rank handles the rest)",
+      "source": "MaliTablo net_income (3Z) + issued_capital (2OA)"
+    },
+    "point_in_time": "for each (date, ticker) the latest annual with pub_date <= signal date (+120d lag) -> look-ahead safe (reuse factors PIT helpers)",
+    "no_composite": "value isolated; profitability/lowvol EXCLUDED by design"
+  },
+
+  "selection_variants_N_lock": {
+    "rule": "N<=3 selection variants; NO parameter sweep, NO new factors.",
+    "variants": ["tercile (PRIMARY, gated)", "quintile (robustness)"],
+    "decile_diagnostic": "D1..D10 deciles are an AYAK-2 monotonicity DIAGNOSTIC (cheap-minus-expensive spread + Spearman), NOT a sweep variant -- do NOT count against the N<=3 budget."
+  },
+
+  "three_legged_test": {
+    "ayak1_rank_ic_same_sample": {
+      "role": "DIAGNOSTIC (not a gate)",
+      "method": "daily cross-sectional Spearman rank-IC of the value rank vs forward returns at horizons (63, 126 trading days). honest_t = Newey-West HAC bandwidth = horizon (D-178 overlap correction).",
+      "purpose": "expose the 'weak IC + strong tilt on IDENTICAL data' conflict signature -> confirm the conflict is methodological, not a bug.",
+      "min_xsection": 5
+    },
+    "ayak2_decile_monotonicity": {
+      "role": "Gate-4",
+      "method": "split value-ranked eligible names into 10 deciles (D1=expensive .. D10=cheapest); per-decile equal-weight net TL-real over the holding period, averaged across rebalances.",
+      "reads": "cheap-minus-expensive spread + Spearman(decile_idx_cheap_high, return). Premium concentrated at the cheap end (explainable) or noise in the middle?",
+      "thin_caveat": "survivors-only pool ~10-12 names/decile, semi-annual -> wide noise; diagnostic, not over-interpreted."
+    },
+    "ayak3_regime_resilience": {
+      "role": "Gate-3 (MOST CRITICAL, decision-determining)",
+      "primary_decision_gate": {
+        "split": "3-way frozen INFLATION_REGIMES (trend_config, D-186): pre_surge / high_inflation / disinflation",
+        "assignment": "each holding period assigned by its START date",
+        "gate3_pass": ">=2 of 3 regimes with consistent POSITIVE sign (single-subperiod t>2 INSUFFICIENT -- RR-Y1 #3)"
+      },
+      "robustness_sidecheck": {
+        "split": "2-way simple split at 2023-01-01 (pre/post); thicker periods -> stronger statistics",
+        "reads": "both subperiods positive?"
+      },
+      "alignment_reading_rule_FROZEN": "3-way and 2-way ALIGNED (both >=2-positive/both-positive, or both not) -> decision STRONG. DIVERGENT (one positive, one not) -> value is REGIME-DEFINITION-SENSITIVE = FRAGILE (not a stable premium; honest-closure direction). A single split is NEVER trusted alone.",
+      "N_note": "two cuts of the SAME value measurement -> NOT a sweep, does NOT strain the N<=3 budget."
+    }
+  },
+
+  "cost_tax_slippage": {
+    "reused_from": "K2 frozen knobs verbatim (broker tier A, 20 bps/side slippage, 15% dividend withholding, assumed 3% yield drag)",
+    "application": "per rebalance: cost = one_way_turnover * (avg_round_trip + 2*slippage_oneway); first entry charged as a round trip (slightly conservative). BIST equities 0% capital gains."
+  },
+
+  "return_basis": {
+    "primary_GATE": "TL-real (TUFE-deflated): real = (1+net)/(cpi1/cpi0) - 1; cpi = frozen daily TUFE index (exposure_d187_tufe, TP.FG.J0)",
+    "reported_relative": "XU100-relative: (1+net)/(1+xu_ret) - 1 (geometric excess; D-186 nominal-drift control)",
+    "reported_usd": "USD-real if a frozen US-CPI series supplied; else USD-NOMINAL (labeled). fx = k2_fx_usdtry (TP.DK.USD.A; PARTIAL early coverage). USD basis is REPORTED, NEVER a gate.",
+    "tl_real_absent_rule": "if TUFE unavailable -> PRIMARY gate INCONCLUSIVE (not silently replaced by relative)"
+  },
+
+  "fair_null": {
+    "design": "portfolio-level random-selection null: at each rebalance draw the SAME N names uniformly without replacement from the SAME eligible pool; SAME rebalance dates / holding / cost+tax. Randomizes ONLY name selection.",
+    "statistic": "full-window mean per-period net TL-real return",
+    "seed": 12345, "n_resamples": 2000,
+    "pass": "strategy >= 95th percentile of the null (random_pctile >= 0.95)"
+  },
+
+  "significance": {
+    "method": "block-bootstrap 95% CI of the per-period net TL-real series",
+    "block": 1, "n_boot": 2000, "seed": 12345,
+    "note": "semi-annual holding periods NON-overlapping -> near-independent -> block=1"
+  },
+
+  "decision_rule_DEC_Y1_4gates": {
+    "gate1_tl_real_significant_positive": "net (cost+tax+slippage) TL-real tercile-tilt mean > 0 AND block-bootstrap 95% CI excludes 0 (CI_low > 0)",
+    "gate2_beats_fair_null": "beats the fair random-selection null at >= 95th percentile (TL-real)",
+    "gate3_regime_resilient": "PRIMARY 3-way INFLATION_REGIMES: >=2 of 3 regimes consistent-positive (single-subperiod t>2 INSUFFICIENT). 2-way robustness alignment READ alongside.",
+    "gate4_decile_profile_explainable": "cheap-minus-expensive net TL-real spread > 0 AND premium concentrated at the cheap end (Spearman(decile_idx_cheap_high, return) > 0)",
+    "PASS": "ALL 4 gates -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; separate the project decision)",
+    "PARTIAL": "Gate-1 & Gate-2 & Gate-4 pass but Gate-3 FAILS -> 'value REGIME-DEPENDENT, not a stable premium' (conflict explained but not resilient; consistent with D-191 in/out collapse) -> do NOT allocate",
+    "FAIL": "otherwise -> value-only ELIMINATED ('tried-and-refuted' archive)",
+    "reported_not_gates": "USD-real + XU100-relative ALWAYS reported but NEVER decide.",
+    "no_post_hoc_relaxation": "this 4-gate rule (and the AYAK-3 alignment reading) is frozen; not loosened after seeing results.",
+    "tl_real_unavailable": "PRIMARY gate INCONCLUSIVE if TUFE absent."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/snapshots/faz0_k2_prices_2019-01-01_2026-04-30.parquet",
+              "content_hash_sha256": "e13eb2affb65cc1b74f9746d43a21fc67e443685a1f25006375f49006f12eff0",
+              "loaded_universe_n": 112, "source": "yfinance Close auto_adjust (D-191 frozen)"},
+    "fundamentals": {"file": "data/snapshots/k2_fundamentals.parquet",
+                     "content_hash_sha256": "e194fbf77f55ee296969d45299bce39a0dec06fd408ca3c6025c0bc4f6b86d14",
+                     "n_rows": 860,
+                     "itemcodes_value": {"book_eaoop": "2O", "issued_capital": "2OA"},
+                     "itemcodes_net_income": "3Z (Ana Ortaklik Paylari, parent net income, consistent with book_eaoop=2O)"},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet",
+             "content_hash_sha256": "e093835fca9077b2c09a103d11b38d8fad0fe607dd2f4d5b1ebc2914a4e7e380",
+             "n_rows": 2677, "series": "TP.FG.J0", "note": "daily TUFE index (D-187 frozen offline)"},
+    "fx": {"file": "data/snapshots/k2_fx_usdtry.parquet",
+           "content_hash_sha256": "6389bfae0be90bfbf912fb955f37bcc0f6eff5f8dbcbb85100c115fcbe1fce10",
+           "n_obs": 688, "series": "TP.DK.USD.A", "note": "PARTIAL early coverage; USD basis reported-only, non-gating"},
+    "us_cpi": {"value": null, "note": "None -> USD-NOMINAL (labeled, non-gating)"}
+  },
+
+  "thresholds_reference": {
+    "source": "src/signals/thresholds.py (IMMUTABLE; read-only)",
+    "note": "VOR measurement knobs live in value_only_regime_config.py (like k2_tilt_config / faz0_config / trend_config), NOT in thresholds.py. The engine must NOT import signals.thresholds / signals.engine / MASTER_WEIGHTS / backtest.engine (architecture invariant, enforced by tests/test_value_only_regime.py)."
+  },
+
+  "config_budget": "N<=3 selection variants (tercile + quintile); deciles + the two regime cuts are diagnostics/views, excluded by design.",
+
+  "outputs": [
+    "docs/yol1/STAGE0_value_only_regime_preregistration.json (this file)",
+    "docs/yol1/value_only_regime_results.json (after run: AYAK-1 rank-IC + AYAK-2 deciles + AYAK-3 regimes x {3-way,2-way} + tercile/quintile tilt x {tl_real, xu100_relative, usd_real} x fair-null x {in,out} + VERDICT)",
+    "docs/research/D-Y1-001-value-only-rapor.md (3-ayak + regime table + conflict resolution + DEC-Y1 verdict)"
+  ]
+}
