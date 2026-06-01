@@ -344,22 +344,31 @@ def fair_random_null_portfolio(
     strategy); beats iff >= K2_DECISION_RANDOM_PCTILE_MIN.
     """
     n = len(rebal) - 1
+    bad = {"n_resamples": 0, "pool_ok": False, "null_mean": float("nan"),
+           "null_p95": float("nan"), "strategy_real_mean": _r(strategy_real_mean),
+           "random_pctile": float("nan"), "beats_fair_null_95": False}
     if not np.isfinite(strategy_real_mean) or cpi is None or n <= 0:
-        return {"n_resamples": 0, "pool_ok": False, "null_mean": float("nan"),
-                "null_p95": float("nan"), "strategy_real_mean": _r(strategy_real_mean),
-                "random_pctile": float("nan"), "beats_fair_null_95": False}
-    for i in range(n):
-        if len(eligible_pools[i]) < max(1, basket_sizes[i]):
-            return {"n_resamples": 0, "pool_ok": False, "null_mean": float("nan"),
-                    "null_p95": float("nan"), "strategy_real_mean": _r(strategy_real_mean),
-                    "random_pctile": float("nan"), "beats_fair_null_95": False}
+        return bad
+    # Mirror the strategy: periods where the strategy basket is empty (e.g. lowvol
+    # undefined in the first ~252 days) are dropped from BOTH the strategy mean and
+    # the null -> matched periods. Only periods with a non-empty strategy basket
+    # must have a pool large enough to draw N names without replacement.
+    active = [i for i in range(n) if basket_sizes[i] > 0]
+    if not active:
+        return bad
+    for i in active:
+        if len(eligible_pools[i]) < basket_sizes[i]:
+            return bad
     rng = np.random.default_rng(seed)
     null_means = np.empty(n_resamples, dtype=float)
     for r in range(n_resamples):
         baskets = []
         for i in range(n):
+            k = basket_sizes[i]
+            if k <= 0:                       # empty period -> empty basket (matched drop)
+                baskets.append([])
+                continue
             pool = eligible_pools[i]
-            k = max(1, basket_sizes[i])
             pick = rng.choice(len(pool), size=k, replace=False)
             baskets.append([pool[j] for j in pick])
         pr = period_net_returns(close_ff, baskets, rebal, tier)
