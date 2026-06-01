@@ -34,7 +34,7 @@ Büyük özellik direktifi vermeden önce ilgili guide okunur.
 | Faz 0 IC Harness | docs/factor_ic/ | D-177/178/183 ✅ D-184 audit ✅ | lowvol60 CONDITIONAL (CB-017: 1 fail T1-rejim); Faz 1 BLOKE (O+Cagan karar) |
 | Trend Test | — | D-185 ✅ D-186 fair-null ✅ | ÇÜRÜDÜ (DEC-044): trend anlamlı değil; strangler korunur, SİLİNMEZ |
 | Exposure Backtest | — | D-187 ✅ | Rejim-timing istatistiksel anlamlılık yok; statik barbell üstünlüğü marjinal |
-| Event Confluence | — | D-188 forward-recorder ✅ | data/event_logs/ henüz YOK; Cagan ~haftalık elle; scheduler BAĞLI DEĞİL |
+| Event Confluence | — | D-188 forward-recorder ✅ | **VERİ BİRİKİYOR** clone3\data\event_logs\ (2026-06-01~); Task Sched. 19:00 aktif; K4 Yol-2 hammaddesi — clone3 silinirse veri kaybolur |
 | ARCHITECTURE v3.0 | docs/ARCHITECTURE.md | Session #11 ✅ | v2.0 (trend/swing) GEÇERSİZ; Yol 2 = statik-maruziyet+maliyet/vergi+quality |
 | SPEC_YOL2 | docs/SPECS/SPEC_YOL2.md | v3.0 1 Haz 2026 ✅ | TEK geçerli mimari SPEC; diğer SPEC'ler docs/archive/SPECS/ altında |
 
