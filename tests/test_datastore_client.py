@@ -367,6 +367,238 @@ class TestDatastoreDownloader:
 # TestThresholdConstants (Adim 1 dogrulama)
 # ---------------------------------------------------------------------------
 
+class TestLibraryPagination:
+    """list_files tum sayfalari gezmeli (D-130 bug fix)."""
+
+    def _resp(self, json_data, status=200, ct="application/json"):
+        resp = MagicMock()
+        resp.status_code = status
+        resp.ok = status < 400
+        resp.headers = {"Content-Type": ct}
+        resp.json.return_value = json_data
+        return resp
+
+    def test_list_files_walks_all_pages(self, tmp_path, monkeypatch):
+        """page1 dolu (page-size kadar) -> page2 cekilir; kismi sayfada durur."""
+        from src.data.bist_datastore_client import DatastoreFileIndex, DatastoreSession
+        from src.signals.thresholds import DATASTORE_LIBRARY_PAGE_SIZE
+
+        s = DatastoreSession(_make_session_json(tmp_path))
+        index = DatastoreFileIndex(s)
+
+        page1 = [
+            {"referenceId": f"id{i}", "fileName": f"yabanci2026{i:02d}.zip", "productTypeId": 3153}
+            for i in range(DATASTORE_LIBRARY_PAGE_SIZE)
+        ]
+        page2 = [{"referenceId": "last", "fileName": "yabanci_last.zip", "productTypeId": 3153}]
+        pages = {1: page1, 2: page2}
+
+        def _get(url, params=None, timeout=None):
+            return self._resp(pages.get(params["page"], []))
+
+        monkeypatch.setattr(index._session, "get", _get)
+        result = index.list_files(3153)
+        assert len(result) == DATASTORE_LIBRARY_PAGE_SIZE + 1
+        assert result[-1].file_id == "last"
+
+    def test_list_files_single_partial_page_stops(self, tmp_path, monkeypatch):
+        """Ilk sayfa page-size'dan az -> tek istek, ikinci sayfa cekilmez."""
+        from src.data.bist_datastore_client import DatastoreFileIndex, DatastoreSession
+
+        s = DatastoreSession(_make_session_json(tmp_path))
+        index = DatastoreFileIndex(s)
+
+        calls = {"n": 0}
+
+        def _get(url, params=None, timeout=None):
+            calls["n"] += 1
+            return self._resp([
+                {"referenceId": "a", "fileName": "x2026.zip", "productTypeId": 3153},
+            ])
+
+        monkeypatch.setattr(index._session, "get", _get)
+        result = index.list_files(3153)
+        assert calls["n"] == 1
+        assert len(result) == 1
+
+
+class TestDatastoreCatalog:
+    def _resp(self, json_data, status=200, ct="application/json"):
+        resp = MagicMock()
+        resp.status_code = status
+        resp.ok = status < 400
+        resp.headers = {"Content-Type": ct}
+        resp.json.return_value = json_data
+        return resp
+
+    def _raw(self, pid="111", price=0.0, in_lib=False, date_="01-04-2026"):
+        return {
+            "id": pid, "fileName": f"f{pid}.zip", "date": date_,
+            "price": price, "discountPrice": price,
+            "dataDefnEntity": {"description": "Yabanci Islem"},
+            "inLibrary": in_lib, "createDate": date_,
+            "category": "PPB", "group": "G1", "subcategory": "S1",
+            "productTypeId": 3153, "period": None,
+        }
+
+    def test_list_products_parses(self, tmp_path, monkeypatch):
+        from src.data.bist_datastore_client import DatastoreCatalog, DatastoreSession
+
+        s = DatastoreSession(_make_session_json(tmp_path))
+        cat = DatastoreCatalog(s)
+        monkeypatch.setattr(cat._session, "get",
+                            lambda *a, **kw: self._resp([self._raw("1"), self._raw("2", price=5.0)]))
+        products = cat.list_products(3153)
+        assert len(products) == 2
+        assert products[0].reference_id == "1"
+        assert products[0].is_free is True
+        assert products[1].is_free is False
+        assert products[0].type_name == "Yabanci Islem"
+
+    def test_list_free_products_filters(self, tmp_path, monkeypatch):
+        from src.data.bist_datastore_client import DatastoreCatalog, DatastoreSession
+
+        s = DatastoreSession(_make_session_json(tmp_path))
+        cat = DatastoreCatalog(s)
+        items = [
+            self._raw("free_new", price=0.0, in_lib=False),
+            self._raw("free_owned", price=0.0, in_lib=True),
+            self._raw("paid", price=10.0, in_lib=False),
+        ]
+        monkeypatch.setattr(cat._session, "get", lambda *a, **kw: self._resp(items))
+        free = cat.list_free_products(3153)
+        ids = [p.reference_id for p in free]
+        assert ids == ["free_new"]
+
+    def test_list_products_401_raises(self, tmp_path, monkeypatch):
+        from src.data.bist_datastore_client import (
+            DatastoreCatalog, DatastoreSession, DatastoreSessionExpiredError,
+        )
+
+        s = DatastoreSession(_make_session_json(tmp_path))
+        cat = DatastoreCatalog(s)
+        monkeypatch.setattr(cat._session, "get", lambda *a, **kw: self._resp(None, status=401))
+        with pytest.raises(DatastoreSessionExpiredError):
+            cat.list_products(3153)
+
+
+class TestDatastoreAcquirer:
+    def _customer_resp(self):
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.ok = True
+        resp.json.return_value = [{"id": 42, "name": "A", "surName": "B", "email": "a@b.c"}]
+        return resp
+
+    def _make_products(self, n, price=0.0):
+        from src.data.bist_datastore_client import DatastoreProduct
+        return [
+            DatastoreProduct(
+                reference_id=str(i), type_name="T", data_date="01-04-2026",
+                price=price, in_library=False, product_type_id=3153,
+                raw={"id": str(i), "price": price, "date": "01-04-2026",
+                     "category": "PPB", "group": "G", "subcategory": "S",
+                     "productTypeId": 3153, "createDate": "01-04-2026"},
+            )
+            for i in range(n)
+        ]
+
+    def _setup(self, tmp_path, batch_size=20):
+        from src.data.bist_datastore_client import DatastoreAcquirer, DatastoreSession
+        s = DatastoreSession(_make_session_json(tmp_path))
+        return DatastoreAcquirer(s, rate_limit_sec=0.0, batch_size=batch_size)
+
+    def test_add_free_success_204(self, tmp_path, monkeypatch):
+        acq = self._setup(tmp_path)
+        post_calls = []
+
+        def _post(url, json=None, timeout=None):
+            post_calls.append(json)
+            r = MagicMock(); r.status_code = 204; r.ok = True
+            return r
+
+        monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
+        monkeypatch.setattr(acq._req_session, "post", _post)
+
+        added = acq.add_free_to_library(self._make_products(3))
+        assert added == 3
+        assert len(post_calls) == 1
+        payload = post_calls[0]
+        assert payload["vPosInfo"] is None
+        assert payload["senderApp"] == "DataStore"
+        assert payload["customer"]["userProfileId"] == 42
+        assert len(payload["products"]) == 3
+        assert payload["products"][0]["referenceId"] == "0"
+
+    def test_batching_splits_requests(self, tmp_path, monkeypatch):
+        acq = self._setup(tmp_path, batch_size=2)
+        post_calls = []
+
+        def _post(url, json=None, timeout=None):
+            post_calls.append(json)
+            r = MagicMock(); r.status_code = 204; r.ok = True
+            return r
+
+        monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
+        monkeypatch.setattr(acq._req_session, "post", _post)
+        monkeypatch.setattr(time, "sleep", lambda s: None)
+
+        added = acq.add_free_to_library(self._make_products(5))
+        assert added == 5
+        assert len(post_calls) == 3  # 2 + 2 + 1
+        assert [len(c["products"]) for c in post_calls] == [2, 2, 1]
+
+    def test_rejects_paid_products(self, tmp_path):
+        acq = self._setup(tmp_path)
+        with pytest.raises(ValueError):
+            acq.add_free_to_library(self._make_products(2, price=9.9))
+
+    def test_409_price_conflict_raises(self, tmp_path, monkeypatch):
+        acq = self._setup(tmp_path)
+        monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
+        r = MagicMock(); r.status_code = 409; r.ok = False
+        monkeypatch.setattr(acq._req_session, "post", lambda *a, **kw: r)
+        with pytest.raises(RuntimeError, match="409"):
+            acq.add_free_to_library(self._make_products(1))
+
+    def test_add_library_401_raises_expired(self, tmp_path, monkeypatch):
+        from src.data.bist_datastore_client import DatastoreSessionExpiredError
+        acq = self._setup(tmp_path)
+        monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
+        r = MagicMock(); r.status_code = 401; r.ok = False
+        monkeypatch.setattr(acq._req_session, "post", lambda *a, **kw: r)
+        with pytest.raises(DatastoreSessionExpiredError):
+            acq.add_free_to_library(self._make_products(1))
+
+    def test_empty_products_no_call(self, tmp_path, monkeypatch):
+        acq = self._setup(tmp_path)
+        called = {"n": 0}
+        monkeypatch.setattr(acq._req_session, "post",
+                            lambda *a, **kw: called.__setitem__("n", called["n"] + 1))
+        assert acq.add_free_to_library([]) == 0
+        assert called["n"] == 0
+
+
+class TestPaymentItemHelper:
+    def test_payment_item_shape(self):
+        from src.data.bist_datastore_client import DatastoreProduct, _payment_item
+
+        p = DatastoreProduct(
+            reference_id="9", type_name="Yabanci", data_date="15-03-2026",
+            price=0.0, in_library=False, product_type_id=3153,
+            raw={"id": "9", "price": 0.0, "category": "PPB", "group": "G",
+                 "subcategory": "S", "productTypeId": 3153, "createDate": "15-03-2026"},
+        )
+        item = _payment_item(p)
+        assert item["referenceId"] == "9"
+        assert item["type"] == 0
+        assert item["price"] == 0.0
+        assert item["categoryCode"] == "PPB"
+        assert item["subCategoryCode"] == "S"
+        assert isinstance(item["productDate"], int)  # epoch ms
+        assert item["name"] == "15-03-2026 - Yabanci"
+
+
 class TestDatastoreThresholdConstants:
     def test_constants_exist(self):
         from src.signals.thresholds import (
