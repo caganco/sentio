@@ -1,0 +1,1039 @@
+{
+  "directive": "D-Y1-001",
+  "title": "Value-only tilt -- REGIME-RESILIENCE test (Yol-1 Asama-1) -- results",
+  "config_version": "vor-v1",
+  "basis": "RR-Y1.md sec.SORU-1 (conflict resolution) + Recommendations Soru-1 #1/#3",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30"
+  },
+  "rebalance_dates": [
+    "2019-06-28",
+    "2019-12-31",
+    "2020-06-30",
+    "2020-12-31",
+    "2021-06-30",
+    "2021-12-31",
+    "2022-06-30",
+    "2022-12-30",
+    "2023-06-30",
+    "2023-12-29",
+    "2024-06-28",
+    "2024-12-31",
+    "2025-06-30",
+    "2025-12-31",
+    "2026-04-29"
+  ],
+  "n_rebalances": 15,
+  "value_primary": "pb",
+  "value_robust": "ep",
+  "decision_owner": "the project (DEC-039)",
+  "survivorship_bias": "optimistic upper-bound (survivors-only; delisted unfetchable)",
+  "tl_real_available": true,
+  "usd_real_available": false,
+  "single_factor_only": true,
+  "primary_value_metric": {
+    "value_metric": "pb",
+    "tilt_tercile": {
+      "variant": "tercile",
+      "basket_sizes": [
+        30,
+        30,
+        30,
+        31,
+        32,
+        33,
+        33,
+        34,
+        35,
+        36,
+        36,
+        36,
+        36,
+        36
+      ],
+      "mean_turnover": 0.214949,
+      "mean_cost": 0.00312,
+      "tl_real": {
+        "n": 14,
+        "mean": 0.176663,
+        "ci95_low": 0.010475,
+        "ci95_high": 0.392087,
+        "ci_excludes_zero": true
+      },
+      "tl_real_inout": {
+        "insample_end": "2022-12-31",
+        "in": {
+          "n": 8,
+          "mean": 0.305718,
+          "ci95_low": 0.04481,
+          "ci95_high": 0.645671,
+          "ci_excludes_zero": true
+        },
+        "out": {
+          "n": 6,
+          "mean": 0.00459,
+          "ci95_low": -0.092849,
+          "ci95_high": 0.108619,
+          "ci_excludes_zero": false
+        },
+        "thin_n_caveat": "semi-annual -> ~6-7 periods/slice; wide CIs / low power, do not over-interpret one slice"
+      },
+      "xu100_relative": {
+        "n": 14,
+        "mean": 0.098502,
+        "ci95_low": 0.040436,
+        "ci95_high": 0.166222,
+        "ci_excludes_zero": true
+      },
+      "usd_real": {
+        "n": 5,
+        "mean": 0.075411,
+        "ci95_low": -0.051489,
+        "ci95_high": 0.211271,
+        "ci_excludes_zero": false,
+        "is_real": false,
+        "basis": "usd_nominal"
+      },
+      "fair_null": {
+        "n_resamples": 2000,
+        "pool_ok": true,
+        "null_mean": 0.134246,
+        "null_p95": 0.160919,
+        "strategy_real_mean": 0.176663,
+        "random_pctile": 0.996,
+        "beats_fair_null_95": true
+      },
+      "max_drawdown": -0.403609,
+      "n_periods": 14,
+      "per_period": {
+        "net": [
+          0.65606,
+          0.210009,
+          0.568253,
+          0.067257,
+          0.476243,
+          0.452271,
+          1.625596,
+          0.009974,
+          0.278109,
+          0.496875,
+          -0.032638,
+          0.059121,
+          0.184765,
+          0.152007
+        ],
+        "tl_real": [
+          0.555042,
+          0.144189,
+          0.447188,
+          -0.015924,
+          0.176524,
+          0.020184,
+          1.275307,
+          -0.156767,
+          -0.070938,
+          0.200048,
+          -0.164257,
+          -0.092239,
+          0.056068,
+          0.098857
+        ],
+        "relative": [
+          0.396421,
+          0.188204,
+          0.237491,
+          0.161998,
+          0.077799,
+          0.121595,
+          0.146375,
+          -0.033851,
+          -0.01465,
+          0.050156,
+          0.047787,
+          0.046569,
+          0.046625,
+          -0.093484
+        ],
+        "periods": [
+          [
+            "2019-06-28",
+            "2019-12-31"
+          ],
+          [
+            "2019-12-31",
+            "2020-06-30"
+          ],
+          [
+            "2020-06-30",
+            "2020-12-31"
+          ],
+          [
+            "2020-12-31",
+            "2021-06-30"
+          ],
+          [
+            "2021-06-30",
+            "2021-12-31"
+          ],
+          [
+            "2021-12-31",
+            "2022-06-30"
+          ],
+          [
+            "2022-06-30",
+            "2022-12-30"
+          ],
+          [
+            "2022-12-30",
+            "2023-06-30"
+          ],
+          [
+            "2023-06-30",
+            "2023-12-29"
+          ],
+          [
+            "2023-12-29",
+            "2024-06-28"
+          ],
+          [
+            "2024-06-28",
+            "2024-12-31"
+          ],
+          [
+            "2024-12-31",
+            "2025-06-30"
+          ],
+          [
+            "2025-06-30",
+            "2025-12-31"
+          ],
+          [
+            "2025-12-31",
+            "2026-04-29"
+          ]
+        ]
+      }
+    },
+    "tilt_quintile": {
+      "variant": "quintile",
+      "basket_sizes": [
+        19,
+        19,
+        18,
+        19,
+        20,
+        20,
+        20,
+        21,
+        21,
+        22,
+        22,
+        22,
+        22,
+        22
+      ],
+      "mean_turnover": 0.260226,
+      "mean_cost": 0.003782,
+      "tl_real": {
+        "n": 14,
+        "mean": 0.218205,
+        "ci95_low": 0.039895,
+        "ci95_high": 0.440623,
+        "ci_excludes_zero": true
+      },
+      "tl_real_inout": {
+        "insample_end": "2022-12-31",
+        "in": {
+          "n": 8,
+          "mean": 0.365343,
+          "ci95_low": 0.093458,
+          "ci95_high": 0.698144,
+          "ci_excludes_zero": true
+        },
+        "out": {
+          "n": 6,
+          "mean": 0.022021,
+          "ci95_low": -0.068768,
+          "ci95_high": 0.112641,
+          "ci_excludes_zero": false
+        },
+        "thin_n_caveat": "semi-annual -> ~6-7 periods/slice; wide CIs / low power, do not over-interpret one slice"
+      },
+      "xu100_relative": {
+        "n": 14,
+        "mean": 0.138859,
+        "ci95_low": 0.064619,
+        "ci95_high": 0.216343,
+        "ci_excludes_zero": true
+      },
+      "usd_real": {
+        "n": 5,
+        "mean": 0.087596,
+        "ci95_low": -0.030829,
+        "ci95_high": 0.218015,
+        "ci_excludes_zero": false,
+        "is_real": false,
+        "basis": "usd_nominal"
+      },
+      "fair_null": {
+        "n_resamples": 2000,
+        "pool_ok": true,
+        "null_mean": 0.133332,
+        "null_p95": 0.172144,
+        "strategy_real_mean": 0.218205,
+        "random_pctile": 0.9995,
+        "beats_fair_null_95": true
+      },
+      "max_drawdown": -0.402407,
+      "n_periods": 14,
+      "per_period": {
+        "net": [
+          0.635627,
+          0.311965,
+          0.770303,
+          0.139376,
+          0.589222,
+          0.49499,
+          1.675658,
+          -0.009915,
+          0.343179,
+          0.496607,
+          -0.025792,
+          0.138954,
+          0.208069,
+          0.112579
+        ],
+        "tl_real": [
+          0.535855,
+          0.240599,
+          0.63364,
+          0.050574,
+          0.266566,
+          0.050193,
+          1.31869,
+          -0.173373,
+          -0.023638,
+          0.199833,
+          -0.158343,
+          -0.023814,
+          0.076841,
+          0.061248
+        ],
+        "relative": [
+          0.379191,
+          0.288323,
+          0.396927,
+          0.240519,
+          0.160285,
+          0.154587,
+          0.168233,
+          -0.052877,
+          0.035515,
+          0.049968,
+          0.055202,
+          0.125456,
+          0.067212,
+          -0.12451
+        ],
+        "periods": [
+          [
+            "2019-06-28",
+            "2019-12-31"
+          ],
+          [
+            "2019-12-31",
+            "2020-06-30"
+          ],
+          [
+            "2020-06-30",
+            "2020-12-31"
+          ],
+          [
+            "2020-12-31",
+            "2021-06-30"
+          ],
+          [
+            "2021-06-30",
+            "2021-12-31"
+          ],
+          [
+            "2021-12-31",
+            "2022-06-30"
+          ],
+          [
+            "2022-06-30",
+            "2022-12-30"
+          ],
+          [
+            "2022-12-30",
+            "2023-06-30"
+          ],
+          [
+            "2023-06-30",
+            "2023-12-29"
+          ],
+          [
+            "2023-12-29",
+            "2024-06-28"
+          ],
+          [
+            "2024-06-28",
+            "2024-12-31"
+          ],
+          [
+            "2024-12-31",
+            "2025-06-30"
+          ],
+          [
+            "2025-06-30",
+            "2025-12-31"
+          ],
+          [
+            "2025-12-31",
+            "2026-04-29"
+          ]
+        ]
+      }
+    },
+    "ayak1_rank_ic": {
+      "63": {
+        "n_obs": 1762,
+        "mean_ic": 0.080524,
+        "icir": 0.679663,
+        "t_naive": 28.529672,
+        "honest_t_nw_lag_h": 4.673032,
+        "p_nw": 3e-06,
+        "hac_lag": 63
+      },
+      "126": {
+        "n_obs": 1699,
+        "mean_ic": 0.111723,
+        "icir": 0.952773,
+        "t_naive": 39.272293,
+        "honest_t_nw_lag_h": 4.526949,
+        "p_nw": 6e-06,
+        "hac_lag": 126
+      }
+    },
+    "ayak2_decile_monotonicity": {
+      "n_deciles": 10,
+      "decile_labels": "index 0 = most expensive (lowest value rank) .. index N-1 = cheapest",
+      "decile_mean_tl_real": [
+        0.138245,
+        0.064418,
+        0.065579,
+        0.11954,
+        0.148925,
+        0.143807,
+        0.136966,
+        0.09951,
+        0.193585,
+        0.238407
+      ],
+      "decile_n_periods": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ],
+      "filled_periods": 14,
+      "cheap_minus_expensive_spread": 0.100161,
+      "monotonicity_spearman_cheap_high": 0.6,
+      "gate4_decile_profile_explainable": true,
+      "thin_decile_caveat": "survivors-only pool / ~10-12 names per decile, semi-annual rebalance -> wide noise; diagnostic, not over-interpret"
+    },
+    "ayak3_regime_resilience": {
+      "primary_3way": {
+        "regimes": {
+          "pre_surge": {
+            "n": 5,
+            "mean": 0.261404,
+            "sign_positive": true,
+            "ci95_low": 0.086611,
+            "ci95_high": 0.436197,
+            "ci_excludes_zero": true
+          },
+          "high_inflation": {
+            "n": 6,
+            "mean": 0.183929,
+            "sign_positive": true,
+            "ci95_low": -0.114241,
+            "ci95_high": 0.633392,
+            "ci_excludes_zero": false
+          },
+          "disinflation": {
+            "n": 3,
+            "mean": 0.020895,
+            "sign_positive": true,
+            "ci95_low": -0.092239,
+            "ci95_high": 0.098857,
+            "ci_excludes_zero": false
+          }
+        },
+        "n_active_regimes": 3,
+        "n_positive_regimes": 3,
+        "min_positive_required": 2,
+        "gate3_regime_resilient": true
+      },
+      "robustness_2way": {
+        "split_date": "2023-01-01",
+        "groups": {
+          "pre_2023-01-01": {
+            "n": 8,
+            "mean": 0.305718,
+            "sign_positive": true,
+            "ci95_low": 0.044811,
+            "ci95_high": 0.645671,
+            "ci_excludes_zero": true
+          },
+          "post_2023-01-01": {
+            "n": 6,
+            "mean": 0.00459,
+            "sign_positive": true,
+            "ci95_low": -0.092849,
+            "ci95_high": 0.108619,
+            "ci_excludes_zero": false
+          }
+        },
+        "both_subperiods_positive": true
+      },
+      "alignment": {
+        "aligned": true,
+        "reading": "ALIGNED -> decision strong"
+      },
+      "note": "single-subperiod t>2 is INSUFFICIENT (RR-Y1 Recommendations Soru-1 #3); regime-dependent effect != stable premium"
+    },
+    "verdict_DEC_Y1": {
+      "passes_DEC_Y1": true,
+      "classification": "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; the project karari)",
+      "gate1_tl_real_sig_positive": true,
+      "gate2_beats_fair_null_95": true,
+      "gate3_regime_resilient_3way": true,
+      "gate4_decile_profile_explainable": true,
+      "regime_alignment_aligned": true,
+      "tl_real_available": true,
+      "failures": []
+    }
+  },
+  "robustness_value_metric": {
+    "value_metric": "ep",
+    "tilt_tercile": {
+      "variant": "tercile",
+      "basket_sizes": [
+        26,
+        26,
+        26,
+        27,
+        27,
+        27,
+        31,
+        31,
+        32,
+        33,
+        32,
+        32,
+        26,
+        26
+      ],
+      "mean_turnover": 0.303529,
+      "mean_cost": 0.004409,
+      "tl_real": {
+        "n": 14,
+        "mean": 0.166028,
+        "ci95_low": -0.005161,
+        "ci95_high": 0.402062,
+        "ci_excludes_zero": false
+      },
+      "tl_real_inout": {
+        "insample_end": "2022-12-31",
+        "in": {
+          "n": 8,
+          "mean": 0.306504,
+          "ci95_low": 0.039599,
+          "ci95_high": 0.673827,
+          "ci_excludes_zero": true
+        },
+        "out": {
+          "n": 6,
+          "mean": -0.021273,
+          "ci95_low": -0.105351,
+          "ci95_high": 0.05984,
+          "ci_excludes_zero": false
+        },
+        "thin_n_caveat": "semi-annual -> ~6-7 periods/slice; wide CIs / low power, do not over-interpret one slice"
+      },
+      "xu100_relative": {
+        "n": 14,
+        "mean": 0.086162,
+        "ci95_low": 0.022225,
+        "ci95_high": 0.156437,
+        "ci_excludes_zero": true
+      },
+      "usd_real": {
+        "n": 5,
+        "mean": 0.030635,
+        "ci95_low": -0.075769,
+        "ci95_high": 0.161609,
+        "ci_excludes_zero": false,
+        "is_real": false,
+        "basis": "usd_nominal"
+      },
+      "fair_null": {
+        "n_resamples": 2000,
+        "pool_ok": true,
+        "null_mean": 0.124159,
+        "null_p95": 0.150962,
+        "strategy_real_mean": 0.166028,
+        "random_pctile": 0.9945,
+        "beats_fair_null_95": true
+      },
+      "max_drawdown": -0.380216,
+      "n_periods": 14,
+      "per_period": {
+        "net": [
+          0.565813,
+          0.229381,
+          0.545004,
+          0.123704,
+          0.401898,
+          0.40036,
+          1.781374,
+          0.013382,
+          0.356742,
+          0.422041,
+          -0.065086,
+          0.082322,
+          0.099239,
+          0.080761
+        ],
+        "tl_real": [
+          0.4703,
+          0.162507,
+          0.425734,
+          0.036123,
+          0.117274,
+          -0.016283,
+          1.410302,
+          -0.153922,
+          -0.013779,
+          0.140053,
+          -0.19229,
+          -0.072353,
+          -0.020168,
+          0.030899
+        ],
+        "relative": [
+          0.320322,
+          0.207227,
+          0.219146,
+          0.223456,
+          0.023521,
+          0.081503,
+          0.21439,
+          -0.030591,
+          0.045971,
+          -0.002345,
+          0.012641,
+          0.069496,
+          -0.028929,
+          -0.149548
+        ],
+        "periods": [
+          [
+            "2019-06-28",
+            "2019-12-31"
+          ],
+          [
+            "2019-12-31",
+            "2020-06-30"
+          ],
+          [
+            "2020-06-30",
+            "2020-12-31"
+          ],
+          [
+            "2020-12-31",
+            "2021-06-30"
+          ],
+          [
+            "2021-06-30",
+            "2021-12-31"
+          ],
+          [
+            "2021-12-31",
+            "2022-06-30"
+          ],
+          [
+            "2022-06-30",
+            "2022-12-30"
+          ],
+          [
+            "2022-12-30",
+            "2023-06-30"
+          ],
+          [
+            "2023-06-30",
+            "2023-12-29"
+          ],
+          [
+            "2023-12-29",
+            "2024-06-28"
+          ],
+          [
+            "2024-06-28",
+            "2024-12-31"
+          ],
+          [
+            "2024-12-31",
+            "2025-06-30"
+          ],
+          [
+            "2025-06-30",
+            "2025-12-31"
+          ],
+          [
+            "2025-12-31",
+            "2026-04-29"
+          ]
+        ]
+      }
+    },
+    "tilt_quintile": {
+      "variant": "quintile",
+      "basket_sizes": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        19,
+        19,
+        19,
+        20,
+        19,
+        19,
+        16,
+        16
+      ],
+      "mean_turnover": 0.323789,
+      "mean_cost": 0.004708,
+      "tl_real": {
+        "n": 14,
+        "mean": 0.182551,
+        "ci95_low": 0.012497,
+        "ci95_high": 0.394981,
+        "ci_excludes_zero": true
+      },
+      "tl_real_inout": {
+        "insample_end": "2022-12-31",
+        "in": {
+          "n": 8,
+          "mean": 0.335088,
+          "ci95_low": 0.077872,
+          "ci95_high": 0.640505,
+          "ci_excludes_zero": true
+        },
+        "out": {
+          "n": 6,
+          "mean": -0.020832,
+          "ci95_low": -0.112872,
+          "ci95_high": 0.071421,
+          "ci_excludes_zero": false
+        },
+        "thin_n_caveat": "semi-annual -> ~6-7 periods/slice; wide CIs / low power, do not over-interpret one slice"
+      },
+      "xu100_relative": {
+        "n": 14,
+        "mean": 0.108065,
+        "ci95_low": 0.029568,
+        "ci95_high": 0.199371,
+        "ci_excludes_zero": true
+      },
+      "usd_real": {
+        "n": 5,
+        "mean": 0.032495,
+        "ci95_low": -0.086448,
+        "ci95_high": 0.176371,
+        "ci_excludes_zero": false,
+        "is_real": false,
+        "basis": "usd_nominal"
+      },
+      "fair_null": {
+        "n_resamples": 2000,
+        "pool_ok": true,
+        "null_mean": 0.12216,
+        "null_p95": 0.162527,
+        "strategy_real_mean": 0.182551,
+        "random_pctile": 0.992,
+        "beats_fair_null_95": true
+      },
+      "max_drawdown": -0.409307,
+      "n_periods": 14,
+      "per_period": {
+        "net": [
+          0.570654,
+          0.197898,
+          0.753314,
+          0.316317,
+          0.414379,
+          0.505439,
+          1.577364,
+          -0.014053,
+          0.349691,
+          0.458637,
+          -0.066846,
+          0.019099,
+          0.10209,
+          0.113887
+        ],
+        "tl_real": [
+          0.474846,
+          0.132737,
+          0.617963,
+          0.213725,
+          0.127221,
+          0.057533,
+          1.23351,
+          -0.176827,
+          -0.018904,
+          0.169393,
+          -0.193811,
+          -0.126541,
+          -0.017626,
+          0.062496
+        ],
+        "relative": [
+          0.324405,
+          0.176312,
+          0.383521,
+          0.433168,
+          0.032633,
+          0.162657,
+          0.125316,
+          -0.056835,
+          0.040535,
+          0.02333,
+          0.010735,
+          0.007022,
+          -0.02641,
+          -0.123481
+        ],
+        "periods": [
+          [
+            "2019-06-28",
+            "2019-12-31"
+          ],
+          [
+            "2019-12-31",
+            "2020-06-30"
+          ],
+          [
+            "2020-06-30",
+            "2020-12-31"
+          ],
+          [
+            "2020-12-31",
+            "2021-06-30"
+          ],
+          [
+            "2021-06-30",
+            "2021-12-31"
+          ],
+          [
+            "2021-12-31",
+            "2022-06-30"
+          ],
+          [
+            "2022-06-30",
+            "2022-12-30"
+          ],
+          [
+            "2022-12-30",
+            "2023-06-30"
+          ],
+          [
+            "2023-06-30",
+            "2023-12-29"
+          ],
+          [
+            "2023-12-29",
+            "2024-06-28"
+          ],
+          [
+            "2024-06-28",
+            "2024-12-31"
+          ],
+          [
+            "2024-12-31",
+            "2025-06-30"
+          ],
+          [
+            "2025-06-30",
+            "2025-12-31"
+          ],
+          [
+            "2025-12-31",
+            "2026-04-29"
+          ]
+        ]
+      }
+    },
+    "ayak1_rank_ic": {
+      "63": {
+        "n_obs": 1762,
+        "mean_ic": 0.051383,
+        "icir": 0.404499,
+        "t_naive": 16.97934,
+        "honest_t_nw_lag_h": 2.859908,
+        "p_nw": 0.004288,
+        "hac_lag": 63
+      },
+      "126": {
+        "n_obs": 1699,
+        "mean_ic": 0.07846,
+        "icir": 0.731496,
+        "t_naive": 30.151478,
+        "honest_t_nw_lag_h": 3.553091,
+        "p_nw": 0.000391,
+        "hac_lag": 126
+      }
+    },
+    "ayak2_decile_monotonicity": {
+      "n_deciles": 10,
+      "decile_labels": "index 0 = most expensive (lowest value rank) .. index N-1 = cheapest",
+      "decile_mean_tl_real": [
+        0.154397,
+        0.079954,
+        0.131443,
+        0.087908,
+        0.094162,
+        0.096124,
+        0.067392,
+        0.174835,
+        0.229376,
+        0.129363
+      ],
+      "decile_n_periods": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ],
+      "filled_periods": 14,
+      "cheap_minus_expensive_spread": -0.025034,
+      "monotonicity_spearman_cheap_high": 0.260606,
+      "gate4_decile_profile_explainable": false,
+      "thin_decile_caveat": "survivors-only pool / ~10-12 names per decile, semi-annual rebalance -> wide noise; diagnostic, not over-interpret"
+    },
+    "ayak3_regime_resilience": {
+      "primary_3way": {
+        "regimes": {
+          "pre_surge": {
+            "n": 5,
+            "mean": 0.242388,
+            "sign_positive": true,
+            "ci95_low": 0.09386,
+            "ci95_high": 0.390782,
+            "ci_excludes_zero": true
+          },
+          "high_inflation": {
+            "n": 6,
+            "mean": 0.19568,
+            "sign_positive": true,
+            "ci95_low": -0.11402,
+            "ci95_high": 0.697427,
+            "ci_excludes_zero": false
+          },
+          "disinflation": {
+            "n": 3,
+            "mean": -0.020541,
+            "sign_positive": false,
+            "ci95_low": -0.072353,
+            "ci95_high": 0.030899,
+            "ci_excludes_zero": false
+          }
+        },
+        "n_active_regimes": 3,
+        "n_positive_regimes": 2,
+        "min_positive_required": 2,
+        "gate3_regime_resilient": true
+      },
+      "robustness_2way": {
+        "split_date": "2023-01-01",
+        "groups": {
+          "pre_2023-01-01": {
+            "n": 8,
+            "mean": 0.306504,
+            "sign_positive": true,
+            "ci95_low": 0.039599,
+            "ci95_high": 0.673827,
+            "ci_excludes_zero": true
+          },
+          "post_2023-01-01": {
+            "n": 6,
+            "mean": -0.021273,
+            "sign_positive": false,
+            "ci95_low": -0.10535,
+            "ci95_high": 0.05984,
+            "ci_excludes_zero": false
+          }
+        },
+        "both_subperiods_positive": false
+      },
+      "alignment": {
+        "aligned": false,
+        "reading": "DIVERGENT -> value regime-definition-sensitive (FRAGILE); not a stable premium (honest-closure direction)"
+      },
+      "note": "single-subperiod t>2 is INSUFFICIENT (RR-Y1 Recommendations Soru-1 #3); regime-dependent effect != stable premium"
+    },
+    "verdict_DEC_Y1": {
+      "passes_DEC_Y1": false,
+      "classification": "FAIL -> value-only eliminated (tried-and-refuted archive)",
+      "gate1_tl_real_sig_positive": false,
+      "gate2_beats_fair_null_95": true,
+      "gate3_regime_resilient_3way": true,
+      "gate4_decile_profile_explainable": false,
+      "regime_alignment_aligned": false,
+      "tl_real_available": true,
+      "failures": [
+        "gate1_tl_real_not_sig_positive",
+        "gate4_decile_profile_not_explainable"
+      ]
+    }
+  },
+  "verdict_DEC_Y1": {
+    "passes_DEC_Y1": true,
+    "classification": "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; the project karari)",
+    "gate1_tl_real_sig_positive": true,
+    "gate2_beats_fair_null_95": true,
+    "gate3_regime_resilient_3way": true,
+    "gate4_decile_profile_explainable": true,
+    "regime_alignment_aligned": true,
+    "tl_real_available": true,
+    "failures": []
+  },
+  "snapshot_meta": {
+    "price_snapshot": "faz0_k2_prices_2019-01-01_2026-04-30",
+    "fund_snapshot": "k2_fundamentals",
+    "tufe_snapshot": "exposure_d187_tufe",
+    "fx_snapshot": "k2_fx_usdtry",
+    "fx_coverage_start": "2023-08-07",
+    "us_cpi": "None -> USD-nominal (labeled, non-gating)",
+    "offline": true
+  },
+  "generated_utc": "2026-06-01T21:25:59Z"
+}
