@@ -36,6 +36,7 @@ Büyük özellik direktifi vermeden önce ilgili guide okunur.
 | Exposure Backtest | — | D-187 ✅ | Rejim-timing istatistiksel anlamlılık yok; statik barbell üstünlüğü marjinal |
 | Event Confluence | — | D-188 forward-recorder ✅ | **VERİ BİRİKİYOR** clone3\data\event_logs\ (2026-06-01~); Task Sched. 19:00 aktif; K4 Yol-2 hammaddesi — clone3 silinirse veri kaybolur |
 | K3 İllikidite/Reversal | — | D-192 Stage-0 ✅ | Amihud+Lou-Shu+decay; backtest-only (Stage-1 canlı entegrasyon pending); `src/screening/k3_illiquid_reversal.py` |
+| Data Hub | docs/DATA_HUB.md | ✅ | Merkezi veri router; mevcut modüller değişmez; yeni proje `DataHub.get("evds",...)` ile erişir |
 | ARCHITECTURE v3.0 | docs/ARCHITECTURE.md | Session #11 ✅ | v2.0 (trend/swing) GEÇERSİZ; Yol 2 = statik-maruziyet+maliyet/vergi+quality |
 | SPEC_YOL2 | docs/SPECS/SPEC_YOL2.md | v3.0 1 Haz 2026 ✅ | TEK geçerli mimari SPEC; diğer SPEC'ler docs/archive/SPECS/ altında |
 
