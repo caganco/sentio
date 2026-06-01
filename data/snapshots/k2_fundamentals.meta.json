@@ -1,0 +1,39 @@
+{
+  "directive": "D-191",
+  "source": "Is Yatirim MaliTablo (XI_29 / UFRS)",
+  "n_rows": 860,
+  "content_hash": "e194fbf77f55ee296969d45299bce39a0dec06fd408ca3c6025c0bc4f6b86d14",
+  "timestamp_utc": "2026-06-01T14:24:38Z",
+  "fiscal_years": [
+    2025,
+    2024,
+    2023,
+    2022,
+    2021,
+    2020,
+    2019,
+    2018
+  ],
+  "annual_lag_days": 120,
+  "itemcodes_value": {
+    "book_eaoop": "2O",
+    "issued_capital": "2OA"
+  },
+  "itemcodes_profit": {
+    "gross_profit": "3D",
+    "total_assets": "1BL",
+    "net_income": "3Z"
+  },
+  "coverage": {
+    "requested_n": 113,
+    "loaded_n": 109,
+    "null_tickers": [
+      "ANSGR",
+      "KLNMA",
+      "TRKCM",
+      "TURSG"
+    ],
+    "banks_n": 9
+  },
+  "config_version": "k2-tilt-v1"
+}
