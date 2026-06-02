@@ -83,12 +83,12 @@ data/sentiment_cache.json
 pr-artifacts/
 data/*.local.bak
 
-# D-199 archive: tum lokal veri ve manifest gitignore (lisansli veri, paylasılmaz)
+# D-199 archive: tum lokal veri ve manifest gitignore (lokal kalir)
 data/bist_datastore_archive/
 
 # D-200 clean universe: ham cikti gitignore, _meta.json commit edilir
 data/clean_universe/*.parquet
 
-# Snapshot parquet ve meta dosyalari (lisansli veri — git'e girmez)
+# Snapshot parquet ve meta: lokal kalir
 data/snapshots/*.parquet
 data/snapshots/*.meta.json
