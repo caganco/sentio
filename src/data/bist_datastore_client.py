@@ -16,9 +16,11 @@ from pathlib import Path
 import requests
 
 from src.signals.thresholds import (
-    DATASTORE_PRODUCT_FOREIGN,
-    DATASTORE_PRODUCT_SHORT,
+    DATASTORE_ADD_LIBRARY_BATCH_SIZE,
+    DATASTORE_CATALOG_PAGE_SIZE,
+    DATASTORE_LIBRARY_PAGE_SIZE,
     DATASTORE_RATE_LIMIT_SEC,
+    DATASTORE_SENDER_APP,
     DATASTORE_SESSION_FILE,
     DATASTORE_SESSION_MAX_AGE_DAYS,
 )
@@ -157,20 +159,49 @@ class DatastoreFileIndex:
 
     def list_files(self, product_type_id: int) -> list[DatastoreFile]:
         """
-        GET /api/library?page=1&page-size=100
-        200 + JSON -> list[DatastoreFile] (productTypeId ile filtreli)
-        401 -> DatastoreSessionExpiredError
-        HTML veya JSON degil -> DatastoreSessionExpiredError
+        Kutuphanedeki TUM sayfalari gez (GET /api/library?page=N&page-size=...).
+
+        D-130 bug'i: tek sayfa cekiliyordu, 100+ urunde "alinanlar gozukmuyor".
+        Artik bos/eksik sayfa gelene kadar page artirilir, productTypeId ile filtreli.
+        401 -> DatastoreSessionExpiredError. HTML/JSON-disi -> DatastoreSessionExpiredError.
         """
-        url = f"{_BASE_URL}/api/library"
+        result: list[DatastoreFile] = []
+        page = 1
+        while True:
+            raw = self._fetch_library_page(page)
+            if not raw:
+                break
+            for f in raw:
+                try:
+                    pid = f.get("productTypeId") or (f.get("productType") or {}).get("id")
+                    if pid is not None and int(pid) != product_type_id:
+                        continue
+                    file_id = str(f.get("referenceId", f.get("fileId", f.get("id", ""))))
+                    name = str(f.get("fileName", f.get("name", file_id)))
+                    result.append(DatastoreFile(
+                        file_id=file_id,
+                        name=name,
+                        data_date=_extract_date_from_name(name),
+                        file_format=_guess_format(name),
+                        url=f.get("url") or f.get("downloadUrl"),
+                    ))
+                except Exception as exc:
+                    logger.debug("DataStore list_files: dosya parse atla — %s", exc)
+            if len(raw) < DATASTORE_LIBRARY_PAGE_SIZE:
+                break
+            page += 1
+        return result
+
+    def _fetch_library_page(self, page: int) -> list[dict]:
+        """Tek bir /api/library sayfasini ham dict listesi olarak dondur."""
         try:
             resp = self._session.get(
-                url,
-                params={"page": 1, "page-size": 100},
+                f"{_BASE_URL}/api/library",
+                params={"page": page, "page-size": DATASTORE_LIBRARY_PAGE_SIZE},
                 timeout=self._timeout,
             )
         except Exception as exc:
-            logger.warning("DataStore list_files network hatasi: %s", exc)
+            logger.warning("DataStore list_files network hatasi (page %d): %s", page, exc)
             return []
 
         if resp.status_code == 401:
@@ -198,36 +229,10 @@ class DatastoreFileIndex:
             logger.warning("DataStore list_files: JSON parse hatasi — %s", exc)
             return []
 
-        if isinstance(data, dict):
-            logger.debug("DataStore list_files response keys: %s", list(data.keys()))
-        else:
-            logger.debug("DataStore list_files response: list[%d]", len(data))
-
-        files_raw = (
+        return (
             data if isinstance(data, list)
             else data.get("items", data.get("files", data.get("data", [])))
         )
-        result: list[DatastoreFile] = []
-        for f in files_raw:
-            try:
-                pid = f.get("productTypeId") or (f.get("productType") or {}).get("id")
-                if pid is not None and int(pid) != product_type_id:
-                    continue
-                file_id = str(f.get("referenceId", f.get("fileId", f.get("id", ""))))
-                name = str(f.get("fileName", f.get("name", file_id)))
-                fmt = _guess_format(name)
-                data_date = _extract_date_from_name(name)
-                url_val = f.get("url") or f.get("downloadUrl")
-                result.append(DatastoreFile(
-                    file_id=file_id,
-                    name=name,
-                    data_date=data_date,
-                    file_format=fmt,
-                    url=url_val,
-                ))
-            except Exception as exc:
-                logger.debug("DataStore list_files: dosya parse atla — %s", exc)
-        return result
 
 
 # ---------------------------------------------------------------------------
@@ -331,6 +336,305 @@ class DatastoreDownloader:
 
 
 # ---------------------------------------------------------------------------
+# DatastoreProduct — katalogtaki alinabilir urun (dosya)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class DatastoreProduct:
+    """/api/product-type/{id}/products yanitindaki tek bir alinabilir dosya.
+
+    add-library payload'i ham `raw` dict'ten birebir uretilir (alan kaybi yok).
+    """
+    reference_id: str          # API: id
+    type_name: str             # API: dataDefnEntity.description
+    data_date: str | None      # API: date (DD-MM-YYYY)
+    price: float               # API: price (0 -> ucretsiz)
+    in_library: bool           # API: inLibrary (zaten kutuphanede mi)
+    product_type_id: int | None
+    raw: dict
+
+    @property
+    def is_free(self) -> bool:
+        return float(self.price or 0.0) <= 0.0
+
+
+def _parse_product(raw: dict, default_product_type_id: int) -> DatastoreProduct:
+    rid = str(raw.get("id", raw.get("referenceId", "")))
+    defn = raw.get("dataDefnEntity") or {}
+    type_name = str(defn.get("description") or raw.get("typeName") or rid)
+    try:
+        price = float(raw.get("price") or 0.0)
+    except (TypeError, ValueError):
+        price = 0.0
+    ptid = raw.get("productTypeId") or default_product_type_id
+    return DatastoreProduct(
+        reference_id=rid,
+        type_name=type_name,
+        data_date=raw.get("date"),
+        price=price,
+        in_library=bool(raw.get("inLibrary")),
+        product_type_id=int(ptid) if ptid is not None else None,
+        raw=raw,
+    )
+
+
+# ---------------------------------------------------------------------------
+# DatastoreCatalog — alinabilir urunleri listele (henuz satin alinmamis)
+# ---------------------------------------------------------------------------
+
+class DatastoreCatalog:
+    """Urun-tipi bazinda alinabilir dosya listesi (GET /api/product-type/{id}/products)."""
+
+    def __init__(self, session: DatastoreSession, timeout: float = 20.0) -> None:
+        self._session = requests.Session()
+        self._session.headers.update({
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Accept": "application/json, */*",
+        })
+        session.inject_into(self._session)
+        self._timeout = timeout
+
+    def list_products(
+        self,
+        product_type_id: int,
+        since_date: date | None = None,
+        until_date: date | None = None,
+    ) -> list[DatastoreProduct]:
+        """Urun-tipindeki tum alinabilir dosyalari sayfalari gezerek dondur.
+
+        since_date/until_date -> d1/d2 (epoch ms) tarih filtresi.
+        401/HTML -> DatastoreSessionExpiredError.
+        """
+        d1 = _epoch_ms(since_date) if since_date else None
+        d2 = _epoch_ms(until_date) if until_date else None
+
+        result: list[DatastoreProduct] = []
+        page = 1
+        while True:
+            raw_items = self._fetch_products_page(product_type_id, page, d1, d2)
+            if not raw_items:
+                break
+            for raw in raw_items:
+                try:
+                    result.append(_parse_product(raw, product_type_id))
+                except Exception as exc:
+                    logger.debug("DataStore list_products: parse atla — %s", exc)
+            if len(raw_items) < DATASTORE_CATALOG_PAGE_SIZE:
+                break
+            page += 1
+        return result
+
+    def list_free_products(
+        self,
+        product_type_id: int,
+        since_date: date | None = None,
+        until_date: date | None = None,
+        include_owned: bool = False,
+    ) -> list[DatastoreProduct]:
+        """Sadece ucretsiz (price==0) urunler; varsayilan olarak kutuphanede
+        olmayanlar (include_owned=False -> inLibrary olanlar elenir)."""
+        return [
+            p for p in self.list_products(product_type_id, since_date, until_date)
+            if p.is_free and (include_owned or not p.in_library)
+        ]
+
+    def _fetch_products_page(
+        self, product_type_id: int, page: int, d1: int | None, d2: int | None
+    ) -> list[dict]:
+        params: dict = {"page": page, "page-size": DATASTORE_CATALOG_PAGE_SIZE}
+        if d1 is not None:
+            params["d1"] = d1
+        if d2 is not None:
+            params["d2"] = d2
+        try:
+            resp = self._session.get(
+                f"{_BASE_URL}/api/product-type/{product_type_id}/products",
+                params=params,
+                timeout=self._timeout,
+            )
+        except Exception as exc:
+            logger.warning("DataStore list_products network hatasi (page %d): %s", page, exc)
+            return []
+
+        if resp.status_code == 401:
+            raise DatastoreSessionExpiredError(
+                "DataStore 401 — session suresi dolmus. "
+                "Cozum: python scripts/capture_datastore_session.py"
+            )
+        ct = resp.headers.get("Content-Type", "")
+        if "html" in ct.lower() or not resp.ok or "json" not in ct.lower():
+            raise DatastoreSessionExpiredError(
+                f"DataStore list_products: HTTP {resp.status_code}, Content-Type={ct!r} — "
+                "session suresi dolmus olabilir. "
+                "Cozum: python scripts/capture_datastore_session.py"
+            )
+        try:
+            data = resp.json()
+        except Exception as exc:
+            logger.warning("DataStore list_products: JSON parse hatasi — %s", exc)
+            return []
+        return (
+            data if isinstance(data, list)
+            else data.get("items", data.get("products", data.get("data", [])))
+        )
+
+
+# ---------------------------------------------------------------------------
+# DatastoreAcquirer — ucretsiz urunleri kutuphaneye ekle (checkout baypas)
+# ---------------------------------------------------------------------------
+
+class DatastoreAcquirer:
+    """Ucretsiz urunleri POST /api/add-library ile dogrudan kutuphaneye ekler.
+
+    Sepet/odeme UI'i baypas edilir (sepet zaten client-side). Buyuk listeler
+    cart-size bug'ini yenmek icin batch'lere bolunur. Basari = HTTP 204.
+    """
+
+    def __init__(
+        self,
+        session: DatastoreSession,
+        timeout: float = 30.0,
+        rate_limit_sec: float = DATASTORE_RATE_LIMIT_SEC,
+        batch_size: int = DATASTORE_ADD_LIBRARY_BATCH_SIZE,
+    ) -> None:
+        self._timeout = timeout
+        self._rate_limit_sec = rate_limit_sec
+        self._batch_size = max(1, batch_size)
+        self._req_session = requests.Session()
+        self._req_session.headers.update({
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Accept": "application/json, */*",
+            "Content-Type": "application/json",
+        })
+        session.inject_into(self._req_session)
+
+    def fetch_customer(self) -> dict:
+        """GET /api/payment-profile -> add-library customer blogu.
+
+        Ilk profil kullanilir. Profilin ham alanlari customer'a tasinir;
+        userProfileId = profil id. Profil yoksa RuntimeError.
+        """
+        try:
+            resp = self._req_session.get(
+                f"{_BASE_URL}/api/payment-profile", timeout=self._timeout
+            )
+        except Exception as exc:
+            raise RuntimeError(f"ALERT DataStore payment-profile network hatasi: {exc}") from exc
+        if resp.status_code == 401:
+            raise DatastoreSessionExpiredError(
+                "DataStore 401 — session suresi dolmus. "
+                "Cozum: python scripts/capture_datastore_session.py"
+            )
+        if not resp.ok:
+            raise RuntimeError(f"ALERT DataStore payment-profile HTTP {resp.status_code}")
+        profiles = resp.json()
+        if not profiles:
+            raise RuntimeError(
+                "DataStore: kullanici profil yok — DataStore'da once bir "
+                "fatura/kullanici profili tanimlayin."
+            )
+        p = profiles[0]
+        return {
+            "id": None,
+            "name": p.get("name"),
+            "surName": p.get("surName") or p.get("surname"),
+            "email": p.get("email"),
+            "ip": None,
+            "address": p.get("address"),
+            "phone": p.get("phone"),
+            "tckn": p.get("tckn"),
+            "type": p.get("type"),
+            "university": None,
+            "faculty": None,
+            "title": None,
+            "taxOffice": None,
+            "taxNumber": None,
+            "academic": False,
+            "userProfileId": p.get("id"),
+        }
+
+    def add_free_to_library(
+        self,
+        products: list[DatastoreProduct],
+        customer: dict | None = None,
+    ) -> int:
+        """Ucretsiz urunleri batch'ler halinde add-library ile ekle.
+
+        Donen: kutuphaneye eklenen toplam urun sayisi.
+        Ucretsiz olmayan urun verilirse ValueError.
+        """
+        if not products:
+            return 0
+        paid = [p for p in products if not p.is_free]
+        if paid:
+            raise ValueError(
+                f"add_free_to_library yalnizca ucretsiz urun kabul eder; "
+                f"{len(paid)} ucretli urun verildi (orn. {paid[0].reference_id})."
+            )
+        if customer is None:
+            customer = self.fetch_customer()
+
+        added = 0
+        batches = [
+            products[i:i + self._batch_size]
+            for i in range(0, len(products), self._batch_size)
+        ]
+        for idx, batch in enumerate(batches):
+            if idx > 0:
+                time.sleep(self._rate_limit_sec)
+            payload = {
+                "orderId": None,
+                "vPosInfo": None,
+                "customer": customer,
+                "products": [_payment_item(p) for p in batch],
+                "senderApp": DATASTORE_SENDER_APP,
+            }
+            self._post_add_library(payload, len(batch))
+            added += len(batch)
+            logger.info(
+                "DataStore add-library: batch %d/%d eklendi (%d urun)",
+                idx + 1, len(batches), len(batch),
+            )
+        return added
+
+    def _post_add_library(self, payload: dict, n_items: int) -> None:
+        try:
+            resp = self._req_session.post(
+                f"{_BASE_URL}/api/add-library",
+                json=payload,
+                timeout=self._timeout,
+            )
+        except Exception as exc:
+            raise RuntimeError(f"ALERT DataStore add-library network hatasi: {exc}") from exc
+
+        if resp.status_code == 204:
+            return
+        if resp.status_code == 401:
+            raise DatastoreSessionExpiredError(
+                "DataStore add-library 401 — session suresi dolmus veya akademik "
+                "profil gerekli. Cozum: python scripts/capture_datastore_session.py"
+            )
+        if resp.status_code == 409:
+            # priceConflict: urun aslinda ucretli ya da fiyat degismis
+            raise RuntimeError(
+                "ALERT DataStore add-library 409 (priceConflict) — urun ucretsiz "
+                "olmayabilir ya da fiyati degismis. add-library ucretsiz yol calismiyor."
+            )
+        raise RuntimeError(
+            f"ALERT DataStore add-library HTTP {resp.status_code} ({n_items} urun) — "
+            f"beklenen 204."
+        )
+
+
+# ---------------------------------------------------------------------------
 # Yardimci fonksiyonlar
 # ---------------------------------------------------------------------------
 
@@ -361,3 +665,42 @@ def _guess_format(name: str) -> str:
     if lower.endswith(".zip"):
         return "zip"
     return "xlsx"
+
+
+def _epoch_ms(d: date) -> int:
+    """date -> epoch milisaniye (Ember 'moment(...).valueOf()' karsiligi)."""
+    return int(datetime(d.year, d.month, d.day, tzinfo=timezone.utc).timestamp() * 1000)
+
+
+def _ddmmyyyy_to_epoch_ms(value) -> int | None:
+    """'DD-MM-YYYY' string -> epoch ms; parse edilemezse None."""
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        d = datetime.strptime(value.strip(), "%d-%m-%Y")
+        return int(d.replace(tzinfo=timezone.utc).timestamp() * 1000)
+    except ValueError:
+        return None
+
+
+def _payment_item(p: "DatastoreProduct") -> dict:
+    """DatastoreProduct -> add-library products[] girdisi.
+
+    Ember extractBasketItem -> extractPaymentItems zincirini birebir taklit eder;
+    ham alanlar (category/group/subcategory/period/createDate) raw'dan tasinir.
+    """
+    r = p.raw
+    return {
+        "referenceId": p.reference_id,
+        "name": f"{p.data_date} - {p.type_name}" if p.data_date else p.type_name,
+        "type": 0,  # item-type-enum.productNumeric
+        "price": float(r.get("price") or 0.0),
+        "productDate": _ddmmyyyy_to_epoch_ms(p.data_date),
+        "categoryCode": r.get("category", r.get("categoryCode")),
+        "groupCode": r.get("group", r.get("groupCode")),
+        "subCategoryCode": r.get("subcategory", r.get("subcategoryCode")),
+        "productTypeId": p.product_type_id,
+        "period": r.get("period"),
+        "createDate": r.get("createDate"),
+        "fileCreateDate": _ddmmyyyy_to_epoch_ms(r.get("createDate") or r.get("fileCreateDate")),
+    }

@@ -695,6 +695,15 @@ DATASTORE_PRODUCT_SHORT: int = 3155
 DATASTORE_PRODUCT_PRICES: int = 3156
 DATASTORE_RATE_LIMIT_SEC: float = 2.0
 
+# --- BIST DataStore ucretsiz-edinme otomasyonu (D-130b) ---
+# Sepet (basket) tamamen client-side; sunucuya giden tek sey checkout POST'u.
+# Ucretsiz urunler POST /api/add-library (vPosInfo=null) -> HTTP 204 ile
+# dogrudan kutuphaneye eklenir; sepet/odeme UI'i baypas edilir.
+DATASTORE_LIBRARY_PAGE_SIZE: int = 100      # /api/library sayfa boyutu (tum sayfalar gezilir)
+DATASTORE_CATALOG_PAGE_SIZE: int = 100      # /api/product-type/{id}/products sayfa boyutu
+DATASTORE_ADD_LIBRARY_BATCH_SIZE: int = 20  # add-library tek istekte urun sayisi (cart-size bug'ini yener)
+DATASTORE_SENDER_APP: str = "DataStore"     # add-library / payment senderApp alani
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;

@@ -30,6 +30,11 @@ def _build_parser() -> argparse.ArgumentParser:
                      help="Belirli urun tipi ID'sini indir (orn: 3153)")
     grp.add_argument("--all", dest="all_products", action="store_true",
                      help="Yabanci (3153) + Aciga satis (3155) indir")
+    grp.add_argument("--acquire", type=int, metavar="ID",
+                     help="Urun-tipindeki UCRETSIZ dosyalari kutuphaneye ekle "
+                          "(add-library) + indir (orn: 3153). Sepet/checkout baypas.")
+    grp.add_argument("--catalog", type=int, metavar="ID",
+                     help="Urun-tipindeki alinabilir dosyalari listele (fiyat dahil), indirme yok")
 
     p.add_argument("--output", default="data/bist_datastore/",
                    help="Hedef dizin (varsayilan: data/bist_datastore/)")
@@ -114,6 +119,56 @@ def _sync_product(
     print(f"[DataStore] Tamamlandi: {len(paths)} dosya hazir (urun {product_id})")
 
 
+def _catalog(session, product_id: int, since_date: date | None) -> None:
+    from src.data.bist_datastore_client import DatastoreCatalog
+
+    catalog = DatastoreCatalog(session)
+    products = catalog.list_products(product_id, since_date=since_date)
+    free = sum(1 for p in products if p.is_free)
+    owned = sum(1 for p in products if p.in_library)
+    print(f"[DataStore] Urun {product_id}: {len(products)} dosya "
+          f"({free} ucretsiz, {owned} zaten kutuphanede)")
+    for p in products[:50]:
+        flag = "FREE" if p.is_free else f"{p.price:g}TL"
+        lib = " [kutuphanede]" if p.in_library else ""
+        print(f"  {p.data_date or '?':<12} {flag:<8} {p.type_name}{lib}")
+    if len(products) > 50:
+        print(f"  ... +{len(products) - 50} dosya daha")
+
+
+def _acquire_free(session, product_id: int, output_dir: Path, since_date: date | None) -> None:
+    from src.data.bist_datastore_client import (
+        DatastoreAcquirer,
+        DatastoreCatalog,
+        DatastoreDownloader,
+        DatastoreSessionExpiredError,
+    )
+
+    catalog = DatastoreCatalog(session)
+    free = catalog.list_free_products(product_id, since_date=since_date)
+    if not free:
+        print(f"[DataStore] Urun {product_id}: eklenecek yeni ucretsiz dosya yok "
+              "(hepsi zaten kutuphanede olabilir).")
+    else:
+        print(f"[DataStore] Urun {product_id}: {len(free)} ucretsiz dosya kutuphaneye ekleniyor...")
+        acquirer = DatastoreAcquirer(session)
+        try:
+            added = acquirer.add_free_to_library(free)
+        except DatastoreSessionExpiredError as exc:
+            print(f"[DataStore] HATA: {exc}")
+            sys.exit(1)
+        print(f"[DataStore] {added} dosya kutuphaneye eklendi (add-library 204).")
+
+    print(f"[DataStore] Kutuphaneden indiriliyor -> {output_dir}")
+    downloader = DatastoreDownloader(session)
+    try:
+        paths = downloader.download_product(product_id, output_dir, since_date=since_date)
+    except DatastoreSessionExpiredError as exc:
+        print(f"[DataStore] HATA: {exc}")
+        sys.exit(1)
+    print(f"[DataStore] Tamamlandi: {len(paths)} dosya hazir (urun {product_id})")
+
+
 def main() -> None:
     args = _build_parser().parse_args()
 
@@ -129,6 +184,22 @@ def main() -> None:
 
     if args.check:
         _check(session)
+        return
+
+    if args.catalog is not None:
+        if not session.is_valid():
+            print("[DataStore] HATA: Session gecersiz. "
+                  "Cozum: python scripts/capture_datastore_session.py")
+            sys.exit(1)
+        _catalog(session, args.catalog, since_date)
+        return
+
+    if args.acquire is not None:
+        if not session.is_valid():
+            print("[DataStore] HATA: Session gecersiz. "
+                  "Cozum: python scripts/capture_datastore_session.py")
+            sys.exit(1)
+        _acquire_free(session, args.acquire, Path(args.output) / str(args.acquire), since_date)
         return
 
     if not session.is_valid():
