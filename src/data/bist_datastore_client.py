@@ -17,6 +17,7 @@ import requests
 
 from src.signals.thresholds import (
     DATASTORE_ADD_LIBRARY_BATCH_SIZE,
+    DATASTORE_ADD_LIBRARY_CUSTOMER_DROP_FIELDS,
     DATASTORE_CATALOG_PAGE_SIZE,
     DATASTORE_LIBRARY_PAGE_SIZE,
     DATASTORE_RATE_LIMIT_SEC,
@@ -32,6 +33,15 @@ _BASE_URL = "https://datastore.borsaistanbul.com"
 
 class DatastoreSessionExpiredError(RuntimeError):
     """JWT suresi dolmus veya session dosyasi DATASTORE_SESSION_MAX_AGE_DAYS'den eski."""
+
+
+class DatastoreProductTypeMismatchError(RuntimeError):
+    """save-basket-items "Product And Product Type did not match" (400).
+
+    Listeleme product-type id'si (orn. 3184 = endeks bilesenleri/exsrk) ile sepet/
+    sahiplik dogrulamasinin bekledigi product-type id'si sunucu tarafinda ayrisir.
+    Bu tip mevcut akisla edinilemez; orkestrator bu tipi atlar (digerleri devam).
+    """
 
 
 # ---------------------------------------------------------------------------
@@ -581,6 +591,7 @@ class DatastoreAcquirer:
             )
         if customer is None:
             customer = self.fetch_customer()
+        customer = _sanitize_add_library_customer(customer)
 
         added = 0
         batches = [
@@ -590,8 +601,9 @@ class DatastoreAcquirer:
         for idx, batch in enumerate(batches):
             if idx > 0:
                 time.sleep(self._rate_limit_sec)
+            order_id = self._create_basket_order(batch)
             payload = {
-                "orderId": None,
+                "orderId": order_id,
                 "vPosInfo": None,
                 "customer": customer,
                 "products": [_payment_item(p) for p in batch],
@@ -600,10 +612,70 @@ class DatastoreAcquirer:
             self._post_add_library(payload, len(batch))
             added += len(batch)
             logger.info(
-                "DataStore add-library: batch %d/%d eklendi (%d urun)",
-                idx + 1, len(batches), len(batch),
+                "DataStore add-library: batch %d/%d eklendi (%d urun, order=%s)",
+                idx + 1, len(batches), len(batch), order_id,
             )
         return added
+
+    def _create_basket_order(self, batch: list[DatastoreProduct]) -> str:
+        """Batch icin sepet olustur ve paymentOrderId dondur.
+
+        POST /api/save-basket-items (201) sunucu tarafinda paymentOrderId atar;
+        bu order id add-library'de GERCEK sahiplik saglar. orderId=None ile
+        add-library 204 doner ama dosya kutuphaneye ESASEN eklenmez (in_library=0).
+        """
+        items = [_basket_item(p) for p in batch]
+        try:
+            resp = self._req_session.post(
+                f"{_BASE_URL}/api/save-basket-items",
+                json=items,
+                timeout=self._timeout,
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                f"ALERT DataStore save-basket-items network hatasi: {exc}"
+            ) from exc
+
+        if resp.status_code == 401:
+            raise DatastoreSessionExpiredError(
+                "DataStore save-basket-items 401 — session suresi dolmus. "
+                "Cozum: python scripts/capture_datastore_session.py"
+            )
+        if resp.status_code not in (200, 201):
+            body = ""
+            try:
+                body = (resp.text or "")[:400]
+                body = body.encode("ascii", "replace").decode("ascii")
+            except Exception:
+                body = "<govde okunamadi>"
+            if resp.status_code == 400 and "did not match" in body.lower():
+                raise DatastoreProductTypeMismatchError(
+                    f"DataStore save-basket-items: product-type uyusmazligi "
+                    f"({len(items)} urun) — listeleme id'si sepet id'si ile eslesmiyor. "
+                    f"Govde: {body}"
+                )
+            raise RuntimeError(
+                f"ALERT DataStore save-basket-items HTTP {resp.status_code} "
+                f"({len(items)} urun) — beklenen 201. Govde: {body}"
+            )
+        try:
+            data = resp.json()
+        except Exception as exc:
+            raise RuntimeError(
+                f"ALERT DataStore save-basket-items JSON parse hatasi: {exc}"
+            ) from exc
+
+        order_id = None
+        if isinstance(data, list) and data:
+            order_id = data[0].get("paymentOrderId")
+        elif isinstance(data, dict):
+            order_id = data.get("paymentOrderId")
+        if not order_id:
+            raise RuntimeError(
+                "ALERT DataStore save-basket-items 201 ama paymentOrderId yok — "
+                "sepet akisi degismis olabilir."
+            )
+        return order_id
 
     def _post_add_library(self, payload: dict, n_items: int) -> None:
         try:
@@ -641,6 +713,18 @@ class DatastoreAcquirer:
 import re as _re
 
 _DATE_RE = _re.compile(r"(?<!\d)(\d{4})[-_]?(\d{2})(?!\d)")
+
+
+def _sanitize_add_library_customer(customer: dict) -> dict:
+    """add-library Customer DTO'nun tanimadigi profil alanlarini at (FAIL_ON_UNKNOWN).
+
+    Profil /api/payment-profile add-library'nin Customer'inda olmayan alanlar
+    (orn. surName) icerebilir -> 400. Bu alanlar gonderilmeden once cikarilir.
+    """
+    if not isinstance(customer, dict):
+        return customer
+    return {k: v for k, v in customer.items()
+            if k not in DATASTORE_ADD_LIBRARY_CUSTOMER_DROP_FIELDS}
 
 
 def _extract_date_from_name(name: str) -> date | None:
@@ -681,6 +765,37 @@ def _ddmmyyyy_to_epoch_ms(value) -> int | None:
         return int(d.replace(tzinfo=timezone.utc).timestamp() * 1000)
     except ValueError:
         return None
+
+
+def _basket_item(p: "DatastoreProduct") -> dict:
+    """DatastoreProduct -> /api/save-basket-items girdisi (Ember extractBasketItem).
+
+    KRITIK: createDate sunucuda epoch-ms beklenir (string DD-MM-YYYY -> HTTP 400
+    "malformed"). productDate/fileCreateDate de epoch-ms. save-basket-items 201
+    donerek paymentOrderId atar; bu orderId add-library'de gercek sahiplik saglar
+    (orderId=None ile add-library 204 doner ama kutuphaneye ESASEN eklemez).
+    """
+    r = p.raw
+    label = f"{p.data_date} - {p.type_name}" if p.data_date else p.type_name
+    return {
+        "id": None,
+        "period": r.get("period"),
+        "referenceId": p.reference_id,
+        "name": label,
+        "nameEn": label,
+        "type": 0,  # item-type-enum.productNumeric
+        "price": float(r.get("price") or 0.0),
+        "discountPrice": r.get("discountPrice"),
+        "productDate": _ddmmyyyy_to_epoch_ms(p.data_date),
+        "categoryCode": r.get("category", r.get("categoryCode")),
+        "groupCode": r.get("group", r.get("groupCode")),
+        "subcategoryCode": r.get("subcategory", r.get("subcategoryCode")),
+        "productTypeId": p.product_type_id,
+        "fileName": r.get("fileName", r.get("name")),
+        "fileSize": r.get("fileSize"),
+        "createDate": _ddmmyyyy_to_epoch_ms(r.get("createDate")),
+        "fileCreateDate": _ddmmyyyy_to_epoch_ms(r.get("fileCreateDate") or r.get("createDate")),
+    }
 
 
 def _payment_item(p: "DatastoreProduct") -> dict:

@@ -107,6 +107,7 @@ def _acquire_type(session, type_id: int, archive_root: str, since_date: date | N
         DatastoreAcquirer,
         DatastoreCatalog,
         DatastoreDownloader,
+        DatastoreProductTypeMismatchError,
     )
 
     subdir = resolve_subdir(archive_root, type_id)
@@ -120,8 +121,14 @@ def _acquire_type(session, type_id: int, archive_root: str, since_date: date | N
         if free:
             print(f"[arsiv] Tip {type_id}: {len(free)} ucretsiz dosya kutuphaneye ekleniyor...")
             acquirer = DatastoreAcquirer(session)
-            added = acquirer.add_free_to_library(free)
-            print(f"[arsiv] {added} dosya kutuphaneye eklendi (add-library 204).")
+            try:
+                added = acquirer.add_free_to_library(free)
+                print(f"[arsiv] {added} dosya kutuphaneye eklendi (basket-order + add-library 204).")
+            except DatastoreProductTypeMismatchError as exc:
+                print(f"[arsiv] UYARI: Tip {type_id} ATLANDI - {exc}")
+                print(f"[arsiv] Tip {type_id}: listeleme/sepet product-type ayrismasi; "
+                      f"bu tip mevcut akisla edinilemez. Diger tipler devam ediyor.")
+                return
         else:
             print(f"[arsiv] Tip {type_id}: eklenecek yeni ucretsiz dosya yok.")
 
