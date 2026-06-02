@@ -704,6 +704,38 @@ DATASTORE_CATALOG_PAGE_SIZE: int = 100      # /api/product-type/{id}/products sa
 DATASTORE_ADD_LIBRARY_BATCH_SIZE: int = 20  # add-library tek istekte urun sayisi (cart-size bug'ini yener)
 DATASTORE_SENDER_APP: str = "DataStore"     # add-library / payment senderApp alani
 
+# --- BIST DataStore Archive (D-199) ---
+# Fazli veri-edinme + arsiv. Ham payload gitignore; yalniz _manifest.json commit.
+DATASTORE_ARCHIVE_ROOT: str = "data/bist_datastore_archive"
+DATASTORE_ARCHIVE_MANIFEST: str = "_manifest.json"
+DATASTORE_PRODUCT_PRICES_DAILY: int = 3196        # PP_GUNSONUFIYATHACIM.M.* gunluk EOD CSV
+DATASTORE_PRODUCT_INDEX_COMPONENTS: int = 3184    # exsrk{YYYY}.zip yillik endeks bilesimi
+DATASTORE_PRODUCT_DIVIDENDS: int = 100462         # temettu
+DATASTORE_PRODUCT_PRICES_WEEKLY: int = 3156       # PP_HAFTALIKOZET.W.* haftalik ozet
+DATASTORE_PRODUCT_FUND_RATIOS_A: int = 100464     # temel oranlar A
+DATASTORE_PRODUCT_FUND_RATIOS_B: int = 100465     # temel oranlar B
+DATASTORE_PRODUCT_VIOP: int = 3208                # VIOP
+DATASTORE_PRODUCT_CORP_ACTION_A: int = 100460     # sermaye artirim/ruchan A
+DATASTORE_PRODUCT_CORP_ACTION_B: int = 100461     # sermaye artirim/ruchan B
+DATASTORE_PRODUCT_CORP_ACTION_C: int = 100471     # sermaye artirim/ruchan C
+DATASTORE_ARCHIVE_LAYOUT: dict[int, str] = {
+    3153: "foreign_flow", 3196: "prices_official", 3184: "index_components",
+    100462: "dividends", 3156: "prices_weekly",
+    100464: "fundamental_ratios", 100465: "fundamental_ratios",
+    3155: "short_selling", 3208: "viop",
+    100460: "corporate_actions", 100461: "corporate_actions", 100471: "corporate_actions",
+}
+DATASTORE_ARCHIVE_FREQUENCY: dict[int, str] = {
+    3153: "monthly", 3196: "daily-packaged-monthly", 3184: "yearly",
+    100462: "event", 3156: "weekly", 100464: "quarterly", 100465: "quarterly",
+    3155: "daily", 3208: "daily", 100460: "event", 100461: "event", 100471: "event",
+}
+DATASTORE_PHASE_1: tuple[int, ...] = (3153, 3196, 3184)
+DATASTORE_PHASE_2: tuple[int, ...] = (100462, 3156, 100464, 100465)
+DATASTORE_PHASE_3: tuple[int, ...] = (3155, 3208, 100460, 100461, 100471)
+DATASTORE_SURVIVORSHIP_PROBE_TYPE: int = 3196
+DATASTORE_SURVIVORSHIP_KNOWN_DELISTED: tuple[str, ...] = ("KOZAA", "KOZAL", "IPEKE", "TRALT")
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
