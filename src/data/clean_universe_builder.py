@@ -190,6 +190,14 @@ def build_raw_price_panel(
     print(f"[clean-universe] 3196: {included} dosya okundu ({start_date}..{end_date})")
     panel = pd.concat(chunks, ignore_index=True)
     panel = panel[(panel["date"] >= start_date) & (panel["date"] <= end_date)]
+    # Drop non-trading / not-yet-listed rows (close<=0 or NaN): they are not real
+    # observations, corrupt daily-return factors, and would fail the D-185
+    # adjusted_close>0 check. NaN compares False, so this catches both.
+    before = len(panel)
+    panel = panel[panel["close"] > 0]
+    dropped = before - len(panel)
+    if dropped:
+        print(f"[clean-universe] close<=0/NaN satir atildi: {dropped}")
     return panel.reset_index(drop=True)
 
 

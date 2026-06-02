@@ -132,6 +132,22 @@ def test_parse_3196_bad_rows_discarded(tmp_path, capsys):
     assert "atildi" in out or len(df) == 1
 
 
+def test_build_raw_panel_drops_zero_close(tmp_path):
+    # Non-trading / not-yet-listed rows (close<=0) must be dropped so the panel never
+    # carries adjusted_close<=0 (D-185).
+    csv = _make_3196_csv([
+        {"date": "2020-01-02", "ticker": "AAA.E", "close": "0.00"},
+        {"date": "2020-01-03", "ticker": "AAA.E", "close": "10.00"},
+    ])
+    prices_dir = tmp_path / "prices_official"
+    prices_dir.mkdir()
+    (prices_dir / "PP_GUNSONUFIYATHACIM.M.202001.csv").write_text(csv, encoding="utf-8")
+    panel = build_raw_price_panel(prices_dir, date(2020, 1, 1), date(2020, 1, 31))
+    assert (panel["close"] > 0).all()
+    assert len(panel) == 1
+    assert panel["close"].iloc[0] == 10.0
+
+
 def test_parse_3196_too_few_columns_raises(tmp_path):
     bad_csv = "TR1;TR2;TR3\nEN1;EN2;EN3\n1;2;3"
     p = tmp_path / "PP_GUNSONUFIYATHACIM.M.202001.csv"
