@@ -703,6 +703,9 @@ DATASTORE_LIBRARY_PAGE_SIZE: int = 100      # /api/library sayfa boyutu (tum say
 DATASTORE_CATALOG_PAGE_SIZE: int = 100      # /api/product-type/{id}/products sayfa boyutu
 DATASTORE_ADD_LIBRARY_BATCH_SIZE: int = 20  # add-library tek istekte urun sayisi (cart-size bug'ini yener)
 DATASTORE_SENDER_APP: str = "DataStore"     # add-library / payment senderApp alani
+# add-library Customer DTO B2C-profil'in alt-kumesi; FAIL_ON_UNKNOWN ile bilinmeyen
+# alanlari 400 reddeder. Profil'den gelen ama add-library'nin tanimadigi alanlar atilir.
+DATASTORE_ADD_LIBRARY_CUSTOMER_DROP_FIELDS: tuple[str, ...] = ("surName",)
 
 # --- BIST DataStore Archive (D-199) ---
 # Fazli veri-edinme + arsiv. Ham payload gitignore; yalniz _manifest.json commit.
