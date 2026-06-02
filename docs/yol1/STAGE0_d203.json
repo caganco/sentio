@@ -1,0 +1,143 @@
+{
+  "directive": "D-203",
+  "title": "KESIN-TEST: value + EDGE-2 + 52wk-high on the D-202 clean universe (681 symbols) -- Stage 0 pre-registration",
+  "preregistered_date": "2026-06-02",
+  "config_module": "src/screening/d203_config.py",
+  "config_version": "d203-v1",
+  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE verdict is an overlay CANDIDATE at most (separate the project decision).",
+
+  "discipline_note": "Committed BEFORE any D-203 gate result is computed and BEFORE any result is seen. The engine (src/screening/d203_clean_universe_test.py) REFUSES to run unless this file exists. The 5-gate rule + the 3-way verdict are FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no window/lookback widening, no factor redefinition, no regime-boundary tuning). N<=3 candidates; MEASUREMENT-ONLY, composite-weight optimization FORBIDDEN (equal-weight rank average only). Snapshot content-hashes recorded below; the run reads these frozen offline snapshots and asserts the hashes match.",
+
+  "motivation": "Two junction-shared exploration labs (local build-homed, NOT committed) reached OPPOSITE conclusions. demo-edge (88 survivors, 30 tests): VALUE is a survivorship/small-cap MIRAGE; no factor beats a random basket; the only signal passing all tradeability gates is 52wk-high momentum, but it is a 2022-26 REGIME-TILT, not regime-invariant alpha. demo_smart_money: an EDGE-2 COMPOSITE (mom120 + hi52 + lowvol63, monthly top-15 EW) is the STRONGEST edge and (EDGE-6) 'widens to +12.9pp above EW on the full universe, survivorship-confirmed'. CRITICAL: EDGE-6 used the BROKEN D-200 universe (392 names, 291 complex-corp-action names wrongly excluded, rights/TERP unadjusted, daily returns clipped at +/-50%) -> its claim is INVALID. D-203 re-measures all three candidates on the CORRECTED D-202 681-symbol universe with ONE shared 5-gate methodology to resolve the contradiction.",
+
+  "honest_expectation": "demo-edge is the more careful lab; we EXPECT VALUE -> SERAP and 52wk-high -> REGIME-TILT to replicate on the clean universe, and we expect the EDGE-2 +12.9pp claim to SHRINK or collapse once the D-200 artifacts (wrong universe, +/-50% clip) are removed. A SERAP/REGIME-TILT verdict is a clean 'tried-and-refuted' archive result, not a failure.",
+
+  "basis": [
+    "demo-edge FINDINGS.md sec.7/sec.11 (VALUE = survivorship/small-cap mirage), sec.5 (selection-null), sec.27-28 (52wk-high regime tilt)",
+    "demo_smart_money REPORT_SMART.md EDGE-2 composite + EDGE-6 full-universe +12.9pp claim (D-200-broken; README_JUNCTION.md caveat)",
+    "D-202 DATA_STORE_LAYOUT.md (681 symbols x 1848 days, price content-hash fd207550..., mode yol-3-hybrid)",
+    "D-203 FAZ-0 universal fundamentals freeze (degoran archive, content-hash d72a6977..., 677/681 covered)",
+    "D-191 k2_factor_tilt armored-backtest infra (to_real, block_bootstrap_ci, fair null) reused READ-ONLY",
+    "D-187 frozen daily TUFE index (exposure_d187_tufe) reused READ-ONLY"
+  ],
+
+  "hypothesis": "On the corrected D-202 clean universe, a monthly-rebalanced top-15 equal-weight tilt for each candidate carries a REGIME-RESILIENT, liquidity-robust, after-cost NET excess over the honest delisted-inclusive EW_FULL benchmark -- positive on BOTH sides of the primary 2022-01 regime split. NULL/expectation: VALUE is a survivorship/small-cap mirage (SERAP); 52wk-high and the EDGE-2 composite are post-2022 regime tilts (REJIM-TILT), not regime-invariant edges.",
+
+  "what_this_is_NOT": "NOT an optimization (no weight tuning, no fraction sweep, fixed top-15). NOT a deployment decision (overlay CANDIDATE at most). NOT a re-use of the labs' broken survivor snapshots -- D-203 consumes the UNIVERSAL junctioned D-202 price panel + the degoran-sourced fundamentals freeze. The two regime splits and the two windows are two VIEWS of the same measurement -> NOT sweep variants, do NOT count against N<=3.",
+
+  "candidates_N_lock": {
+    "rule": "N<=3 candidates; the only candidates are the three the two labs disagree about.",
+    "value": "ADAY-A VALUE-ONLY: book-to-market bm=equity/mktval (=1/PBV) PRIMARY; earnings yield ey=net_profit/mktval E/P robustness. Higher = cheaper = long. Fundamentals lagged >=1 month (look-ahead safe).",
+    "edge2": "ADAY-B EDGE-2 COMPOSITE: equal-weight cross-sectional rank average of mom120 (120d momentum, skip recent 21d) + hi52 (52wk-high proximity) + lowvol63 (inverted 63d realized vol). The core contradiction.",
+    "hi52": "ADAY-C 52WK-HIGH ISOLATED: George-Hwang proximity-to-252d-high.",
+    "value_robustness": "ey (E/P) reported alongside bm; NOT a separate candidate."
+  },
+
+  "universe": {
+    "source": "data/clean_universe/adjusted_prices_2019_2026.parquet (D-202, junctioned single source)",
+    "n_symbols": 681, "n_days": 1848,
+    "survivorship": "survivorship-CLEAN (delisted KOZAA/IPEKE/KOZAL etc. present) -> EW_FULL benchmark is delisted-inclusive (honest bar), unlike the labs' survivor-only snapshots.",
+    "adjustment_mode": "yol-3-hybrid (D-185 safe; rights/TERP handled)"
+  },
+
+  "windows": {
+    "primary_common": {"start": "2019-07-01", "end": "2026-04-30",
+      "rationale": "degoran fundamentals + TUFE overlap; all THREE candidates compared apples-to-apples (the maintainer correction-2)."},
+    "extended": {"start": "2019-01-01", "end": "2026-04-30",
+      "applies_to": ["edge2", "hi52"],
+      "rationale": "price-only candidates ALSO reported on the longer window; the window difference is stated explicitly in the verdict."}
+  },
+
+  "rebalance": "monthly (last trading day of each calendar month) -> matches the demo_smart_money EDGE-2 monthly top-15 cadence (~82 month-ends on the common window).",
+
+  "factor_geometry_FROZEN": {
+    "mom120": {"lookback": 120, "skip": 21, "def": "close[d-21]/close[d-120]-1"},
+    "hi52": {"lookback": 252, "def": "close[d] / rolling-252d-max (proximity, higher=nearer high)"},
+    "lowvol63": {"window": 63, "def": "-std(daily returns, 63d) (inverted -> low vol = high rank)"},
+    "value_bm": "equity/mktval (=1/PBV), fundamentals month <= rebalance_month - 1 (publication lag)",
+    "value_ey": "net_profit/mktval (E/P)"
+  },
+
+  "benchmark_FROZEN": "EW_FULL = equal-weight per-period return of the ENTIRE eligible universe each month, delisted-inclusive (a name that delists mid-period contributes its partial compounded return). This is the honest bar; long-15 excess is measured geometrically over it.",
+
+  "return_cleaning_FROZEN": "daily simple returns clipped to +/-10% (D203_DAILY_RETURN_CLIP) -- NOT the broken D-200 +/-50% clip. Buy-and-hold equal-weight compounding within each month.",
+
+  "selection_FROZEN": {
+    "long": "fixed top-15 by score (D203_TOP_N=15); EW basket = min(15, pool).",
+    "short_leg": "fixed bottom-15 -> long-short spread nets out beta + survivorship.",
+    "no_fraction_sweep": "fixed N, not a tercile/quintile fraction -> no optimization path."
+  },
+
+  "regime_splits_FROZEN": {
+    "primary": "2022-01-01 (DECIDES Gate-3)",
+    "secondary": "2022-07-01 (robustness, reported)",
+    "rationale": "PRIMARY 2022-01-01 is a calendar-year boundary matching the directive language '2019-21 vs 2022-26'; TR inflation regime accelerated end-2021 into 2022 (NOT arbitrary). SECONDARY 2022-07-01 matches the demo-edge/demo_smart_money continuity and the TLREF-carry data start (the maintainer correction-1). A period is assigned to a side by its START date. Both splits + this rationale are written into the results JSON.",
+    "assignment": "period assigned by START date"
+  },
+
+  "cost_tax_FROZEN": {
+    "flat_per_turnover_bps": [20.0, 100.0],
+    "application": "cost_i = one_way_turnover_i * (bps/1e4); turnover = 0.5*sum|w_new-w_old| (EW). First entry charged as a full round trip (conservative).",
+    "tax": "BIST equities 0% capital gains; 15% dividend-withholding drag at 3% assumed yield (caveat in report). NOTE: flat 20/100bp, NOT the broker-tier model -- gates require a flat per-turnover cost."
+  },
+
+  "return_basis_FROZEN": {
+    "primary_gate": "TL-real (TUFE-deflated): real = (1+net)/(cpi1/cpi0)-1; cpi = exposure_d187_tufe.",
+    "ew_full_relative": "geometric excess of long-15 over EW_FULL ((1+long)/(1+ewfull)-1); CPI cancels so this equals the real excess.",
+    "long_short": "top15 - bottom15 net spread (reported; gates the SERAP mirage check).",
+    "xu100_proxy": "EW of bist100-flagged constituents (proxy; REPORTED, never a gate)."
+  },
+
+  "fair_null_FROZEN": {
+    "design": "at each rebalance draw the SAME 15 names uniformly without replacement from the SAME eligible pool; same dates/holding/tax, cost=0 -> randomizes ONLY name selection.",
+    "statistic": "full-window mean per-period net TL-real return",
+    "seed": 12345, "n_resamples": 2000,
+    "pass": "strategy real mean >= 95th percentile of the null (random_pctile >= 0.95)"
+  },
+
+  "significance_FROZEN": {
+    "newey_west": "HAC Bartlett SE of the mean of the EW_FULL-relative per-period series; lags=3 (monthly non-overlapping). gate2 = |mean/SE| >= 2.0.",
+    "block_bootstrap": "95% CI of the per-period series; block=1, n_boot=2000, seed=12345 (reused K2 knobs)."
+  },
+
+  "five_gates_FROZEN": {
+    "gate1_selection_null": "top-15 real return beats >= 95th pctile of matched random baskets (isolates selection skill).",
+    "gate2_newey_west": "HAC |t| >= 2.0 on the EW_FULL-relative series (selection excess, not market beta).",
+    "gate3_cross_regime": "EW_FULL-relative positive on BOTH sides of the PRIMARY 2022-01 split (single-side INSUFFICIENT). SECONDARY 2022-07 reported.",
+    "gate4_liquidity": "within the LIQUID value_tl tercile (trailing-63d median), the relative edge survives (>0) -> not a small-cap mirage.",
+    "gate5_after_cost": "EW_FULL-relative stays > 0 at BOTH 20bp AND 100bp per-turnover cost."
+  },
+
+  "verdict_rule_FROZEN_3way": {
+    "precedence": "SERAP (mirage) check first, then GERCEK-EDGE, then REJIM-TILT, then SERAP (eliminated fallthrough).",
+    "SERAP_mirage": "EW_FULL-relative mean <= 0 OR long-short mean < 0 OR liquidity collapse (edge only in the illiquid tercile, not the liquid one).",
+    "GERCEK_EDGE": "all 5 gates pass AND both regimes positive (gate-3 both_positive).",
+    "REJIM_TILT": "gates 1,2,4,5 pass but only the post-2022 regime is positive (gate-3 only_post_positive) -> regime tilt, not regime-invariant alpha.",
+    "SERAP_eliminated_fallthrough": "any candidate that is neither GERCEK-EDGE nor REJIM-TILT and is not flagged SERAP_mirage (i.e. fails >=1 gate while nominally positive -- typically the significance gate) is ELIMINATED and labeled SERAP with the failed-gate list. This fallthrough only WIDENS the eliminated bucket; it can never move a candidate toward GERCEK-EDGE, so it is not a relaxation.",
+    "no_post_hoc_relaxation": "the 5 gates and their thresholds are frozen; not loosened after seeing results."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19",
+              "n_symbols": 681, "n_days": 1848, "source": "D-202 yol-3-hybrid frozen panel"},
+    "fundamentals": {"file": "data/clean_universe/fundamentals_2019_2026.parquet",
+                     "content_hash_sha256_prefix": "d72a69774a1c9f03",
+                     "n_rows": 39736, "n_months": 81, "month_range": "2019-07..2026-04",
+                     "covered": "677/681", "source": "D-203 FAZ-0 degoran archive freeze",
+                     "missing_symbols": ["BMEKS", "DGZTE", "EKDMR", "ISKUR"]},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet",
+             "series": "TP.FG.J0", "note": "daily TUFE index (D-187 frozen offline)"}
+  },
+
+  "thresholds_reference": {
+    "gate_decision_constants": "src/signals/thresholds.py D203_* block (D203_GATE_NULL_PCTILE=0.95, D203_GATE_NW_T_MIN=2.0, D203_GATE_COST_LOW_BPS=20, D203_GATE_COST_HIGH_BPS=100, D203_DAILY_RETURN_CLIP=0.10, D203_LIQUIDITY_TERCILE=1/3, D203_TOP_N=15) -- single source per the CLAUDE.md tek-kaynak mandate + CLEAN_UNIVERSE_* precedent.",
+    "measurement_geometry": "src/screening/d203_config.py (lookbacks, regime splits, windows, snapshot hashes); re-exports the gate constants for a single engine import surface."
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_d203.json (this file)",
+    "docs/yol1/d203_results.json (after run: per candidate x window -> 5 gates + both regime splits + verdict)",
+    "docs/research/D-203-rapor.md (per-candidate verdict + contradiction resolution; window + split differences stated)"
+  ]
+}
