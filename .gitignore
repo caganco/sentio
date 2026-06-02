@@ -88,3 +88,6 @@ data/bist_datastore_archive/**/*.zip
 data/bist_datastore_archive/**/*.csv
 data/bist_datastore_archive/**/*.xls
 data/bist_datastore_archive/**/*.xlsx
+
+# D-200 clean universe: ham cikti gitignore, _meta.json commit edilir
+data/clean_universe/*.parquet
