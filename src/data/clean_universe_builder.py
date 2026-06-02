@@ -404,6 +404,82 @@ def compute_adjustment_factors(
     return bp_df, excluded
 
 
+def compute_price_implied_factors(
+    raw_panel: pd.DataFrame,
+    large_drop_threshold: float = 0.30,
+) -> tuple[pd.DataFrame, set[str], list[dict]]:
+    """Derive bedelsiz adjustment factors from col-14 CA codes only.
+
+    ONLY ca_code='01' triggers adjustment. Large drops without CA code are
+    flagged in unresolved_drops but NOT adjusted (D-185 protection: cannot
+    distinguish crash from split without authoritative CA marker).
+
+    ca_code in ('03','01&03','03&06') -> exclude symbol (bedelli, no TERP).
+
+    Returns: (breakpoints_df[symbol, date, adj_factor], excluded_symbols, unresolved_drops).
+    unresolved_drops: list of {symbol, date, daily_return} — CA-codeless large drops.
+    """
+    _BEDELLI_CODES = {"03", "01&03", "03&06"}
+    excluded: set[str] = set()
+    all_bp: list[dict] = []
+    unresolved_drops: list[dict] = []
+
+    for symbol, grp in raw_panel.groupby("symbol"):
+        grp = grp.sort_values("date").reset_index(drop=True)
+
+        bedelli_rows = grp[grp["ca_code"].isin(_BEDELLI_CODES)]
+        if not bedelli_rows.empty:
+            code = bedelli_rows.iloc[0]["ca_code"]
+            print(f"[clean-universe] {symbol}: bedelli ca_code={code!r} -> DISLANIR")
+            excluded.add(symbol)
+            continue
+
+        event_factors: list[tuple[date, float]] = []
+
+        for i in range(1, len(grp)):
+            prev_close = grp.iloc[i - 1]["close"]
+            curr_row = grp.iloc[i]
+            if prev_close is None or prev_close <= 0:
+                continue
+            curr_close = curr_row["close"]
+            if curr_close is None or curr_close <= 0:
+                continue
+            daily_return = float(curr_close) / float(prev_close)
+            ca = curr_row["ca_code"]
+
+            if ca == "01":
+                event_factors.append((curr_row["date"], daily_return))
+            elif (ca is None or ca == "") and daily_return < large_drop_threshold:
+                dt = curr_row["date"]
+                unresolved_drops.append({
+                    "symbol": symbol,
+                    "date": dt.isoformat() if hasattr(dt, "isoformat") else str(dt),
+                    "daily_return": round(daily_return, 6),
+                })
+
+        if not event_factors:
+            continue
+
+        dates = [d for d, _ in event_factors]
+        factors = [f for _, f in event_factors]
+        n = len(factors)
+
+        suffix = [1.0] * (n + 1)
+        for i in range(n - 1, -1, -1):
+            suffix[i] = factors[i] * suffix[i + 1]
+
+        all_bp.append({"symbol": symbol, "date": _EPOCH, "adj_factor": suffix[0]})
+        for i in range(n):
+            all_bp.append({"symbol": symbol, "date": dates[i], "adj_factor": suffix[i + 1]})
+
+    bp_df = (
+        pd.DataFrame(all_bp)
+        if all_bp
+        else pd.DataFrame(columns=["symbol", "date", "adj_factor"])
+    )
+    return bp_df, excluded, unresolved_drops
+
+
 def apply_back_adjustment(
     raw_panel: pd.DataFrame,
     adj_factors: pd.DataFrame,
@@ -548,9 +624,23 @@ def build_and_freeze_adjusted_panel(
             return existing_df, existing_meta
 
     raw_panel = build_raw_price_panel(prices_dir, start_date, end_date)
-    price_actions, dividends = parse_corp_actions(ca_dir)
 
-    adj_factors, excluded = compute_adjustment_factors(price_actions, raw_panel)
+    ca_files_present = ca_dir.exists() and any(ca_dir.iterdir())
+    unresolved_drops: list[dict] = []
+    if ca_files_present:
+        price_actions, dividends = parse_corp_actions(ca_dir)
+        adj_factors, excluded = compute_adjustment_factors(price_actions, raw_panel)
+        adjustment_mode = "yol-a-full"
+    else:
+        print("[clean-universe] CA dizini bos -> price-implied mod aktif (YOL-2, APPROXIMATE)")
+        adj_factors, excluded, unresolved_drops = compute_price_implied_factors(raw_panel)
+        dividends = pd.DataFrame(columns=["ex_date", "symbol", "amount_per_share"])
+        adjustment_mode = "yol-2-price-implied-APPROXIMATE"
+        if unresolved_drops:
+            syms = sorted({d["symbol"] for d in unresolved_drops})
+            print(f"[clean-universe] CA-kodsuz buyuk dusus FLAG ({len(unresolved_drops)} olay, "
+                  f"{len(syms)} sembol): {syms[:5]}{'...' if len(syms) > 5 else ''}")
+
     if excluded:
         print(f"[clean-universe] DISLANAN semboller ({len(excluded)}): {sorted(excluded)}")
 
@@ -564,13 +654,13 @@ def build_and_freeze_adjusted_panel(
             on=["date", "symbol"], how="left",
         )
 
-    _run_d185_checks(adj_panel)
+    _run_d185_checks(adj_panel, unresolved_drops)
 
     adj_panel.to_parquet(prices_path, index=False)
     membership.to_parquet(membership_path, index=False)
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    meta = {
+    meta: dict = {
         "schema_version": 1,
         "directive": "D-200",
         "timestamp_utc": ts,
@@ -582,14 +672,22 @@ def build_and_freeze_adjusted_panel(
         "content_hash_membership": content_hash(membership),
         "excluded_symbols_count": len(excluded),
         "excluded_symbols": sorted(excluded),
+        "adjustment_mode": adjustment_mode,
     }
+    if adjustment_mode == "yol-2-price-implied-APPROXIMATE":
+        meta["adjustment_caveat"] = (
+            "CA-code-01-only bedelsiz; no price-threshold fallback; no bedelli TERP; no TR. "
+            "Preliminary indicator -- NOT exact. Replace with YOL-A when corp-action data available."
+        )
+        meta["unresolved_drops_count"] = len(unresolved_drops)
+        meta["unresolved_drops"] = unresolved_drops
     meta_path.write_text(json.dumps(meta, ensure_ascii=True, indent=2), encoding="utf-8")
     print(f"[clean-universe] Meta -> {meta_path}")
     return adj_panel, meta
 
 
-def _run_d185_checks(adj_panel: pd.DataFrame) -> None:
-    """D-185 validation: survivorship, BIST100 count, zero-price."""
+def _run_d185_checks(adj_panel: pd.DataFrame, unresolved_drops: list[dict] | None = None) -> None:
+    """D-185 validation: survivorship, BIST100 count, zero-price, unresolved drops."""
     syms = set(adj_panel["symbol"].unique())
     for s in ("KOZAA", "IPEKE"):
         if s in syms:
@@ -610,3 +708,8 @@ def _run_d185_checks(adj_panel: pd.DataFrame) -> None:
             print(f"[clean-universe] D185-UYARI: {out_of_range} gunde BIST100 uye sayisi 80-120 disinda")
         else:
             print(f"[clean-universe] D185-OK: BIST100 uye sayisi tutarli (80-120 araliginda)")
+
+    if unresolved_drops:
+        ur_syms = sorted({d["symbol"] for d in unresolved_drops})
+        print(f"[clean-universe] D185-INFO: {len(unresolved_drops)} CA-kodsuz buyuk dusus "
+              f"({len(ur_syms)} sembol) duzeltilmedi -> unresolved_drops: {ur_syms}")
