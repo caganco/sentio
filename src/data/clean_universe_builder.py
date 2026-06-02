@@ -120,11 +120,10 @@ def parse_3196_monthly(path: Path) -> pd.DataFrame:
             if d is None:
                 bad += 1
                 continue
-            sym = str(row["symbol"]).strip()
-            for suf in (".E", ".F", ".C", ".D"):
-                if sym.endswith(suf):
-                    sym = sym[: -len(suf)]
-                    break
+            sym_raw = str(row["symbol"]).strip()
+            if not sym_raw.endswith(".E"):
+                continue  # only equities; skip warrants (.V), bonds, sukuk, etc.
+            sym = sym_raw[:-2]
             close = _to_float(row["close"])
             if close is None:
                 bad += 1

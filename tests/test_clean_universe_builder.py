@@ -88,15 +88,16 @@ def test_parse_3196_minimal(tmp_path):
     assert df[df["symbol"] == "GARAN"]["bist30"].iloc[0] == 1
 
 
-def test_parse_3196_ticker_suffix_stripped(tmp_path):
+def test_parse_3196_equity_filter(tmp_path):
     csv_content = _make_3196_csv([
         {"date": "2020-03-01", "ticker": "KOZAA.E", "close": "3.52"},
         {"date": "2020-03-01", "ticker": "THYAO.F", "close": "12.00"},
+        {"date": "2020-03-01", "ticker": "AAPL.V", "close": "5.00"},
     ])
     p = tmp_path / "PP_GUNSONUFIYATHACIM.M.202003.csv"
     p.write_text(csv_content, encoding="utf-8")
     df = parse_3196_monthly(p)
-    assert set(df["symbol"]) == {"KOZAA", "THYAO"}
+    assert set(df["symbol"]) == {"KOZAA"}  # only .E equities kept; .F and .V excluded
 
 
 def test_parse_3196_bad_rows_discarded(tmp_path, capsys):
