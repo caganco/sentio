@@ -1,0 +1,582 @@
+{
+  "directive": "D-203",
+  "phase": "FAZ-1 5-gate clean-universe measurement",
+  "config_version": "d203-v1",
+  "timestamp_utc": "2026-06-02T15:54:06Z",
+  "price_content_hash": "fd207550da312b19",
+  "fund_content_hash": "d72a69774a1c9f03",
+  "regime_splits": [
+    "2022-01-01",
+    "2022-07-01"
+  ],
+  "regime_primary": "2022-01-01",
+  "windows": {
+    "common": [
+      "2019-07-01",
+      "2026-04-30"
+    ],
+    "extended": [
+      "2019-01-01",
+      "2026-04-30"
+    ]
+  },
+  "benchmark": "EW_FULL (delisted-inclusive equal-weight of full eligible universe)",
+  "results": {
+    "value": {
+      "label": "ADAY-A VALUE-ONLY (bm=1/PBV primary, ey=E/P robustness)",
+      "windows": {
+        "common": {
+          "candidate": "value",
+          "value_kind": null,
+          "n_periods": 81,
+          "long_real": {
+            "n": 80,
+            "mean": 0.026297,
+            "ci95_low": 0.000672,
+            "ci95_high": 0.052806,
+            "ci_excludes_zero": true
+          },
+          "ew_full_relative": {
+            "n": 80,
+            "mean": 0.005325,
+            "ci95_low": -0.009088,
+            "ci95_high": 0.019382,
+            "ci_excludes_zero": false
+          },
+          "long_short": {
+            "n": 80,
+            "mean": 0.007749,
+            "ci95_low": -0.015726,
+            "ci95_high": 0.02967,
+            "ci_excludes_zero": false
+          },
+          "max_drawdown": -0.333009,
+          "gate1_selection_null": {
+            "pass": true,
+            "n_resamples": 2000,
+            "random_pctile": 0.964,
+            "beats_fair_null": true,
+            "null_p95": 0.025749,
+            "strategy_real_mean": 0.026297
+          },
+          "gate2_newey_west": {
+            "pass": false,
+            "hac_t": 0.7628,
+            "t_min": 2.0
+          },
+          "gate3_cross_regime": {
+            "pass": true,
+            "primary": {
+              "split": "2022-01-01",
+              "pre_mean": 0.001015,
+              "post_mean": 0.007776,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": true,
+              "only_post_positive": false
+            },
+            "secondary": {
+              "split": "2022-07-01",
+              "pre_mean": 0.005312,
+              "post_mean": 0.005336,
+              "pre_n": 35,
+              "post_n": 45,
+              "both_positive": true,
+              "only_post_positive": false
+            }
+          },
+          "gate4_liquidity": {
+            "pass": true,
+            "liquid_rel_mean": 0.000523,
+            "illiquid_rel_mean": 0.013635,
+            "liquidity_collapse": false
+          },
+          "gate5_after_cost": {
+            "pass": true,
+            "low_20bp": {
+              "bps": 20.0,
+              "rel_ew_mean": 0.004972,
+              "positive": true
+            },
+            "high_100bp": {
+              "bps": 100.0,
+              "rel_ew_mean": 0.00356,
+              "positive": true
+            }
+          },
+          "verdict": {
+            "verdict": "SERAP",
+            "reasons": [
+              "gates_failed:gate2"
+            ]
+          },
+          "window": {
+            "name": "common",
+            "start": "2019-07-01",
+            "end": "2026-04-30"
+          }
+        }
+      },
+      "robustness_ep": {
+        "candidate": "value",
+        "value_kind": "ey",
+        "n_periods": 81,
+        "long_real": {
+          "n": 80,
+          "mean": 0.026869,
+          "ci95_low": 0.0023,
+          "ci95_high": 0.050798,
+          "ci_excludes_zero": true
+        },
+        "ew_full_relative": {
+          "n": 80,
+          "mean": 0.005907,
+          "ci95_low": -0.005375,
+          "ci95_high": 0.016298,
+          "ci_excludes_zero": false
+        },
+        "long_short": {
+          "n": 80,
+          "mean": 0.00134,
+          "ci95_low": -0.020272,
+          "ci95_high": 0.021429,
+          "ci_excludes_zero": false
+        },
+        "max_drawdown": -0.336321,
+        "gate1_selection_null": {
+          "pass": true,
+          "n_resamples": 2000,
+          "random_pctile": 0.9805,
+          "beats_fair_null": true,
+          "null_p95": 0.0249,
+          "strategy_real_mean": 0.026869
+        },
+        "gate2_newey_west": {
+          "pass": false,
+          "hac_t": 1.060625,
+          "t_min": 2.0
+        },
+        "gate3_cross_regime": {
+          "pass": true,
+          "primary": {
+            "split": "2022-01-01",
+            "pre_mean": 0.00552,
+            "post_mean": 0.006127,
+            "pre_n": 29,
+            "post_n": 51,
+            "both_positive": true,
+            "only_post_positive": false
+          },
+          "secondary": {
+            "split": "2022-07-01",
+            "pre_mean": 0.00676,
+            "post_mean": 0.005243,
+            "pre_n": 35,
+            "post_n": 45,
+            "both_positive": true,
+            "only_post_positive": false
+          }
+        },
+        "gate4_liquidity": {
+          "pass": true,
+          "liquid_rel_mean": 0.003563,
+          "illiquid_rel_mean": 0.011386,
+          "liquidity_collapse": false
+        },
+        "gate5_after_cost": {
+          "pass": true,
+          "low_20bp": {
+            "bps": 20.0,
+            "rel_ew_mean": 0.005546,
+            "positive": true
+          },
+          "high_100bp": {
+            "bps": 100.0,
+            "rel_ew_mean": 0.004104,
+            "positive": true
+          }
+        },
+        "verdict": {
+          "verdict": "SERAP",
+          "reasons": [
+            "gates_failed:gate2"
+          ]
+        }
+      }
+    },
+    "edge2": {
+      "label": "ADAY-B EDGE-2 COMPOSITE (mom120 + hi52 + lowvol63, equal-weight rank-avg)",
+      "windows": {
+        "common": {
+          "candidate": "edge2",
+          "value_kind": null,
+          "n_periods": 81,
+          "long_real": {
+            "n": 81,
+            "mean": 0.031405,
+            "ci95_low": 0.012487,
+            "ci95_high": 0.050614,
+            "ci_excludes_zero": true
+          },
+          "ew_full_relative": {
+            "n": 81,
+            "mean": 0.013077,
+            "ci95_low": 0.001185,
+            "ci95_high": 0.025163,
+            "ci_excludes_zero": true
+          },
+          "long_short": {
+            "n": 81,
+            "mean": 0.030838,
+            "ci95_low": 0.00913,
+            "ci95_high": 0.051977,
+            "ci_excludes_zero": true
+          },
+          "max_drawdown": -0.175616,
+          "gate1_selection_null": {
+            "pass": true,
+            "n_resamples": 2000,
+            "random_pctile": 0.999,
+            "beats_fair_null": true,
+            "null_p95": 0.024726,
+            "strategy_real_mean": 0.031405
+          },
+          "gate2_newey_west": {
+            "pass": true,
+            "hac_t": 2.29125,
+            "t_min": 2.0
+          },
+          "gate3_cross_regime": {
+            "pass": true,
+            "primary": {
+              "split": "2022-01-01",
+              "pre_mean": 0.017067,
+              "post_mean": 0.01073,
+              "pre_n": 30,
+              "post_n": 51,
+              "both_positive": true,
+              "only_post_positive": false
+            },
+            "secondary": {
+              "split": "2022-07-01",
+              "pre_mean": 0.020016,
+              "post_mean": 0.007526,
+              "pre_n": 36,
+              "post_n": 45,
+              "both_positive": true,
+              "only_post_positive": false
+            }
+          },
+          "gate4_liquidity": {
+            "pass": true,
+            "liquid_rel_mean": 0.005428,
+            "illiquid_rel_mean": 0.018292,
+            "liquidity_collapse": false
+          },
+          "gate5_after_cost": {
+            "pass": true,
+            "low_20bp": {
+              "bps": 20.0,
+              "rel_ew_mean": 0.012092,
+              "positive": true
+            },
+            "high_100bp": {
+              "bps": 100.0,
+              "rel_ew_mean": 0.008152,
+              "positive": true
+            }
+          },
+          "verdict": {
+            "verdict": "GERCEK-EDGE",
+            "reasons": [
+              "all_5_gates_pass_both_regimes_positive"
+            ]
+          },
+          "window": {
+            "name": "common",
+            "start": "2019-07-01",
+            "end": "2026-04-30"
+          }
+        },
+        "extended": {
+          "candidate": "edge2",
+          "value_kind": null,
+          "n_periods": 87,
+          "long_real": {
+            "n": 82,
+            "mean": 0.03167,
+            "ci95_low": 0.013153,
+            "ci95_high": 0.05115,
+            "ci_excludes_zero": true
+          },
+          "ew_full_relative": {
+            "n": 82,
+            "mean": 0.013119,
+            "ci95_low": 0.001472,
+            "ci95_high": 0.024469,
+            "ci_excludes_zero": true
+          },
+          "long_short": {
+            "n": 82,
+            "mean": 0.03085,
+            "ci95_low": 0.010332,
+            "ci95_high": 0.050633,
+            "ci_excludes_zero": true
+          },
+          "max_drawdown": -0.175616,
+          "gate1_selection_null": {
+            "pass": true,
+            "n_resamples": 2000,
+            "random_pctile": 1.0,
+            "beats_fair_null": true,
+            "null_p95": 0.025179,
+            "strategy_real_mean": 0.03167
+          },
+          "gate2_newey_west": {
+            "pass": true,
+            "hac_t": 2.329152,
+            "t_min": 2.0
+          },
+          "gate3_cross_regime": {
+            "pass": true,
+            "primary": {
+              "split": "2022-01-01",
+              "pre_mean": 0.017049,
+              "post_mean": 0.01073,
+              "pre_n": 31,
+              "post_n": 51,
+              "both_positive": true,
+              "only_post_positive": false
+            },
+            "secondary": {
+              "split": "2022-07-01",
+              "pre_mean": 0.019921,
+              "post_mean": 0.007526,
+              "pre_n": 37,
+              "post_n": 45,
+              "both_positive": true,
+              "only_post_positive": false
+            }
+          },
+          "gate4_liquidity": {
+            "pass": true,
+            "liquid_rel_mean": 0.0054,
+            "illiquid_rel_mean": 0.018427,
+            "liquidity_collapse": false
+          },
+          "gate5_after_cost": {
+            "pass": true,
+            "low_20bp": {
+              "bps": 20.0,
+              "rel_ew_mean": 0.012136,
+              "positive": true
+            },
+            "high_100bp": {
+              "bps": 100.0,
+              "rel_ew_mean": 0.008202,
+              "positive": true
+            }
+          },
+          "verdict": {
+            "verdict": "GERCEK-EDGE",
+            "reasons": [
+              "all_5_gates_pass_both_regimes_positive"
+            ]
+          },
+          "window": {
+            "name": "extended",
+            "start": "2019-01-01",
+            "end": "2026-04-30"
+          }
+        }
+      }
+    },
+    "hi52": {
+      "label": "ADAY-C 52WK-HIGH ISOLATED (George-Hwang proximity)",
+      "windows": {
+        "common": {
+          "candidate": "hi52",
+          "value_kind": null,
+          "n_periods": 81,
+          "long_real": {
+            "n": 81,
+            "mean": 0.045725,
+            "ci95_low": 0.022129,
+            "ci95_high": 0.072063,
+            "ci_excludes_zero": true
+          },
+          "ew_full_relative": {
+            "n": 81,
+            "mean": 0.025653,
+            "ci95_low": 0.01117,
+            "ci95_high": 0.040416,
+            "ci_excludes_zero": true
+          },
+          "long_short": {
+            "n": 81,
+            "mean": 0.051514,
+            "ci95_low": 0.031752,
+            "ci95_high": 0.071917,
+            "ci_excludes_zero": true
+          },
+          "max_drawdown": -0.253879,
+          "gate1_selection_null": {
+            "pass": true,
+            "n_resamples": 2000,
+            "random_pctile": 1.0,
+            "beats_fair_null": true,
+            "null_p95": 0.025953,
+            "strategy_real_mean": 0.045725
+          },
+          "gate2_newey_west": {
+            "pass": true,
+            "hac_t": 3.191811,
+            "t_min": 2.0
+          },
+          "gate3_cross_regime": {
+            "pass": true,
+            "primary": {
+              "split": "2022-01-01",
+              "pre_mean": 0.023881,
+              "post_mean": 0.026695,
+              "pre_n": 30,
+              "post_n": 51,
+              "both_positive": true,
+              "only_post_positive": false
+            },
+            "secondary": {
+              "split": "2022-07-01",
+              "pre_mean": 0.030744,
+              "post_mean": 0.02158,
+              "pre_n": 36,
+              "post_n": 45,
+              "both_positive": true,
+              "only_post_positive": false
+            }
+          },
+          "gate4_liquidity": {
+            "pass": true,
+            "liquid_rel_mean": 0.013489,
+            "illiquid_rel_mean": 0.017658,
+            "liquidity_collapse": false
+          },
+          "gate5_after_cost": {
+            "pass": true,
+            "low_20bp": {
+              "bps": 20.0,
+              "rel_ew_mean": 0.023955,
+              "positive": true
+            },
+            "high_100bp": {
+              "bps": 100.0,
+              "rel_ew_mean": 0.017163,
+              "positive": true
+            }
+          },
+          "verdict": {
+            "verdict": "GERCEK-EDGE",
+            "reasons": [
+              "all_5_gates_pass_both_regimes_positive"
+            ]
+          },
+          "window": {
+            "name": "common",
+            "start": "2019-07-01",
+            "end": "2026-04-30"
+          }
+        },
+        "extended": {
+          "candidate": "hi52",
+          "value_kind": null,
+          "n_periods": 87,
+          "long_real": {
+            "n": 87,
+            "mean": 0.042282,
+            "ci95_low": 0.019416,
+            "ci95_high": 0.06672,
+            "ci_excludes_zero": true
+          },
+          "ew_full_relative": {
+            "n": 87,
+            "mean": 0.023456,
+            "ci95_low": 0.010109,
+            "ci95_high": 0.037856,
+            "ci_excludes_zero": true
+          },
+          "long_short": {
+            "n": 87,
+            "mean": 0.047791,
+            "ci95_low": 0.027233,
+            "ci95_high": 0.067301,
+            "ci_excludes_zero": true
+          },
+          "max_drawdown": -0.253879,
+          "gate1_selection_null": {
+            "pass": true,
+            "n_resamples": 2000,
+            "random_pctile": 1.0,
+            "beats_fair_null": true,
+            "null_p95": 0.023865,
+            "strategy_real_mean": 0.042282
+          },
+          "gate2_newey_west": {
+            "pass": true,
+            "hac_t": 3.00476,
+            "t_min": 2.0
+          },
+          "gate3_cross_regime": {
+            "pass": true,
+            "primary": {
+              "split": "2022-01-01",
+              "pre_mean": 0.018868,
+              "post_mean": 0.026695,
+              "pre_n": 36,
+              "post_n": 51,
+              "both_positive": true,
+              "only_post_positive": false
+            },
+            "secondary": {
+              "split": "2022-07-01",
+              "pre_mean": 0.025466,
+              "post_mean": 0.02158,
+              "pre_n": 42,
+              "post_n": 45,
+              "both_positive": true,
+              "only_post_positive": false
+            }
+          },
+          "gate4_liquidity": {
+            "pass": true,
+            "liquid_rel_mean": 0.011926,
+            "illiquid_rel_mean": 0.017004,
+            "liquidity_collapse": false
+          },
+          "gate5_after_cost": {
+            "pass": true,
+            "low_20bp": {
+              "bps": 20.0,
+              "rel_ew_mean": 0.021749,
+              "positive": true
+            },
+            "high_100bp": {
+              "bps": 100.0,
+              "rel_ew_mean": 0.01492,
+              "positive": true
+            }
+          },
+          "verdict": {
+            "verdict": "GERCEK-EDGE",
+            "reasons": [
+              "all_5_gates_pass_both_regimes_positive"
+            ]
+          },
+          "window": {
+            "name": "extended",
+            "start": "2019-01-01",
+            "end": "2026-04-30"
+          }
+        }
+      }
+    }
+  }
+}
