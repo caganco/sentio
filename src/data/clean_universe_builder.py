@@ -9,8 +9,11 @@ from __future__ import annotations
 import hashlib
 import json
 import zipfile
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -19,6 +22,7 @@ from src.signals.thresholds import (
     CLEAN_UNIVERSE_DIVIDEND_WITHHOLDING,
     CLEAN_UNIVERSE_META,
     CLEAN_UNIVERSE_PIT_MEMBERSHIP,
+    CLEAN_UNIVERSE_SELF_VALIDATE_TOL,
     COL_3196_BIST100,
     COL_3196_BIST30,
     COL_3196_CA_CODE,
@@ -480,6 +484,343 @@ def compute_price_implied_factors(
     return bp_df, excluded, unresolved_drops
 
 
+# ===========================================================================
+# D-202: four-layer factor resolution (yfinance + col-14 + price-implied + KAP)
+# ===========================================================================
+
+def _suffix_breakpoints(symbol: str, event_factors: list[tuple[date, float]]) -> list[dict]:
+    """Per-symbol suffix-product breakpoint rows (shared by all factor layers).
+
+    adj_factor at data-row date t = product of all event factors whose ex_date > t.
+    Emits an _EPOCH sentinel row carrying the full product, then one row per event.
+    """
+    if not event_factors:
+        return []
+    event_factors = sorted(event_factors, key=lambda x: x[0])
+    dates = [d for d, _ in event_factors]
+    factors = [f for _, f in event_factors]
+    n = len(factors)
+    suffix = [1.0] * (n + 1)
+    for i in range(n - 1, -1, -1):
+        suffix[i] = factors[i] * suffix[i + 1]
+    bps = [{"symbol": symbol, "date": _EPOCH, "adj_factor": suffix[0]}]
+    for i in range(n):
+        bps.append({"symbol": symbol, "date": dates[i], "adj_factor": suffix[i + 1]})
+    return bps
+
+
+def _sorted_sym(raw_panel: pd.DataFrame, symbol: str) -> pd.DataFrame:
+    d = raw_panel[raw_panel["symbol"] == symbol][["date", "close"]].dropna(subset=["date"])
+    return d.sort_values("date").reset_index(drop=True)
+
+
+def _raw_jump(sym_df: pd.DataFrame, ca_date: date, window_days: int = 3) -> tuple[date | None, float | None]:
+    """Observed close[t]/close[t-1] at the 3196 trading date nearest ``ca_date``.
+
+    Snaps to the closest trading date within +/-``window_days`` (covers ex-date drift
+    between the yfinance/col-14 calendars and the 3196 panel). Returns
+    ``(snapped_trading_date, jump)``; jump is None when price is missing/non-positive
+    or the snapped date is the first row (no prior close).
+    """
+    if sym_df.empty:
+        return None, None
+    dates = list(sym_df["date"])
+    best_i: int | None = None
+    best_delta: int | None = None
+    for i, d in enumerate(dates):
+        delta = abs((d - ca_date).days)
+        if delta <= window_days and (best_delta is None or delta < best_delta):
+            best_delta, best_i = delta, i
+    if best_i is None or best_i == 0:
+        return None, None
+    cur = sym_df.loc[best_i, "close"]
+    prev = sym_df.loc[best_i - 1, "close"]
+    if cur is None or prev is None:
+        return dates[best_i], None
+    cur, prev = float(cur), float(prev)
+    if cur <= 0 or prev <= 0:
+        return dates[best_i], None
+    return dates[best_i], cur / prev
+
+
+def self_validate_price_implied(
+    symbol: str,
+    ex_date: date,
+    candidate_factor: float,
+    raw_panel: pd.DataFrame,
+    tol: float = CLEAN_UNIVERSE_SELF_VALIDATE_TOL,
+) -> bool:
+    """True iff ``candidate_factor`` matches the observed raw close jump at ``ex_date``.
+
+    Used to confirm an externally-sourced factor (e.g. yfinance ``1/R``) against the
+    3196 price move. Boundary is inclusive at ``tol`` (default 2%, see thresholds.py).
+    A pure price-implied candidate (candidate == raw jump) is self-consistent and passes.
+    """
+    sym_df = _sorted_sym(raw_panel, symbol)
+    _, jump = _raw_jump(sym_df, ex_date)
+    if jump is None or jump <= 0:
+        return False
+    # +epsilon so the boundary is genuinely inclusive at `tol` despite float rounding.
+    return abs(candidate_factor / jump - 1.0) <= tol + 1e-9
+
+
+def yf_splits_to_breakpoints(splits: pd.DataFrame, raw_panel: pd.DataFrame) -> pd.DataFrame:
+    """LAYER-1 standalone: yfinance splits -> back-adjust breakpoints.
+
+    Each split ratio ``R`` (R-for-1) becomes a back-adjust factor ``1/R``; the ex-date
+    is snapped to the nearest 3196 trading date. Returns ``[symbol, date, adj_factor]``.
+    """
+    if splits is None or splits.empty:
+        return pd.DataFrame(columns=["symbol", "date", "adj_factor"])
+    all_bp: list[dict] = []
+    for symbol, grp in splits.groupby("symbol"):
+        sym_df = _sorted_sym(raw_panel, symbol)
+        ev: list[tuple[date, float]] = []
+        for _, r in grp.iterrows():
+            R = float(r["ratio"])
+            if R <= 0:
+                continue
+            snapped, _ = _raw_jump(sym_df, r["date"])
+            if snapped is None:
+                continue
+            ev.append((snapped, 1.0 / R))
+        all_bp.extend(_suffix_breakpoints(str(symbol), ev))
+    return (
+        pd.DataFrame(all_bp)
+        if all_bp
+        else pd.DataFrame(columns=["symbol", "date", "adj_factor"])
+    )
+
+
+@dataclass
+class AdjResult:
+    """Outcome of :func:`resolve_adjustment_factors` (four-layer resolution)."""
+
+    breakpoints: pd.DataFrame
+    dividends: pd.DataFrame
+    excluded: set[str]
+    adjustment_source: dict[str, str]
+    adjustment_source_counts: dict[str, int]
+    self_validate_pass: int
+    self_validate_fail: int
+    residual_excluded: dict[str, str]
+    kap_call_count: int
+    unresolved_drops: list[dict] = field(default_factory=list)
+
+
+_CAPITAL_BEDELSIZ = "01"
+_CAPITAL_MIXED = "03"
+_DIVIDEND_CODE = "06"
+
+
+def _code_parts(ca_code: Any) -> set[str]:
+    if ca_code is None:
+        return set()
+    s = str(ca_code).strip()
+    if not s or s.lower() in ("nan", "none"):
+        return set()
+    return {p.strip() for p in s.split("&") if p.strip()}
+
+
+def _yf_ratio_at(splits: pd.DataFrame | None, ca_date: date, window_days: int = 3) -> float | None:
+    if splits is None or splits.empty:
+        return None
+    best: float | None = None
+    best_delta: int | None = None
+    for _, r in splits.iterrows():
+        delta = abs((r["date"] - ca_date).days)
+        if delta <= window_days and (best_delta is None or delta < best_delta):
+            best_delta, best = delta, float(r["ratio"])
+    return best
+
+
+def _kap_factor_from_records(records: list[dict]) -> tuple[float | None, str]:
+    """Map a KAP CA form to a back-adjust factor. Bedesiz (bonus) only is resolvable
+    price-free; bedelli (rights) needs a subscription price we do not reliably have.
+    """
+    for rec in records:
+        sub = str(rec.get("subProcessName") or "").upper()
+        bonus_pct = rec.get("internalResourcesBonusPercentage")
+        rights_pct = rec.get("preemtiveRightsPercentage")
+        if ("BDLSZ" in sub or bonus_pct) and bonus_pct:
+            try:
+                ratio = float(bonus_pct) / 100.0
+            except (TypeError, ValueError):
+                continue
+            if ratio > 0:
+                return 1.0 / (1.0 + ratio), "kap-bedelsiz"
+        if "BDL" in sub or rights_pct:
+            return None, "kap-bedelli-no-subprice"
+    return None, "kap-no-resolution"
+
+
+def resolve_adjustment_factors(
+    raw_panel: pd.DataFrame,
+    *,
+    splits_by_symbol: dict[str, pd.DataFrame] | None = None,
+    dividends_by_symbol: dict[str, pd.DataFrame] | None = None,
+    enable_kap: bool = False,
+    kap_fetch: Callable[[str, Any], list[dict]] | None = None,
+    kap_budget_limit: int = 40,
+    self_validate_tol: float = CLEAN_UNIVERSE_SELF_VALIDATE_TOL,
+    large_drop_threshold: float = 0.30,
+) -> AdjResult:
+    """Resolve back-adjust factors via L1 yfinance -> L2 col-14 join -> L3 price-implied
+    (self-validated) -> L4 KAP residual (opt-in, budgeted).
+
+    The price BACKBONE stays 3196 raw; only the FACTOR SOURCE changes here. Network is
+    injected (``splits_by_symbol`` / ``kap_fetch``) so this stays unit-testable offline.
+    """
+    splits_by_symbol = splits_by_symbol or {}
+    dividends_by_symbol = dividends_by_symbol or {}
+
+    from src.data.corp_action_sources import _BudgetExceeded, _CallBudget
+
+    budget = _CallBudget(limit=kap_budget_limit)
+
+    excluded: set[str] = set()
+    residual_excluded: dict[str, str] = {}
+    adjustment_source: dict[str, str] = {}
+    sv_pass = 0
+    sv_fail = 0
+    unresolved_drops: list[dict] = []
+    all_bp: list[dict] = []
+
+    for symbol, grp in raw_panel.groupby("symbol"):
+        symbol = str(symbol)
+        grp = grp.sort_values("date").reset_index(drop=True)
+        sym_df = grp[["date", "close"]].copy()
+        splits = splits_by_symbol.get(symbol)
+
+        event_factors: list[tuple[date, float]] = []
+        sym_sources: list[str] = []
+        drop_reason: str | None = None
+
+        # CA-codeless large-drop flagging (informational, mirrors D-185 telemetry).
+        for i in range(1, len(grp)):
+            prev_close = grp.loc[i - 1, "close"]
+            curr_close = grp.loc[i, "close"]
+            if prev_close in (None,) or curr_close in (None,):
+                continue
+            if float(prev_close) <= 0 or float(curr_close) <= 0:
+                continue
+            parts = _code_parts(grp.loc[i, "ca_code"])
+            if not parts and float(curr_close) / float(prev_close) < large_drop_threshold:
+                dt = grp.loc[i, "date"]
+                unresolved_drops.append({
+                    "symbol": symbol,
+                    "date": dt.isoformat() if hasattr(dt, "isoformat") else str(dt),
+                    "daily_return": round(float(curr_close) / float(prev_close), 6),
+                })
+
+        for _, row in grp.iterrows():
+            parts = _code_parts(row["ca_code"])
+            has_01 = _CAPITAL_BEDELSIZ in parts
+            has_03 = _CAPITAL_MIXED in parts
+            if not (has_01 or has_03):
+                continue  # dividend-only / no capital event -> no breakpoint
+            ca_date = row["date"]
+
+            factor: float | None = None
+            source: str | None = None
+
+            # --- L1/L2: yfinance split joined to the col-14 ex-date ---
+            R = _yf_ratio_at(splits, ca_date)
+            if R is not None and R > 0:
+                cand = 1.0 / R
+                if self_validate_price_implied(symbol, ca_date, cand, raw_panel, self_validate_tol):
+                    factor, source = cand, "yfinance"
+                    sv_pass += 1
+                else:
+                    sv_fail += 1
+
+            # --- L3: price-implied + self-validate ---
+            if factor is None:
+                snapped, jump = _raw_jump(sym_df, ca_date)
+                if jump is not None and jump > 0:
+                    if has_01 or jump < 1.0:
+                        # bedesiz '01' trusted unconditionally; pure-'03' requires a
+                        # genuine dilutive drop (KOZAL bedesiz-20x lands here).
+                        factor, source = jump, "price-implied"
+                        sv_pass += 1
+                    else:
+                        drop_reason = "true-bedelli-uncertain"
+                else:
+                    drop_reason = "no-price-at-event"
+
+            # --- L4: KAP residual (opt-in, hard budget) ---
+            if factor is None and drop_reason and enable_kap and kap_fetch is not None:
+                try:
+                    records = kap_fetch(symbol, budget)
+                    kfactor, kreason = _kap_factor_from_records(records)
+                    if kfactor is not None:
+                        factor, source = kfactor, "kap"
+                    else:
+                        drop_reason = kreason
+                except _BudgetExceeded:
+                    drop_reason = "kap-budget-exhausted"
+                except Exception:  # noqa: BLE001 - KAP failures must not abort the build
+                    drop_reason = "kap-fetch-error"
+
+            if factor is None:
+                excluded.add(symbol)
+                residual_excluded[symbol] = drop_reason or "unresolved"
+                event_factors = []
+                break
+
+            event_factors.append((ca_date, factor))
+            if source:
+                sym_sources.append(source)
+
+        if symbol in excluded:
+            continue
+
+        all_bp.extend(_suffix_breakpoints(symbol, event_factors))
+        if not sym_sources:
+            adjustment_source[symbol] = "none"
+        elif "kap" in sym_sources:
+            adjustment_source[symbol] = "kap"
+        elif all(s == "yfinance" for s in sym_sources):
+            adjustment_source[symbol] = "yfinance"
+        else:
+            adjustment_source[symbol] = "price-implied"
+
+    bp_df = (
+        pd.DataFrame(all_bp)
+        if all_bp
+        else pd.DataFrame(columns=["symbol", "date", "adj_factor"])
+    )
+
+    # Dividends frame (yfinance), restricted to non-excluded symbols.
+    div_frames = [
+        df for sym, df in dividends_by_symbol.items()
+        if sym not in excluded and df is not None and not df.empty
+    ]
+    if div_frames:
+        dividends = pd.concat(div_frames, ignore_index=True)[
+            ["ex_date", "symbol", "amount_per_share"]
+        ]
+    else:
+        dividends = pd.DataFrame(columns=["ex_date", "symbol", "amount_per_share"])
+
+    counts = {"yfinance": 0, "price-implied": 0, "kap": 0, "none": 0}
+    for src in adjustment_source.values():
+        counts[src] = counts.get(src, 0) + 1
+
+    return AdjResult(
+        breakpoints=bp_df,
+        dividends=dividends,
+        excluded=excluded,
+        adjustment_source=adjustment_source,
+        adjustment_source_counts=counts,
+        self_validate_pass=sv_pass,
+        self_validate_fail=sv_fail,
+        residual_excluded=residual_excluded,
+        kap_call_count=budget.count,
+        unresolved_drops=unresolved_drops,
+    )
+
+
 def apply_back_adjustment(
     raw_panel: pd.DataFrame,
     adj_factors: pd.DataFrame,
@@ -603,6 +944,9 @@ def build_and_freeze_adjusted_panel(
     start_date: date,
     end_date: date,
     force_rebuild: bool = False,
+    enable_kap: bool = False,
+    yf_fetch: Callable[[str], tuple[pd.DataFrame, pd.DataFrame]] | None = None,
+    kap_fetch: Callable[[str, Any], list[dict]] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """Idempotent: if meta hash matches existing parquet, loads and returns.
 
@@ -627,19 +971,60 @@ def build_and_freeze_adjusted_panel(
 
     ca_files_present = ca_dir.exists() and any(ca_dir.iterdir())
     unresolved_drops: list[dict] = []
+    adj_result: AdjResult | None = None
     if ca_files_present:
         price_actions, dividends = parse_corp_actions(ca_dir)
         adj_factors, excluded = compute_adjustment_factors(price_actions, raw_panel)
         adjustment_mode = "yol-a-full"
     else:
-        print("[clean-universe] CA dizini bos -> price-implied mod aktif (YOL-2, APPROXIMATE)")
-        adj_factors, excluded, unresolved_drops = compute_price_implied_factors(raw_panel)
-        dividends = pd.DataFrame(columns=["ex_date", "symbol", "amount_per_share"])
-        adjustment_mode = "yol-2-price-implied-APPROXIMATE"
-        if unresolved_drops:
-            syms = sorted({d["symbol"] for d in unresolved_drops})
-            print(f"[clean-universe] CA-kodsuz buyuk dusus FLAG ({len(unresolved_drops)} olay, "
-                  f"{len(syms)} sembol): {syms[:5]}{'...' if len(syms) > 5 else ''}")
+        print("[clean-universe] CA dizini bos -> YOL-3 hybrid mod (yfinance + col-14 + price-implied"
+              f"{' + KAP' if enable_kap else ''})")
+        if yf_fetch is None:
+            from src.data.corp_action_sources import fetch_yf_corp_actions as yf_fetch
+
+        symbols = sorted(raw_panel["symbol"].astype(str).unique())
+        splits_by_symbol: dict[str, pd.DataFrame] = {}
+        dividends_by_symbol: dict[str, pd.DataFrame] = {}
+        for sym in symbols:
+            s_df, d_df = yf_fetch(sym)
+            if s_df is not None and not s_df.empty:
+                splits_by_symbol[sym] = s_df
+            if d_df is not None and not d_df.empty:
+                dividends_by_symbol[sym] = d_df
+        print(f"[clean-universe] yfinance: {len(splits_by_symbol)} sembol split, "
+              f"{len(dividends_by_symbol)} sembol temettu")
+
+        if enable_kap and kap_fetch is None:
+            try:
+                from src.data.corp_action_sources import fetch_kap_ca_residual
+                from src.data.kap_historical_fetcher import _make_client, build_company_map
+                _client = _make_client()
+                _cmap = build_company_map()
+                if _client is not None and _cmap:
+                    def kap_fetch(sym, budget, _c=_client, _m=_cmap):  # noqa: ANN001
+                        return fetch_kap_ca_residual(sym, _c, _m, budget)
+                else:
+                    print("[clean-universe] KAP istemci/uye haritasi yok -> KAP layer pasif")
+            except Exception as exc:  # noqa: BLE001
+                print(f"[clean-universe] KAP layer kurulamadi -> pasif: {exc}")
+                kap_fetch = None
+
+        adj_result = resolve_adjustment_factors(
+            raw_panel,
+            splits_by_symbol=splits_by_symbol,
+            dividends_by_symbol=dividends_by_symbol,
+            enable_kap=enable_kap,
+            kap_fetch=kap_fetch,
+        )
+        adj_factors = adj_result.breakpoints
+        excluded = adj_result.excluded
+        dividends = adj_result.dividends
+        unresolved_drops = adj_result.unresolved_drops
+        adjustment_mode = "yol-3-hybrid"
+        print(f"[clean-universe] kaynak dagilimi: {adj_result.adjustment_source_counts}; "
+              f"self-validate pass/fail={adj_result.self_validate_pass}/{adj_result.self_validate_fail}; "
+              f"residual_excluded={len(adj_result.residual_excluded)}; "
+              f"kap_calls={adj_result.kap_call_count}")
 
     if excluded:
         print(f"[clean-universe] DISLANAN semboller ({len(excluded)}): {sorted(excluded)}")
@@ -662,7 +1047,7 @@ def build_and_freeze_adjusted_panel(
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     meta: dict = {
         "schema_version": 1,
-        "directive": "D-200",
+        "directive": "D-202",
         "timestamp_utc": ts,
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
@@ -674,11 +1059,20 @@ def build_and_freeze_adjusted_panel(
         "excluded_symbols": sorted(excluded),
         "adjustment_mode": adjustment_mode,
     }
-    if adjustment_mode == "yol-2-price-implied-APPROXIMATE":
-        meta["adjustment_caveat"] = (
-            "CA-code-01-only bedelsiz; no price-threshold fallback; no bedelli TERP; no TR. "
-            "Preliminary indicator -- NOT exact. Replace with YOL-A when corp-action data available."
+    if adjustment_mode == "yol-3-hybrid" and adj_result is not None:
+        meta["adjustment_source_counts"] = adj_result.adjustment_source_counts
+        meta["self_validate_pass"] = adj_result.self_validate_pass
+        meta["self_validate_fail"] = adj_result.self_validate_fail
+        meta["self_validate_tol"] = CLEAN_UNIVERSE_SELF_VALIDATE_TOL
+        meta["self_validate_tol_rationale"] = (
+            "Price-implied corp-action factor accepted when within this fraction of the raw "
+            "3196 close jump. 2% allows price-rounding + +/-1-day ex-date drift. FIXED "
+            "pre-Stage-0; not tuned post-hoc after seeing results."
         )
+        meta["residual_excluded"] = adj_result.residual_excluded
+        meta["residual_excluded_count"] = len(adj_result.residual_excluded)
+        meta["kap_call_count"] = adj_result.kap_call_count
+        meta["kap_enabled"] = enable_kap
         meta["unresolved_drops_count"] = len(unresolved_drops)
         meta["unresolved_drops"] = unresolved_drops
     meta_path.write_text(json.dumps(meta, ensure_ascii=True, indent=2), encoding="utf-8")

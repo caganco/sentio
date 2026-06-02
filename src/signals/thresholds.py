@@ -759,6 +759,13 @@ COL_3196_VALUE_TL: int = 28
 COL_3196_VOLUME: int = 29
 COL_3196_EXPECTED_COUNT: int = 52
 CLEAN_UNIVERSE_DIVIDEND_WITHHOLDING: float = 0.15
+# D-202 LAYER-3 self-validate tolerance: a price-implied corporate-action factor is
+# accepted when it matches the raw 3196 close jump within this fraction. Set to 2% to
+# allow for price-rounding on the official feed plus +/-1 trading-day ex-date drift
+# between yfinance/col-14 calendars and the 3196 panel. FIXED pre-Stage-0; this value is
+# NOT to be tuned post-hoc after seeing freeze results. Written (with rationale) into
+# _meta.json for auditability.
+CLEAN_UNIVERSE_SELF_VALIDATE_TOL: float = 0.02
 
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web

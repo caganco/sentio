@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 
 from src.data.clean_universe_builder import (
+    AdjResult,
     apply_back_adjustment,
     build_and_freeze_adjusted_panel,
     build_raw_price_panel,
@@ -21,12 +22,28 @@ from src.data.clean_universe_builder import (
     extract_pit_membership,
     parse_3196_monthly,
     parse_corp_actions,
+    resolve_adjustment_factors,
+    self_validate_price_implied,
+    yf_splits_to_breakpoints,
 )
+from src.data.corp_action_sources import _BudgetExceeded, _CallBudget, fetch_yf_corp_actions
 from src.signals.thresholds import (
     CLEAN_UNIVERSE_ROOT,
+    CLEAN_UNIVERSE_SELF_VALIDATE_TOL,
     CLEAN_UNIVERSE_START,
     COL_3196_EXPECTED_COUNT,
 )
+
+
+def _empty_yf_fetch(_ticker):
+    return (
+        pd.DataFrame(columns=["date", "symbol", "ratio"]),
+        pd.DataFrame(columns=["ex_date", "symbol", "amount_per_share"]),
+    )
+
+
+def _splits_df(symbol, ex_date, ratio):
+    return pd.DataFrame([{"date": ex_date, "symbol": symbol, "ratio": ratio}])
 
 
 # ---------------------------------------------------------------------------
@@ -432,7 +449,7 @@ def test_build_panel_creates_meta(tmp_path):
     )
     assert not panel.empty
     assert "schema_version" in meta
-    assert meta["directive"] == "D-200"
+    assert meta["directive"] == "D-202"
     assert "content_hash_prices" in meta
     assert "content_hash_membership" in meta
     assert (output_dir / "adjusted_prices_2019_2026.parquet").exists()
@@ -528,14 +545,19 @@ def test_price_implied_no_threshold_fallback():
     assert abs(unresolved[0]["daily_return"] - 3.52 / 40.0) < 1e-5
 
 
-def test_price_implied_excludes_bedelli():
+def test_resolve_code03_clean_drop_accepted_not_excluded():
+    # D-202 fix: code-03 with a clean dilutive jump is price-implied + self-validated,
+    # NOT blanket-excluded (the old YOL-2 bug that dropped 291 symbols).
     raw = _raw_panel_df([
         {"date": date(2020, 1, 1), "symbol": "BBB", "close": 10.0, "ca_code": None},
         {"date": date(2020, 1, 2), "symbol": "BBB", "close": 8.0, "ca_code": "03"},
     ])
-    bp, excl, unresolved = compute_price_implied_factors(raw)
-    assert "BBB" in excl
-    assert bp[bp["symbol"] == "BBB"].empty
+    result = resolve_adjustment_factors(raw)
+    assert "BBB" not in result.excluded
+    assert result.adjustment_source["BBB"] == "price-implied"
+    bbb = result.breakpoints[result.breakpoints["symbol"] == "BBB"]
+    epoch = bbb[bbb["date"] == date(1900, 1, 1)]
+    assert abs(float(epoch["adj_factor"].iloc[0]) - 0.8) < 1e-9
 
 
 def test_price_implied_ignores_dividend_marker():
@@ -580,15 +602,22 @@ def test_build_panel_uses_price_implied_when_ca_empty(tmp_path):
         {"date": "2019-01-02", "ticker": "AKBNK.E", "close": "10.50", "bist100": 1},
     ])
     (prices_dir / "PP_GUNSONUFIYATHACIM.M.201901.csv").write_text(csv, encoding="utf-8")
-    # ca_dir is empty
+    # ca_dir is empty -> YOL-3 hybrid; inject empty yf so no network is touched.
 
     _, meta = build_and_freeze_adjusted_panel(
         prices_dir=prices_dir, ca_dir=ca_dir, output_root=output_dir,
         start_date=date(2019, 1, 1), end_date=date(2019, 12, 31),
+        yf_fetch=_empty_yf_fetch,
     )
-    assert meta["adjustment_mode"] == "yol-2-price-implied-APPROXIMATE"
-    assert "adjustment_caveat" in meta
-    assert "unresolved_drops_count" in meta
+    assert meta["adjustment_mode"] == "yol-3-hybrid"
+    assert meta["directive"] == "D-202"
+    assert "adjustment_source_counts" in meta
+    assert "self_validate_pass" in meta and "self_validate_fail" in meta
+    assert meta["self_validate_tol"] == CLEAN_UNIVERSE_SELF_VALIDATE_TOL
+    assert "self_validate_tol_rationale" in meta
+    assert "residual_excluded" in meta
+    assert meta["kap_call_count"] == 0
+    assert meta["kap_enabled"] is False
     assert "unresolved_drops" in meta
 
 
@@ -629,3 +658,239 @@ def test_thresholds_clean_universe_constants():
     assert CLEAN_UNIVERSE_PRICE_TYPE == 3196
     assert 0 < CLEAN_UNIVERSE_DIVIDEND_WITHHOLDING < 1
     assert COL_3196_EXPECTED_COUNT == 52
+
+
+# ---------------------------------------------------------------------------
+# 10. D-202 four-layer factor resolution
+# ---------------------------------------------------------------------------
+
+def test_self_validate_tol_constant():
+    assert abs(CLEAN_UNIVERSE_SELF_VALIDATE_TOL - 0.02) < 1e-12
+
+
+def test_self_validate_accepts_within_tol():
+    raw = _raw_panel_df([
+        {"date": date(2024, 11, 26), "symbol": "EREGL", "close": 100.0},
+        {"date": date(2024, 11, 27), "symbol": "EREGL", "close": 50.0},
+    ])
+    # raw jump = 0.5; yfinance factor 1/2 = 0.5 -> exact match.
+    assert self_validate_price_implied("EREGL", date(2024, 11, 27), 0.5, raw) is True
+    # 2% off is inclusive at the boundary.
+    assert self_validate_price_implied("EREGL", date(2024, 11, 27), 0.51, raw) is True
+    # beyond 2% rejects.
+    assert self_validate_price_implied("EREGL", date(2024, 11, 27), 0.55, raw) is False
+
+
+def test_yf_splits_to_breakpoints_eregl_tuprs():
+    raw = _raw_panel_df([
+        {"date": date(2024, 11, 26), "symbol": "EREGL", "close": 100.0},
+        {"date": date(2024, 11, 27), "symbol": "EREGL", "close": 50.0},
+        {"date": date(2023, 4, 3), "symbol": "TUPRS", "close": 700.0},
+        {"date": date(2023, 4, 4), "symbol": "TUPRS", "close": 100.0},
+    ])
+    splits = pd.concat([
+        _splits_df("EREGL", date(2024, 11, 27), 2.0),
+        _splits_df("TUPRS", date(2023, 4, 4), 7.0),
+    ], ignore_index=True)
+    bp = yf_splits_to_breakpoints(splits, raw)
+    eregl_epoch = bp[(bp["symbol"] == "EREGL") & (bp["date"] == date(1900, 1, 1))]
+    assert abs(float(eregl_epoch["adj_factor"].iloc[0]) - 0.5) < 1e-9
+    tuprs_epoch = bp[(bp["symbol"] == "TUPRS") & (bp["date"] == date(1900, 1, 1))]
+    assert abs(float(tuprs_epoch["adj_factor"].iloc[0]) - 1.0 / 7.0) < 1e-9
+
+
+def test_resolve_eregl_tuprs_via_yfinance_source():
+    raw = _raw_panel_df([
+        {"date": date(2024, 11, 26), "symbol": "EREGL", "close": 100.0, "ca_code": None},
+        {"date": date(2024, 11, 27), "symbol": "EREGL", "close": 50.0, "ca_code": "03"},
+        {"date": date(2024, 11, 28), "symbol": "EREGL", "close": 51.0, "ca_code": None},
+        {"date": date(2023, 4, 3), "symbol": "TUPRS", "close": 700.0, "ca_code": None},
+        {"date": date(2023, 4, 4), "symbol": "TUPRS", "close": 100.0, "ca_code": "03"},
+        {"date": date(2023, 4, 5), "symbol": "TUPRS", "close": 101.0, "ca_code": None},
+    ])
+    splits_by_symbol = {
+        "EREGL": _splits_df("EREGL", date(2024, 11, 27), 2.0),
+        "TUPRS": _splits_df("TUPRS", date(2023, 4, 4), 7.0),
+    }
+    result = resolve_adjustment_factors(raw, splits_by_symbol=splits_by_symbol)
+    assert result.excluded == set()
+    assert result.adjustment_source["EREGL"] == "yfinance"
+    assert result.adjustment_source["TUPRS"] == "yfinance"
+    assert result.self_validate_pass == 2
+    assert result.self_validate_fail == 0
+    eregl = result.breakpoints[result.breakpoints["symbol"] == "EREGL"]
+    epoch = eregl[eregl["date"] == date(1900, 1, 1)]
+    assert abs(float(epoch["adj_factor"].iloc[0]) - 0.5) < 1e-9
+
+
+def test_resolve_kozal_bedesiz_20x_price_implied():
+    # KOZAL: code-03 but a bedesiz 20x bonus, delisted (no yfinance). L3 price-implied
+    # self-validates against the clean 525 -> 25 jump and must NOT be excluded.
+    raw = _raw_panel_df([
+        {"date": date(2021, 6, 1), "symbol": "KOZAL", "close": 525.0, "ca_code": None},
+        {"date": date(2021, 6, 2), "symbol": "KOZAL", "close": 25.0, "ca_code": "03"},
+        {"date": date(2021, 6, 3), "symbol": "KOZAL", "close": 26.0, "ca_code": None},
+    ])
+    result = resolve_adjustment_factors(raw)  # no yfinance -> falls to price-implied
+    assert "KOZAL" not in result.excluded
+    assert result.adjustment_source["KOZAL"] == "price-implied"
+    kozal = result.breakpoints[result.breakpoints["symbol"] == "KOZAL"]
+    epoch = kozal[kozal["date"] == date(1900, 1, 1)]
+    assert abs(float(epoch["adj_factor"].iloc[0]) - 25.0 / 525.0) < 1e-9
+
+
+def test_resolve_yf_mismatch_falls_through_to_price_implied():
+    # yfinance reports a split that does NOT match the raw jump -> self-validate fails,
+    # but the col-03 day still has a clean drop -> price-implied accepts it.
+    raw = _raw_panel_df([
+        {"date": date(2022, 1, 3), "symbol": "ZZZ", "close": 100.0, "ca_code": None},
+        {"date": date(2022, 1, 4), "symbol": "ZZZ", "close": 50.0, "ca_code": "03"},
+    ])
+    # bogus yfinance ratio 7.0 -> candidate 0.143, raw jump 0.5 -> mismatch.
+    result = resolve_adjustment_factors(
+        raw, splits_by_symbol={"ZZZ": _splits_df("ZZZ", date(2022, 1, 4), 7.0)}
+    )
+    assert "ZZZ" not in result.excluded
+    assert result.self_validate_fail == 1
+    assert result.adjustment_source["ZZZ"] == "price-implied"
+
+
+def test_resolve_no_clean_jump_excluded_with_reason():
+    # code-03 but price ROSE -> not a clean dilutive event -> flagged + excluded.
+    raw = _raw_panel_df([
+        {"date": date(2022, 5, 2), "symbol": "RGT", "close": 10.0, "ca_code": None},
+        {"date": date(2022, 5, 3), "symbol": "RGT", "close": 10.5, "ca_code": "03"},
+    ])
+    result = resolve_adjustment_factors(raw)
+    assert "RGT" in result.excluded
+    assert result.residual_excluded["RGT"] == "true-bedelli-uncertain"
+
+
+def test_resolve_kap_disabled_never_calls_fetch():
+    calls = []
+
+    def fake_kap(sym, budget):
+        calls.append(sym)
+        return []
+
+    raw = _raw_panel_df([
+        {"date": date(2022, 5, 2), "symbol": "RGT", "close": 10.0, "ca_code": None},
+        {"date": date(2022, 5, 3), "symbol": "RGT", "close": 10.5, "ca_code": "03"},
+    ])
+    result = resolve_adjustment_factors(raw, enable_kap=False, kap_fetch=fake_kap)
+    assert calls == []
+    assert result.kap_call_count == 0
+    assert "RGT" in result.excluded
+
+
+def test_resolve_kap_budget_aborts_at_limit():
+    def fake_kap(sym, budget):
+        budget.spend()
+        return []  # no resolution -> stays excluded
+
+    rows = []
+    for i in range(50):
+        sym = f"S{i:03d}"
+        rows.append({"date": date(2022, 1, 3), "symbol": sym, "close": 10.0, "ca_code": None})
+        rows.append({"date": date(2022, 1, 4), "symbol": sym, "close": 10.5, "ca_code": "03"})
+    raw = _raw_panel_df(rows)
+
+    result = resolve_adjustment_factors(
+        raw, enable_kap=True, kap_fetch=fake_kap, kap_budget_limit=40
+    )
+    assert result.kap_call_count == 40
+    reasons = set(result.residual_excluded.values())
+    assert "kap-budget-exhausted" in reasons
+
+
+def test_resolve_kap_bedesiz_resolution():
+    def fake_kap(sym, budget):
+        budget.spend()
+        return [{"subProcessName": "BDLSZ", "internalResourcesBonusPercentage": 2000}]
+
+    raw = _raw_panel_df([
+        {"date": date(2022, 5, 2), "symbol": "KAPB", "close": 10.0, "ca_code": None},
+        {"date": date(2022, 5, 3), "symbol": "KAPB", "close": 10.5, "ca_code": "03"},
+    ])
+    result = resolve_adjustment_factors(raw, enable_kap=True, kap_fetch=fake_kap)
+    assert "KAPB" not in result.excluded
+    assert result.adjustment_source["KAPB"] == "kap"
+    # 2000% bonus -> ratio 20 -> factor 1/21.
+    kapb = result.breakpoints[result.breakpoints["symbol"] == "KAPB"]
+    epoch = kapb[kapb["date"] == date(1900, 1, 1)]
+    assert abs(float(epoch["adj_factor"].iloc[0]) - 1.0 / 21.0) < 1e-9
+
+
+def test_resolve_dividend_only_no_breakpoint_no_exclusion():
+    raw = _raw_panel_df([
+        {"date": date(2022, 6, 1), "symbol": "DIV", "close": 10.0, "ca_code": None},
+        {"date": date(2022, 6, 2), "symbol": "DIV", "close": 9.8, "ca_code": "06"},
+    ])
+    result = resolve_adjustment_factors(raw)
+    assert "DIV" not in result.excluded
+    assert result.breakpoints[result.breakpoints["symbol"] == "DIV"].empty
+    assert result.adjustment_source["DIV"] == "none"
+
+
+def test_resolve_dividends_passed_through():
+    raw = _raw_panel_df([
+        {"date": date(2022, 6, 1), "symbol": "DVD", "close": 10.0, "ca_code": None},
+        {"date": date(2022, 6, 2), "symbol": "DVD", "close": 9.8, "ca_code": "06"},
+    ])
+    divs = {"DVD": pd.DataFrame([
+        {"ex_date": date(2022, 6, 2), "symbol": "DVD", "amount_per_share": 0.2},
+    ])}
+    result = resolve_adjustment_factors(raw, dividends_by_symbol=divs)
+    assert not result.dividends.empty
+    assert set(result.dividends.columns) == {"ex_date", "symbol", "amount_per_share"}
+
+
+def test_resolve_no_negative_adjusted_close():
+    raw = _raw_panel_df([
+        {"date": date(2024, 11, 26), "symbol": "EREGL", "close": 100.0, "vwap": 100.0, "ca_code": None},
+        {"date": date(2024, 11, 27), "symbol": "EREGL", "close": 50.0, "vwap": 50.0, "ca_code": "03"},
+    ])
+    result = resolve_adjustment_factors(
+        raw, splits_by_symbol={"EREGL": _splits_df("EREGL", date(2024, 11, 27), 2.0)}
+    )
+    adj = apply_back_adjustment(raw, result.breakpoints, result.excluded)
+    assert (adj["adjusted_close"] > 0).all()
+
+
+def test_resolve_bist100_member_recovered():
+    # A code-03 BIST100 member that the old YOL-2 would have dropped stays in the panel.
+    raw = _raw_panel_df([
+        {"date": date(2024, 11, 26), "symbol": "ASELS", "close": 100.0,
+         "bist100": 1, "ca_code": None},
+        {"date": date(2024, 11, 27), "symbol": "ASELS", "close": 50.0,
+         "bist100": 1, "ca_code": "03"},
+    ])
+    result = resolve_adjustment_factors(raw)
+    assert "ASELS" not in result.excluded
+    adj = apply_back_adjustment(raw, result.breakpoints, result.excluded)
+    assert "ASELS" in set(adj["symbol"])
+
+
+def test_fetch_yf_corp_actions_empty_on_exception(tmp_path, monkeypatch):
+    import sys
+    import types
+
+    import src.data.corp_action_sources as cas
+
+    monkeypatch.setattr(cas, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(cas._rl_yfinance, "wait", lambda: None)
+
+    fake_yf = types.ModuleType("yfinance")
+
+    class _BoomTicker:
+        def __init__(self, *_a, **_k):
+            raise RuntimeError("404 delisted")
+
+    fake_yf.Ticker = _BoomTicker
+    monkeypatch.setitem(sys.modules, "yfinance", fake_yf)
+
+    splits, dividends = cas.fetch_yf_corp_actions("DELISTED")
+    assert splits.empty
+    assert dividends.empty
+    assert list(splits.columns) == ["date", "symbol", "ratio"]
+    assert list(dividends.columns) == ["ex_date", "symbol", "amount_per_share"]
