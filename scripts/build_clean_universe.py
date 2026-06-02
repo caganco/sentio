@@ -42,6 +42,9 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Meta hash kontrolunu atla, her seferinde yeniden kur")
     p.add_argument("--verify-only", action="store_true",
                    help="Mevcut parquet'i dogrula, yeniden kurmadan")
+    p.add_argument("--enable-kap", action="store_true",
+                   help="D-202 LAYER-4: KAP residual cozumleme (opt-in, <=40 cagri butce, "
+                        "IP rate-limit). Varsayilan KAPALI.")
     return p
 
 
@@ -92,6 +95,7 @@ def main() -> None:
             start_date=start_date,
             end_date=end_date,
             force_rebuild=args.force_rebuild,
+            enable_kap=args.enable_kap,
         )
     except RuntimeError as exc:
         print(f"HATA: {exc}")
