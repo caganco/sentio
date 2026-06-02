@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "directive": "D-199",
+  "archive_root": "data/bist_datastore_archive",
+  "timestamp_utc": "2026-06-02T01:49:53Z",
+  "types": {
+    "3153": {
+      "subfolder": "foreign_flow",
+      "frequency": "monthly",
+      "coverage": {
+        "start": "2024-12-01",
+        "end": "2026-04-01",
+        "n_files": 17
+      },
+      "acquired_at": "2026-06-02T01:24:56Z",
+      "files": [
+        {
+          "filename": "yabanci202412.zip",
+          "data_date": "2024-12-01",
+          "content_hash": "5fc33d9feaba049cb3821ff55653f6173b6f12d47b14bbd9670d93d030225605",
+          "size_bytes": 65459,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202501.zip",
+          "data_date": "2025-01-01",
+          "content_hash": "448004c8c368a6059f069916d9d8dbda4f17c887004715fc9e8739712c35f032",
+          "size_bytes": 64064,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202502.zip",
+          "data_date": "2025-02-01",
+          "content_hash": "50093aeadbff444dc4f4d7addd5962f423bbc006439b7b0bb02ec521d2d87f65",
+          "size_bytes": 65779,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202503.zip",
+          "data_date": "2025-03-01",
+          "content_hash": "b43c4eaa250e6f5dc59ca5bc524d1be1ee081eb73ca0d8592073201843c2a1ca",
+          "size_bytes": 66193,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202504.zip",
+          "data_date": "2025-04-01",
+          "content_hash": "98c698d2d3bdf74d8ad40a35dca666cf4e0e4592e6c59347e006c6ecd18601c2",
+          "size_bytes": 65964,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202505.zip",
+          "data_date": "2025-05-01",
+          "content_hash": "a28c0d3b669f67ec5804c5258753ca76a3bc9f7dd17ebe573f2b96761539fe66",
+          "size_bytes": 66005,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202506.zip",
+          "data_date": "2025-06-01",
+          "content_hash": "56356699b7d07044972686ffc46a53f82d81f825d486852616cc43d666aa2030",
+          "size_bytes": 66173,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202507.zip",
+          "data_date": "2025-07-01",
+          "content_hash": "e1db314ff6d75b6c251ad62c4d77c4f8847f4bf392ea72f71e8a3c7382a7b965",
+          "size_bytes": 66601,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202508.zip",
+          "data_date": "2025-08-01",
+          "content_hash": "b327d6e770f46ae3332afd8f2798019c2300e45410bc88bb84592e81e051fcff",
+          "size_bytes": 65859,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202509.zip",
+          "data_date": "2025-09-01",
+          "content_hash": "48ee5f0b1c2e879420999b14330dfd3404bc51a55b6fea1bf515c97227642421",
+          "size_bytes": 65589,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202510.zip",
+          "data_date": "2025-10-01",
+          "content_hash": "307051ee53c22b9ff323df7ce769ceb21706895c82387c1a9b14d7d9157676ba",
+          "size_bytes": 65479,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202511.zip",
+          "data_date": "2025-11-01",
+          "content_hash": "2b19ad8c35f5b249c1db1eb25c43b4f05de99afde62db67f16d9a6b746bdee29",
+          "size_bytes": 65662,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202512.zip",
+          "data_date": "2025-12-01",
+          "content_hash": "a7239b0a1dd4ff1c9f8a5338454e1c56d63c52f062e99a54f76052899ab7e3f7",
+          "size_bytes": 65774,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202601.zip",
+          "data_date": "2026-01-01",
+          "content_hash": "eefd07f8bef05f1311dc6733d7061d90c6b29924ec42e024f2734331a767121b",
+          "size_bytes": 66619,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202602.zip",
+          "data_date": "2026-02-01",
+          "content_hash": "b0cb15b82c39f0adc64f41ece1b0aafc6bb4b88593d57d993db93840ce63f41e",
+          "size_bytes": 66915,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202603.zip",
+          "data_date": "2026-03-01",
+          "content_hash": "1c712825432ff8fae802d883d73d1aae5a560d0ae7f000480a93ce04381283f0",
+          "size_bytes": 67376,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "yabanci202604.zip",
+          "data_date": "2026-04-01",
+          "content_hash": "98e0419895b7e210c5e285524e3449a49b0c8bee27059ff08b07afd0343bb57e",
+          "size_bytes": 67534,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        }
+      ]
+    },
+    "3196": {
+      "subfolder": "prices_official",
+      "frequency": "daily-packaged-monthly",
+      "coverage": {
+        "start": "1988-01-01",
+        "end": "2026-05-01",
+        "n_files": 5
+      },
+      "acquired_at": "2026-06-02T01:49:53Z",
+      "files": [
+        {
+          "filename": "PP_GUNSONUFIYATHACIM.M.198801.zip",
+          "data_date": "1988-01-01",
+          "content_hash": "9a268371b504b59195dcf57844db8798e24b424097145c46916f15a943ea60d7",
+          "size_bytes": 25233,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "PP_GUNSONUFIYATHACIM.M.198802.zip",
+          "data_date": "1988-02-01",
+          "content_hash": "5e14e0a4267194ddc703e3f1924429d85c63e68fcd7061ac91b3781df86ec889",
+          "size_bytes": 24158,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "PP_GUNSONUFIYATHACIM.M.198803.zip",
+          "data_date": "1988-03-01",
+          "content_hash": "6d130dce32c906a2e37f205feb02fc804097e3438e7768fa8859a15c6850c416",
+          "size_bytes": 25609,
+          "integrity_ok": true,
+          "integrity_note": "zip ok"
+        },
+        {
+          "filename": "PP_GUNSONUFIYATHACIM.M.201702.csv",
+          "data_date": "2017-02-01",
+          "content_hash": "07fbcb9b358ab8fcff79fe232692551b0a6924a7f62176cd63ea4f686ce9aa23",
+          "size_bytes": 6471994,
+          "integrity_ok": true,
+          "integrity_note": "csv non-empty"
+        },
+        {
+          "filename": "PP_GUNSONUFIYATHACIM.M.202605.csv",
+          "data_date": "2026-05-01",
+          "content_hash": "5c3e722455b32ee13afb124f6cc34dbc605189727a72d16026fd037b4944ad92",
+          "size_bytes": 31965331,
+          "integrity_ok": true,
+          "integrity_note": "csv non-empty"
+        }
+      ],
+      "survivorship": {
+        "delisted_present": "EVET",
+        "probed_files": [
+          "PP_GUNSONUFIYATHACIM.M.201702.csv",
+          "PP_GUNSONUFIYATHACIM.M.202605.csv"
+        ],
+        "examples_found": [
+          "IPEKE",
+          "KOZAA",
+          "KOZAL",
+          "TRALT"
+        ],
+        "note": "light peek: known-delisted tokens searched in csv bytes"
+      }
+    },
+    "3184": {
+      "subfolder": "index_components",
+      "frequency": "yearly",
+      "coverage": {
+        "start": null,
+        "end": null,
+        "n_files": 0
+      },
+      "acquired_at": "2026-06-02T01:26:03Z",
+      "files": []
+    }
+  }
+}
