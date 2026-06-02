@@ -781,6 +781,45 @@ D203_DAILY_RETURN_CLIP: float = 0.10     # daily return cap +/-10% (NOT broken D
 D203_LIQUIDITY_TERCILE: float = 1.0 / 3.0  # gate-4: liquid/mid/illiquid tercile split
 D203_TOP_N: int = 15                     # fixed top-15 EW basket (no optimization path)
 
+# --- D-204 hi52 STRES-TEST decision/cost constants (single source per "tek kaynak") ---
+# D-203 found hi52 = GERCEK-EDGE (strongest). D-204 stress-tests deploy-readiness under
+# REALISTIC per-stock cost (vs D-203 flat 20/100bp). MEASUREMENT-ONLY: these are FROZEN
+# at Stage-0 and NOT tuned after seeing results. Cost MECHANICS live in
+# src/screening/realistic_cost.py; stress GEOMETRY in src/screening/d204_config.py.
+D204_LAMBDA_KYLE: float = 1.0            # Kyle impact coefficient -- FROZEN placeholder
+#   (ballast-documented value; XU030-calibrated ~1.4-1.6). Calibration = optimization =
+#   FORBIDDEN in D-204, so the ballast default 1.0 is frozen as-is.
+D204_ROLL_WINDOW: int = 21               # Roll(1984) serial-cov rolling window (trading days)
+D204_COMMISSION_PCT: float = 0.0         # Midas BIST equities = 0 commission (RR-015 Tier C)
+
+# RR-015 sec.3.1 empirical BIST liquidity-tier ONE-WAY half-spreads (fraction) + the TL-ADV
+# tier boundaries. Cross-check anchor for Roll (which can be noisy / floored to 0 on thin
+# names). Monotone mega < large < mid < micro. Half-spread midpoints of the RR-015 ranges:
+#   mega (KCHOL ~5B TL ADV, 0.05-0.08%) / large (TTKOM ~1B, 0.08-0.12%) /
+#   mid (AKSEN, 0.20-0.35%) / micro (ENERY ~150M, 0.30-0.50%).
+D204_TIER_MEGA_ADV_TL: float = 2_000_000_000.0
+D204_TIER_LARGE_ADV_TL: float = 500_000_000.0
+D204_TIER_MID_ADV_TL: float = 100_000_000.0
+D204_TIER_MEGA_HALF_SPREAD: float = 0.00065   # ~0.065%
+D204_TIER_LARGE_HALF_SPREAD: float = 0.0010   # ~0.10%
+D204_TIER_MID_HALF_SPREAD: float = 0.00275    # ~0.275%
+D204_TIER_MICRO_HALF_SPREAD: float = 0.0040   # ~0.40%
+
+# Deploy hurdle (EKLEME-B, the maintainer): NOT an arbitrary number. Project principle is
+# "real > max(TUFE, TLREF)". hi52 returns are already TUFE-deflated (real), so the hurdle
+# is the mean monthly REAL TLREF carry (deposit/repo real return) -- "does liquid-tercile
+# hi52 after realistic cost beat holding a TLREF deposit?". DERIVED + FROZEN from the
+# frozen TLREF return-index (exposure_d187_tlref) deflated by frozen TUFE over the
+# TLREF-available window 2022-07-01..2026-04-30 (TLREF index begins 2022-07; n=45 months):
+# mean monthly real carry = +0.000222. The engine RECOMPUTES this from the snapshots and
+# asserts it matches (reproducibility guard, like the price content-hash assert).
+D204_DEPLOY_MIN_LIQUID_NET: float = 0.000222  # +0.0222%/mo real (TLREF deposit hurdle)
+
+# Verdict safety margin: DEPLOY-ADAY requires the breakeven cost to be at least this
+# multiple of the REALIZED realistic cost (breakeven >> cost, not breakeven ~ cost).
+# Frozen at Stage-0 (the "breakeven >> gerceklci-maliyet" rule), not tuned post-hoc.
+D204_BREAKEVEN_SAFETY_MULT: float = 2.0
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;

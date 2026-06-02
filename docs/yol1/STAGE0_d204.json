@@ -1,0 +1,122 @@
+{
+  "directive": "D-204",
+  "title": "hi52 STRES-TEST: realistic-cost + vade + OOS + mechanism + liquidity-paradox -- Stage 0 pre-registration",
+  "preregistered_date": "2026-06-03",
+  "config_module": "src/screening/d204_config.py",
+  "config_version": "d204-v1",
+  "decision_owner": "the project. Harness MEASURES + RECOMMENDS deploy-readiness; does NOT finalize deployment. Even a DEPLOY-ADAY verdict is an overlay CANDIDATE at most (separate the project decision). Deployment is NEVER auto-triggered.",
+
+  "discipline_note": "Committed BEFORE any D-204 stress result is computed and BEFORE any result is seen. The engine (src/screening/d204_hi52_stress.py) REFUSES to run unless this file exists. The 5 stresses + the 3-way deploy verdict are FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no window/lookback widening, no factor redefinition, no cadence/breakeven cherry-picking, no lambda_kyle re-calibration). N=1 candidate (hi52 ISOLATED). MEASUREMENT-ONLY; cost-model calibration is FORBIDDEN (lambda_kyle FROZEN). The cadences (1/2/3-month) and the 0..400bp breakeven grid are reporting VIEWS of one measurement, NOT optimization variants -- no 'best' is selected. REUSES the D-203 frozen panel verbatim (same content hashes -> same universe, no re-measurement of data).",
+
+  "motivation": "D-203 found ADAY-C hi52 (52wk-high proximity) = GERCEK-EDGE, the strongest candidate (NW |t|=3.19, post>=pre on the primary 2022-01 split, 5/5 gates) -- the system's FIRST asterisk-free edge. But '5-gate-passed' != 'deployable'. D-203 left four caveats: (1) gate-5 used a FLAT 20/100bp per-turnover cost, not a realistic per-stock cost; (2) monthly cadence only; (3) one long high-inflation regime (2019-26), no regime-change OOS; (4) the mechanism is unexplained. EKLEME-3 added a fifth: the LIQUIDITY PARADOX -- in D-203 hi52 was illiquid(+1.77%) > liquid(+1.35%), the OPPOSITE of the literature (RR-043: liquid > illiquid). D-204 is the STRESS-TEST that closes the deploy gap, before-celebrating-verify discipline.",
+
+  "honest_expectation": "The realistic per-stock cost (Roll spread + Kyle impact) is the decisive stress. We EXPECT the breakeven cost to be the model-independent verdict. A 'GERCEK-fenomen ama tradeable-DEGIL' outcome (real edge, but the liquid-tercile after-cost net is ~0 or the edge is illiquid-concentrated where realistic cost bites hardest) is a CLEAN, VALUABLE result -- it would also RESOLVE the liquidity paradox in favor of the literature (the illiquid premium is a cost-mirage). A DEPLOY-ADAY verdict requires the liquid-tercile after-cost real net to clear the TLREF deposit hurdle with a breakeven >= 2x realistic cost.",
+
+  "basis": [
+    "D-203 results docs/yol1/d203_results.json (hi52 GERCEK-EDGE; NW t=3.19; gate-3 both-positive on 2022-01; gate-4 liquid +1.35% / illiquid +1.77%) + STAGE0_d203.json",
+    "RR-015 docs/research/RR-015-TRANSACTION-COST.md sec.3.1 (empirical BIST liquidity-tier half-spreads mega/large/mid/micro) + Tier C Midas 0% commission",
+    "RR-043 (literature: liquid > illiquid factor premium; the ordering D-203 reversed)",
+    "Roll (1984) JF 39(4) close-only effective spread; Abdi-Ranaldo (2017) RFS 30(12) OHLC analogue (UNAVAILABLE -- D-202 panel is close-only)",
+    "Kyle (1985) Econometrica 53(6) + Almgren et al. (2005) square-root impact; ballast transaction_cost_v2 (D-193, PORTED not imported)",
+    "D-187 frozen TUFE index (exposure_d187_tufe) + D-187 frozen TLREF return-index (exposure_d187_tlref) reused READ-ONLY"
+  ],
+
+  "hypothesis": "On the D-203 frozen clean universe, the hi52 ISOLATED top-15 EW tilt RETAINS a positive LIQUID-tercile EW_FULL-relative net edge AFTER a realistic per-stock round-trip cost (Roll spread + Kyle impact), with a breakeven flat cost comfortably above the realized realistic cost, at a holding period compatible with a few-weeks-to-months horizon. NULL/expectation: the realistic cost zeroes the liquid-tercile edge OR the edge is concentrated in the illiquid tercile (where realistic cost is largest) -> real-phenomenon-but-not-tradeable, and the liquidity paradox is a cost-mirage.",
+
+  "what_this_is_NOT": "NOT an optimization (lambda_kyle FROZEN, no cost calibration; cadences + breakeven grid are reporting VIEWS, no 'best' selected). NOT a deployment decision (overlay CANDIDATE at most). NOT a re-measurement of the data (reuses the D-203 frozen panel + content hashes verbatim). NOT a true regime-change OOS -- the walk-forward is honest IN-SAMPLE and the 2024-26 disinflation sub-window is only a WEAK proxy; the OOS gap is stated explicitly in EVERY verdict. NOT using yfinance OHLC (FORBIDDEN -- breaks the frozen snapshot + reopens delisted-404 survivorship) and NOT using pre-2019 acquisition (FORBIDDEN -- no corp-action -> dirty, D-185 risk).",
+
+  "candidate_N_lock": {
+    "rule": "N=1 (Yol-1 N<=3 OK). Single candidate.",
+    "hi52": "ADAY-C 52WK-HIGH ISOLATED (George-Hwang proximity-to-252d-high), the D-203 GERCEK-EDGE. Composite/value NOT re-tested (D-203 settled them)."
+  },
+
+  "universe_REUSE": {
+    "source": "REUSES the D-203 frozen D-202 panel verbatim -- SAME content hashes, no re-freeze.",
+    "n_symbols": 681, "n_days": 1848,
+    "price_content_hash_sha256_prefix": "fd207550da312b19",
+    "fund_content_hash_sha256_prefix": "d72a69774a1c9f03",
+    "note": "The engine asserts these hashes match on load (reproducibility guard); a mismatch RAISES."
+  },
+
+  "windows_REUSE": {
+    "common": {"start": "2019-07-01", "end": "2026-04-30", "primary": true},
+    "extended": {"start": "2019-01-01", "end": "2026-04-30"},
+    "note": "hi52 is price-only -> reported on BOTH windows (like D-203). Common window is primary for the verdict."
+  },
+
+  "factor_geometry_FROZEN_REUSE": {
+    "hi52": {"lookback": 252, "def": "close[d] / rolling-252d-max (proximity, higher=nearer high)"},
+    "mom120": {"lookback": 120, "skip": 21, "role": "STRES-4 factor-overlap proxy ONLY (is hi52 just momentum?), NOT a candidate"},
+    "top_n": 15, "rebalance_primary": "monthly last trading day (D-203-comparable)"
+  },
+
+  "five_stresses_FROZEN": {
+    "stres1_realistic_cost": "Per-stock round-trip = 2*(one_way_spread + one_way_impact) + commission(0). Spread = Roll (1984) close-only [2*sqrt(max(-cov(dp_t,dp_{t-1}),0))], with the RR-015 tier half-spread floor as a model-independent CROSS-CHECK (used when Roll is 0/undefined). Impact = Kyle (1985) square-root [lambda_kyle*sigma_daily*sqrt(order_value/adv)], lambda_kyle FROZEN. order_value = 300K-TL / top-15 = 20K/position; adv = trailing-63d value_tl. MAIN VERDICT = the model-independent BREAKEVEN flat round-trip bps that zeroes the EW_FULL-relative edge, reported with the realized realistic cost (flat-bps-equivalent) for both the Roll leg and the tier leg.",
+    "stres2_vade": "Per-name average holding period (run-length of consecutive holds -> months) + turnover distribution, and 1/2/3-month rebalance cadence VIEWS (longer cadence -> lower turnover -> lower cost; does the after-cost edge survive?). Compatibility with the few-weeks-to-months horizon.",
+    "stres3_oos": "Honest IN-SAMPLE walk-forward (train 2019-22 / holdout 2023-26, split 2023-01-01) + the 2024-26 disinflation sub-window as a WEAK regime-change proxy. The OOS GAP is mandatory in every verdict.",
+    "stres4_mechanism": "hi52-vs-mom120 top-15 basket overlap + long-short return correlation (is hi52 just momentum?) + concentration proxies (bist100-constituent fraction, top-mktval-tercile fraction; no formal sector data).",
+    "ekleme3_liquidity_paradox_H1": "hi52 edge decomposed by liquidity tercile (liquid/mid/illiquid), BEFORE and AFTER realistic cost (+ real after-cost). Tests whether the D-203 illiquid > liquid ordering (the RR-043 reversal) SURVIVES realistic cost (which hits illiquid names hardest). Serap (mikrocap-noise/cost-mirage) vs BIST-specific."
+  },
+
+  "ekleme_A_roll_zero_accounting_FROZEN": {
+    "rule": "per_stock_cost_panel reports n_evaluated, n_roll_zero, and roll_zero_frac = the fraction of (date,name) cells where Roll = 0 (serial cov >= 0 -> tier floor engaged), plus mean_round_trip_roll and mean_round_trip_tier.",
+    "why": "Roll (1984) is noisy/undefined on thin names and floors to 0 when the sample serial covariance is non-negative. Reporting the roll-zero share lets the verdict state how much of the realized cost is Roll-MEASURED vs tier-IMPUTED -- a transparency guard so the headline cost is not an artifact of the tier floor."
+  },
+
+  "ekleme_B_deploy_hurdle_FROZEN": {
+    "value": 0.000222,
+    "thresholds_constant": "D204_DEPLOY_MIN_LIQUID_NET",
+    "rule": "The DEPLOY hurdle for the liquid-tercile after-cost REAL monthly net is NOT an arbitrary number -- it is the mean monthly REAL TLREF deposit/repo carry (project principle 'real > max(TUFE, TLREF)'). Returns are already TUFE-deflated (real), so the hurdle is the real-TLREF-carry: monthly (TLREF_t1/TLREF_t0)/(TUFE_t1/TUFE_t0) - 1, averaged.",
+    "derivation_window": "TLREF return-index (exposure_d187_tlref) begins 2022-07-01, so the hurdle is computed on 2022-07..2026-04 (n=45 monthly carries). Stated explicitly.",
+    "reproducibility_guard": "The engine RECOMPUTES the hurdle from the frozen TLREF + TUFE snapshots and ASSERTS |recomputed - 0.000222| <= D204_DEPLOY_HURDLE_TOL (5e-6), else RAISES (drift guard, like the price-hash assert).",
+    "meaning": "Does the liquid-tercile hi52 beat a deposit/repo in real terms?"
+  },
+
+  "cost_constants_FROZEN": {
+    "thresholds_block": "src/signals/thresholds.py D204_* (single source per the CLAUDE.md tek-kaynak mandate)",
+    "lambda_kyle": 1.0, "lambda_kyle_note": "FROZEN (ballast default placeholder); calibration = optimization = FORBIDDEN in D-204",
+    "roll_window": 21, "adv_window": 63, "commission_pct": 0.0,
+    "tier_adv_boundaries_tl": {"mega": 2000000000.0, "large": 500000000.0, "mid": 100000000.0},
+    "tier_half_spreads": {"mega": 0.00065, "large": 0.0010, "mid": 0.00275, "micro": 0.0040},
+    "tier_source": "RR-015 sec.3.1 empirical BIST liquidity-tier half-spreads",
+    "breakeven_bps_grid": "0..400bp, 5bp steps (reporting VIEW)",
+    "breakeven_safety_mult": 2.0
+  },
+
+  "statistics_FROZEN_REUSE": {
+    "newey_west_lags": 3, "null_seed": 12345, "null_n_resamples": 2000,
+    "block_bootstrap": "block=1, n_boot=2000, seed=12345",
+    "note": "Reused verbatim from D-203/K2 so the measurement matches the KESIN-TEST exactly."
+  },
+
+  "verdict_rule_FROZEN_3way": {
+    "precedence": "GERCEK-ama-tradeable-DEGIL (eliminate) first, then KIRILGAN (fragile), then DEPLOY-ADAY.",
+    "GERCEK_ama_tradeable_DEGIL": "liquid-tercile after-cost REAL net <= 0 OR not-liquid-positive-after-cost OR breakeven < realistic cost OR breakeven uncomputable -> real-phenomenon-but-not-deployable (literature-consistent, VALUABLE result).",
+    "KIRILGAN": "breakeven < 2x realistic cost (breakeven ~ cost) OR liquid after-cost real net < the TLREF deposit hurdle OR the edge is illiquid-tercile-concentrated after cost (illiquid_still_dominates_after_cost).",
+    "DEPLOY_ADAY": "liquid-tercile after-cost real net >= the TLREF deposit hurdle AND breakeven >= 2x realistic cost AND NOT illiquid-concentrated.",
+    "oos_gap_MANDATORY": "Every verdict (all three branches) attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the disinflation 2024-26 window is only a weak proxy; pre-2019 acquisition was rejected. Deployment is a separate the project decision.",
+    "no_post_hoc_relaxation": "the stresses, the hurdle, and the 2x safety multiple are frozen; not loosened after seeing results."
+  },
+
+  "thresholds_reference": {
+    "decision_constants": "src/signals/thresholds.py D204_* block (D204_LAMBDA_KYLE, D204_ROLL_WINDOW, D204_COMMISSION_PCT, D204_TIER_* boundaries/half-spreads, D204_DEPLOY_MIN_LIQUID_NET=0.000222, D204_BREAKEVEN_SAFETY_MULT=2.0).",
+    "measurement_geometry": "src/screening/d204_config.py (cadences, order-value/ADV windows, walk-forward split, disinflation window, breakeven grid, snapshot hashes reused from d203_config); re-exports the decision constants for a single engine import surface.",
+    "cost_mechanics": "src/screening/realistic_cost.py (Roll/Kyle/tier/round-trip; PORTED from ballast, NOT imported)."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19", "source": "D-202 (reused from D-203)"},
+    "fundamentals": {"file": "data/clean_universe/fundamentals_2019_2026.parquet",
+                     "content_hash_sha256_prefix": "d72a69774a1c9f03", "source": "D-203 FAZ-0 (reused)"},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet", "note": "daily TUFE index (D-187 frozen)"},
+    "tlref": {"file": "data/snapshots/exposure_d187_tlref.parquet",
+              "note": "daily TLREF return-index (D-187 frozen); first valid 2022-07 -> hurdle window 2022-07..2026-04"}
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_d204.json (this file)",
+    "docs/yol1/d204_results.json (after run: 5 stresses + 1/2/3-month cadences + walk-forward + liquidity-paradox decomposition + verdict)",
+    "docs/research/D-204-rapor.md (deploy-edilebilir-mi honest verdict; three cost numbers Roll/tier/breakeven; liquidity-paradox explanation; OOS-gap explicit)"
+  ]
+}
