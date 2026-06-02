@@ -508,12 +508,19 @@ class TestDatastoreAcquirer:
         s = DatastoreSession(_make_session_json(tmp_path))
         return DatastoreAcquirer(s, rate_limit_sec=0.0, batch_size=batch_size)
 
+    def _basket_resp(self):
+        r = MagicMock(); r.status_code = 201; r.ok = True
+        r.json.return_value = [{"paymentOrderId": "ORD-TEST-1"}]
+        return r
+
     def test_add_free_success_204(self, tmp_path, monkeypatch):
         acq = self._setup(tmp_path)
-        post_calls = []
+        add_calls = []
 
         def _post(url, json=None, timeout=None):
-            post_calls.append(json)
+            if url.endswith("/api/save-basket-items"):
+                return self._basket_resp()
+            add_calls.append(json)
             r = MagicMock(); r.status_code = 204; r.ok = True
             return r
 
@@ -522,8 +529,9 @@ class TestDatastoreAcquirer:
 
         added = acq.add_free_to_library(self._make_products(3))
         assert added == 3
-        assert len(post_calls) == 1
-        payload = post_calls[0]
+        assert len(add_calls) == 1
+        payload = add_calls[0]
+        assert payload["orderId"] == "ORD-TEST-1"
         assert payload["vPosInfo"] is None
         assert payload["senderApp"] == "DataStore"
         assert payload["customer"]["userProfileId"] == 42
@@ -532,10 +540,12 @@ class TestDatastoreAcquirer:
 
     def test_batching_splits_requests(self, tmp_path, monkeypatch):
         acq = self._setup(tmp_path, batch_size=2)
-        post_calls = []
+        add_calls = []
 
         def _post(url, json=None, timeout=None):
-            post_calls.append(json)
+            if url.endswith("/api/save-basket-items"):
+                return self._basket_resp()
+            add_calls.append(json)
             r = MagicMock(); r.status_code = 204; r.ok = True
             return r
 
@@ -545,8 +555,8 @@ class TestDatastoreAcquirer:
 
         added = acq.add_free_to_library(self._make_products(5))
         assert added == 5
-        assert len(post_calls) == 3  # 2 + 2 + 1
-        assert [len(c["products"]) for c in post_calls] == [2, 2, 1]
+        assert len(add_calls) == 3  # 2 + 2 + 1
+        assert [len(c["products"]) for c in add_calls] == [2, 2, 1]
 
     def test_rejects_paid_products(self, tmp_path):
         acq = self._setup(tmp_path)
@@ -556,8 +566,14 @@ class TestDatastoreAcquirer:
     def test_409_price_conflict_raises(self, tmp_path, monkeypatch):
         acq = self._setup(tmp_path)
         monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
-        r = MagicMock(); r.status_code = 409; r.ok = False
-        monkeypatch.setattr(acq._req_session, "post", lambda *a, **kw: r)
+
+        def _post(url, json=None, timeout=None):
+            if url.endswith("/api/save-basket-items"):
+                return self._basket_resp()
+            r = MagicMock(); r.status_code = 409; r.ok = False
+            return r
+
+        monkeypatch.setattr(acq._req_session, "post", _post)
         with pytest.raises(RuntimeError, match="409"):
             acq.add_free_to_library(self._make_products(1))
 
@@ -565,8 +581,14 @@ class TestDatastoreAcquirer:
         from src.data.bist_datastore_client import DatastoreSessionExpiredError
         acq = self._setup(tmp_path)
         monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
-        r = MagicMock(); r.status_code = 401; r.ok = False
-        monkeypatch.setattr(acq._req_session, "post", lambda *a, **kw: r)
+
+        def _post(url, json=None, timeout=None):
+            if url.endswith("/api/save-basket-items"):
+                return self._basket_resp()
+            r = MagicMock(); r.status_code = 401; r.ok = False
+            return r
+
+        monkeypatch.setattr(acq._req_session, "post", _post)
         with pytest.raises(DatastoreSessionExpiredError):
             acq.add_free_to_library(self._make_products(1))
 
@@ -577,6 +599,38 @@ class TestDatastoreAcquirer:
                             lambda *a, **kw: called.__setitem__("n", called["n"] + 1))
         assert acq.add_free_to_library([]) == 0
         assert called["n"] == 0
+
+    def test_basket_order_precedes_add_library(self, tmp_path, monkeypatch):
+        """save-basket-items once cagrilir, paymentOrderId add-library orderId'sine tasinr."""
+        acq = self._setup(tmp_path)
+        seq = []
+
+        def _post(url, json=None, timeout=None):
+            if url.endswith("/api/save-basket-items"):
+                seq.append("basket")
+                return self._basket_resp()
+            seq.append("add-library")
+            assert json["orderId"] == "ORD-TEST-1"
+            r = MagicMock(); r.status_code = 204; r.ok = True
+            return r
+
+        monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
+        monkeypatch.setattr(acq._req_session, "post", _post)
+        acq.add_free_to_library(self._make_products(2))
+        assert seq == ["basket", "add-library"]
+
+    def test_basket_missing_order_id_raises(self, tmp_path, monkeypatch):
+        acq = self._setup(tmp_path)
+
+        def _post(url, json=None, timeout=None):
+            r = MagicMock(); r.status_code = 201; r.ok = True
+            r.json.return_value = [{"paymentOrderId": None}]
+            return r
+
+        monkeypatch.setattr(acq._req_session, "get", lambda *a, **kw: self._customer_resp())
+        monkeypatch.setattr(acq._req_session, "post", _post)
+        with pytest.raises(RuntimeError, match="paymentOrderId"):
+            acq.add_free_to_library(self._make_products(1))
 
 
 class TestPaymentItemHelper:
