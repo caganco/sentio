@@ -739,6 +739,27 @@ DATASTORE_PHASE_3: tuple[int, ...] = (3155, 3208, 100460, 100461, 100471)
 DATASTORE_SURVIVORSHIP_PROBE_TYPE: int = 3196
 DATASTORE_SURVIVORSHIP_KNOWN_DELISTED: tuple[str, ...] = ("KOZAA", "KOZAL", "IPEKE", "TRALT")
 
+# --- D-200 Clean Universe (survivorship-clean adjusted panel) ---
+CLEAN_UNIVERSE_ROOT: str = "data/clean_universe"
+CLEAN_UNIVERSE_ADJ_PRICES: str = "adjusted_prices_2019_2026.parquet"
+CLEAN_UNIVERSE_PIT_MEMBERSHIP: str = "pit_membership_2019_2026.parquet"
+CLEAN_UNIVERSE_META: str = "_meta.json"
+CLEAN_UNIVERSE_START: str = "2019-01-01"
+CLEAN_UNIVERSE_END: str = "2026-05-31"
+CLEAN_UNIVERSE_CORP_ACTION_TYPES: tuple[int, ...] = (100460, 100461, 100471)
+CLEAN_UNIVERSE_PRICE_TYPE: int = 3196
+COL_3196_DATE: int = 0
+COL_3196_TICKER: int = 1
+COL_3196_BIST100: int = 11
+COL_3196_BIST30: int = 12
+COL_3196_CA_CODE: int = 14
+COL_3196_CLOSE: int = 22
+COL_3196_VWAP: int = 27
+COL_3196_VALUE_TL: int = 28
+COL_3196_VOLUME: int = 29
+COL_3196_EXPECTED_COUNT: int = 52
+CLEAN_UNIVERSE_DIVIDEND_WITHHOLDING: float = 0.15
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
