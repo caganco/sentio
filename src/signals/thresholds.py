@@ -767,6 +767,20 @@ CLEAN_UNIVERSE_DIVIDEND_WITHHOLDING: float = 0.15
 # _meta.json for auditability.
 CLEAN_UNIVERSE_SELF_VALIDATE_TOL: float = 0.02
 
+# --- D-203 KESIN-TEST gate decision thresholds (single source per "tek kaynak") ---
+# These are the FROZEN pass/fail thresholds for the 5-gate measurement of the three
+# edge candidates (VALUE / EDGE-2 composite / 52wk-high) on the D-202 681-symbol clean
+# universe. Decision constants live here; measurement GEOMETRY (lookbacks, regime
+# splits, windows, snapshot hashes) lives in src/screening/d203_config.py. FIXED at
+# Stage-0; NOT tuned after seeing results (measurement-only, optimization forbidden).
+D203_GATE_NULL_PCTILE: float = 0.95      # gate-1: beat >=95th pctile fair random basket
+D203_GATE_NW_T_MIN: float = 2.0          # gate-2: Newey-West HAC |t| >= 2.0
+D203_GATE_COST_LOW_BPS: float = 20.0     # gate-5: still positive at 20bp per-turnover cost
+D203_GATE_COST_HIGH_BPS: float = 100.0   # gate-5: still positive at 100bp per-turnover cost
+D203_DAILY_RETURN_CLIP: float = 0.10     # daily return cap +/-10% (NOT broken D-200 +/-50%)
+D203_LIQUIDITY_TERCILE: float = 1.0 / 3.0  # gate-4: liquid/mid/illiquid tercile split
+D203_TOP_N: int = 15                     # fixed top-15 EW basket (no optimization path)
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
