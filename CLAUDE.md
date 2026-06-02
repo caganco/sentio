@@ -269,3 +269,38 @@ Yeni session açarken:
 5. Architecture tests — sanity check
 
 **Result:** Full context, no recompilation, token efficiency ✅
+
+---
+
+## Yerel Geliştirme Araçları (the maintainer'ın makinesinde global kurulu)
+
+Bu araçlar repo dışında, makine seviyesinde kalıcı olarak kuruludur. Tüm clone'lardan
+(local build/2/3) ve ana repodan çalışır. Unutulmaması için buraya yazıldı.
+
+### `pullall` — 4 repoyu tek komutla `master`'a güncelle
+- **Konum:** `<local-path> (+ `pullall.cmd` shim). `bin` User PATH'tedir.
+- **Kullanım:** herhangi bir cmd/pwsh penceresinde → `pullall`
+- **Davranış:** ana repo (`bist-trading-system`) + `local-build/2/3` clone'larını
+  sırayla `checkout master` + `pull origin master` yapar. **Takip edilen (tracked)
+  commitlenmemiş değişikliği olan repoyu güvenle ATLAR** ve sarı uyarı verir; untracked
+  (scratch) dosyalar pull'a engel sayılmaz.
+- **Yeni clone eklenirse:** `pullall.ps1` içindeki `$repos` listesine bir satır ekle.
+
+### `git reset --hard` koruması (2× "yes" onayı)
+Kazara veri kaybını önlemek için `git reset --hard` interaktif olarak **2 kez "yes"**
+onayı ister; başka her git komutu aynen gerçek git'e geçer. Gerçek git:
+`C:\Program Files\Git\cmd\git.exe`.
+- **cmd:** `<local-path> + cmd AutoRun makrosu
+  (`HKCU\Software\Microsoft\Command Processor\AutoRun` → `doskey git=...`, mevcut conda
+  hook'u ile yan yana korunur). Sadece interaktif yazımda devreye girer; `cmd /c ...`
+  (script/CI/IDE) etkilenmez.
+- **pwsh:** `C:\PowerShell\profile.ps1` içinde `function git` wrapper. Windows Terminal'in
+  varsayılan PowerShell sekmesi bu dosyayı dot-source eder (oh-my-posh ile aynı dosya).
+  Yeni sekmede etkin olur.
+
+### ⚠️ OneDrive Documents kırık (ortam tuzağı)
+`<local-path> ölü bir OneDrive bulut placeholder'ıdır (OneDrive
+kaldırılmış ama known-folder yönlendirmesi kalmış). **İçine yeni dosya/klasör/junction
+oluşturulamaz** (her yöntem "Could not find file" verir); mevcut dosyalar okunabilir.
+Bu yüzden PowerShell profili Documents yerine `C:\PowerShell\profile.ps1`'tedir.
+Kullanıcı seviyesi config'i Documents'a yazma — yerel bir yol kullan.
