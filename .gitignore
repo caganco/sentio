@@ -82,3 +82,9 @@ data/sentiment_cache.json
 # Builder PR/commit artifacts (local workflow helpers; organized in pr-artifacts/)
 pr-artifacts/
 data/*.local.bak
+
+# D-199 archive: ham payload'lari ignore et, _manifest.json commit edilir
+data/bist_datastore_archive/**/*.zip
+data/bist_datastore_archive/**/*.csv
+data/bist_datastore_archive/**/*.xls
+data/bist_datastore_archive/**/*.xlsx
