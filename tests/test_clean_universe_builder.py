@@ -15,6 +15,7 @@ from src.data.clean_universe_builder import (
     build_and_freeze_adjusted_panel,
     build_raw_price_panel,
     compute_adjustment_factors,
+    compute_price_implied_factors,
     compute_total_return_index,
     content_hash,
     extract_pit_membership,
@@ -88,15 +89,16 @@ def test_parse_3196_minimal(tmp_path):
     assert df[df["symbol"] == "GARAN"]["bist30"].iloc[0] == 1
 
 
-def test_parse_3196_ticker_suffix_stripped(tmp_path):
+def test_parse_3196_equity_filter(tmp_path):
     csv_content = _make_3196_csv([
         {"date": "2020-03-01", "ticker": "KOZAA.E", "close": "3.52"},
         {"date": "2020-03-01", "ticker": "THYAO.F", "close": "12.00"},
+        {"date": "2020-03-01", "ticker": "AAPL.V", "close": "5.00"},
     ])
     p = tmp_path / "PP_GUNSONUFIYATHACIM.M.202003.csv"
     p.write_text(csv_content, encoding="utf-8")
     df = parse_3196_monthly(p)
-    assert set(df["symbol"]) == {"KOZAA", "THYAO"}
+    assert set(df["symbol"]) == {"KOZAA"}  # only .E equities kept; .F and .V excluded
 
 
 def test_parse_3196_bad_rows_discarded(tmp_path, capsys):
@@ -488,6 +490,106 @@ def test_build_panel_meta_ascii(tmp_path):
     )
     meta_text = (output_dir / "_meta.json").read_text(encoding="utf-8")
     meta_text.encode("ascii")
+
+
+# ---------------------------------------------------------------------------
+# 9. compute_price_implied_factors (YOL-2, D-185 uyumlu)
+# ---------------------------------------------------------------------------
+
+def test_price_implied_bedelsiz_from_ca_code():
+    raw = _raw_panel_df([
+        {"date": date(2020, 1, 1), "symbol": "TEST", "close": 10.0, "ca_code": None},
+        {"date": date(2020, 1, 2), "symbol": "TEST", "close": 8.0, "ca_code": "01"},
+        {"date": date(2020, 1, 3), "symbol": "TEST", "close": 8.1, "ca_code": None},
+    ])
+    bp, excl, unresolved = compute_price_implied_factors(raw)
+    assert "TEST" not in excl
+    assert unresolved == []
+    test_bp = bp[bp["symbol"] == "TEST"].sort_values("date")
+    assert len(test_bp) == 2  # EPOCH + ex_date row
+    from_ex = test_bp[test_bp["date"] == date(2020, 1, 2)]
+    assert abs(float(from_ex["adj_factor"].iloc[0]) - 1.0) < 1e-9
+    epoch = test_bp[test_bp["date"] == date(1900, 1, 1)]
+    assert abs(float(epoch["adj_factor"].iloc[0]) - 0.8) < 1e-9
+
+
+def test_price_implied_no_threshold_fallback():
+    # A1YEN-like: 91% drop but CA code is None/empty -> NOT adjusted, flagged
+    raw = _raw_panel_df([
+        {"date": date(2020, 1, 1), "symbol": "A1YEN", "close": 40.0, "ca_code": None},
+        {"date": date(2020, 1, 2), "symbol": "A1YEN", "close": 3.52, "ca_code": None},
+        {"date": date(2020, 1, 3), "symbol": "A1YEN", "close": 3.60, "ca_code": None},
+    ])
+    bp, excl, unresolved = compute_price_implied_factors(raw)
+    assert "A1YEN" not in excl
+    assert bp[bp["symbol"] == "A1YEN"].empty  # no adjustment
+    assert len(unresolved) == 1
+    assert unresolved[0]["symbol"] == "A1YEN"
+    assert abs(unresolved[0]["daily_return"] - 3.52 / 40.0) < 1e-5
+
+
+def test_price_implied_excludes_bedelli():
+    raw = _raw_panel_df([
+        {"date": date(2020, 1, 1), "symbol": "BBB", "close": 10.0, "ca_code": None},
+        {"date": date(2020, 1, 2), "symbol": "BBB", "close": 8.0, "ca_code": "03"},
+    ])
+    bp, excl, unresolved = compute_price_implied_factors(raw)
+    assert "BBB" in excl
+    assert bp[bp["symbol"] == "BBB"].empty
+
+
+def test_price_implied_ignores_dividend_marker():
+    # ca_code='06' (dividend marker) -> no event, no exclusion, no flag
+    raw = _raw_panel_df([
+        {"date": date(2020, 1, 1), "symbol": "CCC", "close": 10.0, "ca_code": None},
+        {"date": date(2020, 1, 2), "symbol": "CCC", "close": 9.8, "ca_code": "06"},
+    ])
+    bp, excl, unresolved = compute_price_implied_factors(raw)
+    assert "CCC" not in excl
+    assert bp[bp["symbol"] == "CCC"].empty
+    assert unresolved == []
+
+
+def test_price_implied_cumulative_two_events():
+    raw = _raw_panel_df([
+        {"date": date(2020, 1, 1), "symbol": "DDD", "close": 10.0, "ca_code": None},
+        {"date": date(2020, 1, 2), "symbol": "DDD", "close": 9.0, "ca_code": "01"},
+        {"date": date(2020, 2, 1), "symbol": "DDD", "close": 9.5, "ca_code": None},
+        {"date": date(2020, 2, 2), "symbol": "DDD", "close": 7.6, "ca_code": "01"},
+        {"date": date(2020, 2, 3), "symbol": "DDD", "close": 7.7, "ca_code": None},
+    ])
+    bp, excl, _ = compute_price_implied_factors(raw)
+    assert "DDD" not in excl
+    ddd = bp[bp["symbol"] == "DDD"].sort_values("date")
+    # f1=0.9, f2=7.6/9.5≈0.8, cumulative before f1: 0.9*0.8=0.72
+    epoch = ddd[ddd["date"] == date(1900, 1, 1)]
+    assert abs(float(epoch["adj_factor"].iloc[0]) - 0.9 * (7.6 / 9.5)) < 1e-6
+    second = ddd[ddd["date"] == date(2020, 2, 2)]
+    assert abs(float(second["adj_factor"].iloc[0]) - 1.0) < 1e-9
+
+
+def test_build_panel_uses_price_implied_when_ca_empty(tmp_path):
+    prices_dir = tmp_path / "prices_official"
+    prices_dir.mkdir()
+    ca_dir = tmp_path / "corporate_actions"
+    ca_dir.mkdir()
+    output_dir = tmp_path / "clean_universe"
+
+    csv = _make_3196_csv([
+        {"date": "2019-01-02", "ticker": "KOZAA.E", "close": "3.52", "bist100": 1},
+        {"date": "2019-01-02", "ticker": "AKBNK.E", "close": "10.50", "bist100": 1},
+    ])
+    (prices_dir / "PP_GUNSONUFIYATHACIM.M.201901.csv").write_text(csv, encoding="utf-8")
+    # ca_dir is empty
+
+    _, meta = build_and_freeze_adjusted_panel(
+        prices_dir=prices_dir, ca_dir=ca_dir, output_root=output_dir,
+        start_date=date(2019, 1, 1), end_date=date(2019, 12, 31),
+    )
+    assert meta["adjustment_mode"] == "yol-2-price-implied-APPROXIMATE"
+    assert "adjustment_caveat" in meta
+    assert "unresolved_drops_count" in meta
+    assert "unresolved_drops" in meta
 
 
 def test_build_panel_excluded_in_meta(tmp_path):
