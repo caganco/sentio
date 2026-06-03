@@ -820,6 +820,25 @@ D204_DEPLOY_MIN_LIQUID_NET: float = 0.000222  # +0.0222%/mo real (TLREF deposit 
 # Frozen at Stage-0 (the "breakeven >> gerceklci-maliyet" rule), not tuned post-hoc.
 D204_BREAKEVEN_SAFETY_MULT: float = 2.0
 
+# --- D-205 hi52 LIKIT-ONCE decision constants (single source per "tek kaynak") ---
+# D-204 found hi52 = GERCEK-ama-tradeable-DEGIL on the naive prototype (252g + top15 + EW +
+# monthly + no-filter): realized realistic cost ~340bp > breakeven ~302bp, root cause ~88%
+# turnover x ~98% microcap (median picked ADV 1.65M-TL). NRR-005 showed the root cause is the
+# COST-RATE (microcap), not the turnover-LEVEL, and that the hi52 SIGNAL lives in liquid names
+# (liquid-pool rank-IC 0.048 ~ full-universe 0.047). D-205 attacks the cost-rate: restrict the
+# UNIVERSE to absolute-liquid names FIRST (signal UNCHANGED), then apply hi52. The threshold
+# below is FROZEN at Stage-0 on POOL-FEASIBILITY + Cagan-deploy grounds (NRR-006 ADIM-1, EDGE
+# NOT seen) -- NOT tuned after seeing any edge result (post-hoc selection FORBIDDEN). D-205 is
+# the 3rd and FINAL hi52 measurement (N<=3). Cost MECHANICS reuse D204_* (realistic_cost.py).
+D205_LIQUID_ADV_MIN_TL: float = 1.0e7    # trailing-63d-median ADV floor for the liquid universe
+#   FROZEN (NRR-006 ADIM-1, edge-unseen). Rationale (3-criteria, edge-not-measured): (1) Cagan
+#   deploy -- 20K-TL order = ADV %0.08 at the 24.9M median liquid ADV (impact-negligible);
+#   (2) N=15 feasibility -- pool min 44 / median 78, top-15 feasible 100% of rebalances, healthy
+#   >=30 100%; (3) real liquidity -- median liquid ADV 24.9M = ~15x the microcap 1.65M trap.
+#   2e6 leaves a still-thin pool (median ADV 6.4M); 5e7+ makes the universe too narrow (N=15-fail).
+D205_LIQUID_ADV_TRAILING_DAYS: int = 63  # ADV trailing window (== D203/D204 liquidity window)
+D205_SUBTIER_SPLIT: float = 0.5          # gate-4: upper/lower-half ADV split within liquid universe
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
