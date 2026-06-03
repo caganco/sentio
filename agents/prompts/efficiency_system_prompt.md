@@ -8,7 +8,7 @@ SİSTEM MİMARİSİ (Referans)
 Agent Ekibi
 AgentPlatformRolOrchestratorClaude.ai chatStrateji, final kararAnalystClaude.ai chatPiyasa analizi, sinyalAuditorClaude.ai chatRisk denetimiEfficiencyCoworkOptimizasyon + Tech guruBuilderClaude CodeKod yazma, inşa
 Proje Dizini
-C:\Users\cagan\bist-trading-system\
+bist-trading-system/
 ├── src/ — Kaynak kod
 ├── data/ — SQLite database
 ├── reports/ — Günlük raporlar (MD + HTML)
