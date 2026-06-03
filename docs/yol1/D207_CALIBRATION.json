@@ -1,0 +1,95 @@
+{
+  "directive": "D-207",
+  "title": "realistic_cost RE-CALIBRATION: fix the SISIK (inflated ~12-25x) BIST transaction-cost model -- Stage 0 EDGE-BLIND calibration pre-registration",
+  "preregistered_date": "2026-06-03",
+  "config_modules": ["src/signals/thresholds.py (D207_* block)", "src/screening/realistic_cost.py", "src/screening/quoted_spread.py", "src/screening/d204_hi52_stress.py"],
+  "config_version": "d207-v1",
+  "decision_owner": "the project. This file FREEZES the corrected cost MODEL (constants + source hierarchy + validity criteria) BEFORE any fidelity/edge-adjacent number is seen. It is a CALIBRATION record, not an edge test. Re-running any edge engine under the corrected cost (ADIM-1) is a SEPARATE future directive and does NOT overwrite D-204/D-205.",
+
+  "discipline_note": "Committed BEFORE the FIDELITY check and BEFORE any edge-adjacent result is computed. Every D207_* constant is anchored to OBSERVED reality (EOD quoted spreads + the clean_universe ADV distribution), NOT to any edge outcome. Post-hoc tuning is FORBIDDEN: the tier boundaries/half-spreads, the quoted window/coverage, the fallback Roll window, and the FIDELITY band are frozen here and will NOT be relaxed after seeing fidelity or any downstream edge. 'Lower the cost until the edge appears' = post-hoc = forbidden. The FIDELITY band is a calibration-VALIDITY criterion (does the corrected model reproduce the observed ~11bp quoted / 17-25bp round-trip ground truth), NOT an edge criterion. If corrected microcap cost stays high, that is REAL and the D-204 microcap-elimination root cause stays valid -- the goal is to match reality everywhere, not to manufacture an edge.",
+
+  "fidelity_is_the_proof": "The two numbers that prove the calibration stayed reality-anchored are (a) FIDELITY: corrected round-trip on the named liquid megas must land in the pre-registered ground-truth band below, and (b) MICROCAP-CONTROL: corrected microcap round-trip vs observed microcap quoted spread. If the corrected model does NOT land megas in the band, the FIX ITSELF is wrong (the correct response is to debug the fix, NOT to celebrate that an edge appeared elsewhere).",
+
+  "motivation": "NRR-010 (demo-pa/NRR-010-maliyet-teshis.md) diagnosed the shared cost model src/screening/realistic_cost.py as SISIK (inflated ~12-25x on liquid names), with 6 independent lines of evidence, two root causes: (1) a UNIT DOUBLE-COUNT -- combine_round_trip computed round_trip = 2*(S + impact) with S the FULL Roll spread, but the round-trip spread cost is S itself (S/2 at the ask on entry + S/2 at the bid on exit), so the spread leg was doubled; the tier leg was already correct. (2) The 21-day Roll(1984) is a VOLATILITY meter, not a spread meter: Monte-Carlo showed roll21 ~ 0.47*sigma even at literally-zero true spread (the max(-cov,0) truncation is upward-biased in sigma). Direct EOD quoted spreads (archive BEKLEYEN EN IYI ALIS/SATIS) show liquid megas trade at ~11bp FULL spread (RR-015 agrees: ~17-25bp round-trip), vs the model's 271-509bp.",
+
+  "what_this_is_NOT": "NOT an optimization (no constant is chosen to make any edge appear; all anchored to observed quoted spreads / ADV distribution, EDGE-UNSEEN). NOT a post-hoc relaxation of D-204/D-205 (their reports + STAGE0/results JSONs are NOT touched; the naive prototype stays tradeable-DEGIL). NOT an ADIM-1 re-test (re-running D-205-replica / H2b / PA-overnight under the corrected cost is a separate future directive with its own new record). NOT a change to the Kyle IMPACT term (lambda_kyle stays FROZEN=1.0; D-207 corrects only the SPREAD leg + the tier floor). NOT a re-measurement of the price panel (the corrected model is validated against OBSERVED quoted spreads, not against returns).",
+
+  "the_three_fixes": {
+    "FIX_1_unit_double_count": {
+      "file": "src/screening/realistic_cost.py::combine_round_trip",
+      "bug": "round_trip = 2*(full_Roll_S + impact) -- the FULL spread S used as the one-way leg => 2S round-trip spread cost (double-count).",
+      "fix": "Every spread source contributes a ONE-WAY HALF-spread, doubled for the round trip (matching the already-correct tier convention): round_trip = 2*(one_way + impact_eff) + commission, where one_way = quoted_full/2 | roll_full/2 | tier_half.",
+      "compat": "Keys round_trip_roll / round_trip_tier / roll_is_zero / kyle_impact / tier_spread KEPT so the d205/nrr007/nrr008/d206 callers do not ripple; round_trip_roll now means 'primary observed-spread leg'; NEW keys quoted_spread + spread_source added."
+    },
+    "FIX_2_quoted_primary_spread": {
+      "files": ["src/screening/quoted_spread.py (NEW loader)", "src/screening/d204_hi52_stress.py::per_stock_cost_panel (quoted_panel injection)"],
+      "source_hierarchy_per_date_name": ["EOD quoted (observed, vol-robust): one_way = quoted_full/2 ; spread_source='quoted'", "longer-window Roll fallback (de-inflated vs 21d): one_way = roll_full/2 ; spread_source='roll'", "re-scaled tier floor (ADV-only last resort): one_way = tier_half ; spread_source='tier'"],
+      "quoted_panel": "trailing-median of daily (ask-bid)/mid over D207_QUOTED_WINDOW, requiring >= D207_QUOTED_MIN_COVERAGE valid quote-days, else 'no quote' (NaN -> fall through). Proportional spread is corp-action-adjustment-invariant -> read from RAW bid/ask, no adj_factor join.",
+      "ci_safety": "quoted_panel is an INJECTED parameter. Engines build it locally from the archive; tests inject synthetic panels or None. No archive dependency enters CI. quoted_panel=None reproduces the quote-free path (Roll fallback -> tier).",
+      "fallback_roll_window": "D207_FALLBACK_ROLL_WINDOW=252 (long), de-inflated vs 21d (NRR-010 MC: long-window ~25bp vs 21d ~106bp). HONEST CAVEAT: the fallback Roll still carries residual vol-bias; it only affects NO-QUOTE names (e.g. 2019-Q1 / thin). The Kyle-impact sigma window stays 21 (impact FROZEN)."
+    },
+    "FIX_3_rescale_tier_floor": {
+      "file": "src/screening/realistic_cost.py::tier_spread_floor (reads D207_TIER_* from thresholds.py)",
+      "bug": "D204_TIER_* ladder: ADV boundaries (MEGA>=2e9 TL) UNREACHABLE on BIST so every name misclassified as MID/MICRO; half-spreads ~4-6x inflated.",
+      "fix": "Re-derived EDGE-BLIND from OBSERVED quoted spreads bucketed by the clean_universe ADV distribution (demo-pa/d207/derive_d207_tiers.py). Boundaries are round BIST-reality cut points chosen BEFORE looking at any spread; half-spreads = observed bucket-median quoted FULL spread / 2, monotone-enforced (architecture invariant mega<large<mid<micro)."
+    }
+  },
+
+  "key_observed_fact": "The EOD quoted FULL spread is ~FLAT ~11bp across the whole BIST liquidity spectrum (per-ADV-bucket medians: MEGA 10.6 / LARGE 13.4 / MID 11.2 / MICRO 11.2 bp; n=439). Microcaps are NOT wider on the QUOTED-spread dimension -- their extra cost is market IMPACT (Kyle, grows as ADV shrinks), NOT spread. So the re-scaled tier ladder is nearly flat by design (faithful, NOT a steep micro penalty). The microcap COST-RATE that drove the D-204 root cause stays valid -- it flows through the UNCHANGED Kyle impact term.",
+
+  "frozen_constants": {
+    "thresholds_block": "src/signals/thresholds.py D207_* (single source of truth; realistic_cost.py + quoted_spread.py read these).",
+    "D207_QUOTED_WINDOW": 63,
+    "D207_QUOTED_MIN_COVERAGE": 21,
+    "D207_FALLBACK_ROLL_WINDOW": 252,
+    "D207_TIER_MEGA_ADV_TL": 50000000.0,
+    "D207_TIER_LARGE_ADV_TL": 20000000.0,
+    "D207_TIER_MID_ADV_TL": 5000000.0,
+    "D207_TIER_MEGA_HALF_SPREAD": 0.000528,
+    "D207_TIER_LARGE_HALF_SPREAD": 0.000672,
+    "D207_TIER_MID_HALF_SPREAD": 0.000682,
+    "D207_TIER_MICRO_HALF_SPREAD": 0.000692,
+    "D207_FIDELITY_BAND_LO_BPS": 7.0,
+    "D207_FIDELITY_BAND_HI_BPS": 35.0
+  },
+
+  "observed_per_bucket_medians_bps_full": {
+    "MEGA": {"median_full_bps": 10.6, "mean_full_bps": 22.7, "n": 23},
+    "LARGE": {"median_full_bps": 13.4, "mean_full_bps": 22.9, "n": 31},
+    "MID": {"median_full_bps": 11.2, "mean_full_bps": 20.8, "n": 127},
+    "MICRO": {"median_full_bps": 11.2, "mean_full_bps": 14.1, "n": 258},
+    "note": "Raw bucket half-spreads (median_full/2) = 5.28 / 6.72 / 5.59 / 5.59 bp. LARGE's 13.4bp median is a noisy high vs the ~11bp rest; strict-monotone enforcement ratchets MID/MICRO just above LARGE -> frozen halves 5.28 / 6.72 / 6.82 / 6.92 bp, all within the observed [10.6,13.4]bp full envelope. The tier floor is LAST-RESORT (liquid names get quoted), so the exact value barely moves any liquid result; it only shapes the no-data microcap narrative. mean >> median in every bucket = heavy right skew (a few wide names); the MEDIAN is the robust central tendency used."
+  },
+
+  "FIDELITY_criterion": {
+    "rule": "On the named liquid megas (TTKOM, KCHOL, GARAN, AKBNK, ISCTR, THYAO, SAHOL, EREGL), the CORRECTED round-trip = quoted_full + 2*kyle_impact(20K order) must land in [D207_FIDELITY_BAND_LO_BPS, D207_FIDELITY_BAND_HI_BPS] = [7, 35] bp.",
+    "band_anchor": "EXTERNAL, independent of this derivation: NRR-010 EOD-quoted (~7.5-13.7bp full) + RR-015 round-trip (17-25bp). The band is intentionally WIDER than the derivation's own output to avoid circularity.",
+    "derivation_observed_corrected_rt_bps": {"lo": 16.0, "hi": 26.0, "mean": 20.0, "note": "context only -- the corrected RT range the 8 named megas actually produced; sits inside the [7,35] external band."},
+    "sisik_baseline_for_contrast": "The OLD (uncorrected) model produced 271-509bp on these same megas. The de-inflation is the validity signal.",
+    "fail_response": "If a mega lands OUTSIDE [7,35]bp, the FIX is wrong -> debug combine_round_trip / quoted loader / tier floor. Do NOT widen the band post-hoc; do NOT reinterpret an out-of-band result as an edge."
+  },
+
+  "MICROCAP_control_criterion": {
+    "rule": "Report the corrected microcap round-trip alongside the observed microcap quoted spread, HONESTLY. Expectation: microcap quoted spread is ~flat ~11bp (same as megas) but corrected microcap ROUND-TRIP is higher because Kyle IMPACT grows as ADV shrinks.",
+    "interpretation": "If corrected microcap cost stays high, that is REAL (impact-driven), NOT a model defect -> the D-204 microcap-elimination root cause stays valid. The control confirms the model is FAITHFUL (not inflated) on microcaps too; it is not a pass/fail edge gate."
+  },
+
+  "provenance": {
+    "derivation_script": "demo-pa/d207/derive_d207_tiers.py (ONE-OFF, edge-blind; uses ONLY observed quoted spreads + clean_universe ADV; NO returns / NO edge).",
+    "derivation_output": "demo-pa/d207/d207_derivation.json (per-tier observed medians + frozen monotone half-spreads + fidelity band).",
+    "quoted_loader": "src/screening/quoted_spread.py (archive PP_GUNSONUFIYATHACIM -> trailing-median (ask-bid)/mid panel).",
+    "universe": "clean_universe median ADV >= 1e6 TL (439 names with a usable quoted median), span 2019-01-01..2026-05-31.",
+    "order_value_tl": 20000.0,
+    "lambda_kyle": 1.0,
+    "NOTE": "Re-run derive_d207_tiers.py only to RE-DERIVE (then re-freeze these constants + this JSON together). The committed constants are the record of authority."
+  },
+
+  "outputs": [
+    "docs/yol1/D207_CALIBRATION.json (this file)",
+    "src/signals/thresholds.py D207_* block (frozen constants)",
+    "src/screening/quoted_spread.py (NEW), src/screening/realistic_cost.py (FIX-1/FIX-3), src/screening/d204_hi52_stress.py (FIX-2 injection)",
+    "demo-pa/d207/d207_fidelity.json (after the fidelity script: corrected RT per named mega + band PASS/FAIL + microcap control)",
+    "docs/research/D-207-rapor.md (fix description + FIDELITY + microcap control + impact summary) + docs/RESEARCH_REGISTRY.md line",
+    "tests/test_d207_cost.py (NEW) + updated tests/test_realistic_cost.py + tests/test_d204_hi52_stress.py"
+  ]
+}

@@ -871,6 +871,68 @@ D206_FIDELITY_MIN_CORR: float = 0.95     # FIDELITY-GUARD: mktval-implied-TR vs 
 #   adjusted prices pre-2019; mktcap is continuous through splits/bonus, dividends added via net_div).
 D206_FIDELITY_MAX_MAE: float = 0.03      # FIDELITY-GUARD: monthly-return mean-abs-error ceiling
 
+# --- D-207 realistic_cost RE-CALIBRATION constants (single source per "tek kaynak") ---
+# NRR-010 (demo-pa/NRR-010-maliyet-teshis.md) diagnosed the D-204/D-205 cost model as SISIK
+# (inflated ~12-25x on liquid names): (1) a unit double-count (round_trip = 2*full_Roll_S,
+# but the round-trip spread cost is S itself), and (2) the 21-day Roll measures VOLATILITY not
+# spread (Monte-Carlo: roll21 ~ 0.47*sigma even at literally-zero true spread). D-207 corrects
+# the SHARED cost model anchored to OBSERVED reality (EOD quoted spreads), NOT to any edge
+# outcome (calibration = optimization-risk; post-hoc tuning FORBIDDEN; frozen edge-blind at
+# docs/yol1/D207_CALIBRATION.json). The D204_* block above is KEPT as the historical record;
+# the LIVE cost mechanics (realistic_cost.py) now read these D207_* values.
+#
+# FIX-2 spread hierarchy per (date,name): EOD quoted (observed, vol-robust) -> longer-window
+# Roll fallback (de-inflated vs 21d) -> re-scaled tier floor (ADV-only last resort). The quoted
+# panel is built locally from the archive (src/screening/quoted_spread.py) and INJECTED into the
+# cost harness (CI-safe: tests inject synthetic panels / None; no archive dependency in CI).
+D207_QUOTED_WINDOW: int = 63             # trailing trading-day window for the median quoted spread
+#   (matches the D203/D204/D205 63-day liquidity window family). Point-in-time, no look-ahead.
+D207_QUOTED_MIN_COVERAGE: int = 21       # min valid quote-days required in the window, else "no quote"
+#   (>=1 trading month of observed quotes -> a stable median; thin/halted names fall through to Roll).
+D207_FALLBACK_ROLL_WINDOW: int = 252     # long Roll window for the FALLBACK leg (no quoted available)
+#   FROZEN edge-blind. NRR-010 MC: long-window Roll ~25bp vs 21d ~106bp on the same names -> the long
+#   window de-inflates the vol-bias of the asymmetric max(-cov,0) truncation. Residual vol-bias
+#   remains (honest caveat: only affects no-quote names, e.g. 2019-Q1 / illiquid). The Kyle-impact
+#   sigma window stays D204_ROLL_WINDOW (21) -- impact is FROZEN, D-207 corrects only the SPREAD leg.
+
+# FIX-3: re-scaled liquidity-tier ONE-WAY half-spreads (the LAST-RESORT floor when neither a
+# quoted spread NOR a fallback Roll is available). The D204_TIER_* ladder (MEGA>=2e9 TL, half
+# 6.5-40bp) was DOUBLY wrong: (a) the ADV boundaries were unreachable on BIST so EVERY name
+# misclassified as MID/MICRO, and (b) the half-spreads were ~4-6x inflated. D-207 re-derives the
+# ladder EDGE-BLIND from OBSERVED quoted spreads bucketed by the clean_universe ADV distribution
+# (demo-pa/d207/derive_d207_tiers.py; provenance frozen in docs/yol1/D207_CALIBRATION.json).
+# KEY OBSERVED FACT: the EOD quoted FULL spread is ~FLAT ~11bp across the whole BIST liquidity
+# spectrum (per-ADV-bucket medians MEGA 10.6 / LARGE 13.4 / MID 11.2 / MICRO 11.2 bp; n=439).
+# Microcaps are NOT wider on the QUOTED-spread dimension -- their extra cost is market IMPACT
+# (Kyle, which grows as ADV shrinks), NOT spread. So the re-scaled ladder is nearly flat by
+# design (a faithful reflection of reality, NOT a steep micro penalty); the monotone gradient is
+# a small conservative tie-breaker for the no-data fallback, kept within the observed [10.6,13.4]bp
+# full-spread envelope. Boundaries are round BIST-reality cut points (edge-blind). Monotone
+# mega < large < mid < micro (architecture invariant). The microcap COST-RATE that drove the
+# D-204 root cause stays valid -- it flows through the Kyle impact term, which is UNCHANGED.
+D207_TIER_MEGA_ADV_TL: float = 50_000_000.0    # >= 50M TL trailing ADV (genuine BIST megas)
+D207_TIER_LARGE_ADV_TL: float = 20_000_000.0   # >= 20M TL
+D207_TIER_MID_ADV_TL: float = 5_000_000.0      # >= 5M TL ; below = micro
+# Half-spreads = observed bucket-median quoted FULL spread / 2, frozen VERBATIM from the
+# edge-blind derivation (demo-pa/d207/d207_derivation.json, tier_half_spread_frozen_monotone).
+# Raw bucket halves were 5.28 / 6.72 / 5.59 / 5.59 bp (LARGE's 13.4bp median is a noisy high vs
+# the ~11bp rest); strict-monotone enforcement ratchets MID/MICRO just above LARGE -> the 6.82 /
+# 6.92bp values below. The ratchet is a conservative (cost-up) tie-breaker, all within the
+# observed [10.6,13.4]bp full envelope. Tier floor is LAST-RESORT (liquid names get quoted), so
+# the exact value barely moves any liquid result; it only shapes the no-data microcap narrative.
+D207_TIER_MEGA_HALF_SPREAD: float = 0.000528   # 5.28bp half = 10.6bp full (observed MEGA median)
+D207_TIER_LARGE_HALF_SPREAD: float = 0.000672  # 6.72bp half = 13.4bp full (observed LARGE median)
+D207_TIER_MID_HALF_SPREAD: float = 0.000682    # raw 5.59bp -> ratcheted monotone above LARGE
+D207_TIER_MICRO_HALF_SPREAD: float = 0.000692  # raw 5.59bp -> ratcheted monotone above MID
+
+# FIDELITY validity band (NOT an edge criterion): the corrected round-trip on liquid megas must
+# land in this OBSERVED ground-truth band (incl. the frozen Kyle impact at lambda=1.0). Anchored
+# to NRR-010's EOD-quoted (~7.5-13.7bp full) + RR-015's round-trip (17-25bp) -- NOT to my own
+# derivation output (independent external anchor). The corrected model must reproduce ~11-26bp,
+# vs the SISIK model's 271-509bp. This validates the de-inflation; it does NOT prove any edge.
+D207_FIDELITY_BAND_LO_BPS: float = 7.0
+D207_FIDELITY_BAND_HI_BPS: float = 35.0
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;

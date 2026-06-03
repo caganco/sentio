@@ -40,7 +40,7 @@ _REPO_ROOT = Path(__file__).parent.parent.parent
 _RESULTS_DIR = _REPO_ROOT / "docs" / "yol1"
 _SNAPSHOT_DIR = _REPO_ROOT / "data" / "snapshots"
 _STAGE0_PATH = _RESULTS_DIR / "STAGE0_d204.json"
-_MICRO_RT = 2.0 * cfg._th.D204_TIER_MICRO_HALF_SPREAD  # conservative cost fallback (round-trip)
+_MICRO_RT = 2.0 * cfg._th.D207_TIER_MICRO_HALF_SPREAD  # conservative cost fallback (round-trip, D-207)
 
 
 # ===========================================================================
@@ -101,24 +101,39 @@ def per_stock_cost_panel(
     close: pd.DataFrame, value_tl: pd.DataFrame, rebal: list[pd.Timestamp],
     order_value: float = cfg.D204_ORDER_VALUE_TL, window: int = cfg.D204_ROLL_WINDOW,
     adv_window: int = cfg.D204_ADV_WINDOW, lambda_kyle: float = cfg.D204_LAMBDA_KYLE,
+    quoted_panel: pd.DataFrame | None = None,
+    fallback_roll_window: int = cfg._th.D207_FALLBACK_ROLL_WINDOW,
 ) -> dict:
-    """Per rebalance date x eligible name -> realistic round-trip cost (Roll leg + tier
-    leg). Precomputes Roll/ADV/sigma panels ONCE (vectorized) then combines per name.
+    """Per rebalance date x eligible name -> realistic round-trip cost (D-207 source
+    hierarchy: EOD quoted -> long-window Roll fallback -> tier floor). Precomputes
+    Roll/ADV/sigma (+ optional quoted) panels ONCE (vectorized) then combines per name.
 
-    EKLEME-A: also returns the count/fraction of (date,name) cells where Roll=0 (serial
-    cov >= 0 -> tier floor engaged) so the report can split Roll-measured vs tier-imputed.
-    Returns {cost_roll, cost_tier, summary} where cost_* are {date: {symbol: round_trip}}.
+    D-207 FIX-2: the SPREAD leg prefers the injected EOD `quoted_panel` (vol-robust,
+    observed). Where a name has no quote in the trailing window the cell is NaN and we
+    fall back to a LONG-window Roll (`fallback_roll_window`, de-inflated vs the 21d
+    vol-meter); if Roll is also undefined the re-scaled tier floor fires. The Kyle impact
+    sigma still uses the SHORT `window` (Kyle is frozen, out of D-207 scope).
+
+    quoted_panel is INJECTED (CI-safe): engines build it locally from the archive
+    (src.screening.quoted_spread); tests pass a synthetic panel or None. quoted_panel=None
+    reproduces the quote-free path (Roll fallback -> tier).
+
+    EKLEME-A (kept): n_roll_zero / roll_zero_frac now count cells that fell ALL the way to
+    the tier floor (spread_source=="tier"). D-207 ADDS spread_source_counts / _frac, the
+    full quoted/roll/tier breakdown. Returns {cost_roll, cost_tier, roll_zero, summary}.
     """
-    roll_panel = rc.roll_spread_panel(close, window)
+    roll_panel = rc.roll_spread_panel(close, fallback_roll_window)
     adv_panel = value_tl.astype(float).rolling(adv_window, min_periods=1).mean()
     log_ret = np.log(close.astype(float) / close.astype(float).shift(1))
     sigma_panel = log_ret.rolling(window).std()
+    q_panel = quoted_panel.reindex(close.index).ffill() if quoted_panel is not None else None
 
     cost_roll: dict[pd.Timestamp, dict[str, float]] = {}
     cost_tier: dict[pd.Timestamp, dict[str, float]] = {}
     roll_zero: dict[pd.Timestamp, dict[str, bool]] = {}
     n_eval = n_zero = 0
     sum_rtc_roll = sum_rtc_tier = 0.0
+    src_counts = {"quoted": 0, "roll": 0, "tier": 0}
     for d in rebal:
         if d not in close.index:
             cost_roll[d], cost_tier[d], roll_zero[d] = {}, {}, {}
@@ -126,6 +141,7 @@ def per_stock_cost_panel(
         roll_row = roll_panel.loc[d]
         adv_row = adv_panel.loc[d]
         sig_row = sigma_panel.loc[d]
+        q_row = q_panel.loc[d] if q_panel is not None and d in q_panel.index else None
         cr, ct, rz = {}, {}, {}
         for sym in close.columns:
             adv = adv_row.get(sym, np.nan)
@@ -133,14 +149,16 @@ def per_stock_cost_panel(
                 continue
             roll = roll_row.get(sym, np.nan)
             sig = sig_row.get(sym, np.nan)
+            quoted = q_row.get(sym, np.nan) if q_row is not None else np.nan
             tier = rc.tier_spread_floor(adv)
             impact = (lambda_kyle * sig * np.sqrt(order_value / adv)) if np.isfinite(sig) else np.nan
-            cd = rc.combine_round_trip(roll, impact, tier)
+            cd = rc.combine_round_trip(roll, impact, tier, quoted_spread=quoted)
             cr[sym] = cd["round_trip_roll"]
             ct[sym] = cd["round_trip_tier"]
             rz[sym] = cd["roll_is_zero"]
             n_eval += 1
             n_zero += int(cd["roll_is_zero"])
+            src_counts[cd["spread_source"]] += 1
             sum_rtc_roll += cd["round_trip_roll"]
             sum_rtc_tier += cd["round_trip_tier"]
         cost_roll[d], cost_tier[d], roll_zero[d] = cr, ct, rz
@@ -148,6 +166,9 @@ def per_stock_cost_panel(
         "n_evaluated": n_eval,
         "n_roll_zero": n_zero,
         "roll_zero_frac": eng._r(n_zero / n_eval) if n_eval else None,
+        "spread_source_counts": dict(src_counts),
+        "spread_source_frac": {k: eng._r(v / n_eval) for k, v in src_counts.items()}
+        if n_eval else None,
         "mean_round_trip_roll": eng._r(sum_rtc_roll / n_eval) if n_eval else None,
         "mean_round_trip_tier": eng._r(sum_rtc_tier / n_eval) if n_eval else None,
     }
