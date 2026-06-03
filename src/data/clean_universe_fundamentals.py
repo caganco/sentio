@@ -121,22 +121,37 @@ def load_degoran_fundamentals(
     archive_fr_dir: Path | str = ARCHIVE_FR_DIR,
     start: str = "2019-01",
     end: str = "2026-12",
+    file_glob: str = "degoran_M_*.zip",
 ) -> pd.DataFrame:
     """Concatenate all degoran monthly files in [start, end] -> long fundamentals.
 
     Read-only on the universal archive. Raises if no files parse in range.
+
+    file_glob defaults to the modern 'degoran_M_YYYYMM.zip' monthly files (2019-07+,
+    the D-203/204 frozen window) -- keeping the default preserves those content-hashes.
+    Pass 'degoran*.zip' to ALSO include the legacy 'degoranYYYYMM.zip' monthly files
+    (2009-01..2019-06); 4-digit annual 'degoranYYYY.zip' are skipped (no 6-digit month).
+    When both namings exist for one month, the modern '_M_' file wins (dedup).
     """
     fr_dir = Path(archive_fr_dir)
     p0, p1 = pd.Period(start, "M"), pd.Period(end, "M")
-    rows: list[pd.DataFrame] = []
-    for fp in sorted(fr_dir.glob("degoran_M_*.zip")):
+    by_period: dict[pd.Period, Path] = {}
+    for fp in sorted(fr_dir.glob(file_glob)):
         m = re.search(r"(\d{6})", fp.stem)
         if not m:
+            continue
+        mm = int(m.group(1)[4:])
+        if mm < 1 or mm > 12:        # skip year-aggregate files (e.g. 'degoran201500.zip')
             continue
         per = pd.Period(f"{m.group(1)[:4]}-{m.group(1)[4:]}", "M")
         if per < p0 or per > p1:
             continue
-        one = _read_one(fp)
+        prev = by_period.get(per)
+        if prev is None or ("_M_" in fp.stem and "_M_" not in prev.stem):
+            by_period[per] = fp
+    rows: list[pd.DataFrame] = []
+    for per in sorted(by_period):
+        one = _read_one(by_period[per])
         if one is not None:
             rows.append(one)
     if not rows:
