@@ -839,6 +839,38 @@ D205_LIQUID_ADV_MIN_TL: float = 1.0e7    # trailing-63d-median ADV floor for the
 D205_LIQUID_ADV_TRAILING_DAYS: int = 63  # ADV trailing window (== D203/D204 liquidity window)
 D205_SUBTIER_SPLIT: float = 0.5          # gate-4: upper/lower-half ADV split within liquid universe
 
+# --- D-206 NAV-iskonto-Z mean-reversion decision constants (single source per "tek kaynak") ---
+# Cross-sectional factor selection is EXHAUSTED (hi52/lowvol63/value all closed). D-206 is a
+# NEW TIME-SERIES paradigm: per-holding NAV-discount mean-reversion (Pontiff 1995 CEF premia).
+# Each holding has its OWN discount time-series; high discount-Z (cheap) -> positive forward
+# return. MEASUREMENT-ONLY: FROZEN at Stage-0, NOT tuned post-hoc. The discount-Z GEOMETRY +
+# holding composition live in src/screening/d206_config.py + docs/yol1/STAGE0_d206.json. Cost
+# MECHANICS reuse D204_* (realistic_cost.py). N<=3 (NAV first round = 1).
+D206_TRAILING_WINDOW_MONTHS: int = 36    # per-holding trailing mean/std window for discount-Z
+#   FROZEN (~3x the 7.7-10.3mo CEF half-life -> stable trailing moments). NO 24/48/60 sweep.
+D206_TRAILING_MIN_PERIODS: int = 24      # min months before a discount-Z is defined (warmup)
+D206_PRIMARY_HORIZON_MONTHS: int = 6     # PRIMARY forward-return horizon (straddles half-life)
+D206_SECONDARY_HORIZONS: tuple[int, ...] = (1, 3)  # reported as context only, NEVER gated
+D206_PUBLICATION_LAG_MONTHS: int = 1     # subsidiary mktval t-1 lag (look-ahead-safe NAV leg)
+D206_GATE_NW_T_MIN: float = 2.0          # gate-2: |t| >= 2.0 (Driscoll-Kraay PRIMARY; T>>N)
+D206_GATE_NULL_PCTILE: float = 0.95      # gate-3: real beta beats >=95th pctile circular-shift null
+D206_GATE_SAME_SIGN_FRAC: float = 0.80   # gate-2: >= 80% of holdings share the positive sign
+D206_NULL_N_RESAMPLES: int = 2000        # circular-shift null draws (gate-3)
+D206_NULL_SEED: int = 12345              # reproducible null/bootstrap seed (D203/204 idiom)
+D206_WILD_BOOT_N: int = 2000             # wild-cluster bootstrap draws (gate-2 corroboration)
+D206_REGIME_PRIMARY: str = "2022-01-01"  # gate-4 primary split (high-inflation onset)
+D206_REGIME_LOWINFL_END: str = "2017-01-01"  # gate-4: the genuine 2009-2016 low-inflation regime
+D206_STRATEGY_ENTRY_Z: float = 1.0       # gate-5 strategy: long holding when discount-Z >= +1.0
+D206_STRATEGY_EXIT_Z: float = 0.0        #   exit when discount-Z reverts to <= 0 (hysteresis)
+#   FROZEN economic rule ("buy >1std cheap, exit at the mean"), NOT an optimized parameter; the
+#   G1-G4 gates are regression-based (threshold-free). Entry/exit only drives the G5 turnover read.
+D206_FIDELITY_MIN_CORR: float = 0.95     # FIDELITY-GUARD: mktval-implied-TR vs frozen adjusted_close
+#   monthly-return correlation (per core holding, 2019-2026 overlap) must be >= this, else the
+#   engine RAISES (the mktval-implied total-return proxy is invalid -> test STOPS). This validates
+#   using the mktval-implied TR uniformly across 2009-2026 (corp-action archive is empty -> no
+#   adjusted prices pre-2019; mktcap is continuous through splits/bonus, dividends added via net_div).
+D206_FIDELITY_MAX_MAE: float = 0.03      # FIDELITY-GUARD: monthly-return mean-abs-error ceiling
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
