@@ -1,0 +1,2416 @@
+{
+  "directive": "D-204",
+  "phase": "FAZ-1 hi52 stress-test (realistic-cost + vade + OOS + mechanism + H1)",
+  "config_version": "d204-v1",
+  "timestamp_utc": "2026-06-02T23:37:26Z",
+  "price_content_hash": "fd207550da312b19",
+  "candidate": "ADAY-C 52WK-HIGH ISOLATED (George-Hwang proximity) -- D-203 GERCEK-EDGE",
+  "deploy_hurdle": {
+    "frozen_min_liquid_real_net": 0.000222,
+    "recomputed": {
+      "mean_monthly_real_carry": 0.000222,
+      "n_periods": 45,
+      "coverage_start": "2022-07-29"
+    },
+    "reproducibility_ok": true,
+    "rationale": "real TLREF deposit carry (project principle real > max(TUFE,TLREF))"
+  },
+  "stress_results": {
+    "windows": {
+      "common": {
+        "cadences": {
+          "1m": {
+            "n_periods": 81,
+            "rel_ew_costfree": {
+              "n": 81,
+              "mean": 0.025653,
+              "ci95_low": 0.01117,
+              "ci95_high": 0.040416,
+              "ci_excludes_zero": true,
+              "nw_t": 3.191811
+            },
+            "rel_ew_aftercost_roll": {
+              "n": 81,
+              "mean": -0.003217,
+              "ci95_low": -0.01781,
+              "ci95_high": 0.011566,
+              "ci_excludes_zero": false,
+              "nw_t": -0.378601
+            },
+            "rel_ew_aftercost_tier": {
+              "n": 81,
+              "mean": 0.01058,
+              "ci95_low": -0.004085,
+              "ci95_high": 0.025448,
+              "ci_excludes_zero": false,
+              "nw_t": 1.254407
+            },
+            "real_aftercost_roll": {
+              "n": 81,
+              "mean": 0.016512,
+              "ci95_low": -0.007161,
+              "ci95_high": 0.042483,
+              "ci_excludes_zero": false,
+              "nw_t": 1.241088
+            },
+            "long_short_costfree": {
+              "n": 81,
+              "mean": 0.051514,
+              "ci95_low": 0.031752,
+              "ci95_high": 0.071917,
+              "ci_excludes_zero": true,
+              "nw_t": 4.640699
+            },
+            "breakeven": {
+              "breakeven_bps": 302.139732,
+              "grid": [
+                {
+                  "bps": 0.0,
+                  "rel_mean": 0.025653
+                },
+                {
+                  "bps": 5.0,
+                  "rel_mean": 0.025229
+                },
+                {
+                  "bps": 10.0,
+                  "rel_mean": 0.024804
+                },
+                {
+                  "bps": 15.0,
+                  "rel_mean": 0.02438
+                },
+                {
+                  "bps": 20.0,
+                  "rel_mean": 0.023955
+                },
+                {
+                  "bps": 25.0,
+                  "rel_mean": 0.02353
+                },
+                {
+                  "bps": 30.0,
+                  "rel_mean": 0.023106
+                },
+                {
+                  "bps": 35.0,
+                  "rel_mean": 0.022681
+                },
+                {
+                  "bps": 40.0,
+                  "rel_mean": 0.022257
+                },
+                {
+                  "bps": 45.0,
+                  "rel_mean": 0.021832
+                },
+                {
+                  "bps": 50.0,
+                  "rel_mean": 0.021408
+                },
+                {
+                  "bps": 55.0,
+                  "rel_mean": 0.020983
+                },
+                {
+                  "bps": 60.0,
+                  "rel_mean": 0.020559
+                },
+                {
+                  "bps": 65.0,
+                  "rel_mean": 0.020134
+                },
+                {
+                  "bps": 70.0,
+                  "rel_mean": 0.01971
+                },
+                {
+                  "bps": 75.0,
+                  "rel_mean": 0.019285
+                },
+                {
+                  "bps": 80.0,
+                  "rel_mean": 0.018861
+                },
+                {
+                  "bps": 85.0,
+                  "rel_mean": 0.018436
+                },
+                {
+                  "bps": 90.0,
+                  "rel_mean": 0.018012
+                },
+                {
+                  "bps": 95.0,
+                  "rel_mean": 0.017587
+                },
+                {
+                  "bps": 100.0,
+                  "rel_mean": 0.017163
+                },
+                {
+                  "bps": 105.0,
+                  "rel_mean": 0.016738
+                },
+                {
+                  "bps": 110.0,
+                  "rel_mean": 0.016314
+                },
+                {
+                  "bps": 115.0,
+                  "rel_mean": 0.015889
+                },
+                {
+                  "bps": 120.0,
+                  "rel_mean": 0.015465
+                },
+                {
+                  "bps": 125.0,
+                  "rel_mean": 0.01504
+                },
+                {
+                  "bps": 130.0,
+                  "rel_mean": 0.014615
+                },
+                {
+                  "bps": 135.0,
+                  "rel_mean": 0.014191
+                },
+                {
+                  "bps": 140.0,
+                  "rel_mean": 0.013766
+                },
+                {
+                  "bps": 145.0,
+                  "rel_mean": 0.013342
+                },
+                {
+                  "bps": 150.0,
+                  "rel_mean": 0.012917
+                },
+                {
+                  "bps": 155.0,
+                  "rel_mean": 0.012493
+                },
+                {
+                  "bps": 160.0,
+                  "rel_mean": 0.012068
+                },
+                {
+                  "bps": 165.0,
+                  "rel_mean": 0.011644
+                },
+                {
+                  "bps": 170.0,
+                  "rel_mean": 0.011219
+                },
+                {
+                  "bps": 175.0,
+                  "rel_mean": 0.010795
+                },
+                {
+                  "bps": 180.0,
+                  "rel_mean": 0.01037
+                },
+                {
+                  "bps": 185.0,
+                  "rel_mean": 0.009946
+                },
+                {
+                  "bps": 190.0,
+                  "rel_mean": 0.009521
+                },
+                {
+                  "bps": 195.0,
+                  "rel_mean": 0.009097
+                },
+                {
+                  "bps": 200.0,
+                  "rel_mean": 0.008672
+                },
+                {
+                  "bps": 205.0,
+                  "rel_mean": 0.008248
+                },
+                {
+                  "bps": 210.0,
+                  "rel_mean": 0.007823
+                },
+                {
+                  "bps": 215.0,
+                  "rel_mean": 0.007399
+                },
+                {
+                  "bps": 220.0,
+                  "rel_mean": 0.006974
+                },
+                {
+                  "bps": 225.0,
+                  "rel_mean": 0.00655
+                },
+                {
+                  "bps": 230.0,
+                  "rel_mean": 0.006125
+                },
+                {
+                  "bps": 235.0,
+                  "rel_mean": 0.0057
+                },
+                {
+                  "bps": 240.0,
+                  "rel_mean": 0.005276
+                },
+                {
+                  "bps": 245.0,
+                  "rel_mean": 0.004851
+                },
+                {
+                  "bps": 250.0,
+                  "rel_mean": 0.004427
+                },
+                {
+                  "bps": 255.0,
+                  "rel_mean": 0.004002
+                },
+                {
+                  "bps": 260.0,
+                  "rel_mean": 0.003578
+                },
+                {
+                  "bps": 265.0,
+                  "rel_mean": 0.003153
+                },
+                {
+                  "bps": 270.0,
+                  "rel_mean": 0.002729
+                },
+                {
+                  "bps": 275.0,
+                  "rel_mean": 0.002304
+                },
+                {
+                  "bps": 280.0,
+                  "rel_mean": 0.00188
+                },
+                {
+                  "bps": 285.0,
+                  "rel_mean": 0.001455
+                },
+                {
+                  "bps": 290.0,
+                  "rel_mean": 0.001031
+                },
+                {
+                  "bps": 295.0,
+                  "rel_mean": 0.000606
+                },
+                {
+                  "bps": 300.0,
+                  "rel_mean": 0.000182
+                },
+                {
+                  "bps": 305.0,
+                  "rel_mean": -0.000243
+                },
+                {
+                  "bps": 310.0,
+                  "rel_mean": -0.000667
+                },
+                {
+                  "bps": 315.0,
+                  "rel_mean": -0.001092
+                },
+                {
+                  "bps": 320.0,
+                  "rel_mean": -0.001516
+                },
+                {
+                  "bps": 325.0,
+                  "rel_mean": -0.001941
+                },
+                {
+                  "bps": 330.0,
+                  "rel_mean": -0.002365
+                },
+                {
+                  "bps": 335.0,
+                  "rel_mean": -0.00279
+                },
+                {
+                  "bps": 340.0,
+                  "rel_mean": -0.003215
+                },
+                {
+                  "bps": 345.0,
+                  "rel_mean": -0.003639
+                },
+                {
+                  "bps": 350.0,
+                  "rel_mean": -0.004064
+                },
+                {
+                  "bps": 355.0,
+                  "rel_mean": -0.004488
+                },
+                {
+                  "bps": 360.0,
+                  "rel_mean": -0.004913
+                },
+                {
+                  "bps": 365.0,
+                  "rel_mean": -0.005337
+                },
+                {
+                  "bps": 370.0,
+                  "rel_mean": -0.005762
+                },
+                {
+                  "bps": 375.0,
+                  "rel_mean": -0.006186
+                },
+                {
+                  "bps": 380.0,
+                  "rel_mean": -0.006611
+                },
+                {
+                  "bps": 385.0,
+                  "rel_mean": -0.007035
+                },
+                {
+                  "bps": 390.0,
+                  "rel_mean": -0.00746
+                },
+                {
+                  "bps": 395.0,
+                  "rel_mean": -0.007884
+                },
+                {
+                  "bps": 400.0,
+                  "rel_mean": -0.008309
+                }
+              ]
+            },
+            "realistic_cost_flat_bps_equiv": 340.009775,
+            "roll_zero_accounting": {
+              "n_evaluated": 40458,
+              "n_roll_zero": 20980,
+              "roll_zero_frac": 0.518562,
+              "mean_round_trip_roll": 0.037227,
+              "mean_round_trip_tier": 0.018384
+            },
+            "holding_period": {
+              "avg_holding_periods": 1.133396,
+              "avg_holding_months": 1.133396,
+              "median_holding_periods": 1.0,
+              "mean_turnover": 0.882305,
+              "median_turnover": 0.933333,
+              "n_holds": 1072
+            },
+            "max_drawdown": -0.253879
+          },
+          "2m": {
+            "n_periods": 40,
+            "rel_ew_costfree": {
+              "n": 40,
+              "mean": 0.038557,
+              "ci95_low": 0.007377,
+              "ci95_high": 0.070206,
+              "ci_excludes_zero": true,
+              "nw_t": 2.32663
+            },
+            "rel_ew_aftercost_roll": {
+              "n": 40,
+              "mean": 0.010314,
+              "ci95_low": -0.020837,
+              "ci95_high": 0.042148,
+              "ci_excludes_zero": false,
+              "nw_t": 0.615193
+            },
+            "rel_ew_aftercost_tier": {
+              "n": 40,
+              "mean": 0.023782,
+              "ci95_low": -0.007906,
+              "ci95_high": 0.05551,
+              "ci_excludes_zero": false,
+              "nw_t": 1.417623
+            },
+            "real_aftercost_roll": {
+              "n": 40,
+              "mean": 0.049918,
+              "ci95_low": -0.003987,
+              "ci95_high": 0.105157,
+              "ci_excludes_zero": false,
+              "nw_t": 2.307583
+            },
+            "long_short_costfree": {
+              "n": 40,
+              "mean": 0.095069,
+              "ci95_low": 0.042248,
+              "ci95_high": 0.145074,
+              "ci_excludes_zero": true,
+              "nw_t": 3.309077
+            },
+            "breakeven": {
+              "breakeven_bps": "inf",
+              "grid": [
+                {
+                  "bps": 0.0,
+                  "rel_mean": 0.038557
+                },
+                {
+                  "bps": 5.0,
+                  "rel_mean": 0.038128
+                },
+                {
+                  "bps": 10.0,
+                  "rel_mean": 0.037698
+                },
+                {
+                  "bps": 15.0,
+                  "rel_mean": 0.037269
+                },
+                {
+                  "bps": 20.0,
+                  "rel_mean": 0.03684
+                },
+                {
+                  "bps": 25.0,
+                  "rel_mean": 0.036411
+                },
+                {
+                  "bps": 30.0,
+                  "rel_mean": 0.035982
+                },
+                {
+                  "bps": 35.0,
+                  "rel_mean": 0.035553
+                },
+                {
+                  "bps": 40.0,
+                  "rel_mean": 0.035124
+                },
+                {
+                  "bps": 45.0,
+                  "rel_mean": 0.034695
+                },
+                {
+                  "bps": 50.0,
+                  "rel_mean": 0.034266
+                },
+                {
+                  "bps": 55.0,
+                  "rel_mean": 0.033837
+                },
+                {
+                  "bps": 60.0,
+                  "rel_mean": 0.033408
+                },
+                {
+                  "bps": 65.0,
+                  "rel_mean": 0.032978
+                },
+                {
+                  "bps": 70.0,
+                  "rel_mean": 0.032549
+                },
+                {
+                  "bps": 75.0,
+                  "rel_mean": 0.03212
+                },
+                {
+                  "bps": 80.0,
+                  "rel_mean": 0.031691
+                },
+                {
+                  "bps": 85.0,
+                  "rel_mean": 0.031262
+                },
+                {
+                  "bps": 90.0,
+                  "rel_mean": 0.030833
+                },
+                {
+                  "bps": 95.0,
+                  "rel_mean": 0.030404
+                },
+                {
+                  "bps": 100.0,
+                  "rel_mean": 0.029975
+                },
+                {
+                  "bps": 105.0,
+                  "rel_mean": 0.029546
+                },
+                {
+                  "bps": 110.0,
+                  "rel_mean": 0.029117
+                },
+                {
+                  "bps": 115.0,
+                  "rel_mean": 0.028687
+                },
+                {
+                  "bps": 120.0,
+                  "rel_mean": 0.028258
+                },
+                {
+                  "bps": 125.0,
+                  "rel_mean": 0.027829
+                },
+                {
+                  "bps": 130.0,
+                  "rel_mean": 0.0274
+                },
+                {
+                  "bps": 135.0,
+                  "rel_mean": 0.026971
+                },
+                {
+                  "bps": 140.0,
+                  "rel_mean": 0.026542
+                },
+                {
+                  "bps": 145.0,
+                  "rel_mean": 0.026113
+                },
+                {
+                  "bps": 150.0,
+                  "rel_mean": 0.025684
+                },
+                {
+                  "bps": 155.0,
+                  "rel_mean": 0.025255
+                },
+                {
+                  "bps": 160.0,
+                  "rel_mean": 0.024826
+                },
+                {
+                  "bps": 165.0,
+                  "rel_mean": 0.024396
+                },
+                {
+                  "bps": 170.0,
+                  "rel_mean": 0.023967
+                },
+                {
+                  "bps": 175.0,
+                  "rel_mean": 0.023538
+                },
+                {
+                  "bps": 180.0,
+                  "rel_mean": 0.023109
+                },
+                {
+                  "bps": 185.0,
+                  "rel_mean": 0.02268
+                },
+                {
+                  "bps": 190.0,
+                  "rel_mean": 0.022251
+                },
+                {
+                  "bps": 195.0,
+                  "rel_mean": 0.021822
+                },
+                {
+                  "bps": 200.0,
+                  "rel_mean": 0.021393
+                },
+                {
+                  "bps": 205.0,
+                  "rel_mean": 0.020964
+                },
+                {
+                  "bps": 210.0,
+                  "rel_mean": 0.020535
+                },
+                {
+                  "bps": 215.0,
+                  "rel_mean": 0.020106
+                },
+                {
+                  "bps": 220.0,
+                  "rel_mean": 0.019676
+                },
+                {
+                  "bps": 225.0,
+                  "rel_mean": 0.019247
+                },
+                {
+                  "bps": 230.0,
+                  "rel_mean": 0.018818
+                },
+                {
+                  "bps": 235.0,
+                  "rel_mean": 0.018389
+                },
+                {
+                  "bps": 240.0,
+                  "rel_mean": 0.01796
+                },
+                {
+                  "bps": 245.0,
+                  "rel_mean": 0.017531
+                },
+                {
+                  "bps": 250.0,
+                  "rel_mean": 0.017102
+                },
+                {
+                  "bps": 255.0,
+                  "rel_mean": 0.016673
+                },
+                {
+                  "bps": 260.0,
+                  "rel_mean": 0.016244
+                },
+                {
+                  "bps": 265.0,
+                  "rel_mean": 0.015815
+                },
+                {
+                  "bps": 270.0,
+                  "rel_mean": 0.015385
+                },
+                {
+                  "bps": 275.0,
+                  "rel_mean": 0.014956
+                },
+                {
+                  "bps": 280.0,
+                  "rel_mean": 0.014527
+                },
+                {
+                  "bps": 285.0,
+                  "rel_mean": 0.014098
+                },
+                {
+                  "bps": 290.0,
+                  "rel_mean": 0.013669
+                },
+                {
+                  "bps": 295.0,
+                  "rel_mean": 0.01324
+                },
+                {
+                  "bps": 300.0,
+                  "rel_mean": 0.012811
+                },
+                {
+                  "bps": 305.0,
+                  "rel_mean": 0.012382
+                },
+                {
+                  "bps": 310.0,
+                  "rel_mean": 0.011953
+                },
+                {
+                  "bps": 315.0,
+                  "rel_mean": 0.011524
+                },
+                {
+                  "bps": 320.0,
+                  "rel_mean": 0.011094
+                },
+                {
+                  "bps": 325.0,
+                  "rel_mean": 0.010665
+                },
+                {
+                  "bps": 330.0,
+                  "rel_mean": 0.010236
+                },
+                {
+                  "bps": 335.0,
+                  "rel_mean": 0.009807
+                },
+                {
+                  "bps": 340.0,
+                  "rel_mean": 0.009378
+                },
+                {
+                  "bps": 345.0,
+                  "rel_mean": 0.008949
+                },
+                {
+                  "bps": 350.0,
+                  "rel_mean": 0.00852
+                },
+                {
+                  "bps": 355.0,
+                  "rel_mean": 0.008091
+                },
+                {
+                  "bps": 360.0,
+                  "rel_mean": 0.007662
+                },
+                {
+                  "bps": 365.0,
+                  "rel_mean": 0.007233
+                },
+                {
+                  "bps": 370.0,
+                  "rel_mean": 0.006804
+                },
+                {
+                  "bps": 375.0,
+                  "rel_mean": 0.006374
+                },
+                {
+                  "bps": 380.0,
+                  "rel_mean": 0.005945
+                },
+                {
+                  "bps": 385.0,
+                  "rel_mean": 0.005516
+                },
+                {
+                  "bps": 390.0,
+                  "rel_mean": 0.005087
+                },
+                {
+                  "bps": 395.0,
+                  "rel_mean": 0.004658
+                },
+                {
+                  "bps": 400.0,
+                  "rel_mean": 0.004229
+                }
+              ]
+            },
+            "realistic_cost_flat_bps_equiv": 329.782903,
+            "roll_zero_accounting": {
+              "n_evaluated": 20180,
+              "n_roll_zero": 10734,
+              "roll_zero_frac": 0.531913,
+              "mean_round_trip_roll": 0.035844,
+              "mean_round_trip_tier": 0.018413
+            },
+            "holding_period": {
+              "avg_holding_periods": 1.083032,
+              "avg_holding_months": 2.166065,
+              "median_holding_periods": 1.0,
+              "mean_turnover": 0.923333,
+              "median_turnover": 0.933333,
+              "n_holds": 554
+            },
+            "max_drawdown": -0.251216
+          },
+          "3m": {
+            "n_periods": 27,
+            "rel_ew_costfree": {
+              "n": 27,
+              "mean": 0.02276,
+              "ci95_low": -0.028847,
+              "ci95_high": 0.074363,
+              "ci_excludes_zero": false,
+              "nw_t": 0.679665
+            },
+            "rel_ew_aftercost_roll": {
+              "n": 27,
+              "mean": -0.007313,
+              "ci95_low": -0.05791,
+              "ci95_high": 0.044586,
+              "ci_excludes_zero": false,
+              "nw_t": -0.215543
+            },
+            "rel_ew_aftercost_tier": {
+              "n": 27,
+              "mean": 0.007199,
+              "ci95_low": -0.044351,
+              "ci95_high": 0.058916,
+              "ci_excludes_zero": false,
+              "nw_t": 0.213732
+            },
+            "real_aftercost_roll": {
+              "n": 27,
+              "mean": 0.051012,
+              "ci95_low": -0.022477,
+              "ci95_high": 0.12832,
+              "ci_excludes_zero": false,
+              "nw_t": 1.566859
+            },
+            "long_short_costfree": {
+              "n": 27,
+              "mean": 0.094949,
+              "ci95_low": 0.007328,
+              "ci95_high": 0.171905,
+              "ci_excludes_zero": true,
+              "nw_t": 1.829773
+            },
+            "breakeven": {
+              "breakeven_bps": 269.882152,
+              "grid": [
+                {
+                  "bps": 0.0,
+                  "rel_mean": 0.02276
+                },
+                {
+                  "bps": 5.0,
+                  "rel_mean": 0.022338
+                },
+                {
+                  "bps": 10.0,
+                  "rel_mean": 0.021917
+                },
+                {
+                  "bps": 15.0,
+                  "rel_mean": 0.021495
+                },
+                {
+                  "bps": 20.0,
+                  "rel_mean": 0.021073
+                },
+                {
+                  "bps": 25.0,
+                  "rel_mean": 0.020652
+                },
+                {
+                  "bps": 30.0,
+                  "rel_mean": 0.02023
+                },
+                {
+                  "bps": 35.0,
+                  "rel_mean": 0.019808
+                },
+                {
+                  "bps": 40.0,
+                  "rel_mean": 0.019387
+                },
+                {
+                  "bps": 45.0,
+                  "rel_mean": 0.018965
+                },
+                {
+                  "bps": 50.0,
+                  "rel_mean": 0.018543
+                },
+                {
+                  "bps": 55.0,
+                  "rel_mean": 0.018122
+                },
+                {
+                  "bps": 60.0,
+                  "rel_mean": 0.0177
+                },
+                {
+                  "bps": 65.0,
+                  "rel_mean": 0.017278
+                },
+                {
+                  "bps": 70.0,
+                  "rel_mean": 0.016857
+                },
+                {
+                  "bps": 75.0,
+                  "rel_mean": 0.016435
+                },
+                {
+                  "bps": 80.0,
+                  "rel_mean": 0.016013
+                },
+                {
+                  "bps": 85.0,
+                  "rel_mean": 0.015592
+                },
+                {
+                  "bps": 90.0,
+                  "rel_mean": 0.01517
+                },
+                {
+                  "bps": 95.0,
+                  "rel_mean": 0.014748
+                },
+                {
+                  "bps": 100.0,
+                  "rel_mean": 0.014327
+                },
+                {
+                  "bps": 105.0,
+                  "rel_mean": 0.013905
+                },
+                {
+                  "bps": 110.0,
+                  "rel_mean": 0.013483
+                },
+                {
+                  "bps": 115.0,
+                  "rel_mean": 0.013062
+                },
+                {
+                  "bps": 120.0,
+                  "rel_mean": 0.01264
+                },
+                {
+                  "bps": 125.0,
+                  "rel_mean": 0.012218
+                },
+                {
+                  "bps": 130.0,
+                  "rel_mean": 0.011797
+                },
+                {
+                  "bps": 135.0,
+                  "rel_mean": 0.011375
+                },
+                {
+                  "bps": 140.0,
+                  "rel_mean": 0.010953
+                },
+                {
+                  "bps": 145.0,
+                  "rel_mean": 0.010532
+                },
+                {
+                  "bps": 150.0,
+                  "rel_mean": 0.01011
+                },
+                {
+                  "bps": 155.0,
+                  "rel_mean": 0.009688
+                },
+                {
+                  "bps": 160.0,
+                  "rel_mean": 0.009267
+                },
+                {
+                  "bps": 165.0,
+                  "rel_mean": 0.008845
+                },
+                {
+                  "bps": 170.0,
+                  "rel_mean": 0.008423
+                },
+                {
+                  "bps": 175.0,
+                  "rel_mean": 0.008002
+                },
+                {
+                  "bps": 180.0,
+                  "rel_mean": 0.00758
+                },
+                {
+                  "bps": 185.0,
+                  "rel_mean": 0.007158
+                },
+                {
+                  "bps": 190.0,
+                  "rel_mean": 0.006737
+                },
+                {
+                  "bps": 195.0,
+                  "rel_mean": 0.006315
+                },
+                {
+                  "bps": 200.0,
+                  "rel_mean": 0.005893
+                },
+                {
+                  "bps": 205.0,
+                  "rel_mean": 0.005472
+                },
+                {
+                  "bps": 210.0,
+                  "rel_mean": 0.00505
+                },
+                {
+                  "bps": 215.0,
+                  "rel_mean": 0.004628
+                },
+                {
+                  "bps": 220.0,
+                  "rel_mean": 0.004207
+                },
+                {
+                  "bps": 225.0,
+                  "rel_mean": 0.003785
+                },
+                {
+                  "bps": 230.0,
+                  "rel_mean": 0.003363
+                },
+                {
+                  "bps": 235.0,
+                  "rel_mean": 0.002942
+                },
+                {
+                  "bps": 240.0,
+                  "rel_mean": 0.00252
+                },
+                {
+                  "bps": 245.0,
+                  "rel_mean": 0.002098
+                },
+                {
+                  "bps": 250.0,
+                  "rel_mean": 0.001677
+                },
+                {
+                  "bps": 255.0,
+                  "rel_mean": 0.001255
+                },
+                {
+                  "bps": 260.0,
+                  "rel_mean": 0.000833
+                },
+                {
+                  "bps": 265.0,
+                  "rel_mean": 0.000412
+                },
+                {
+                  "bps": 270.0,
+                  "rel_mean": -1e-05
+                },
+                {
+                  "bps": 275.0,
+                  "rel_mean": -0.000432
+                },
+                {
+                  "bps": 280.0,
+                  "rel_mean": -0.000853
+                },
+                {
+                  "bps": 285.0,
+                  "rel_mean": -0.001275
+                },
+                {
+                  "bps": 290.0,
+                  "rel_mean": -0.001697
+                },
+                {
+                  "bps": 295.0,
+                  "rel_mean": -0.002118
+                },
+                {
+                  "bps": 300.0,
+                  "rel_mean": -0.00254
+                },
+                {
+                  "bps": 305.0,
+                  "rel_mean": -0.002962
+                },
+                {
+                  "bps": 310.0,
+                  "rel_mean": -0.003383
+                },
+                {
+                  "bps": 315.0,
+                  "rel_mean": -0.003805
+                },
+                {
+                  "bps": 320.0,
+                  "rel_mean": -0.004227
+                },
+                {
+                  "bps": 325.0,
+                  "rel_mean": -0.004648
+                },
+                {
+                  "bps": 330.0,
+                  "rel_mean": -0.00507
+                },
+                {
+                  "bps": 335.0,
+                  "rel_mean": -0.005492
+                },
+                {
+                  "bps": 340.0,
+                  "rel_mean": -0.005913
+                },
+                {
+                  "bps": 345.0,
+                  "rel_mean": -0.006335
+                },
+                {
+                  "bps": 350.0,
+                  "rel_mean": -0.006757
+                },
+                {
+                  "bps": 355.0,
+                  "rel_mean": -0.007178
+                },
+                {
+                  "bps": 360.0,
+                  "rel_mean": -0.0076
+                },
+                {
+                  "bps": 365.0,
+                  "rel_mean": -0.008022
+                },
+                {
+                  "bps": 370.0,
+                  "rel_mean": -0.008443
+                },
+                {
+                  "bps": 375.0,
+                  "rel_mean": -0.008865
+                },
+                {
+                  "bps": 380.0,
+                  "rel_mean": -0.009287
+                },
+                {
+                  "bps": 385.0,
+                  "rel_mean": -0.009708
+                },
+                {
+                  "bps": 390.0,
+                  "rel_mean": -0.01013
+                },
+                {
+                  "bps": 395.0,
+                  "rel_mean": -0.010552
+                },
+                {
+                  "bps": 400.0,
+                  "rel_mean": -0.010973
+                }
+              ]
+            },
+            "realistic_cost_flat_bps_equiv": 357.404798,
+            "roll_zero_accounting": {
+              "n_evaluated": 13815,
+              "n_roll_zero": 7034,
+              "roll_zero_frac": 0.509157,
+              "mean_round_trip_roll": 0.037231,
+              "mean_round_trip_tier": 0.018051
+            },
+            "holding_period": {
+              "avg_holding_periods": 1.054688,
+              "avg_holding_months": 3.164062,
+              "median_holding_periods": 1.0,
+              "mean_turnover": 0.948148,
+              "median_turnover": 0.933333,
+              "n_holds": 384
+            },
+            "max_drawdown": -0.127142
+          }
+        }
+      },
+      "extended": {
+        "cadences": {
+          "1m": {
+            "n_periods": 87,
+            "rel_ew_costfree": {
+              "n": 87,
+              "mean": 0.023456,
+              "ci95_low": 0.010109,
+              "ci95_high": 0.037856,
+              "ci_excludes_zero": true,
+              "nw_t": 3.00476
+            },
+            "rel_ew_aftercost_roll": {
+              "n": 87,
+              "mean": -0.006095,
+              "ci95_low": -0.020063,
+              "ci95_high": 0.009044,
+              "ci_excludes_zero": false,
+              "nw_t": -0.723388
+            },
+            "rel_ew_aftercost_tier": {
+              "n": 87,
+              "mean": 0.007899,
+              "ci95_low": -0.00587,
+              "ci95_high": 0.022743,
+              "ci_excludes_zero": false,
+              "nw_t": 0.954713
+            },
+            "real_aftercost_roll": {
+              "n": 87,
+              "mean": 0.012429,
+              "ci95_low": -0.010635,
+              "ci95_high": 0.037144,
+              "ci_excludes_zero": false,
+              "nw_t": 0.95559
+            },
+            "long_short_costfree": {
+              "n": 87,
+              "mean": 0.047791,
+              "ci95_low": 0.027233,
+              "ci95_high": 0.067301,
+              "ci_excludes_zero": true,
+              "nw_t": 4.343775
+            },
+            "breakeven": {
+              "breakeven_bps": 274.793988,
+              "grid": [
+                {
+                  "bps": 0.0,
+                  "rel_mean": 0.023456
+                },
+                {
+                  "bps": 5.0,
+                  "rel_mean": 0.02303
+                },
+                {
+                  "bps": 10.0,
+                  "rel_mean": 0.022603
+                },
+                {
+                  "bps": 15.0,
+                  "rel_mean": 0.022176
+                },
+                {
+                  "bps": 20.0,
+                  "rel_mean": 0.021749
+                },
+                {
+                  "bps": 25.0,
+                  "rel_mean": 0.021322
+                },
+                {
+                  "bps": 30.0,
+                  "rel_mean": 0.020896
+                },
+                {
+                  "bps": 35.0,
+                  "rel_mean": 0.020469
+                },
+                {
+                  "bps": 40.0,
+                  "rel_mean": 0.020042
+                },
+                {
+                  "bps": 45.0,
+                  "rel_mean": 0.019615
+                },
+                {
+                  "bps": 50.0,
+                  "rel_mean": 0.019188
+                },
+                {
+                  "bps": 55.0,
+                  "rel_mean": 0.018762
+                },
+                {
+                  "bps": 60.0,
+                  "rel_mean": 0.018335
+                },
+                {
+                  "bps": 65.0,
+                  "rel_mean": 0.017908
+                },
+                {
+                  "bps": 70.0,
+                  "rel_mean": 0.017481
+                },
+                {
+                  "bps": 75.0,
+                  "rel_mean": 0.017054
+                },
+                {
+                  "bps": 80.0,
+                  "rel_mean": 0.016628
+                },
+                {
+                  "bps": 85.0,
+                  "rel_mean": 0.016201
+                },
+                {
+                  "bps": 90.0,
+                  "rel_mean": 0.015774
+                },
+                {
+                  "bps": 95.0,
+                  "rel_mean": 0.015347
+                },
+                {
+                  "bps": 100.0,
+                  "rel_mean": 0.01492
+                },
+                {
+                  "bps": 105.0,
+                  "rel_mean": 0.014494
+                },
+                {
+                  "bps": 110.0,
+                  "rel_mean": 0.014067
+                },
+                {
+                  "bps": 115.0,
+                  "rel_mean": 0.01364
+                },
+                {
+                  "bps": 120.0,
+                  "rel_mean": 0.013213
+                },
+                {
+                  "bps": 125.0,
+                  "rel_mean": 0.012786
+                },
+                {
+                  "bps": 130.0,
+                  "rel_mean": 0.01236
+                },
+                {
+                  "bps": 135.0,
+                  "rel_mean": 0.011933
+                },
+                {
+                  "bps": 140.0,
+                  "rel_mean": 0.011506
+                },
+                {
+                  "bps": 145.0,
+                  "rel_mean": 0.011079
+                },
+                {
+                  "bps": 150.0,
+                  "rel_mean": 0.010652
+                },
+                {
+                  "bps": 155.0,
+                  "rel_mean": 0.010226
+                },
+                {
+                  "bps": 160.0,
+                  "rel_mean": 0.009799
+                },
+                {
+                  "bps": 165.0,
+                  "rel_mean": 0.009372
+                },
+                {
+                  "bps": 170.0,
+                  "rel_mean": 0.008945
+                },
+                {
+                  "bps": 175.0,
+                  "rel_mean": 0.008518
+                },
+                {
+                  "bps": 180.0,
+                  "rel_mean": 0.008092
+                },
+                {
+                  "bps": 185.0,
+                  "rel_mean": 0.007665
+                },
+                {
+                  "bps": 190.0,
+                  "rel_mean": 0.007238
+                },
+                {
+                  "bps": 195.0,
+                  "rel_mean": 0.006811
+                },
+                {
+                  "bps": 200.0,
+                  "rel_mean": 0.006384
+                },
+                {
+                  "bps": 205.0,
+                  "rel_mean": 0.005958
+                },
+                {
+                  "bps": 210.0,
+                  "rel_mean": 0.005531
+                },
+                {
+                  "bps": 215.0,
+                  "rel_mean": 0.005104
+                },
+                {
+                  "bps": 220.0,
+                  "rel_mean": 0.004677
+                },
+                {
+                  "bps": 225.0,
+                  "rel_mean": 0.00425
+                },
+                {
+                  "bps": 230.0,
+                  "rel_mean": 0.003824
+                },
+                {
+                  "bps": 235.0,
+                  "rel_mean": 0.003397
+                },
+                {
+                  "bps": 240.0,
+                  "rel_mean": 0.00297
+                },
+                {
+                  "bps": 245.0,
+                  "rel_mean": 0.002543
+                },
+                {
+                  "bps": 250.0,
+                  "rel_mean": 0.002116
+                },
+                {
+                  "bps": 255.0,
+                  "rel_mean": 0.00169
+                },
+                {
+                  "bps": 260.0,
+                  "rel_mean": 0.001263
+                },
+                {
+                  "bps": 265.0,
+                  "rel_mean": 0.000836
+                },
+                {
+                  "bps": 270.0,
+                  "rel_mean": 0.000409
+                },
+                {
+                  "bps": 275.0,
+                  "rel_mean": -1.8e-05
+                },
+                {
+                  "bps": 280.0,
+                  "rel_mean": -0.000444
+                },
+                {
+                  "bps": 285.0,
+                  "rel_mean": -0.000871
+                },
+                {
+                  "bps": 290.0,
+                  "rel_mean": -0.001298
+                },
+                {
+                  "bps": 295.0,
+                  "rel_mean": -0.001725
+                },
+                {
+                  "bps": 300.0,
+                  "rel_mean": -0.002152
+                },
+                {
+                  "bps": 305.0,
+                  "rel_mean": -0.002578
+                },
+                {
+                  "bps": 310.0,
+                  "rel_mean": -0.003005
+                },
+                {
+                  "bps": 315.0,
+                  "rel_mean": -0.003432
+                },
+                {
+                  "bps": 320.0,
+                  "rel_mean": -0.003859
+                },
+                {
+                  "bps": 325.0,
+                  "rel_mean": -0.004286
+                },
+                {
+                  "bps": 330.0,
+                  "rel_mean": -0.004712
+                },
+                {
+                  "bps": 335.0,
+                  "rel_mean": -0.005139
+                },
+                {
+                  "bps": 340.0,
+                  "rel_mean": -0.005566
+                },
+                {
+                  "bps": 345.0,
+                  "rel_mean": -0.005993
+                },
+                {
+                  "bps": 350.0,
+                  "rel_mean": -0.00642
+                },
+                {
+                  "bps": 355.0,
+                  "rel_mean": -0.006846
+                },
+                {
+                  "bps": 360.0,
+                  "rel_mean": -0.007273
+                },
+                {
+                  "bps": 365.0,
+                  "rel_mean": -0.0077
+                },
+                {
+                  "bps": 370.0,
+                  "rel_mean": -0.008127
+                },
+                {
+                  "bps": 375.0,
+                  "rel_mean": -0.008554
+                },
+                {
+                  "bps": 380.0,
+                  "rel_mean": -0.00898
+                },
+                {
+                  "bps": 385.0,
+                  "rel_mean": -0.009407
+                },
+                {
+                  "bps": 390.0,
+                  "rel_mean": -0.009834
+                },
+                {
+                  "bps": 395.0,
+                  "rel_mean": -0.010261
+                },
+                {
+                  "bps": 400.0,
+                  "rel_mean": -0.010688
+                }
+              ]
+            },
+            "realistic_cost_flat_bps_equiv": 345.833325,
+            "roll_zero_accounting": {
+              "n_evaluated": 42901,
+              "n_roll_zero": 22197,
+              "roll_zero_frac": 0.517401,
+              "mean_round_trip_roll": 0.037443,
+              "mean_round_trip_tier": 0.018584
+            },
+            "holding_period": {
+              "avg_holding_periods": 1.12987,
+              "avg_holding_months": 1.12987,
+              "median_holding_periods": 1.0,
+              "mean_turnover": 0.885057,
+              "median_turnover": 0.933333,
+              "n_holds": 1155
+            },
+            "max_drawdown": -0.253879
+          },
+          "2m": {
+            "n_periods": 43,
+            "rel_ew_costfree": {
+              "n": 43,
+              "mean": 0.04111,
+              "ci95_low": 0.013411,
+              "ci95_high": 0.069104,
+              "ci_excludes_zero": true,
+              "nw_t": 2.65849
+            },
+            "rel_ew_aftercost_roll": {
+              "n": 43,
+              "mean": 0.011987,
+              "ci95_low": -0.015914,
+              "ci95_high": 0.040718,
+              "ci_excludes_zero": false,
+              "nw_t": 0.762492
+            },
+            "rel_ew_aftercost_tier": {
+              "n": 43,
+              "mean": 0.025544,
+              "ci95_low": -0.002397,
+              "ci95_high": 0.054155,
+              "ci_excludes_zero": false,
+              "nw_t": 1.62933
+            },
+            "real_aftercost_roll": {
+              "n": 43,
+              "mean": 0.048868,
+              "ci95_low": 0.000948,
+              "ci95_high": 0.101186,
+              "ci_excludes_zero": true,
+              "nw_t": 2.406672
+            },
+            "long_short_costfree": {
+              "n": 43,
+              "mean": 0.094638,
+              "ci95_low": 0.045167,
+              "ci95_high": 0.140621,
+              "ci_excludes_zero": true,
+              "nw_t": 3.527727
+            },
+            "breakeven": {
+              "breakeven_bps": "inf",
+              "grid": [
+                {
+                  "bps": 0.0,
+                  "rel_mean": 0.04111
+                },
+                {
+                  "bps": 5.0,
+                  "rel_mean": 0.040678
+                },
+                {
+                  "bps": 10.0,
+                  "rel_mean": 0.040246
+                },
+                {
+                  "bps": 15.0,
+                  "rel_mean": 0.039813
+                },
+                {
+                  "bps": 20.0,
+                  "rel_mean": 0.039381
+                },
+                {
+                  "bps": 25.0,
+                  "rel_mean": 0.038949
+                },
+                {
+                  "bps": 30.0,
+                  "rel_mean": 0.038517
+                },
+                {
+                  "bps": 35.0,
+                  "rel_mean": 0.038085
+                },
+                {
+                  "bps": 40.0,
+                  "rel_mean": 0.037653
+                },
+                {
+                  "bps": 45.0,
+                  "rel_mean": 0.037221
+                },
+                {
+                  "bps": 50.0,
+                  "rel_mean": 0.036788
+                },
+                {
+                  "bps": 55.0,
+                  "rel_mean": 0.036356
+                },
+                {
+                  "bps": 60.0,
+                  "rel_mean": 0.035924
+                },
+                {
+                  "bps": 65.0,
+                  "rel_mean": 0.035492
+                },
+                {
+                  "bps": 70.0,
+                  "rel_mean": 0.03506
+                },
+                {
+                  "bps": 75.0,
+                  "rel_mean": 0.034628
+                },
+                {
+                  "bps": 80.0,
+                  "rel_mean": 0.034195
+                },
+                {
+                  "bps": 85.0,
+                  "rel_mean": 0.033763
+                },
+                {
+                  "bps": 90.0,
+                  "rel_mean": 0.033331
+                },
+                {
+                  "bps": 95.0,
+                  "rel_mean": 0.032899
+                },
+                {
+                  "bps": 100.0,
+                  "rel_mean": 0.032467
+                },
+                {
+                  "bps": 105.0,
+                  "rel_mean": 0.032035
+                },
+                {
+                  "bps": 110.0,
+                  "rel_mean": 0.031603
+                },
+                {
+                  "bps": 115.0,
+                  "rel_mean": 0.03117
+                },
+                {
+                  "bps": 120.0,
+                  "rel_mean": 0.030738
+                },
+                {
+                  "bps": 125.0,
+                  "rel_mean": 0.030306
+                },
+                {
+                  "bps": 130.0,
+                  "rel_mean": 0.029874
+                },
+                {
+                  "bps": 135.0,
+                  "rel_mean": 0.029442
+                },
+                {
+                  "bps": 140.0,
+                  "rel_mean": 0.02901
+                },
+                {
+                  "bps": 145.0,
+                  "rel_mean": 0.028578
+                },
+                {
+                  "bps": 150.0,
+                  "rel_mean": 0.028145
+                },
+                {
+                  "bps": 155.0,
+                  "rel_mean": 0.027713
+                },
+                {
+                  "bps": 160.0,
+                  "rel_mean": 0.027281
+                },
+                {
+                  "bps": 165.0,
+                  "rel_mean": 0.026849
+                },
+                {
+                  "bps": 170.0,
+                  "rel_mean": 0.026417
+                },
+                {
+                  "bps": 175.0,
+                  "rel_mean": 0.025985
+                },
+                {
+                  "bps": 180.0,
+                  "rel_mean": 0.025553
+                },
+                {
+                  "bps": 185.0,
+                  "rel_mean": 0.02512
+                },
+                {
+                  "bps": 190.0,
+                  "rel_mean": 0.024688
+                },
+                {
+                  "bps": 195.0,
+                  "rel_mean": 0.024256
+                },
+                {
+                  "bps": 200.0,
+                  "rel_mean": 0.023824
+                },
+                {
+                  "bps": 205.0,
+                  "rel_mean": 0.023392
+                },
+                {
+                  "bps": 210.0,
+                  "rel_mean": 0.02296
+                },
+                {
+                  "bps": 215.0,
+                  "rel_mean": 0.022527
+                },
+                {
+                  "bps": 220.0,
+                  "rel_mean": 0.022095
+                },
+                {
+                  "bps": 225.0,
+                  "rel_mean": 0.021663
+                },
+                {
+                  "bps": 230.0,
+                  "rel_mean": 0.021231
+                },
+                {
+                  "bps": 235.0,
+                  "rel_mean": 0.020799
+                },
+                {
+                  "bps": 240.0,
+                  "rel_mean": 0.020367
+                },
+                {
+                  "bps": 245.0,
+                  "rel_mean": 0.019935
+                },
+                {
+                  "bps": 250.0,
+                  "rel_mean": 0.019502
+                },
+                {
+                  "bps": 255.0,
+                  "rel_mean": 0.01907
+                },
+                {
+                  "bps": 260.0,
+                  "rel_mean": 0.018638
+                },
+                {
+                  "bps": 265.0,
+                  "rel_mean": 0.018206
+                },
+                {
+                  "bps": 270.0,
+                  "rel_mean": 0.017774
+                },
+                {
+                  "bps": 275.0,
+                  "rel_mean": 0.017342
+                },
+                {
+                  "bps": 280.0,
+                  "rel_mean": 0.01691
+                },
+                {
+                  "bps": 285.0,
+                  "rel_mean": 0.016477
+                },
+                {
+                  "bps": 290.0,
+                  "rel_mean": 0.016045
+                },
+                {
+                  "bps": 295.0,
+                  "rel_mean": 0.015613
+                },
+                {
+                  "bps": 300.0,
+                  "rel_mean": 0.015181
+                },
+                {
+                  "bps": 305.0,
+                  "rel_mean": 0.014749
+                },
+                {
+                  "bps": 310.0,
+                  "rel_mean": 0.014317
+                },
+                {
+                  "bps": 315.0,
+                  "rel_mean": 0.013884
+                },
+                {
+                  "bps": 320.0,
+                  "rel_mean": 0.013452
+                },
+                {
+                  "bps": 325.0,
+                  "rel_mean": 0.01302
+                },
+                {
+                  "bps": 330.0,
+                  "rel_mean": 0.012588
+                },
+                {
+                  "bps": 335.0,
+                  "rel_mean": 0.012156
+                },
+                {
+                  "bps": 340.0,
+                  "rel_mean": 0.011724
+                },
+                {
+                  "bps": 345.0,
+                  "rel_mean": 0.011292
+                },
+                {
+                  "bps": 350.0,
+                  "rel_mean": 0.010859
+                },
+                {
+                  "bps": 355.0,
+                  "rel_mean": 0.010427
+                },
+                {
+                  "bps": 360.0,
+                  "rel_mean": 0.009995
+                },
+                {
+                  "bps": 365.0,
+                  "rel_mean": 0.009563
+                },
+                {
+                  "bps": 370.0,
+                  "rel_mean": 0.009131
+                },
+                {
+                  "bps": 375.0,
+                  "rel_mean": 0.008699
+                },
+                {
+                  "bps": 380.0,
+                  "rel_mean": 0.008267
+                },
+                {
+                  "bps": 385.0,
+                  "rel_mean": 0.007834
+                },
+                {
+                  "bps": 390.0,
+                  "rel_mean": 0.007402
+                },
+                {
+                  "bps": 395.0,
+                  "rel_mean": 0.00697
+                },
+                {
+                  "bps": 400.0,
+                  "rel_mean": 0.006538
+                }
+              ]
+            },
+            "realistic_cost_flat_bps_equiv": 337.976333,
+            "roll_zero_accounting": {
+              "n_evaluated": 21402,
+              "n_roll_zero": 11494,
+              "roll_zero_frac": 0.537053,
+              "mean_round_trip_roll": 0.03595,
+              "mean_round_trip_tier": 0.018633
+            },
+            "holding_period": {
+              "avg_holding_periods": 1.080402,
+              "avg_holding_months": 2.160804,
+              "median_holding_periods": 1.0,
+              "mean_turnover": 0.925581,
+              "median_turnover": 0.933333,
+              "n_holds": 597
+            },
+            "max_drawdown": -0.251216
+          },
+          "3m": {
+            "n_periods": 29,
+            "rel_ew_costfree": {
+              "n": 29,
+              "mean": 0.026124,
+              "ci95_low": -0.022347,
+              "ci95_high": 0.0778,
+              "ci_excludes_zero": false,
+              "nw_t": 0.835089
+            },
+            "rel_ew_aftercost_roll": {
+              "n": 29,
+              "mean": -0.004027,
+              "ci95_low": -0.052475,
+              "ci95_high": 0.046845,
+              "ci_excludes_zero": false,
+              "nw_t": -0.126935
+            },
+            "rel_ew_aftercost_tier": {
+              "n": 29,
+              "mean": 0.010297,
+              "ci95_low": -0.038268,
+              "ci95_high": 0.061628,
+              "ci_excludes_zero": false,
+              "nw_t": 0.327314
+            },
+            "real_aftercost_roll": {
+              "n": 29,
+              "mean": 0.049829,
+              "ci95_low": -0.0185,
+              "ci95_high": 0.125056,
+              "ci_excludes_zero": false,
+              "nw_t": 1.649082
+            },
+            "long_short_costfree": {
+              "n": 29,
+              "mean": 0.096382,
+              "ci95_low": 0.01765,
+              "ci95_high": 0.171955,
+              "ci_excludes_zero": true,
+              "nw_t": 1.994735
+            },
+            "breakeven": {
+              "breakeven_bps": 306.387831,
+              "grid": [
+                {
+                  "bps": 0.0,
+                  "rel_mean": 0.026124
+                },
+                {
+                  "bps": 5.0,
+                  "rel_mean": 0.025698
+                },
+                {
+                  "bps": 10.0,
+                  "rel_mean": 0.025272
+                },
+                {
+                  "bps": 15.0,
+                  "rel_mean": 0.024845
+                },
+                {
+                  "bps": 20.0,
+                  "rel_mean": 0.024419
+                },
+                {
+                  "bps": 25.0,
+                  "rel_mean": 0.023993
+                },
+                {
+                  "bps": 30.0,
+                  "rel_mean": 0.023566
+                },
+                {
+                  "bps": 35.0,
+                  "rel_mean": 0.02314
+                },
+                {
+                  "bps": 40.0,
+                  "rel_mean": 0.022714
+                },
+                {
+                  "bps": 45.0,
+                  "rel_mean": 0.022287
+                },
+                {
+                  "bps": 50.0,
+                  "rel_mean": 0.021861
+                },
+                {
+                  "bps": 55.0,
+                  "rel_mean": 0.021435
+                },
+                {
+                  "bps": 60.0,
+                  "rel_mean": 0.021008
+                },
+                {
+                  "bps": 65.0,
+                  "rel_mean": 0.020582
+                },
+                {
+                  "bps": 70.0,
+                  "rel_mean": 0.020156
+                },
+                {
+                  "bps": 75.0,
+                  "rel_mean": 0.019729
+                },
+                {
+                  "bps": 80.0,
+                  "rel_mean": 0.019303
+                },
+                {
+                  "bps": 85.0,
+                  "rel_mean": 0.018877
+                },
+                {
+                  "bps": 90.0,
+                  "rel_mean": 0.01845
+                },
+                {
+                  "bps": 95.0,
+                  "rel_mean": 0.018024
+                },
+                {
+                  "bps": 100.0,
+                  "rel_mean": 0.017598
+                },
+                {
+                  "bps": 105.0,
+                  "rel_mean": 0.017171
+                },
+                {
+                  "bps": 110.0,
+                  "rel_mean": 0.016745
+                },
+                {
+                  "bps": 115.0,
+                  "rel_mean": 0.016319
+                },
+                {
+                  "bps": 120.0,
+                  "rel_mean": 0.015892
+                },
+                {
+                  "bps": 125.0,
+                  "rel_mean": 0.015466
+                },
+                {
+                  "bps": 130.0,
+                  "rel_mean": 0.01504
+                },
+                {
+                  "bps": 135.0,
+                  "rel_mean": 0.014613
+                },
+                {
+                  "bps": 140.0,
+                  "rel_mean": 0.014187
+                },
+                {
+                  "bps": 145.0,
+                  "rel_mean": 0.013761
+                },
+                {
+                  "bps": 150.0,
+                  "rel_mean": 0.013334
+                },
+                {
+                  "bps": 155.0,
+                  "rel_mean": 0.012908
+                },
+                {
+                  "bps": 160.0,
+                  "rel_mean": 0.012482
+                },
+                {
+                  "bps": 165.0,
+                  "rel_mean": 0.012056
+                },
+                {
+                  "bps": 170.0,
+                  "rel_mean": 0.011629
+                },
+                {
+                  "bps": 175.0,
+                  "rel_mean": 0.011203
+                },
+                {
+                  "bps": 180.0,
+                  "rel_mean": 0.010777
+                },
+                {
+                  "bps": 185.0,
+                  "rel_mean": 0.01035
+                },
+                {
+                  "bps": 190.0,
+                  "rel_mean": 0.009924
+                },
+                {
+                  "bps": 195.0,
+                  "rel_mean": 0.009498
+                },
+                {
+                  "bps": 200.0,
+                  "rel_mean": 0.009071
+                },
+                {
+                  "bps": 205.0,
+                  "rel_mean": 0.008645
+                },
+                {
+                  "bps": 210.0,
+                  "rel_mean": 0.008219
+                },
+                {
+                  "bps": 215.0,
+                  "rel_mean": 0.007792
+                },
+                {
+                  "bps": 220.0,
+                  "rel_mean": 0.007366
+                },
+                {
+                  "bps": 225.0,
+                  "rel_mean": 0.00694
+                },
+                {
+                  "bps": 230.0,
+                  "rel_mean": 0.006513
+                },
+                {
+                  "bps": 235.0,
+                  "rel_mean": 0.006087
+                },
+                {
+                  "bps": 240.0,
+                  "rel_mean": 0.005661
+                },
+                {
+                  "bps": 245.0,
+                  "rel_mean": 0.005234
+                },
+                {
+                  "bps": 250.0,
+                  "rel_mean": 0.004808
+                },
+                {
+                  "bps": 255.0,
+                  "rel_mean": 0.004382
+                },
+                {
+                  "bps": 260.0,
+                  "rel_mean": 0.003955
+                },
+                {
+                  "bps": 265.0,
+                  "rel_mean": 0.003529
+                },
+                {
+                  "bps": 270.0,
+                  "rel_mean": 0.003103
+                },
+                {
+                  "bps": 275.0,
+                  "rel_mean": 0.002676
+                },
+                {
+                  "bps": 280.0,
+                  "rel_mean": 0.00225
+                },
+                {
+                  "bps": 285.0,
+                  "rel_mean": 0.001824
+                },
+                {
+                  "bps": 290.0,
+                  "rel_mean": 0.001397
+                },
+                {
+                  "bps": 295.0,
+                  "rel_mean": 0.000971
+                },
+                {
+                  "bps": 300.0,
+                  "rel_mean": 0.000545
+                },
+                {
+                  "bps": 305.0,
+                  "rel_mean": 0.000118
+                },
+                {
+                  "bps": 310.0,
+                  "rel_mean": -0.000308
+                },
+                {
+                  "bps": 315.0,
+                  "rel_mean": -0.000734
+                },
+                {
+                  "bps": 320.0,
+                  "rel_mean": -0.001161
+                },
+                {
+                  "bps": 325.0,
+                  "rel_mean": -0.001587
+                },
+                {
+                  "bps": 330.0,
+                  "rel_mean": -0.002013
+                },
+                {
+                  "bps": 335.0,
+                  "rel_mean": -0.00244
+                },
+                {
+                  "bps": 340.0,
+                  "rel_mean": -0.002866
+                },
+                {
+                  "bps": 345.0,
+                  "rel_mean": -0.003292
+                },
+                {
+                  "bps": 350.0,
+                  "rel_mean": -0.003719
+                },
+                {
+                  "bps": 355.0,
+                  "rel_mean": -0.004145
+                },
+                {
+                  "bps": 360.0,
+                  "rel_mean": -0.004571
+                },
+                {
+                  "bps": 365.0,
+                  "rel_mean": -0.004998
+                },
+                {
+                  "bps": 370.0,
+                  "rel_mean": -0.005424
+                },
+                {
+                  "bps": 375.0,
+                  "rel_mean": -0.00585
+                },
+                {
+                  "bps": 380.0,
+                  "rel_mean": -0.006277
+                },
+                {
+                  "bps": 385.0,
+                  "rel_mean": -0.006703
+                },
+                {
+                  "bps": 390.0,
+                  "rel_mean": -0.007129
+                },
+                {
+                  "bps": 395.0,
+                  "rel_mean": -0.007556
+                },
+                {
+                  "bps": 400.0,
+                  "rel_mean": -0.007982
+                }
+              ]
+            },
+            "realistic_cost_flat_bps_equiv": 354.87838,
+            "roll_zero_accounting": {
+              "n_evaluated": 14629,
+              "n_roll_zero": 7599,
+              "roll_zero_frac": 0.519448,
+              "mean_round_trip_roll": 0.037001,
+              "mean_round_trip_tier": 0.018284
+            },
+            "holding_period": {
+              "avg_holding_periods": 1.050725,
+              "avg_holding_months": 3.152174,
+              "median_holding_periods": 1.0,
+              "mean_turnover": 0.951724,
+              "median_turnover": 0.933333,
+              "n_holds": 414
+            },
+            "max_drawdown": -0.127142
+          }
+        }
+      }
+    }
+  },
+  "stres3_oos_walk_forward": {
+    "split": "2023-01-01",
+    "train_mean": 0.003888,
+    "train_n": 42,
+    "holdout_mean": -0.010868,
+    "holdout_n": 39,
+    "both_positive": false,
+    "disinflation_window": [
+      "2024-01-01",
+      "2026-04-30"
+    ],
+    "disinflation_mean": -0.007592,
+    "disinflation_n": 27
+  },
+  "stres4_mechanism": {
+    "factor_overlap_vs_mom120": {
+      "mean_basket_overlap": 0.084774,
+      "long_short_correlation": 0.413971
+    },
+    "concentration": {
+      "mean_bist100_frac": 0.200823,
+      "mean_top_mktval_frac": 0.400833,
+      "mean_basket_size": 15.0
+    }
+  },
+  "ekleme3_liquidity_paradox": {
+    "liquid": {
+      "rel_costfree_mean": 0.013489,
+      "rel_aftercost_mean": -0.008626,
+      "real_aftercost_mean": 0.010973
+    },
+    "mid": {
+      "rel_costfree_mean": 0.007105,
+      "rel_aftercost_mean": -0.017166,
+      "real_aftercost_mean": 0.001687
+    },
+    "illiquid": {
+      "rel_costfree_mean": 0.017658,
+      "rel_aftercost_mean": -0.011701,
+      "real_aftercost_mean": 0.00725
+    },
+    "illiquid_still_dominates_after_cost": false,
+    "liquid_positive_after_cost": false
+  },
+  "verdict": {
+    "verdict": "GERCEK-ama-tradeable-DEGIL",
+    "reasons": [
+      "likit-tercil maliyet-sonrasi reel net <= 0",
+      "breakeven < gercekci-maliyet"
+    ],
+    "oos_gap": "OOS-BOSLUK: ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi. Gercek enflasyon-normallesme OOS YOK -> rejim-degisim dayanikligi KANITLANAMAZ. Walk-forward in-sample; disinflasyon 2024-26 YALNIZCA zayif-proxy. pre-2019 acquisition reddedildi (corp-action-yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri the project karari."
+  }
+}
