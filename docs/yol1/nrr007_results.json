@@ -1,0 +1,502 @@
+{
+  "directive": "NRR-007",
+  "phase": "FAZ-1 lowvol63 ISOLATED (5-gate, gate-5 realistic Roll+Kyle)",
+  "config_version": "nrr007-v1",
+  "timestamp_utc": "2026-06-03T02:02:41Z",
+  "price_content_hash": "fd207550da312b19",
+  "candidate": "lowvol63 ISOLATED (inverted trailing-63d realized-vol; EDGE-2 component, D-203-IDENTICAL) -- NRR-007 ilk-izole olcum (N<=3)",
+  "benchmark": "EW_FULL (delisted-inclusive equal-weight of full eligible universe, D-203-standard)",
+  "lowvol_window": 63,
+  "n_rebal": 82,
+  "prior_indicator": {
+    "demo3_s1_h4_lowvol63_isolated": {
+      "mean_monthly": 0.0056,
+      "nw_t": 0.94,
+      "note": "pre-cost + full-universe; below Gate-2 t>=2 bar"
+    }
+  },
+  "cost": {
+    "full_universe_summary": {
+      "n_evaluated": 40458,
+      "n_roll_zero": 20980,
+      "roll_zero_frac": 0.518562,
+      "mean_round_trip_roll": 0.037227,
+      "mean_round_trip_tier": 0.018384
+    },
+    "selected_picks_summary": {
+      "n_selected_cells": 1215,
+      "mean_round_trip_roll": 0.02357,
+      "roll_zero_frac": 0.489712
+    },
+    "realistic_cost_flat_bps_equiv": 277.220865,
+    "breakeven": {
+      "breakeven_bps": 111.219143,
+      "grid": [
+        {
+          "bps": 0.0,
+          "rel_mean": 0.005565
+        },
+        {
+          "bps": 5.0,
+          "rel_mean": 0.005315
+        },
+        {
+          "bps": 10.0,
+          "rel_mean": 0.005065
+        },
+        {
+          "bps": 15.0,
+          "rel_mean": 0.004815
+        },
+        {
+          "bps": 20.0,
+          "rel_mean": 0.004564
+        },
+        {
+          "bps": 25.0,
+          "rel_mean": 0.004314
+        },
+        {
+          "bps": 30.0,
+          "rel_mean": 0.004064
+        },
+        {
+          "bps": 35.0,
+          "rel_mean": 0.003814
+        },
+        {
+          "bps": 40.0,
+          "rel_mean": 0.003564
+        },
+        {
+          "bps": 45.0,
+          "rel_mean": 0.003314
+        },
+        {
+          "bps": 50.0,
+          "rel_mean": 0.003063
+        },
+        {
+          "bps": 55.0,
+          "rel_mean": 0.002813
+        },
+        {
+          "bps": 60.0,
+          "rel_mean": 0.002563
+        },
+        {
+          "bps": 65.0,
+          "rel_mean": 0.002313
+        },
+        {
+          "bps": 70.0,
+          "rel_mean": 0.002063
+        },
+        {
+          "bps": 75.0,
+          "rel_mean": 0.001812
+        },
+        {
+          "bps": 80.0,
+          "rel_mean": 0.001562
+        },
+        {
+          "bps": 85.0,
+          "rel_mean": 0.001312
+        },
+        {
+          "bps": 90.0,
+          "rel_mean": 0.001062
+        },
+        {
+          "bps": 95.0,
+          "rel_mean": 0.000812
+        },
+        {
+          "bps": 100.0,
+          "rel_mean": 0.000561
+        },
+        {
+          "bps": 105.0,
+          "rel_mean": 0.000311
+        },
+        {
+          "bps": 110.0,
+          "rel_mean": 6.1e-05
+        },
+        {
+          "bps": 115.0,
+          "rel_mean": -0.000189
+        },
+        {
+          "bps": 120.0,
+          "rel_mean": -0.000439
+        },
+        {
+          "bps": 125.0,
+          "rel_mean": -0.00069
+        },
+        {
+          "bps": 130.0,
+          "rel_mean": -0.00094
+        },
+        {
+          "bps": 135.0,
+          "rel_mean": -0.00119
+        },
+        {
+          "bps": 140.0,
+          "rel_mean": -0.00144
+        },
+        {
+          "bps": 145.0,
+          "rel_mean": -0.00169
+        },
+        {
+          "bps": 150.0,
+          "rel_mean": -0.001941
+        },
+        {
+          "bps": 155.0,
+          "rel_mean": -0.002191
+        },
+        {
+          "bps": 160.0,
+          "rel_mean": -0.002441
+        },
+        {
+          "bps": 165.0,
+          "rel_mean": -0.002691
+        },
+        {
+          "bps": 170.0,
+          "rel_mean": -0.002941
+        },
+        {
+          "bps": 175.0,
+          "rel_mean": -0.003192
+        },
+        {
+          "bps": 180.0,
+          "rel_mean": -0.003442
+        },
+        {
+          "bps": 185.0,
+          "rel_mean": -0.003692
+        },
+        {
+          "bps": 190.0,
+          "rel_mean": -0.003942
+        },
+        {
+          "bps": 195.0,
+          "rel_mean": -0.004192
+        },
+        {
+          "bps": 200.0,
+          "rel_mean": -0.004442
+        },
+        {
+          "bps": 205.0,
+          "rel_mean": -0.004693
+        },
+        {
+          "bps": 210.0,
+          "rel_mean": -0.004943
+        },
+        {
+          "bps": 215.0,
+          "rel_mean": -0.005193
+        },
+        {
+          "bps": 220.0,
+          "rel_mean": -0.005443
+        },
+        {
+          "bps": 225.0,
+          "rel_mean": -0.005693
+        },
+        {
+          "bps": 230.0,
+          "rel_mean": -0.005944
+        },
+        {
+          "bps": 235.0,
+          "rel_mean": -0.006194
+        },
+        {
+          "bps": 240.0,
+          "rel_mean": -0.006444
+        },
+        {
+          "bps": 245.0,
+          "rel_mean": -0.006694
+        },
+        {
+          "bps": 250.0,
+          "rel_mean": -0.006944
+        },
+        {
+          "bps": 255.0,
+          "rel_mean": -0.007195
+        },
+        {
+          "bps": 260.0,
+          "rel_mean": -0.007445
+        },
+        {
+          "bps": 265.0,
+          "rel_mean": -0.007695
+        },
+        {
+          "bps": 270.0,
+          "rel_mean": -0.007945
+        },
+        {
+          "bps": 275.0,
+          "rel_mean": -0.008195
+        },
+        {
+          "bps": 280.0,
+          "rel_mean": -0.008446
+        },
+        {
+          "bps": 285.0,
+          "rel_mean": -0.008696
+        },
+        {
+          "bps": 290.0,
+          "rel_mean": -0.008946
+        },
+        {
+          "bps": 295.0,
+          "rel_mean": -0.009196
+        },
+        {
+          "bps": 300.0,
+          "rel_mean": -0.009446
+        },
+        {
+          "bps": 305.0,
+          "rel_mean": -0.009697
+        },
+        {
+          "bps": 310.0,
+          "rel_mean": -0.009947
+        },
+        {
+          "bps": 315.0,
+          "rel_mean": -0.010197
+        },
+        {
+          "bps": 320.0,
+          "rel_mean": -0.010447
+        },
+        {
+          "bps": 325.0,
+          "rel_mean": -0.010697
+        },
+        {
+          "bps": 330.0,
+          "rel_mean": -0.010948
+        },
+        {
+          "bps": 335.0,
+          "rel_mean": -0.011198
+        },
+        {
+          "bps": 340.0,
+          "rel_mean": -0.011448
+        },
+        {
+          "bps": 345.0,
+          "rel_mean": -0.011698
+        },
+        {
+          "bps": 350.0,
+          "rel_mean": -0.011948
+        },
+        {
+          "bps": 355.0,
+          "rel_mean": -0.012198
+        },
+        {
+          "bps": 360.0,
+          "rel_mean": -0.012449
+        },
+        {
+          "bps": 365.0,
+          "rel_mean": -0.012699
+        },
+        {
+          "bps": 370.0,
+          "rel_mean": -0.012949
+        },
+        {
+          "bps": 375.0,
+          "rel_mean": -0.013199
+        },
+        {
+          "bps": 380.0,
+          "rel_mean": -0.013449
+        },
+        {
+          "bps": 385.0,
+          "rel_mean": -0.0137
+        },
+        {
+          "bps": 390.0,
+          "rel_mean": -0.01395
+        },
+        {
+          "bps": 395.0,
+          "rel_mean": -0.0142
+        },
+        {
+          "bps": 400.0,
+          "rel_mean": -0.01445
+        }
+      ]
+    },
+    "note": "compare selected_picks mean_round_trip_roll + roll_zero_frac to the D-204 microcap ~340bp / roll-zero %51.9; breakeven vs realized cost is the model-independent read"
+  },
+  "edge": {
+    "n_periods": 81,
+    "rel_costfree": {
+      "n": 81,
+      "mean": 0.005565,
+      "ci95_low": -0.00469,
+      "ci95_high": 0.016231,
+      "ci_excludes_zero": false,
+      "nw_t": 0.937165
+    },
+    "rel_aftercost_roll": {
+      "n": 81,
+      "mean": -0.008244,
+      "ci95_low": -0.018471,
+      "ci95_high": 0.002478,
+      "ci_excludes_zero": false,
+      "nw_t": -1.527018
+    },
+    "rel_aftercost_tier": {
+      "n": 81,
+      "mean": -0.002111,
+      "ci95_low": -0.01234,
+      "ci95_high": 0.008505,
+      "ci_excludes_zero": false,
+      "nw_t": -0.37278
+    },
+    "long_short_costfree": {
+      "n": 81,
+      "mean": 0.035902,
+      "ci95_low": 0.012076,
+      "ci95_high": 0.058929,
+      "ci_excludes_zero": true
+    }
+  },
+  "gates": {
+    "gate1_selection_null": {
+      "pass": false,
+      "n_resamples": 2000,
+      "random_pctile": 0.8975,
+      "beats_fair_null": false,
+      "null_p95": 0.025297,
+      "strategy_real_mean": 0.023448
+    },
+    "gate2_newey_west_costfree": {
+      "pass": false,
+      "hac_t": 0.937165,
+      "t_min": 2.0
+    },
+    "gate3_cross_regime_costfree": {
+      "pass": false,
+      "primary": {
+        "split": "2022-01-01",
+        "pre_mean": -0.009579,
+        "post_mean": 0.014474,
+        "pre_n": 30,
+        "post_n": 51,
+        "both_positive": false,
+        "only_post_positive": true
+      },
+      "secondary": {
+        "split": "2022-07-01",
+        "pre_mean": -0.004493,
+        "post_mean": 0.013612,
+        "pre_n": 36,
+        "post_n": 45,
+        "both_positive": false,
+        "only_post_positive": true
+      }
+    },
+    "gate4_liquidity_costfree": {
+      "pass": false,
+      "liquid_rel_mean": -0.003133,
+      "illiquid_rel_mean": 0.012012,
+      "liquidity_collapse": true
+    },
+    "gate5_after_cost_flat_CONTEXT": {
+      "pass": true,
+      "low_20bp": {
+        "bps": 20.0,
+        "rel_ew_mean": 0.004564,
+        "positive": true
+      },
+      "high_100bp": {
+        "bps": 100.0,
+        "rel_ew_mean": 0.000561,
+        "positive": true
+      }
+    },
+    "gate5_after_cost_realistic": {
+      "pass": false,
+      "rel_aftercost_mean": -0.008244,
+      "model": "Roll(1984)+Kyle(1985), D-204 reuse"
+    },
+    "cost_free_all_pass": false
+  },
+  "holding_period": {
+    "avg_holding_periods": 1.916404,
+    "avg_holding_months": 1.916404,
+    "median_holding_periods": 1.0,
+    "mean_turnover": 0.521811,
+    "median_turnover": 0.533333,
+    "n_holds": 634
+  },
+  "stres3_oos_walk_forward": {
+    "split": "2023-01-01",
+    "train_mean": -0.010441,
+    "train_n": 42,
+    "holdout_mean": -0.005879,
+    "holdout_n": 39,
+    "both_positive": false,
+    "disinflation_window": [
+      "2024-01-01",
+      "2026-04-30"
+    ],
+    "disinflation_mean": -0.014099,
+    "disinflation_n": 27
+  },
+  "verdict": {
+    "headline": "ELENDI",
+    "cost_free_verdict": {
+      "verdict": "SERAP",
+      "reasons": [
+        "liquidity_collapse_edge_only_in_illiquid"
+      ]
+    },
+    "realistic": {
+      "g5_realistic_after_cost": false,
+      "rel_aftercost_mean": -0.008244,
+      "breakeven_bps": 111.219143,
+      "realistic_cost_bps": 277.220865,
+      "breakeven_ge_safetyx_cost": false,
+      "safety_mult": 2.0
+    },
+    "reasons": [
+      "cost-free verdict SERAP -- lowvol63 sinyali maliyet-oncesi bile gate-gecmiyor (rel<=0 / long-short<0 / gate-FAIL); demo-3 t=0.94 on-gostergesi ile TUTARLI"
+    ],
+    "close_note": "lowvol63 izole-olcumde ELENDI (N<=3): EDGE-2-bundle'da gizliydi, izole-test maliyet-oncesi bile gate-gecmedigini gosterdi; temiz-arsiv",
+    "oos_gap": null
+  }
+}
