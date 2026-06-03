@@ -1,0 +1,104 @@
+{
+  "directive": "NRR-008",
+  "title": "value-REJIM-KOLU: D-203-identical value tilt gated by a look-ahead-safe inflation-DIRECTION regime (value's 3rd and FINAL round, N<=3). Aday-A DIRECTION-definition, APPROVED by Cagan+O 2026-06-03, FROZEN before any edge is measured.",
+  "preregistered_date": "2026-06-03",
+  "config_module": "src/screening/nrr008_config.py",
+  "config_version": "nrr008-v1",
+  "decision_owner": "Orchestrator+Cagan. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE headline is at most an overlay CANDIDATE -- a separate O+Cagan decision. Deployment is NEVER auto-triggered.",
+
+  "two_stage_provenance": {
+    "stage1": "docs/yol1/NRR-008-rejim-onerisi.md -- Builder proposed 3 candidate regime variables (A inflation-direction trailing-TUFE; B real-rate TLREF, eliminated by sample length; C USDTRY FX-stress) with ECONOMIC/LITERATURE justification ONLY. NO edge was measured at Stage-1. Selecting among candidates by edge = p-hacking = FORBIDDEN.",
+    "approval": "Cagan+O approved Aday-A in DIRECTION form (not a level threshold) on 2026-06-03. The exact rule below is FROZEN here BEFORE any return/t-stat/gate is computed.",
+    "stage2": "Full test executed AFTER PR #176 (NRR-007) merge, using the frozen rule below. The engine REFUSES to run unless this file exists."
+  },
+
+  "discipline_note": "Committed BEFORE any NRR-008 result is computed and BEFORE any result is seen. The regime variable + direction rule + 6-month comparison window + t-1 lag + ON/OFF semantics are FROZEN here and will NOT be relaxed post-hoc (no window sweep 3/6/12, no switch to a level-threshold, no lag re-pick, no flip of ON/OFF). The value signal is D-203-IDENTICAL (eng.value_factor_panel via eng.score_panel_for('value', ...) is CALLED; the committed engine is NOT modified). Gates 1-4 run via run_gates_on_score, a BIREBIR copy of eng.run_gates whose ONLY difference is the INJECTED score panel (NRR-007 precedent); a MATCH=True test asserts the replica reproduces eng.run_gates exactly on a committed candidate. REUSES the D-203 frozen panel verbatim (same content hashes) + the D-204 cost/stat geometry verbatim. N=1 candidate (value-regime). MEASUREMENT-ONLY; optimization FORBIDDEN.",
+
+  "motivation": "value-static measured TWICE: D-203 = SERAP (Gate-2 t=0.76, illiquid-heavy) and D-Y1-001 = KIRILGAN/REJIM-BAGIMLI (P/B mechanical-PASS but E/P contradicts + out-of-sample collapse + disinflation carries no premium). RR-Y1: BIST-value is macro-regime-driven (NOT publication-decay; Aras/Cam 2018 HML=-1.09%/mo NEGATIVE). The ONE untested arm: 'value-tilt active ONLY in the appropriate macro regime'. D-Y1 showed value collapses in disinflation (P/B +2.1% near-zero, E/P -2.1%) but is strong in pre_surge (+26%) and positive in high_inflation (+18%). NRR-008 tests whether turning the value tilt OFF during disinflation rescues an otherwise-fragile factor.",
+
+  "honest_expectation": "UNCERTAIN (open mind). Static value was SERAP/fragile across D-203 + D-Y1, so the prior is weak. BUT the regime-gated arm is genuinely untested -- regime-gating MIGHT rescue value, OR turning off disinflation alone MIGHT not be enough (the cost-free signal was already SERAP in D-203, illiquid-heavy). Whatever the result, report it honestly. Elimination is a clean, valuable result (definitive closure of the value thread). NO celebration expected; this is value's 3rd and FINAL round.",
+
+  "regime_definition_FROZEN": {
+    "candidate": "Aday-A -- inflation-DIRECTION (trailing-12m YoY-TUFE direction over a 6-month window), look-ahead-safe.",
+    "signal_source": "data/snapshots/exposure_d187_tufe.parquet (daily TUFE index, TP.FG.J0, full 2019-2026).",
+    "yoy_definition": "infl_yoy(M) = TUFE_monthend(M) / TUFE_monthend(M-12) - 1, where M is a calendar month and TUFE_monthend is the frozen daily TUFE index sampled at the last available observation of month M.",
+    "rule": "At monthly rebalance in month M (position taken on the last trading day of month M): regime_recent = infl_yoy(M-1); regime_prior = infl_yoy(M-7). The comparison window is 6 months (M-1 vs M-7). The t-1 lag (use M-1, not M) guarantees look-ahead safety: TUFE for month M-1 is published ~day 3 of month M, hence available before the end-of-month-M rebalance.",
+    "on_off_semantics": {
+      "OFF_disinflation": "if regime_recent < regime_prior (YoY falling over the last 6 months -> disinflation): value-tilt is OFF that month -> hold EW_FULL (EW-neutral) -> EW_FULL-relative excess = 0 for that period.",
+      "ON_flat_or_rising": "if regime_recent >= regime_prior (YoY flat or rising): value-tilt is ON that month -> hold the D-203 value top-15."
+    },
+    "frozen_choices": "The 6-month comparison window is FROZEN (rationale: capture the direction-trend with low noise; a 3/6/12-month sweep = multiple-comparisons = FORBIDDEN). This is DIRECTION-not-LEVEL (no inflation-level threshold is used; only the sign of the 6-month change). Single definition; no post-hoc relaxation.",
+    "rationale": "Grounded in D-Y1 prior (value collapses in disinflation, strong in rising/high inflation) + the discount-rate logic (disinflation accompanies the regime where BIST equity real returns and the value premium fade; D-187). The rule was chosen from this economic/data reasoning, NOT from any edge result (edge was never measured at Stage-1).",
+    "lookahead_safety": "Genuinely look-ahead-safe: trailing-TUFE with a 1-month publication lag is computable live at each rebalance and does NOT depend on the ex-post INFLATION_REGIMES calendar boundaries (trend_config.py:148-152) that D-Y1 used. This is the tradeable, live-computable version of that calendar."
+  },
+
+  "candidate_N_lock": {
+    "rule": "N=1 (value-regime). value's measurements: D-203 (static, SERAP) + D-Y1-001 (regime-robustness, KIRILGAN) + NRR-008 (regime-gated arm) = 3 total. NRR-008 is the 3rd and FINAL value round. No 4th round.",
+    "candidate": "value-regime (D-203-identical value top-15, gated ON/OFF by the frozen inflation-direction regime)."
+  },
+
+  "factor_geometry_FROZEN_REUSE": {
+    "value": {"def": "D-203-IDENTICAL: eng._xs_rank(eng.value_factor_panel(funds, rebal, kind=D203_VALUE_PRIMARY)); bm (book-to-market) primary, ey robustness; month-end fundamentals lagged D203_FUND_PUBLICATION_LAG_MONTHS (look-ahead safe). Higher = cheaper = long. Called via eng.score_panel_for('value', ...); the committed engine is NOT modified."},
+    "top_n": 15, "min_pool_n": 30, "rebalance": "monthly last trading day (D-203/204-comparable)",
+    "selection": "eng.select_top_n on the value score panel, injected into the run_gates replica; the regime mask switches the period between value-top-15 (ON) and EW_FULL-neutral (OFF). No new ranking, no engine edit."
+  },
+
+  "benchmark_FROZEN": {
+    "primary": "EW_FULL = equal-weight of the entire eligible clean universe per period (the D-203 standard honest bar -- does regime-gated value-top-15 beat just holding all names EW?). In OFF (disinflation) months the strategy IS EW_FULL, so the EW_FULL-relative excess is 0 those months by construction."
+  },
+
+  "windows_REUSE": {
+    "common": {"start": "2019-07-01", "end": "2026-04-30", "primary": true},
+    "note": "Reused verbatim from D-203/D-204/D-205/NRR-007. Monthly cadence. The full 2019-2026 sample contains both rising-inflation and disinflation sub-periods, so the regime mask actually toggles within sample (gate-3 cross-regime feasible) -- this is why Aday-A (full sample) was chosen over Aday-B (TLREF starts 2022-07)."
+  },
+
+  "five_gates_FROZEN": {
+    "gate1_selection_null": "Cost-free REAL regime-gated top-15 vs a fair null drawing random-15 from the SAME full pool each ON period (eng.fair_selection_null); PASS if real-mean beats the >=95th percentile of the null (D203_GATE_NULL_PCTILE). D-203-IDENTICAL.",
+    "gate2_newey_west_costfree": "NW |t| (lags=3) of the COST-FREE EW_FULL-relative regime-gated series >= 2.0 (D203_GATE_NW_T_MIN). D-203-IDENTICAL. KEY GATE -- static value failed this at t=0.76; the question is whether regime-gating lifts it above 2.0.",
+    "gate3_cross_regime_costfree": "regime_split at 2022-01-01 on the cost-free EW_FULL-relative series -> both sub-periods relative-positive. D-203-IDENTICAL. (Distinct from the inflation-direction GATING regime; this is the D-203 calendar robustness split.)",
+    "gate4_liquidity_costfree": "within the LIQUID value_tl tercile, the cost-free EW_FULL-relative edge survives (>0); liquidity_collapse flagged if illiquid>0 but liquid not. D-203-IDENTICAL. (Static value was illiquid-heavy in D-203 -- watch this gate.)",
+    "gate5_after_cost_realistic": "REALISTIC per-stock Roll(1984)+Kyle(1985) cost (D-204 per_stock_cost_panel / d204_basket_net_series, REUSED verbatim, lambda_kyle FROZEN). PASS if the after-cost EW_FULL-relative mean > 0. The D-203 flat 20/100bp legs are reported as CONTEXT only."
+  },
+
+  "cost_geometry_FROZEN_REUSE_D204": {
+    "model": "Per-stock round-trip = 2*(Roll one-way spread + Kyle one-way impact) + commission(0). Roll (1984) close-only spread PRIMARY; RR-015 tier half-spread model-independent CROSS-CHECK. Identical to D-204 (src/screening/realistic_cost.py, PORTED), via d204_hi52_stress.py.",
+    "lambda_kyle": 1.0, "lambda_kyle_note": "FROZEN; calibration = optimization = FORBIDDEN.",
+    "roll_window": 21, "adv_window": 63, "commission_pct": 0.0, "order_value_tl": 20000, "portfolio_tl": 300000,
+    "breakeven_bps_grid": "0..400bp, 5bp steps (reporting VIEW)", "breakeven_safety_mult": 2.0,
+    "cost_note": "Regime-gating REDUCES active months (OFF months hold EW_FULL with zero relative + zero incremental turnover beyond rebalancing into/out of the tilt). Turnover + holding-period are REPORTED (d204.holding_period_stats). The transition periods (ON->OFF and OFF->ON) incur turnover and are NOT cost-exempt."
+  },
+
+  "statistics_FROZEN_REUSE": {
+    "newey_west_lags": 3, "null_seed": 12345, "null_n_resamples": 2000,
+    "note": "Reused verbatim from D-203/D-204 so the measurement matches the KESIN-TEST + STRES-TEST exactly."
+  },
+
+  "verdict_rule_FROZEN_combined": {
+    "ELENDI": "cost-free verdict (eng.d203_verdict) == SERAP (EW_FULL-relative <= 0 OR long-short < 0 OR liquidity_collapse OR a cost-free gate FAILS, incl. gate-2 NW|t|<2) -> value-regime ELIMINATED -> value thread CLOSED (N<=3 final). Clean archive; no OOS-gap needed (signal not even real cost-free).",
+    "GERCEK-EDGE": "cost-free verdict GERCEK-EDGE or REJIM-TILT AND realistic after-cost EW_FULL-relative mean > 0 AND breakeven >= 2x realistic cost -> the first deployable value-based Yol-1 cross-sectional CANDIDATE (overlay CANDIDATE; deploy is a separate O+Cagan decision, NOT auto-triggered). SURPRISE relative to the static-value SERAP/fragile prior.",
+    "GERCEK-ama-tradeable-DEGIL": "cost-free verdict GERCEK-EDGE or REJIM-TILT BUT realistic after-cost mean <= 0 OR breakeven < 2x realistic cost -> signal real but not retail-tradeable; clean archive, value thread CLOSED.",
+    "oos_gap_MANDATORY": "Every NON-SERAP verdict attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime with a single disinflation episode at the end; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. The regime mask is fit-free (direction rule frozen) but its EFFICACY is not OOS-proven. Deployment is a separate O+Cagan decision.",
+    "no_post_hoc_relaxation": "the regime variable, direction rule, 6-month window, t-1 lag, ON/OFF semantics, value definition, gate thresholds, and 2x safety multiple are frozen here; not loosened after seeing results. value N<=3 lock (3rd and FINAL)."
+  },
+
+  "thresholds_reference": {
+    "decision_constants": "REUSED from src/signals/thresholds.py via d203_config/d204_config (D203_GATE_NW_T_MIN=2.0, D203_GATE_NULL_PCTILE=0.95, D203_GATE_COST_LOW/HIGH_BPS, D204_LAMBDA_KYLE, D204_BREAKEVEN_SAFETY_MULT). The regime rule is DIRECTION-based (no level threshold), so NO new decision threshold is introduced; the 6-month window + t-1 lag are structural (frozen here), not tuned constants.",
+    "measurement_geometry": "src/screening/nrr008_config.py (Stage-2: reuses snapshots/windows/value-geometry from d203_config + cost/walk-forward/regime geometry from d204_config verbatim; adds the frozen regime-direction constants).",
+    "cost_mechanics": "src/screening/realistic_cost.py (Roll/Kyle/tier; PORTED), via d204_hi52_stress.py."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19", "source": "D-202 (reused from D-203/204/205/NRR-007)"},
+    "fundamentals": {"file": "data/clean_universe/fundamentals_2019_2026.parquet",
+                     "content_hash_sha256_prefix": "d72a69774a1c9f03", "source": "D-203 FAZ-0 (REQUIRED for value: bm/ey)"},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet", "note": "daily TUFE index (TP.FG.J0, D-187 frozen) -- drives the regime-direction signal"}
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_nrr008.json (this file)",
+    "docs/yol1/NRR-008-rejim-onerisi.md (Stage-1 proposal + approval record)",
+    "docs/yol1/nrr008_results.json (after Stage-2 run: regime ON/OFF month counts + cost-free EW_FULL-relative regime-gated + realistic + 5 gates + turnover/holding + walk-forward + cost-free 3-way verdict + combined headline)",
+    "docs/research/NRR-008-rapor.md (verdict ELENDI / GERCEK-EDGE / GERCEK-ama-tradeable-DEGIL; regime ON/OFF split; gate-2 vs D-203 static t=0.76 comparison; OOS-gap explicit) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}
