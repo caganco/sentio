@@ -1,0 +1,129 @@
+{
+  "directive": "D-205",
+  "title": "hi52 LIKIT-ONCE: liquid-universe-first hi52 under realistic cost -- Stage 0 pre-registration (3rd and FINAL hi52 measurement, N<=3)",
+  "preregistered_date": "2026-06-03",
+  "config_module": "src/screening/d205_config.py",
+  "config_version": "d205-v1",
+  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a TRADEABLE-EDGE verdict is hi52's first deployable Yol-1 FORM (an overlay CANDIDATE at most -- separate the project decision). Deployment is NEVER auto-triggered.",
+
+  "discipline_note": "Committed BEFORE any D-205 edge result is computed and BEFORE any result is seen. The engine (src/screening/d205_hi52_liquid.py) REFUSES to run unless this file exists. The liquid-ADV threshold, the 5-gate adaptation, and the 2-way verdict are FROZEN here and will NOT be relaxed post-hoc (no threshold re-pick, no window/lookback widening, no factor redefinition, no lambda_kyle re-calibration, no breakeven cherry-picking). N=1 candidate (hi52 LIKIT-ONCE). MEASUREMENT-ONLY; optimization FORBIDDEN. The hi52 signal is D-203-IDENTICAL (unchanged). The buffer enter-15/exit-30 is a reported VIEW, NOT a deploy selection. REUSES the D-203 frozen panel verbatim (same content hashes) + the D-204 cost/stat geometry verbatim.",
+
+  "motivation": "D-203 found hi52 = the system's FIRST asterisk-free GERCEK-EDGE (NW |t|=3.19, 5/5 gates). D-204 STRESS-TEST then judged the naive PROTOTYPE (252d + top-15 + EW + monthly + no-filter) tradeable-DEGIL: realized realistic round-trip ~340bp > breakeven ~302bp, root cause ~88% turnover x ~98% microcap (median-ADV 1.65M-TL). NRR-005 OBSERVATIONAL diagnosis showed (a) the killer is the COST-RATE (microcap), not the turnover-LEVEL (buffer alone did not save it), and (b) the hi52 SIGNAL lives in liquid names too (liquid-pool rank-IC 0.048 ~ full-universe 0.047 -- NOT a microcap artifact; liquid-first top-15 pre-cost +1.47%). D-205 attacks D-204's ROOT CAUSE (cost-rate): restrict the UNIVERSE to absolute-liquid names FIRST (signal UNCHANGED), then apply hi52, and ask whether the edge survives REALISTIC cost.",
+
+  "honest_expectation": "RR-015 liquid-tier half-spread ~6.5-10bp vs micro 40bp (~4-6x cheaper) + NRR-005 signal-is-there -> the liquid-first after-cost edge MAY be positive. But this is the FINAL hi52 question (N<=3): a 'YINE-TRADEABLE-DEGIL' outcome (after-cost <= 0, or breakeven ~ cost, or universe too narrow, or any gate FAIL) is a CLEAN, VALUABLE result -- hi52 then CLOSES (real phenomenon, not retail-tradeable), CONSISTENT with the D-204 verdict (not a refutation of it). A narrow liquid universe is itself a finding, reported honestly, never forced.",
+
+  "does_NOT_relax_D204": "D-205 does NOT relax or refute the D-204 verdict. The naive PROTOTYPE stays tradeable-DEGIL (correct). D-205 changes the UNIVERSE (liquid-first), not the prototype, and attacks D-204's documented root cause (cost-rate from microcap). The two verdicts are consistent.",
+
+  "basis": [
+    "D-204 results docs/yol1/d204_results.json + STAGE0_d204.json (hi52 prototype GERCEK-ama-tradeable-DEGIL; ~340bp > breakeven ~302bp; ~88% turnover x ~98% microcap)",
+    "D-203 results docs/yol1/d203_results.json + STAGE0_d203.json (hi52 GERCEK-EDGE; NW t=3.19; 5/5 gates)",
+    "NRR-005 ORCH-NOTICE observational diagnosis (cost-RATE root cause + signal-lives-in-liquid; liquid-pool rank-IC 0.048 ~ full 0.047; liquid-first top-15 pre-cost +1.47%)",
+    "NRR-006 demo-3/nrr006_pool_sizes.json pool-feasibility (EDGE-UNSEEN: the basis for the FROZEN 1e7 threshold)",
+    "RR-015 docs/research/RR-015-TRANSACTION-COST.md sec.3.1 (BIST liquidity-tier half-spreads; liquid ~4-6x cheaper than micro)"
+  ],
+
+  "hypothesis": "On the D-203 frozen clean universe restricted FIRST to the absolute-liquid universe (trailing-63d-median ADV >= 1e7 TL), the hi52 top-15 EW tilt RETAINS a positive EW_FULL_LIQUID-relative net edge AFTER realistic per-stock cost (Roll + Kyle + tier), with a breakeven >= 2x realized realistic cost, the liquid-long after-cost REAL net clearing the TLREF deposit hurdle, and all 5 gates passing. NULL/expectation alternative: realistic cost still zeroes the liquid-first edge OR a gate FAILS -> hi52 CLOSES (final, N<=3).",
+
+  "what_this_is_NOT": "NOT an optimization (the liquid-ADV threshold is FROZEN below on NRR-006 feasibility + the maintainer-deploy grounds EDGE-UNSEEN; lambda_kyle FROZEN; buffer is a VIEW). NOT a post-hoc threshold pick (post-hoc-grid FORBIDDEN; ONE threshold, frozen before edge). NOT a relaxation of D-204 (the prototype stays tradeable-DEGIL). NOT a re-measurement of the data (reuses the D-203 frozen panel + content hashes verbatim). NOT a redefinition of hi52 (D-203-IDENTICAL signal). NOT a true regime-change OOS -- the walk-forward is honest IN-SAMPLE, the 2024-26 disinflation window is a WEAK proxy; the OOS gap is stated in EVERY verdict. NOT a 4th hi52 round (D-205 is the 3rd and FINAL, N<=3).",
+
+  "candidate_N_lock": {
+    "rule": "N=1 (hi52 LIKIT-ONCE). D-205 is the 3rd and FINAL hi52 measurement (N<=3: D-203 + D-204 + D-205). No 4th round.",
+    "candidate": "hi52-liquid-first (52wk-high proximity within an absolute-ADV-liquid universe)."
+  },
+
+  "liquid_universe_FROZEN": {
+    "thresholds_constant": "D205_LIQUID_ADV_MIN_TL",
+    "value_tl": 10000000.0,
+    "trailing_days": 63,
+    "definition": "Liquid universe at date d = names whose trailing-63d-median daily traded value (value_tl) >= 1e7 TL.",
+    "freeze_process": "Chosen in NRR-006 ADIM-2 (the project) on pool-FEASIBILITY + the maintainer-deploy grounds, EDGE-UNSEEN. The hi52 edge was NEVER computed during threshold selection (post-hoc edge-fitting FORBIDDEN). Pool size is a physical name-count fact independent of the threshold choice; it was measured FIRST (NRR-006 ADIM-1, edge-not-measured), then the threshold was frozen, EN-SON the edge is tested (this run).",
+    "rationale_3criteria_edge_unseen": {
+      "criterion_1_the maintainer_deploy_PRIORITY": "20K-TL order at 1e7 ADV = ~0.08% of ADV -> impact-minimal; comfortably the maintainer-scale.",
+      "criterion_2_N15_feasibility": "pool min 44 / median 78 names, top-15 feasible 100% of rebalances, healthy (>=30) 100% -> clean noiseless top-15 selection.",
+      "criterion_3_real_liquidity": "median liquid-name ADV 24.9M-TL = ~15x the D-204 microcap trap (1.65M) -> well clear of the microcap cost-rate that killed the prototype.",
+      "rejected_alternatives": "2e6 deploy-cleanliness weak (median-ADV ~6.4M, still thin); 5e7+ universe too narrow (criterion-2 fails: 1e8 top-15 feasible only ~17%, 5e8 effectively dead)."
+    },
+    "honesty_note": "If the liquid universe turns out too narrow at any rebalance (top-15 infeasible, pool_size_min < 15), that is itself a D-205 result -> YINE-TRADEABLE-DEGIL, reported, not forced."
+  },
+
+  "universe_REUSE": {
+    "source": "REUSES the D-203 frozen D-202 panel verbatim -- SAME content hashes, no re-freeze.",
+    "n_symbols": 681, "n_days": 1848,
+    "price_content_hash_sha256_prefix": "fd207550da312b19",
+    "fund_content_hash_sha256_prefix": "d72a69774a1c9f03",
+    "note": "The engine asserts these hashes match on load (reproducibility guard); a mismatch RAISES."
+  },
+
+  "windows_REUSE": {
+    "common": {"start": "2019-07-01", "end": "2026-04-30", "primary": true},
+    "note": "Reused verbatim from D-203/D-204. Monthly cadence (D-203/204-comparable)."
+  },
+
+  "factor_geometry_FROZEN_REUSE": {
+    "hi52": {"lookback": 252, "def": "close[d] / rolling-252d-max (proximity, higher=nearer high); D-203-IDENTICAL"},
+    "top_n": 15, "min_pool_n": 30, "rebalance": "monthly last trading day (D-203/204-comparable)",
+    "selection": "select_top_n(pool=liquid) -- monotone rank, so rank-then-pool-filter == rank-within-liquid then top-15 (same 15 picks); no new ranking."
+  },
+
+  "benchmark_FROZEN": {
+    "primary": "EW_FULL_LIQUID = equal-weight of the LIQUID universe per period (the HONEST select-edge bar: does hi52-top-15 beat just holding all liquid names EW?).",
+    "context": "EW_FULL = equal-weight of the entire clean universe (reported for context, reused from D-203 ew_full_benchmark)."
+  },
+
+  "five_gates_FROZEN": {
+    "gate1_selection_null": "Cost-free REAL top-15 vs a fair null drawing random-15 from the SAME liquid pool each period (fair_selection_null with pools=liquid-per-period); PASS if the strategy real-mean beats the >=95th percentile of the null (D203_GATE_NULL_PCTILE).",
+    "gate2_newey_west_aftercost": "NW |t| (lags=3) of the AFTER-COST EW_FULL_LIQUID-relative series >= 2.0 (D205_GATE_NW_T_MIN). STRICTER than D-203: computed after realistic cost, not cost-free.",
+    "gate3_cross_regime_aftercost": "regime_split at 2022-01-01 on the AFTER-COST series -> both sub-periods relative-positive.",
+    "gate4_subtier_consistency": "Split the liquid universe each period into upper/lower ADV half (D205_SUBTIER_SPLIT=0.5); within EACH half run hi52 top-min(15,half) vs that half's EW AFTER cost; PASS if BOTH halves relative-positive (edge not concentrated only at the very top of liquidity). the maintainer NOTE: in a narrow universe (pool <~40 names) the lower half is small -> its mean is NOISY, so a gate4-FAIL must be read ALONGSIDE the reported lower-half basket SAMPLE SIZE (min/median) -- conservative false-negative risk is accepted (deploy-caution direction), but the FAIL reading is sample-size-aware.",
+    "gate5_after_cost": "AFTER-COST EW_FULL_LIQUID-relative mean > 0."
+  },
+
+  "cost_geometry_FROZEN_REUSE_D204": {
+    "model": "Per-stock round-trip = 2*(Roll one-way spread + Kyle one-way impact) + commission(0). Roll (1984) close-only spread is the PRIMARY leg; the RR-015 tier half-spread is the model-independent CROSS-CHECK. Identical to D-204 (src/screening/realistic_cost.py, PORTED not imported).",
+    "lambda_kyle": 1.0, "lambda_kyle_note": "FROZEN; calibration = optimization = FORBIDDEN.",
+    "roll_window": 21, "adv_window": 63, "commission_pct": 0.0, "order_value_tl": 20000, "portfolio_tl": 300000,
+    "breakeven_bps_grid": "0..400bp, 5bp steps (reporting VIEW)", "breakeven_safety_mult": 2.0,
+    "selected_picks_cost_summary": "Reports mean Roll-leg round-trip + roll-zero share AMONG the names hi52-liquid actually trades (compare to the D-204 microcap ~340bp / roll-zero 51.9% -- the model-independent 'what does it cost to trade THESE picks' read)."
+  },
+
+  "deploy_hurdle_FROZEN_REUSE_D204": {
+    "value": 0.000222,
+    "thresholds_constant": "D205_DEPLOY_MIN_LIQUID_NET (reuses D204_DEPLOY_MIN_LIQUID_NET)",
+    "rule": "The liquid-long after-cost REAL monthly net must clear the mean monthly REAL TLREF deposit/repo carry (project principle 'real > max(TUFE, TLREF)'). Returns are TUFE-deflated, so the hurdle is the real-TLREF-carry.",
+    "reproducibility_guard": "The engine RECOMPUTES the hurdle from the frozen TLREF + TUFE snapshots and ASSERTS |recomputed - 0.000222| <= 5e-6 (D205_DEPLOY_HURDLE_TOL), else RAISES (drift guard)."
+  },
+
+  "statistics_FROZEN_REUSE": {
+    "newey_west_lags": 3, "null_seed": 12345, "null_n_resamples": 2000,
+    "note": "Reused verbatim from D-203/D-204 so the measurement matches the KESIN-TEST + STRES-TEST exactly."
+  },
+
+  "verdict_rule_FROZEN_2way": {
+    "TRADEABLE_EDGE": "ALL 5 gates PASS AND liquid-long after-cost REAL net >= the TLREF deposit hurdle AND breakeven >= 2x realistic cost AND pool_size_min >= 15 (top-15 feasible everywhere) -> hi52's FIRST deployable Yol-1 FORM (overlay CANDIDATE; deploy is a separate the project decision, NOT auto-triggered).",
+    "YINE_TRADEABLE_DEGIL": "after-cost EW_FULL_LIQUID-relative mean <= 0 OR breakeven < 2x realistic cost OR the liquid universe is too narrow (pool_size_min < 15) OR ANY gate FAILS OR the real net is below the deposit hurdle -> hi52 CLOSES (real phenomenon but not retail-tradeable even liquid-first; clean archive, CONSISTENT with the D-204 verdict).",
+    "oos_gap_MANDATORY": "Every verdict (both branches) attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. Regime-change robustness is NOT proven. Deployment is a separate the project decision.",
+    "no_post_hoc_relaxation": "the liquid-ADV threshold, the 2x safety multiple, and the gate thresholds are frozen here; not loosened after seeing results. No 4th hi52 round (N<=3 FINAL)."
+  },
+
+  "thresholds_reference": {
+    "decision_constants": "src/signals/thresholds.py D205_* block (D205_LIQUID_ADV_MIN_TL=1e7, D205_LIQUID_ADV_TRAILING_DAYS=63, D205_SUBTIER_SPLIT=0.5) + reused D204_*/D203_* (cost/hurdle/gate constants).",
+    "measurement_geometry": "src/screening/d205_config.py (reuses snapshots/windows/hi52-geometry from d204_config + cost/walk-forward/disinflation/regime/deploy geometry verbatim).",
+    "cost_mechanics": "src/screening/realistic_cost.py (Roll/Kyle/tier; PORTED from ballast)."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19", "source": "D-202 (reused from D-203/204)"},
+    "fundamentals": {"file": "data/clean_universe/fundamentals_2019_2026.parquet",
+                     "content_hash_sha256_prefix": "d72a69774a1c9f03", "source": "D-203 FAZ-0 (reused)"},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet", "note": "daily TUFE index (D-187 frozen)"},
+    "tlref": {"file": "data/snapshots/exposure_d187_tlref.parquet",
+              "note": "daily TLREF return-index (D-187 frozen); first valid 2022-07 -> hurdle window 2022-07..2026-04"}
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_d205.json (this file)",
+    "docs/yol1/d205_results.json (after run: liquid-universe size series + cost 3-numbers Roll/tier/breakeven + EW_FULL_LIQUID-relative edge + 5 gates + buffer VIEW + walk-forward + deploy hurdle + verdict)",
+    "docs/research/D-205-rapor.md (FINAL hi52 verdict TRADEABLE-EDGE / YINE-TRADEABLE-DEGIL; liquid-universe size; cost 3-numbers; OOS-gap explicit) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}
