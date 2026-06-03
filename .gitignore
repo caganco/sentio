@@ -92,3 +92,10 @@ data/clean_universe/*.parquet
 # Snapshot parquet ve meta: lokal kalir
 data/snapshots/*.parquet
 data/snapshots/*.meta.json
+
+# Public-release: AI-orkestrasyon sinyalini gizle (prod-equivalent imaj).
+# CLAUDE.md koksel stub + .agent-local/ govde, klonlara junction ile paylasilir.
+# Govde .agent-local/CLAUDE_BODY.md'de; duzenleme orada. Bkz .junction-map.md
+/CLAUDE.md
+.agent-local/
+.junction-map.md
