@@ -269,9 +269,14 @@ def run_d205(
     out_path: Path | str | None = None,
     stage0_path: Path | str = _STAGE0_PATH,
     require_stage0: bool = True,
+    quoted_panel: pd.DataFrame | None = None,
 ) -> dict:
     """Full D-205 hi52 LIKIT-ONCE test. REFUSES to run unless STAGE0_d205.json exists
-    (pre-registration). Reuses the D-203 engine + D-204 cost harness + frozen D-202 panel."""
+    (pre-registration). Reuses the D-203 engine + D-204 cost harness + frozen D-202 panel.
+
+    `quoted_panel` (default None -> unchanged D-205 behavior) is forwarded to the cost
+    harness; injecting the D-207 EOD quoted-spread panel reproduces the corrected
+    quoted-primary cost (the only difference exercised by the D-208 revisited re-test)."""
     stage0_path = Path(stage0_path)
     if require_stage0 and not stage0_path.exists():
         raise RuntimeError(
@@ -305,8 +310,8 @@ def run_d205(
         long_baskets.append(eng.select_top_n(d, comp, cfg.D205_TOP_N, pool=pool))
         short_baskets.append(eng.select_bottom_n(d, comp, cfg.D205_TOP_N, pool=pool))
 
-    # --- realistic cost (REUSE D-204) ---
-    cost = d204.per_stock_cost_panel(close, value_tl, rebal)
+    # --- realistic cost (REUSE D-204; quoted_panel=None -> unchanged D-205 cost) ---
+    cost = d204.per_stock_cost_panel(close, value_tl, rebal, quoted_panel=quoted_panel)
     free = d204.d204_basket_net_series(pmat, long_baskets, rebal, cost_map=None)
     roll = d204.d204_basket_net_series(pmat, long_baskets, rebal, cost_map=cost["cost_roll"])
     tier = d204.d204_basket_net_series(pmat, long_baskets, rebal, cost_map=cost["cost_tier"])

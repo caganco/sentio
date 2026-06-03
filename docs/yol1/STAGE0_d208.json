@@ -1,0 +1,103 @@
+{
+  "directive": "D-208",
+  "title": "hi52 LIKIT RE-TEST under corrected cost -- D-205-REVISITED (ADIM-1): the EXACT D-205 hi52-liquid measurement, changing ONLY the cost input to the D-207-corrected quoted-primary model -- Stage 0 pre-registration",
+  "preregistered_date": "2026-06-04",
+  "config_module": "src/screening/d205_config.py (REUSED verbatim -- D-208 changes NO measurement geometry)",
+  "config_version": "d205-v1 (reused) + d207-corrected-cost",
+  "decision_owner": "Orchestrator+Cagan. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a TRADEABLE-EDGE verdict is hi52's first deployable Yol-1 FORM (an overlay CANDIDATE at most -- separate O+Cagan decision). Deployment is NEVER auto-triggered.",
+
+  "what_this_is": "D-208 = D-205-REVISITED. It re-runs the D-205 hi52-liquid 5-gate test on the SAME frozen D-202 panel, SAME hi52 signal (D-203-identical), SAME liquid universe (trailing-63d-median ADV >= 1e7 TL), SAME EW_FULL_LIQUID benchmark, SAME 5 gates, SAME 2-way verdict rule and SAME deploy hurdle. The ONLY difference is the COST INPUT: the D-207-corrected realistic_cost (quoted-primary EOD spread -> 252d-Roll fallback -> re-scaled tier; FIX-1 half-spread doubled; FIX-3 re-tier) replaces the D-205 cost (then-inflated: 21d-Roll PRIMARY + the 2S double-count + the unreachable D-204 tiers).",
+
+  "why": "NRR-010 diagnosed the shared transaction-cost model as inflated ~12-25x on liquid names; D-207 corrected it (FIDELITY passed: liquid megas 271-509bp -> 16-26bp round-trip; microcap impact stayed real). D-205 had declared hi52-liquid 'YINE-TRADEABLE-DEGIL' partly on the inflated cost (realized ~298bp >> breakeven ~138bp -> cost gate failed). With the corrected ~20bp cost, breakeven-138 >> 20 -> the cost gate can now PASS. D-208 measures, on a FAIR footing, whether hi52-liquid is tradeable once the inflated-cost confound is removed.",
+
+  "honest_expectation": "Declared BEFORE results, no celebration. The cost gate (gate5: after-cost relative mean > 0) will LIKELY now PASS (D-205 breakeven grid: at a ~20bp flat cost the EW_FULL_LIQUID-relative mean is ~+0.66%/month, positive). BUT the STATISTICAL wall (gate2: NW |t| >= 2) probably STILL STANDS: the hi52-liquid COST-FREE relative edge was already only NW t=1.70 with a CI that INCLUDES zero (D-205 rel_liquid_costfree). A near-constant ~20bp cost barely changes the t, so the after-cost t likely remains < 2. The probable verdict is therefore 'not cost -- SIGNIFICANCE kills', but this time established by MEASUREMENT, not assumption. If gate2 unexpectedly passes, that is a genuine surprise and is reported openly. Either outcome is reported honestly.",
+
+  "relationship_to_d205_STRANGLER": {
+    "rule": "D-208 is a SEPARATE NEW record. The D-205 records -- docs/research/D-205-rapor.md, docs/yol1/STAGE0_d205.json, docs/yol1/d205_results.json -- are NOT touched. The D-205 verdict stays historically valid ('given under the then-inflated cost'). D-208 issues its OWN verdict (under corrected cost). Past evolution is never erased.",
+    "d205_verdict_preserved": "YINE-TRADEABLE-DEGIL (under inflated ~298bp cost); 1/5 gates (only gate1)."
+  },
+
+  "candidate_N_note": {
+    "rule": "hi52's N<=3 budget (D-203 KESIN + D-204 STRES + D-205 LIKIT-ONCE) is FULL. D-208 is NOT a 4th N-round. It is a COST-PREMISE-CHANGED re-test: NRR-010/D-207 produced NEW INFORMATION (the cost model the D-205 verdict relied on was inflated and has been corrected), which legitimately warrants re-measuring the SAME candidate on a fair footing. No signal redefinition, no threshold re-pick, no universe change -- only the corrected cost is applied. This is a revisited, not a new candidate."
+  },
+
+  "the_only_difference_FROZEN": {
+    "d205_cost_inflated": "Roll PRIMARY at 21d window; round_trip = 2*(full_S + impact) (the 2S double-count); D-204 tier ladder (MEGA>=2e9 TL unreachable). Realized ~298bp flat-bps-equiv; breakeven ~138bp -> cost gate FAILED.",
+    "d208_cost_corrected_D207": "Spread source hierarchy EOD-quoted (observed, vol-robust) -> 252d-Roll fallback -> re-scaled D207 tier floor. round_trip = 2*(half_spread + impact) (FIX-1). Re-scaled tiers from observed quoted medians (FIX-3). Quoted panel built locally from the archive and INJECTED (CI-safe; never built in CI).",
+    "kyle_impact_UNCHANGED": "lambda_kyle=1.0, sigma window 21d -- FROZEN, identical to D-205. Only the SPREAD leg + tier floor changed (D-207 scope). Microcap impact is REAL and unchanged.",
+    "everything_else_IDENTICAL": "hi52 signal (close/rolling-252d-max), liquid universe (ADV>=1e7, trailing 63), EW_FULL_LIQUID benchmark, top-15, monthly rebalance, the 5 gates, NW lags=3, null seed 12345 / 2000 resamples, the deploy hurdle 0.000222 and its drift guard, the frozen D-202 panel content hashes."
+  },
+
+  "factor_geometry_FROZEN_REUSE": {
+    "hi52": {"lookback": 252, "def": "close[d] / rolling-252d-max (proximity, higher=nearer high); D-203-IDENTICAL"},
+    "top_n": 15, "min_pool_n": 30, "rebalance": "monthly last trading day (D-203/204/205-comparable)"
+  },
+
+  "liquid_universe_FROZEN_REUSE_D205": {
+    "thresholds_constant": "D205_LIQUID_ADV_MIN_TL",
+    "value_tl": 10000000.0,
+    "trailing_days": 63,
+    "definition": "Liquid universe at date d = names whose trailing-63d-median daily traded value (value_tl) >= 1e7 TL. UNCHANGED from D-205."
+  },
+
+  "benchmark_FROZEN_REUSE_D205": {
+    "primary": "EW_FULL_LIQUID = equal-weight of the LIQUID universe per period.",
+    "context": "EW_FULL = equal-weight of the entire clean universe."
+  },
+
+  "five_gates_FROZEN_REUSE_D205": {
+    "gate1_selection_null": "Cost-free REAL top-15 vs a fair null drawing random-15 from the SAME liquid pool each period; PASS if the strategy real-mean beats the >=95th percentile of the null. COST-FREE -> identical to D-205 (NOT affected by the cost change).",
+    "gate2_newey_west_aftercost": "NW |t| (lags=3) of the AFTER-COST EW_FULL_LIQUID-relative series >= 2.0 (D205_GATE_NW_T_MIN). Computed on the CORRECTED-cost series.",
+    "gate3_cross_regime_aftercost": "regime_split at 2022-01-01 on the AFTER-COST (corrected) series -> both sub-periods relative-positive.",
+    "gate4_subtier_consistency": "Within-liquid upper/lower ADV-half (split 0.5); both halves relative-positive AFTER corrected cost; lower-half SAMPLE SIZE reported (Cagan note).",
+    "gate5_after_cost": "AFTER-COST (corrected) EW_FULL_LIQUID-relative mean > 0."
+  },
+
+  "cost_geometry_CORRECTED_D207": {
+    "model": "Per-stock round-trip = 2*(one-way HALF-spread + Kyle one-way impact) + commission(0). Spread source per (date,name): EOD quoted half-spread (observed) -> 252d-Roll/2 fallback -> re-scaled D207 tier half-spread. The corrected src/screening/realistic_cost.py + d204_hi52_stress.per_stock_cost_panel (post-D-207) is REUSED as-is; the quoted panel is injected via run_d205's quoted_panel parameter.",
+    "quoted_panel": "Built locally by src/screening/quoted_spread.load_or_build_quoted_panel over the liquid-union symbols, window=D207_QUOTED_WINDOW(63), min_coverage=D207_QUOTED_MIN_COVERAGE(21), span 2019-07-01..2026-04-30. INJECTED parameter (archive never enters CI).",
+    "lambda_kyle": 1.0, "sigma_window": 21, "adv_window": 63, "commission_pct": 0.0, "order_value_tl": 20000, "fallback_roll_window": 252,
+    "breakeven_safety_mult": 2.0,
+    "note": "lambda_kyle / order_value / hurdle / windows are FROZEN at the D-205 values; calibration = optimization = FORBIDDEN. The cost CHANGE is purely the D-207 correction, NOT a re-tune."
+  },
+
+  "deploy_hurdle_FROZEN_REUSE_D205": {
+    "value": 0.000222,
+    "thresholds_constant": "D205_DEPLOY_MIN_LIQUID_NET",
+    "rule": "The liquid-long after-cost REAL monthly net must clear the mean monthly REAL TLREF deposit/repo carry. The engine RECOMPUTES from the frozen TLREF+TUFE snapshots and ASSERTS |recomputed-0.000222| <= 5e-6 (drift guard), else RAISES. UNCHANGED."
+  },
+
+  "statistics_FROZEN_REUSE_D205": {
+    "newey_west_lags": 3, "null_seed": 12345, "null_n_resamples": 2000
+  },
+
+  "verdict_rule_FROZEN_2way_REUSE_D205": {
+    "engine": "Reuses d205_hi52_liquid.d205_verdict VERBATIM (no new thresholds, no re-pick).",
+    "TRADEABLE_EDGE": "ALL 5 gates PASS AND liquid-long after-cost REAL net >= the TLREF deposit hurdle AND breakeven >= 2x the CORRECTED realized cost AND pool_size_min >= 15 -> hi52's FIRST deployable Yol-1 FORM (overlay CANDIDATE; deploy is a separate O+Cagan decision, NOT auto-triggered).",
+    "TRADEABLE_DEGIL_significance": "If gate5 (after-cost mean) is now POSITIVE (cost gate passes) BUT gate2 (NW |t| >= 2) FAILS (or any other gate fails) -> hi52-liquid 'not cost, SIGNIFICANCE kills' is now DEFINITE on a fair footing: the inflated-cost excuse is removed, the signal is simply too thin to be statistically tradeable. Clean closure.",
+    "oos_gap_MANDATORY": "Every verdict (both branches) attaches the explicit OOS-gap statement: 2019-26 is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. Regime-change robustness is NOT proven.",
+    "no_post_hoc_relaxation": "No threshold, safety-multiple, gate, signal, or universe is loosened. The ONLY change vs D-205 is swapping the inflated cost for the D-207-corrected cost."
+  },
+
+  "thresholds_reference": {
+    "decision_constants": "src/signals/thresholds.py D205_* block (reused) + D207_* block (corrected cost / quoted-spread / re-tier constants).",
+    "measurement_geometry": "src/screening/d205_config.py (reused verbatim).",
+    "cost_mechanics": "src/screening/realistic_cost.py + d204_hi52_stress.per_stock_cost_panel + quoted_spread.py (D-207-corrected, reused as-is)."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19", "source": "D-202 (reused from D-203/204/205); engine asserts the hash matches"},
+    "fundamentals": {"file": "data/clean_universe/fundamentals_2019_2026.parquet",
+                     "content_hash_sha256_prefix": "d72a69774a1c9f03", "source": "D-203 FAZ-0 (reused)"},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet", "note": "daily TUFE index (D-187 frozen)"},
+    "tlref": {"file": "data/snapshots/exposure_d187_tlref.parquet", "note": "daily TLREF return-index (D-187 frozen)"},
+    "quoted_spread_archive": {"dir": "data/bist_datastore_archive/prices_official", "note": "EOD best bid/ask source for the quoted panel; LOCAL only, NOT in CI"}
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_d208.json (this file)",
+    "docs/yol1/d208_results.json (after run: corrected-cost 3-numbers [EW_FULL_LIQUID-relative mean, NW-t, breakeven vs corrected realized cost] + 5 gates + verdict + an inflated-vs-corrected comparison block referencing d205_results.json)",
+    "docs/research/D-208-rapor.md (D-205-revisited verdict; corrected-cost numbers; gate2 t; inflated-vs-corrected table; OOS-gap explicit) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}
