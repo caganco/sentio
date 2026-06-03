@@ -58,9 +58,12 @@ def test_per_stock_cost_roll_zero_accounting_present():
     close, value_tl, rebal = _smooth_panel()
     out = d204.per_stock_cost_panel(close, value_tl, rebal)
     s = out["summary"]
-    # smooth trend -> serial cov >= 0 -> Roll floored -> tier-floor engaged for both names
+    # No quoted panel + 90 rows < 252-day fallback Roll window -> Roll NaN -> tier-floor
+    # engaged for both names (D-207: n_roll_zero now counts spread_source=="tier" cells).
     assert s["n_roll_zero"] == 2
     assert s["roll_zero_frac"] == pytest.approx(1.0)
+    assert s["spread_source_counts"] == {"quoted": 0, "roll": 0, "tier": 2}
+    assert s["spread_source_frac"]["tier"] == pytest.approx(1.0)
     assert s["mean_round_trip_tier"] is not None
 
 
