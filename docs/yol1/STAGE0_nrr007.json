@@ -1,0 +1,96 @@
+{
+  "directive": "NRR-007",
+  "title": "lowvol63 ISOLATED: isolated 5-gate test of the lowvol63 factor hidden inside the EDGE-2 composite (1st isolated lowvol63 measurement, N<=3 per factor)",
+  "preregistered_date": "2026-06-03",
+  "config_module": "src/screening/nrr007_config.py",
+  "config_version": "nrr007-v1",
+  "decision_owner": "Orchestrator+Cagan. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE headline is at most an overlay CANDIDATE -- a separate O+Cagan decision. Deployment is NEVER auto-triggered.",
+
+  "discipline_note": "Committed BEFORE any NRR-007 result is computed and BEFORE any result is seen. The engine (src/screening/nrr007_lowvol63.py) REFUSES to run unless this file exists. The lowvol63 definition (D-203-IDENTICAL), the 5-gate adaptation (gates 1-4 cost-free D-203, gate-5 realistic Roll+Kyle D-204), and the combined verdict are FROZEN here and will NOT be relaxed post-hoc (no window/lookback widening, no factor redefinition, no lambda_kyle re-calibration, no breakeven cherry-picking, no new threshold). N=1 candidate (lowvol63 ISOLATED). MEASUREMENT-ONLY; optimization FORBIDDEN. The lowvol63 signal is D-203/EDGE-2-IDENTICAL (the engine function lowvol_panel is CALLED, the committed engine is NOT modified). Gates 1-4 run via run_gates_on_score, a BIREBIR copy of eng.run_gates whose ONLY difference is the INJECTED score panel; a MATCH=True test asserts the replica reproduces eng.run_gates exactly on hi52 (zero-touch fidelity). REUSES the D-203 frozen panel verbatim (same content hashes) + the D-204 cost/stat geometry verbatim.",
+
+  "motivation": "hi52 CLOSED (D-205, N<=3 final: real signal but not retail-tradeable even liquid-first). Decision (Cagan+O): measure the remaining cross-sectional Yol-1 candidates ONE BY ONE. lowvol63 was a component of the D-203 EDGE-2 composite (mom120 + hi52 + lowvol63, equal-weight rank-avg) but was NEVER tested in ISOLATION (the D-203 engine only dispatched value/edge2/hi52). The hi52 lesson: a bundle can HIDE a distinct factor -> isolated test deserved. NRR-007 runs the IDENTICAL lowvol63 signal through the D-203 5-gate methodology with a realistic gate-5.",
+
+  "honest_expectation": "demo-3 S1/H4 pre-measured lowvol63-isolated +0.56%/mo, t=0.94 (BELOW the Gate-2 t>=2 bar, insignificant) -> PROBABLY ELIMINATED. This is a DEFINITIVE-CLOSURE run; NO celebration expected. It is cheap (engine ready, one run). BUT the demo-3 pre-indicator was pre-cost + full-universe; the isolated full test (5 gates + realistic cost) MAY differ -> it still deserves the run (hi52 lesson: pre-indicator != full test). Whatever the result, report it honestly. Elimination is a clean, valuable result.",
+
+  "does_NOT_change": "NRR-007 does NOT redefine lowvol63 (D-203/EDGE-2-IDENTICAL), does NOT modify the committed D-203 engine (gates via injected-score replica, MATCH=True verified), does NOT touch D203_CANDIDATES. It is a measurement of an existing factor in isolation.",
+
+  "basis": [
+    "D-203 results docs/yol1/d203_results.json + STAGE0_d203.json (lowvol63 = EDGE-2 component; lowvol_panel defined at d203_clean_universe_test.py:219-231)",
+    "D-205 results docs/yol1/d205_results.json + D-205-rapor.md (hi52 CLOSED N<=3 final -> proceed to remaining candidates one by one)",
+    "demo-3 S1/H4 lowvol63-isolated pre-indicator (+0.56%/mo, t=0.94, pre-cost + full-universe -> below Gate-2 bar)",
+    "D-204 docs/research/D-204-rapor.md + d204_hi52_stress.py (realistic Roll+Kyle cost harness, reused verbatim for gate-5)"
+  ],
+
+  "hypothesis": "On the D-203 frozen clean universe, the ISOLATED lowvol63 top-15 EW tilt produces a positive EW_FULL-relative net edge that survives the 5 gates (selection-null + NW|t|>=2 cost-free + cross-regime 2022-01 + liquidity-tercile + realistic after-cost) AND a realistic after-cost EW_FULL-relative mean > 0 with breakeven >= 2x realized realistic cost. NULL/expectation alternative: the cost-free edge is insignificant (Gate-2 FAIL, consistent with demo-3 t=0.94) OR realistic cost zeroes it -> lowvol63 is ELIMINATED / GERCEK-ama-tradeable-DEGIL.",
+
+  "what_this_is_NOT": "NOT an optimization (lowvol window 63 FROZEN D-203-identical; lambda_kyle FROZEN; no threshold pick). NOT a redefinition of lowvol63 (D-203/EDGE-2-IDENTICAL signal). NOT a modification of the committed engine (injected-score replica, MATCH=True). NOT a re-measurement of the data (reuses the D-203 frozen panel + content hashes verbatim). NOT a true regime-change OOS -- the walk-forward is honest IN-SAMPLE, the 2024-26 disinflation window is a WEAK proxy; the OOS gap is stated in every non-SERAP verdict. NOT a 4th-round of a closed factor (lowvol63 is its 1st isolated measurement; N<=3 lock per factor).",
+
+  "candidate_N_lock": {
+    "rule": "N=1 (lowvol63 ISOLATED). NRR-007 is the 1st isolated lowvol63 measurement (N<=3 lock per factor).",
+    "candidate": "lowvol63-isolated (inverted trailing-63d realized-vol, low-vol = high score)."
+  },
+
+  "factor_geometry_FROZEN_REUSE": {
+    "lowvol63": {"window": 63, "def": "score = -std of trailing-63d clipped daily returns (low vol = high score); D-203/EDGE-2-IDENTICAL (eng.lowvol_panel)"},
+    "top_n": 15, "min_pool_n": 30, "rebalance": "monthly last trading day (D-203/204-comparable)",
+    "selection": "select_top_n on _xs_rank(lowvol_panel(daily, rebal)); injected as the score panel into the run_gates replica (no new ranking, no engine edit)."
+  },
+
+  "benchmark_FROZEN": {
+    "primary": "EW_FULL = equal-weight of the entire clean universe per period (the D-203 standard honest bar -- does lowvol63-top-15 beat just holding all names EW?)."
+  },
+
+  "windows_REUSE": {
+    "common": {"start": "2019-07-01", "end": "2026-04-30", "primary": true},
+    "note": "Reused verbatim from D-203/D-204/D-205. Monthly cadence (D-203/204-comparable). lowvol63 is price-only; the common window is used as PRIMARY for D-204/D-205 comparability."
+  },
+
+  "five_gates_FROZEN": {
+    "gate1_selection_null": "Cost-free REAL top-15 vs a fair null drawing random-15 from the SAME full pool each period (eng.fair_selection_null); PASS if the strategy real-mean beats the >=95th percentile of the null (D203_GATE_NULL_PCTILE). D-203-IDENTICAL.",
+    "gate2_newey_west_costfree": "NW |t| (lags=3) of the COST-FREE EW_FULL-relative series >= 2.0 (D203_GATE_NW_T_MIN). D-203-IDENTICAL. THIS IS THE KEY GATE per the demo-3 t=0.94 expectation.",
+    "gate3_cross_regime_costfree": "regime_split at 2022-01-01 on the cost-free EW_FULL-relative series -> both sub-periods relative-positive. D-203-IDENTICAL.",
+    "gate4_liquidity_costfree": "within the LIQUID value_tl tercile, the cost-free EW_FULL-relative edge survives (>0); liquidity_collapse flagged if illiquid>0 but liquid not. D-203-IDENTICAL.",
+    "gate5_after_cost_realistic": "REALISTIC per-stock Roll(1984)+Kyle(1985) cost (D-204 per_stock_cost_panel / d204_basket_net_series, REUSED verbatim, lambda_kyle FROZEN). PASS if the after-cost EW_FULL-relative mean > 0. STRICTER than the D-203 flat gate-5 (the D-203 20/100bp flat legs are reported as CONTEXT only)."
+  },
+
+  "cost_geometry_FROZEN_REUSE_D204": {
+    "model": "Per-stock round-trip = 2*(Roll one-way spread + Kyle one-way impact) + commission(0). Roll (1984) close-only spread PRIMARY; RR-015 tier half-spread model-independent CROSS-CHECK. Identical to D-204 (src/screening/realistic_cost.py, PORTED).",
+    "lambda_kyle": 1.0, "lambda_kyle_note": "FROZEN; calibration = optimization = FORBIDDEN.",
+    "roll_window": 21, "adv_window": 63, "commission_pct": 0.0, "order_value_tl": 20000, "portfolio_tl": 300000,
+    "breakeven_bps_grid": "0..400bp, 5bp steps (reporting VIEW)", "breakeven_safety_mult": 2.0,
+    "cost_note": "lowvol is generally LOW turnover (unlike hi52 ~88%). Turnover + holding-period are REPORTED (d204.holding_period_stats); if turnover is low, cost bites less -> the cost-free signal (gate-2) is the real question. selected_picks roll round-trip + roll-zero reported (compare to D-204 microcap ~340bp / roll-zero %51.9)."
+  },
+
+  "statistics_FROZEN_REUSE": {
+    "newey_west_lags": 3, "null_seed": 12345, "null_n_resamples": 2000,
+    "note": "Reused verbatim from D-203/D-204 so the measurement matches the KESIN-TEST + STRES-TEST exactly."
+  },
+
+  "verdict_rule_FROZEN_combined": {
+    "ELENDI": "cost-free verdict (eng.d203_verdict) == SERAP (EW_FULL-relative <= 0 OR long-short < 0 OR liquidity_collapse OR a cost-free gate FAILS, incl. gate-2 NW|t|<2) -> lowvol63 ELIMINATED (expected; consistent with demo-3 t=0.94). Clean archive; no OOS-gap needed (signal not even real cost-free).",
+    "GERCEK-EDGE": "cost-free verdict GERCEK-EDGE or REJIM-TILT AND realistic after-cost EW_FULL-relative mean > 0 AND breakeven >= 2x realistic cost -> the first non-hi52 deployable Yol-1 cross-sectional CANDIDATE (overlay CANDIDATE; deploy is a separate O+Cagan decision, NOT auto-triggered). SURPRISE relative to the demo-3 pre-indicator.",
+    "GERCEK-ama-tradeable-DEGIL": "cost-free verdict GERCEK-EDGE or REJIM-TILT BUT realistic after-cost mean <= 0 OR breakeven < 2x realistic cost -> signal real but not retail-tradeable; clean archive, consistent with the hi52 pattern.",
+    "oos_gap_MANDATORY": "Every NON-SERAP verdict attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. Regime-change robustness is NOT proven. Deployment is a separate O+Cagan decision.",
+    "no_post_hoc_relaxation": "the lowvol window, the gate thresholds, the 2x safety multiple are frozen here; not loosened after seeing results. lowvol63 N<=3 lock per factor."
+  },
+
+  "thresholds_reference": {
+    "decision_constants": "REUSED from src/signals/thresholds.py via d203_config/d204_config (D203_GATE_NW_T_MIN=2.0, D203_GATE_NULL_PCTILE=0.95, D203_GATE_COST_LOW/HIGH_BPS, D204_LAMBDA_KYLE, D204_BREAKEVEN_SAFETY_MULT). NO new NRR-007 threshold (the lowvol window + gate thresholds + cost constants already exist).",
+    "measurement_geometry": "src/screening/nrr007_config.py (reuses snapshots/windows/lowvol-geometry from d203_config + cost/walk-forward/regime geometry from d204_config verbatim).",
+    "cost_mechanics": "src/screening/realistic_cost.py (Roll/Kyle/tier; PORTED from ballast), via d204_hi52_stress.py."
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19", "source": "D-202 (reused from D-203/204/205)"},
+    "fundamentals": {"file": "data/clean_universe/fundamentals_2019_2026.parquet",
+                     "content_hash_sha256_prefix": "d72a69774a1c9f03", "source": "D-203 FAZ-0 (reused; not needed for lowvol63 but panel-consistent)"},
+    "tufe": {"file": "data/snapshots/exposure_d187_tufe.parquet", "note": "daily TUFE index (D-187 frozen)"}
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_nrr007.json (this file)",
+    "docs/yol1/nrr007_results.json (after run: cost 3-numbers Roll/tier/breakeven + EW_FULL-relative cost-free + realistic + 5 gates + turnover/holding + walk-forward + cost-free 3-way verdict + combined headline)",
+    "docs/research/NRR-007-rapor.md (verdict ELENDI / GERCEK-EDGE / GERCEK-ama-tradeable-DEGIL; turnover lowvol-low-or-not; cost 3-numbers; OOS-gap explicit; demo-3 t=0.94 comparison) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}
