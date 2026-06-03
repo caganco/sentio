@@ -7,7 +7,7 @@
 
 ### Adım 1: Builder Raporu Al (Otomatik)
 Task Scheduler 09:00'da çalışır.
-Rapor burada: `<local-path>
+Rapor burada: `<your-path>\bist-trading-system\reports\report_YYYY-MM-DD.html`
 Tarayıcıda aç, içeriği kopyala.
 
 ### Adım 2: Analyst Agent'a Ver
@@ -106,16 +106,16 @@ Builder'dan Analyst'a:
 
 **Builder'ı manuel çalıştır:**
 ```powershell
-cd <local-path>
+cd <your-path>\bist-trading-system
 python scripts/daily_update.py --scan --generate-report
 ```
 
 **Logları kontrol et:**
 ```powershell
-type <local-path>
+type <your-path>\bist-trading-system\logs\errors.log
 ```
 
 **Config güncelle:**
 ```powershell
-notepad <local-path>
+notepad <your-path>\bist-trading-system\config.yaml
 ```
