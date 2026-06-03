@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "directive": "RR-046 ASAMA-2a Katman-1",
+  "phase": "PEAD earnings-month proxy + seasonal SUE (data acquisition only)",
+  "timestamp_utc": "2026-06-03T18:19:24Z",
+  "source": "bist_datastore_archive/fundamental_ratios/degoran*.zip (local, read-only)",
+  "announce_proxy": "month of net_profit YTD step-change ~ report publication month (validated vs KAP disclosureDetail.time: THYAO FY2022 step 2023-03 == KAP 01.03.2023)",
+  "look_ahead_note": "announce_month M known at end-M; consume_from_month = M+1 (look-ahead safe). SUE std is trailing-only.",
+  "sue_definition": "seasonal-random-walk: UE = Q_t - Q_{t-4q}; SUE = UE / trailing-std(UE, window=8q, min_periods=6q). Konsensus GEREKMEZ.",
+  "decumulation": "YTD -> single-quarter, fiscal-year reset (Q1=raw YTD; Q_n=YTD_n-YTD_{n-1}); gap-aware (decum_ok=False -> q/ue/sue NaN).",
+  "calendar_buckets": "FY~Feb-Apr / Q1~May-Jun / H1~Jul-Sep / 9M~Oct-Dec (boundary months Apr/Jun/Jan less certain; documented proxy).",
+  "unit_harmonization": {
+    "n_breaks": 3,
+    "breaks": [
+      {
+        "month": "2009-09",
+        "median_ratio": 0.093,
+        "applied_factor": 0.1
+      },
+      {
+        "month": "2009-10",
+        "median_ratio": 11.3,
+        "applied_factor": 10.0
+      },
+      {
+        "month": "2026-02",
+        "median_ratio": 1051.764,
+        "applied_factor": 1000.0
+      }
+    ]
+  },
+  "caveats": [
+    "month-resolution only (exact-day = budgeted KAP Katman-2, not in scope)",
+    "nominal SUE dominated by TL inflation 2021-2024; real-deflation/scaling is an edge-test design choice (separate D), deliberately NOT applied",
+    "calendar bucket is a heuristic; ~2009-2011 early-warmup quarters noisy",
+    "survivorship: panel = today-available degoran symbols"
+  ],
+  "n_rows": 24937,
+  "n_symbols": 794,
+  "n_sue_defined": 10131,
+  "fiscal_year_min": 2008,
+  "fiscal_year_max": 2025
+}

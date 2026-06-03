@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "directive": "RR-046 ASAMA-2a (macro, secondary)",
+  "phase": "macro-event-dates (data acquisition only; edge-prior WEAK, no edge claimed)",
+  "timestamp_utc": "2026-06-03T18:24:13Z",
+  "cpi_release": {
+    "method": "TUIK rule-proxy: 3rd of M+1 rolled past weekends",
+    "exact": false,
+    "note": "actual TUIK dates land within ~1-2 days; refine via Ulusal Veri Yayimlama Takvimi if the edge-test needs exact-day.",
+    "ref_months": "2019-01..2026-04",
+    "n": 88
+  },
+  "ppk_decision": {
+    "exact": true,
+    "n": 2,
+    "deferred_note": "full 2019-2025 PPK history NOT available offline (EVDS 404/migrated; local_macro.db has only the 2 latest). 2019-2025 dates DEFERRED to a live recorder / budgeted TCMB press-release scrape (Katman-2-style); unverifiable dates deliberately NOT hardcoded.",
+    "source": "local_macro_fallback.yaml"
+  },
+  "look_ahead_note": "event_date is the public release/decision day; consumers enter t+1 (release is 10:00 / intraday).",
+  "n_rows": 90
+}
