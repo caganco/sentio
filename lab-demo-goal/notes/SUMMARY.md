@@ -17,8 +17,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L7 | FEASIBILITY-FRONTIER (sentez) | L1/L2/L3/L6 ledger, iki-kapi siniflama | DESCRIPTIVE-SYNTHESIS (0/20 NO-WALL; ileri go/no-go kurali) |
 | L8 | POWER/SAMPLE-SIZE (sentez) | L1/L6 right-signed likit-leg, n_required(\|t\|=2) + reachability | DESCRIPTIVE-POWER-VIEW (olay-kitligi darbogaz; daily-PEAD tek-ulasilabilir) |
 | L9 | PEAD-VOLUME (sentez/feasibility) | GERCEK earnings-panel likit-SUE olay-sayimi + L8-bandi reachability | DESCRIPTIVE-VOLUME-VIEW (~95-136 likit-olay/yil; band ~1-8 yilda ulasilir; L8'i empirik dogrular) |
+| L10 | PEAD-EFFECT (sentez/feasibility) | per-olay etki-buyuklugu + recovery-carpani + ISARET-engeli | MAGNITUDE-FEASIBILITY-VIEW (olay-seviyesi LIKIT SUE +0.69%/ay ama ANLAMSIZ t=0.64; |t|=2 icin ~2-5.5x recovery; isaret-engeli YOK) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8+L9 = sentez (yeni-edge degil, karar-araclari).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8+L9+L10 = sentez (yeni-edge degil, karar-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -70,6 +71,15 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   artik teorik-power degil, GERCEK-likit-hacimle bandi-gecirir-gosterildi. CAVEAT: ay-cozunurluk
   date-cluster'a TAVAN; gercek-deger gun-damgasinin etkiyi monthly-attenuation'dan kurtarmasina bagli.
   [L9_pead_volume_REPORT.md]
+- **L10**: Forward-data #1 feasibility-dongusunu KAPATTI (L8=n, L9=hacim, L10=etki). Olay-seviyesi
+  aylik SUE yari-bolme (pos-neg, market-relative consume-ay) LIKIT'te +0.69%/ay = DOGRU-isaretli ama
+  ANLAMSIZ (Welch t=0.64; gercek-kisit sd_event ~%18.5/ay kesitsel-gurultu). Stage-0 beklentisi
+  NEGATIF-isaret-engeliydi; CIKMADI (Stage-0 bu dali onceden-kaydetti) -> isaret-engeli YOK, MAGNITUDE
+  sorusu. |t|=2 icin gun-damgali etki aylik-yari-bolmenin ~2-5.5x'i gerekir (1-8yil); PEAD-literatur
+  driftin ilk-gunlerde yogunlasmasi -> makul. KONSERVATIF: sd_event aylik; gunluk-pencere sd cok-dusuk
+  (~sqrt(gun/21)) -> gercek-gereken-etki bound'dan KUCUK. SONUC: hacim yeterli + isaret-dogru +
+  magnitude-makul; tek-kalan-bilinmeyen gunluk-pencere etkisi -> OFFLINE OLCULEMEZ, fetch karara-baglar.
+  [L10_pead_effect_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
