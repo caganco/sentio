@@ -1,0 +1,164 @@
+{
+  "candidate": "L19 short-sale-intensity cross-sectional factor (REAL DATA; pre-registered, measurement-only)",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L19_short_sale_intensity.json",
+  "mode": "REAL (offline short-sale archive + clean_universe prices)",
+  "new_axis": "short-selling positioning (short-sale TL / total traded TL) -- not in L1-L18 graveyard",
+  "params": {
+    "nw_lag": 6,
+    "tercile": 0.3333333333333333,
+    "min_names": 30,
+    "liquid_adv_min_tl": 10000000.0,
+    "round_trip_bps": 40.0,
+    "regime_split": "2022-01-01"
+  },
+  "data": {
+    "short_obs": 17600,
+    "short_months": 92,
+    "signal_obs": 6426,
+    "signal_months": 55
+  },
+  "results": {
+    "ALL": {
+      "primary_m+1": {
+        "n_months": 54,
+        "month_span": [
+          "2019-01",
+          "2026-02"
+        ],
+        "avg_names": 118.4,
+        "long_rel_gross": {
+          "mean": -0.000182,
+          "nw_t": -0.0338
+        },
+        "long_rel_net": {
+          "mean": -0.001901,
+          "nw_t": -0.3636
+        },
+        "ls_gross": {
+          "mean": 0.004294,
+          "nw_t": 0.4918
+        },
+        "ls_net": {
+          "mean": 0.000857,
+          "nw_t": 0.1035
+        },
+        "mean_turnover": 0.4296,
+        "realized_cost_bps": 17.19,
+        "breakeven_cost_bps": -4.24,
+        "regime": {
+          "pre_mean": -0.002315,
+          "post_mean": -0.001342,
+          "sign_stable": true
+        }
+      },
+      "robust_skip_m+2": {
+        "n_months": 53,
+        "month_span": [
+          "2019-01",
+          "2026-02"
+        ],
+        "avg_names": 120.0,
+        "long_rel_gross": {
+          "mean": -1.5e-05,
+          "nw_t": -0.0038
+        },
+        "long_rel_net": {
+          "mean": -0.001762,
+          "nw_t": -0.4896
+        },
+        "ls_gross": {
+          "mean": 0.000371,
+          "nw_t": 0.0558
+        },
+        "ls_net": {
+          "mean": -0.003123,
+          "nw_t": -0.498
+        },
+        "mean_turnover": 0.4369,
+        "realized_cost_bps": 17.47,
+        "breakeven_cost_bps": -0.34,
+        "regime": {
+          "pre_mean": -0.002608,
+          "post_mean": -0.000659,
+          "sign_stable": true
+        }
+      }
+    },
+    "LIQUID": {
+      "primary_m+1": {
+        "n_months": 27,
+        "month_span": [
+          "2019-03",
+          "2026-02"
+        ],
+        "avg_names": 40.6,
+        "long_rel_gross": {
+          "mean": -0.002066,
+          "nw_t": -0.3316
+        },
+        "long_rel_net": {
+          "mean": -0.003625,
+          "nw_t": -0.5827
+        },
+        "ls_gross": {
+          "mean": -0.003162,
+          "nw_t": -0.2827
+        },
+        "ls_net": {
+          "mean": -0.006279,
+          "nw_t": -0.5586
+        },
+        "mean_turnover": 0.3897,
+        "realized_cost_bps": 15.59,
+        "breakeven_cost_bps": -53.03,
+        "regime": {
+          "pre_mean": 0.002966,
+          "post_mean": -0.010722,
+          "sign_stable": false
+        }
+      },
+      "robust_skip_m+2": {
+        "n_months": 27,
+        "month_span": [
+          "2019-03",
+          "2026-02"
+        ],
+        "avg_names": 40.6,
+        "long_rel_gross": {
+          "mean": -0.002434,
+          "nw_t": -0.6873
+        },
+        "long_rel_net": {
+          "mean": -0.003992,
+          "nw_t": -1.0868
+        },
+        "ls_gross": {
+          "mean": 0.006437,
+          "nw_t": 1.0227
+        },
+        "ls_net": {
+          "mean": 0.00332,
+          "nw_t": 0.5285
+        },
+        "mean_turnover": 0.3897,
+        "realized_cost_bps": 15.59,
+        "breakeven_cost_bps": -62.46,
+        "regime": {
+          "pre_mean": -0.009026,
+          "post_mean": 0.001429,
+          "sign_stable": false
+        }
+      }
+    }
+  },
+  "summary": {
+    "headline": "Short-sale-intensity cross-sectional test on REAL data. LIQUID primary(m+1) low-leg market-relative NET mean=-0.003625, NW-t=-0.5827, regime-stable=False, months=27, avg-names=40.6. Verdict: NOT-TRADEABLE.",
+    "interpretation": "Opens the genuinely-new short-selling positioning axis on a freshly-discovered local archive. BIST short-sale bans (2020, 2023-24) and a restricted ~50-name recent shortable universe make the modern cross-section thin; monthly granularity weakens timing. Result recorded per the frozen keep-bar; if NOT-TRADEABLE it joins the clean archive, if TRADEABLE it is a deploy-candidate."
+  },
+  "verdict": {
+    "verdict": "SHORT-INTENSITY-NOT-TRADEABLE (significance-wall or regime sign-instability); no deployable edge",
+    "keep_bar_passed": false,
+    "deploy_candidate": false,
+    "no_edge_claim": true
+  }
+}
