@@ -23,11 +23,12 @@ en-likit + likit buyuk-cap single-stock-futures alt-kumesi), `short_selling` (ay
 (23M, 1995-2026), `prices_official`/`prices_weekly`. HALA-BOS (dogru-bicimde bloke): `corporate_actions`,
 `dividends`, `index_components`.
 
-SONUC: short-selling ekseni L19'da GERCEK-veride test edildi (SHORT-INTENSITY-NOT-TRADEABLE, asagi) ve
-per-stock foreign-flow ekseni L20'de GERCEK-veride test edildi (FOREIGN-FLOW-XS-NOT-TRADEABLE, #4). VIOP +
-fundamental-ratios HALA otonom-kosulabilir [ARSIV-MEVCUT] ama prior-zayif; sentiment/NLP icin tarihsel
-metin-corpus HALA yok (yalniz snapshot) -> L16/L17 scaffold'lari acildi ama gercek-test icin metin-fetch lazim.
-Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
+SONUC: short-selling ekseni L19'da GERCEK-veride test edildi (SHORT-INTENSITY-NOT-TRADEABLE, asagi),
+per-stock foreign-flow ekseni L20'de GERCEK-veride test edildi (FOREIGN-FLOW-XS-NOT-TRADEABLE, #4) ve VIOP
+futures open-interest cross-sectional ekseni L21'de GERCEK-veride test edildi (VIOP-OI-XS-NOT-TRADEABLE, #9).
+VIOP index-basis overlay + fundamental-ratios HALA otonom-kosulabilir [ARSIV-MEVCUT] ama prior-zayif;
+sentiment/NLP icin tarihsel metin-corpus HALA yok (yalniz snapshot) -> L16/L17 scaffold'lari acildi ama
+gercek-test icin metin-fetch lazim. Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
 
 ---
 
@@ -104,16 +105,26 @@ Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
 - NE GEREKIR (gercek-run): tarihsel KAP-ifsa tam-metin arsivi (gun-damgali) + NLP-pipeline. Ag-fetch, the maintainer-onayli.
   #1/#7 ile ayni fetch-altyapisina baglanir (KAP-gun-damgasi cekirdek).
 
-## #9 VIOP / TUREVLER -- vadeli-opsiyon tabanli faktorler  [ARSIV-MEVCUT] (onceki [DATA-GAP] DUZELTILDI; L18 SCAFFOLD)
+## #9 VIOP / TUREVLER -- vadeli-opsiyon tabanli faktorler  [ARSIV-MEVCUT] (L18 BASIS-SCAFFOLD; L21 OI-XS KOSULDU)
 - DUZELTME: "VIOP verisi BIZDE HIC YOK" on-beyani FALSIFIE -- `data/bist_datastore_archive/viop` (927M,
   2005-2026) LOKAL MEVCUT: per-kontrat gunluk settlement/OHLC/VWAP/traded-value + ACIK-POZISYON,
   XU030 vadeli en-likit kontrat + likit buyuk-cap single-stock-futures alt-kumesi (AKBNK/EREGL/BIMAS...).
   Onceki "cross-sectional single-stock VIOP infeasible" iddiasi da KISMEN-revize (likit alt-kume var).
-- ACIK-KALAN (gercek-run icin): index-basis overlay icin INSA-EDILMIS bir baz-paneli lazim (front-month
-  XU030 vadeli settlement + gunluk SPOT XU030 seviyesi hizalanmis). Bu bir LOKAL-BUILD'tir, ag-fetch DEGIL.
-- HAZIR-DURUM: L18 forward-scaffold acildi (`harness/l18_*`, on-kayitli + sentetik self-test PASS,
-  arsiv-envanteri + premise-falsifikasyonu kayitli). VIOP veri-engeli KALKTI; overlay'in gercek-run'i
-  baz-paneli-build + the maintainer-go-ahead bekler (timing-overlay -> foreign-flow-bitisigi, prior ZAYIF).
+- L21 KOSULDU (open-interest cross-sectional): SSF (tek-hisse-futures) ACIK POZISYON kullanilarak
+  oi_growth=total_OI(m)/total_OI(m-1)-1 cross-sectional tercile test edildi (HIGH=LONG, LIQUID-spot,
+  market-relative net, m+1+skip-m+2; 89 ay / 63 dayanak). Fizibilite ON-CHECK: ay-sonu pozitif-OI SSF
+  medyan 48 / min 30 -> FIZIBIL (L18-tipi blok DEGIL); 63/63 dayanak spot-panelde. SONUC: deploy-kapisi
+  (LIQUID HIGH m+1) net -1.04%/ay t=-5.13 ama TEZ-TERSI/NEGATIF -> keep-bar net>0 GECMEZ + rejim-INSTABIL.
+  Baskin desen crowding-reversal (LIQUID L-S t=-3.81, ALL L-S t=-2.46 rejim-stabil-negatif) AMA on-kayit-DEGIL
+  + m+2'de coker (t=-0.99) + LIQUID kisa enflasyon-penceresi (2021-12..2026-04) -> iki-yonlu hukumle
+  VIOP-OI-XS-NOT-TRADEABLE. Reversal AYRI gelecek-track adayi olarak loglandi (the maintainer-mandasi + taze Stage-0 +
+  m+2-survival + rejim-stabilite + gercekci short-maliyeti gerekir). [L21_viop_oi_xs_REPORT.md]
+- ACIK-KALAN (index-basis overlay gercek-run): INSA-EDILMIS bir baz-paneli lazim (front-month XU030 vadeli
+  settlement + gunluk SPOT XU030 seviyesi hizalanmis). Bu bir LOKAL-BUILD'tir, ag-fetch DEGIL. prior ZAYIF
+  (timing-overlay -> foreign-flow-bitisigi).
+- HAZIR-DURUM: L18 basis-overlay forward-scaffold acildi (`harness/l18_*`, sentetik self-test PASS) AMA gercek-run
+  baz-paneli-build bekler; L21 OI-cross-sectional GERCEK-veride KOSULDU ve KAPANDI (NOT-TRADEABLE). VIOP
+  acik-pozisyon ekseni artik ON-KAYITLI ve test-edildi (onceki "on-kayitsiz" notu kalkti).
 
 ## #10 SHORT-SELLING-INTENSITY -- short-konumlanma cross-sectional  [ARSIV-MEVCUT] -> L19 KOSULDU (NOT-TRADEABLE)
 - DURUM: `data/bist_datastore_archive/short_selling` LOKAL MEVCUT (aylik per-stock acial-satis-TL, 92 dolu-ay
@@ -127,18 +138,18 @@ Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
 
 ## OZET (the maintainer icin) -- 2026-06-04 guncel
 - OTONOM-OFFLINE faz icin BLOKE-EDICI yok: cross-sectional/event edge alani eldeki-veriyle tuketildi
-  (L1-L15 FF5-tam) + sentiment/NLP/VIOP scaffold'lari (L16/L17/L18) + short-selling GERCEK-test (L19) +
-  per-stock foreign-flow GERCEK-test (L20).
+  (L1-L15 FF5-tam) + sentiment/NLP/VIOP-basis scaffold'lari (L16/L17/L18) + short-selling GERCEK-test (L19) +
+  per-stock foreign-flow GERCEK-test (L20) + VIOP futures open-interest GERCEK-test (L21).
 - VERI-DURUMU DUZELDI: `data/bist_datastore_archive/` kesfi sayesinde VIOP (#9) + foreign-flow (#4) +
   fundamental-ratios + short-selling (#10) artik LOKAL-MEVCUT [ARSIV-MEVCUT] -> ag-fetch GEREKMEDEN
-  otonom-kosulabilir. short-selling (L19) + foreign-flow cross-sectional (L20) KOSULDU = ikisi de
-  NOT-TRADEABLE. HALA-eksik: sentiment/NLP tarihsel metin-corpus (#7/#8) +
-  corporate_actions/dividends/index_components (arsivde HALA BOS).
+  otonom-kosulabilir. short-selling (L19) + foreign-flow cross-sectional (L20) + VIOP open-interest
+  cross-sectional (L21) KOSULDU = ucu de NOT-TRADEABLE. HALA-eksik: sentiment/NLP tarihsel metin-corpus
+  (#7/#8) + corporate_actions/dividends/index_components (arsivde HALA BOS).
 - GERCEK [DATA-GAP]/[MANUEL-AUTH] kalan: #1 DAILY-PEAD (KAP gun-damgali fetch), #2 makro-surprise,
   #3 TEFAS, #6 analist-revizyon, #7 sentiment-corpus, #8 NLP-metin-corpus. Bunlar ag/auth bekler.
 - EN-YUKSEK getiri/hazirlik orani DEGISMEDI: #1 DAILY-PEAD (harness on-kayitli + calistirilabilir).
   Karar destegi: [FORWARD_DECISION_CARD.md].
 - OTONOM-KOSULABILIR KALAN (ag-fetch GEREKMEZ, [ARSIV-MEVCUT]): fundamental-ratios genis-oran-supurmesi
   (prior-zayif: FF5 value/quality/investment zaten L14/L15/mezarlikta), VIOP index-basis overlay (#9, once
-  LOKAL baz-paneli build: front XU030 vadeli + spot XU030 hizalama), VIOP open-interest konumlanma ekseni.
-  Hepsi sema-dogrulama + Stage-0-on-kayit ister. (foreign-flow #4 ARTIK KAPALI -- L20'de kosuldu.)
+  LOKAL baz-paneli build: front XU030 vadeli + spot XU030 hizalama, prior-zayif). Hepsi sema-dogrulama +
+  Stage-0-on-kayit ister. (foreign-flow #4 L20'de, VIOP open-interest #9 L21'de ARTIK KAPALI.)

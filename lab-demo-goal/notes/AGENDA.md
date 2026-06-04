@@ -18,6 +18,9 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - Foreign-flow per-stock cross-sectional: imbalance (L20, GERCEK-veri; LIQUID HIGH-tercile m+1 net -0.10%/ay
   t=-0.35, rejim-INSTABIL; ALL-long-bacak t=2.03 ama L-S-spread~0/U-bicim microcap-artefakti, gate-disinda;
   D-211 index-timing'den AYRI). KAPANDI.
+- VIOP futures open-interest cross-sectional: oi_growth (L21, GERCEK-veri; LIQUID HIGH-tercile m+1 net -1.04%/ay
+  t=-5.13 ama TEZ-TERSI/NEGATIF -> keep-bar net>0 GECMEZ; baskin crowding-reversal-izi on-kayit-DEGIL + m+2-coker
+  + LIQUID rejim-INSTABIL + kisa enflasyon-penceresi). KAPANDI.
 - ANA DERS: cogu gorunur-edge illikit-microcap'te yasiyor, likit-evrende gercekci-maliyet
   sonrasi kayboluyor. Likit-evren + ~30-40bp maliyet = gercek test.
 
@@ -36,7 +39,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu -- TAMAMLANDI (L1-L20; bkz SUMMARY.md)
+## Aday kuyrugu -- TAMAMLANDI (L1-L21; bkz SUMMARY.md)
 - L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
 - L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
 - L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
@@ -82,20 +85,26 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
   (foreign_flow arsiviyle acildi, 87 ay; imbalance=(alis-satis)/(alis+satis), HIGH=LONG; LIQUID HIGH m+1 net
   -0.10%/ay t=-0.35 + rejim-INSTABIL; ALL m+1 long-bacak t=2.03 ama L-S-spread~0/U-bicim microcap-artefakti
   gate-disinda, m+2'de coker; es-zamanli-co-move forward'a tasinmiyor; D-211 index-timing'den AYRI). [TAMAM]
+- L21 VIOP TEK-HISSE-FUTURES ACIK-POZISYON cross-sectional -- YENI FAKTOR, GERCEK-VERI -> VIOP-OI-XS-NOT-TRADEABLE
+  (viop arsiviyle acildi, 89 ay/63 dayanak; oi_growth=total_OI(m)/total_OI(m-1)-1, HIGH=LONG; fizibilite ON-CHECK
+  medyan 48/min 30 SSF -> FIZIBIL; LIQUID HIGH m+1 net -1.04%/ay t=-5.13 ama TEZ-TERSI/NEGATIF -> keep-bar net>0
+  GECMEZ; baskin crowding-reversal [LIQUID L-S t=-3.81, ALL L-S t=-2.46] AMA on-kayit-DEGIL + m+2-coker [t=-0.99]
+  + LIQUID rejim-INSTABIL + kisa enflasyon-penceresi [2021-12..2026-04]; reversal AYRI-track-adayi loglandi). [TAMAM]
 
 ## Program durumu (guncel)
-11/11 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS): deploy-edge YOK.
+12/12 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS + L21 viop-OI-XS): deploy-edge YOK.
 L7-L13 = karar/forward-araclari; L16/L17/L18 = forward-scaffold (sentetik-PASS, edge-iddiasi YOK).
 VERI-DURUMU DUZELDI: `data/bist_datastore_archive/` LOKAL kesfi -> VIOP/foreign-flow/fundamental-ratios/
 short-selling artik LOKAL-MEVCUT (ag-fetch GEREKMEZ). short-selling (L19) + foreign-flow cross-sectional (L20)
-KOSULDU = ikisi de NOT-TRADEABLE. Deger hala buyuk-olcude YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
++ VIOP futures open-interest cross-sectional (L21) KOSULDU = ucu de NOT-TRADEABLE. Deger hala buyuk-olcude
+YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
   #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; L9 hacim + L10 magnitude + L11
      on-kayitli-harness + L13 iki-kapi-maliyet/power-bar ile hazir AMA AYIK-marj; ONAYLI-FETCH gerek
      -> data/cache/kap_pead_daystamped.parquet) -- HALA ag/auth-gated,
   #2 SURPRIZ-KOSULLU MAKRO + #3 TEFAS + sentiment/NLP-corpus (#7/#8) -- HALA ag/auth-gated.
 OTONOM-KOSULABILIR KALAN (ag-fetch GEREKMEZ, arsiv-mevcut): fundamental-ratios genis oran-supurmesi
-(prior-zayif: FF5 zaten L14/L15/mezarlik), VIOP index-basis overlay (once LOKAL baz-paneli build), VIOP
-open-interest konumlanma ekseni. (foreign-flow ARTIK kapali -- L20.)
+(prior-zayif: FF5 zaten L14/L15/mezarlik), VIOP index-basis overlay (once LOKAL baz-paneli build, prior-zayif).
+(foreign-flow L20'de, VIOP open-interest L21'de ARTIK kapali.)
 Otonom-faz ag-pull yapmadan durur; LOKAL-arsiv okuma in-scope. Detay -> [BLOCKED_AVENUES.md].
 Lab butunlugu: `harness/verify_lab.py` (read-only) -> deploy-edge-yok, ASCII, frozen Stage-0.
 
