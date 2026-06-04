@@ -1,0 +1,81 @@
+{
+  "directive": "D-211",
+  "config_version": "d211-v1",
+  "run_utc": "2026-06-04T01:38:36Z",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30",
+    "n_forward_months": 87
+  },
+  "predictor": "NF_pct(t-2) = SUM(buy-sell)_usd / SUM(buy+sell)_usd, lag-2 (~6wk pub lag)",
+  "dependent": "XU100 price-only monthly nominal - TUFE_MoM = TL-real",
+  "nf_pct_summary": {
+    "mean": -0.003715258250039164,
+    "std": 0.01634140632564065,
+    "min": -0.058347179504001354,
+    "max": 0.04428945642396768,
+    "ar1": 0.24379105520231137
+  },
+  "1_primary_regression": {
+    "slope": -0.25208095818198994,
+    "t": -0.7247602741087477,
+    "n": 87,
+    "r2": 0.0023296888753481237,
+    "intercept": 0.007064293204967646,
+    "nf_ar1": 0.24379105520231137,
+    "nonoverlap": "monthly forward return vs lag-2 predictor -> non-overlapping by construction"
+  },
+  "2_regime_stability": {
+    "split": "2022-01-01",
+    "A_2019_2021": {
+      "slope": -0.39708926713295395,
+      "t": -0.9910889118800484,
+      "n": 35
+    },
+    "B_2022_2026": {
+      "slope": -0.08653597338923857,
+      "t": -0.09777442888938673,
+      "n": 52
+    },
+    "full_sign": -1,
+    "same_sign_AB": true,
+    "leave_one_regime_out_keeps_sign": true
+  },
+  "3_deployable_leg": {
+    "n_months": 45,
+    "share_index_long": 0.5333333333333333,
+    "n_switches": 19,
+    "oneway_cost_bps": 5.28,
+    "strat_net_cum_real": -0.07592231556790063,
+    "buyhold_net_cum_real": 0.5120268759554181,
+    "strat_beats_buyhold": false,
+    "rel_monthly_mean": -0.013425314572541397,
+    "rel_monthly_nw_t": -0.8820022675329563,
+    "tlref_proxy_note": "TLREF real-data starts 2022-07; pre-2022-07 cash leg is D-187 proxy-extended (flagged)."
+  },
+  "4_contemporaneous_diagnosis": {
+    "slope": 2.341932840702284,
+    "t": 3.679275786402094,
+    "n": 87,
+    "r2": 0.18361471400015994,
+    "intercept": 0.01760212007875326,
+    "status": "NON-DEPLOYABLE (uses same-month flow, not knowable at decision time)"
+  },
+  "secondary_report_only": {
+    "zscore_net_usd_lag2": {
+      "slope_sign": -1,
+      "t": -0.3765095283045247,
+      "n": 87,
+      "status": "report-only, verdict-immutable"
+    },
+    "net_usd_over_mcap": "NOT RUN -- optional secondary; requires aggregate market-cap join; verdict-immutable."
+  },
+  "keep_bar": {
+    "1_primary_nw_t_ge_2": false,
+    "2_regime_stable_not_concentrated": true,
+    "3_deployable_beats_buyhold": false,
+    "4_lookahead_safe": true
+  },
+  "verdict": "TRADEABLE-DEGIL",
+  "oos_gap_note": "2019-2026 is one long high-inflation regime; a true inflation-normalization OOS is ABSENT. Foreign participation at multi-year lows. Deployment is a separate O+Cagan decision."
+}
