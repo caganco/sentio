@@ -1,0 +1,12 @@
+{
+  "content_hash": "e279aba1829da9d3325901a721992b66732c444430b045fd807c74e1b4a74761",
+  "content_hash16": "e279aba1829da9d3",
+  "n_obs": 1839,
+  "config_version": "d213-v1",
+  "series": "TP.APIFON4",
+  "window": {
+    "start": "2019-01-02",
+    "end": "2026-04-30"
+  },
+  "construction": "EVDS AOFM weighted-avg funding cost; chunked yearly pull (EVDS row-cap workaround); daily annual-pct"
+}

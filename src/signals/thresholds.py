@@ -1166,3 +1166,18 @@ D211_KEEP_NW_T_MIN: float = 2.0       # keep-bar[1]: |t| of primary slope
 D211_SIGNAL_THRESHOLD: float = 0.0    # deployable leg: NF_pct(t-2) > 0 -> index long, else cash
 D211_REGIME_SPLIT: str = "2022-01-01" # regime-stability split (A: 2019-21, B: 2022-26)
 D211_LOOKAHEAD_LAG_MONTHS: int = 2    # ~6wk publication lag -> NF_pct(t-2) predicts return-month t
+
+# ---------------------------------------------------------------------------
+# D-213 (RR-Y1-003) -- ex-ante real-rate -> forward XU100 TL-real index return.
+# ADDITIVE block (Strangler): zero edit to existing constants. Decision
+# thresholds frozen at STAGE0_d213.json BEFORE measurement. The cost leg
+# REUSES D207_TIER_MEGA_HALF_SPREAD + D204_COMMISSION_PCT (read-only).
+# Predictor LEVEL r_ex_ante(t) = nominal(t) - expected_inf(t); deploy rule
+# r_ex_ante(t-1) < 0 -> XU100 long, else cash (zero-threshold, look-ahead-safe).
+# ---------------------------------------------------------------------------
+D213_NW_LAG: int = 6                   # Newey-West HAC Bartlett bandwidth (directive lag>=6)
+D213_KEEP_NW_T_MIN: float = 2.0        # keep-bar[1]: |t| of primary ex-ante lag-1 slope
+D213_SIGNAL_THRESHOLD: float = 0.0     # deploy: r_ex_ante(t-1) < 0 -> index long, else cash
+D213_REGIME_SPLIT: str = "2022-01-01"  # regime-stability split (A: 2019-21, B: 2022-26)
+D213_LOOKAHEAD_LAG_MONTHS: int = 1     # ~t+15g knowable -> r_ex_ante(t-1) predicts return-month t
+D213_EXPOST_LAG_MONTHS: int = 2        # ex-post control (secondary): r_ex_post(t-2), ~t+45g

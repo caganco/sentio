@@ -1,0 +1,127 @@
+{
+  "directive": "D-213",
+  "thread": "RR-Y1-003 (Yol-1-lab, Cerceve-B continuous time-series forecasting)",
+  "title": "Ex-ante real-rate -> forward XU100 TL-REAL return: first official measurement (N<=3, count=1)",
+  "preregistered_date": "2026-06-04",
+  "config_module": "src/screening/d213_config.py",
+  "config_version": "d213-v1",
+  "decision_owner": "Orchestrator+Cagan. Harness MEASURES + RECOMMENDS; never auto-deploys. Even a TRADEABLE verdict is a CANDIDATE only (separate O+Cagan decision).",
+
+  "discipline_note": "Committed BEFORE any D-213 result is computed and BEFORE any result is seen. The engine (src/screening/d213_real_rate.py) REFUSES to run unless this file exists. ALL thresholds/definitions/keep-bar/effective-window below are FROZEN and will NOT be relaxed post-hoc (no predictor redefinition, no window widening, no lag re-pick, no cost re-calibration, no keep-bar loosening). Post-hoc relaxation = guard-RAISE. MEASUREMENT-ONLY; optimization FORBIDDEN. N=1 candidate (ex-ante real-rate market-timing). This is a MEASUREMENT, NOT an optimization.",
+
+  "question_single": "Does ex-ante real-rate (nominal funding rate minus 12-month expected inflation), in the ~t+15-day-knowable form (lag-1), predict next-month XU100 TL-REAL return? Single-asset time series (index-long vs cash). NOT stock selection. PRICE-ORTHOGONAL axis (rate/inflation inputs, no price feature).",
+
+  "honest_expectation": "prior LOW-MEDIUM. Ex-ante real-rate is LESS stale than D-211 foreign-flow (~t+15g vs ~6wk) -> structurally higher lead-chance. Likely verdict still TRADEABLE-DEGIL, but if it holds it would be a REAL distinction from D-211 (different mechanism: macro policy-stance vs flow). Real-rate is highly persistent (high AR1) -> Stambaugh-awareness mandatory; co-movement (lag-0) != predictive lead (lag-1). Surprise possibility: lag-1 significance survives -> reported plainly. Diagnostic value regardless: the lag-0 vs lag-1 vs ex-post-lag-2 contrast is itself informative. Whatever the result, it is recorded (no celebration).",
+
+  "coverage_guard_RESULT": {
+    "ran_before_freeze": true,
+    "method": "pulled the 3 EVDS series from 2019-01 (chunked yearly, EVDS row-cap workaround) + audited DEPENDENT panel (XU100) and DEPLOY cash-leg panel for silent-dirty (dates-present-but-value-NaN) 2019-H1 start (lab-demo-clone1 section-6 trap).",
+    "predictor_side_PURE_EVDS": {
+      "TP.APIFON4_nominal": "clean 2019-01-02 .. 2026-04-30 (1839 daily obs, annual-pct)",
+      "TP.ENFBEK.PKA12ENF_expected_inflation": "clean 2019-01-01 .. 2026-04-01 (88 monthly obs, annual-pct)"
+    },
+    "dependent_side": {
+      "XU100_price_only": "CLEAN from 2019-01 (monthly values present every month; NOT a mid-2019 silent start). 1828 daily obs 2019-01-02..2026-04-29.",
+      "TUFE_deflator": "clean from 2010-01 (CPI index)."
+    },
+    "deploy_cashleg_TRAP_FOUND": {
+      "TLREF_return_index": "SILENT-DIRTY: dates present ~31/month from 2019-01 but the value column is NaN until 2022-07-01 (first non-null month-end = 2022-07). Real clean start = 2022-07, NOT 2019.",
+      "resolution_LOCK": "cash leg is NOT TLREF. Cash leg = APIFON4-derived real carry (the literal cash return = short funding rate), which is CLEAN from 2019-01. This keeps ALL legs clean from 2019-01. PRE-RESULT design choice (not post-hoc): chosen because TLREF snapshot starts 2022-07 (silent-NaN before) while APIFON4 is clean 2019-01 AND closely tracks TLREF (both = TR overnight/short reference cost). Disclosed openly here."
+    },
+    "effective_window_REAL_VALUE": "2019-01..2026-04 (max of all clean starts, ALL legs clean). NOT assumed -- verified above. ~87 forward monthly returns (first computable 2019-02); lag-1 predictor leaves ~86 usable."
+  },
+
+  "predictor_FROZEN": {
+    "name": "r_ex_ante",
+    "nominal_leg_PRIMARY": "TP.APIFON4 (TCMB AOFM weighted-average funding cost), annual-pct. snapshot exposure_d213_apifon4. Month-end last value. BACKUP TP.BISTTLREF.ORAN is UNUSED (PFAIZ also UNUSED). LOCK -- no nominal-leg mining.",
+    "expected_inflation_leg": "TP.ENFBEK.PKA12ENF (TCMB Survey of Market Participants, 12m-ahead expected inflation), annual-pct. snapshot exposure_d213_enfbek12.",
+    "definition_LEVEL_PRIMARY": "r_ex_ante(t) = nominal(t) - expected_inf(t)  (annual percentage points; ex-ante real policy stance LEVEL). LEVEL is the PRIMARY predictor. impulse/change (delta r_ex_ante) is SECONDARY-REPORT ONLY: it CANNOT rescue a failed primary; change-form mining is FORBIDDEN.",
+    "lookahead_lag_LOCK": "To predict return-month t, predictor = r_ex_ante(t-1). Rationale: the nominal funding rate is daily-observable and the 12m-expectation survey for month (t-1) is published ~mid (t-1) (~t+15g), so r_ex_ante(t-1) is in the information set at end of (t-1) = decision point entering month t. Look-ahead-safe.",
+    "contemporaneous_status": "lag-0 reg(real_ret_t ~ r_ex_ante(t)) is reported for DIAGNOSIS ONLY, stamped NON-DEPLOYABLE (uses end-of-month-t rate level, not knowable at start of t); it does NOT count toward any keep-bar.",
+    "stambaugh_awareness": "real-rate is highly persistent (high AR1) -> ALSO report r_ex_ante AR(1) and note the non-overlap (monthly forward vs lag-1 predictor = non-overlapping by construction); sign interpretation careful."
+  },
+
+  "dependent_FROZEN": {
+    "index_series": "XU100.IS price-only, data/snapshots/exposure_d187_xu100.parquet (date,value).",
+    "index_caveat": "price-only, NO dividends (equity disadvantaged ~2-4%/yr). XU100 total-return not available locally -> price-return used (directive-allowed fallback). SAME dependent as D-211.",
+    "nominal_monthly_return": "r_nom(t) = idx(month-end t) / idx(month-end t-1) - 1, last available trading-day value within each calendar month.",
+    "tufe_series": "data/snapshots/exposure_k3_d192_tufe.parquet (CPI index, 2010-01..2026-05).",
+    "tufe_monthly": "infl(t) = tufe(month-end t)/tufe(month-end t-1) - 1.",
+    "real_return_LOCK": "real_ret(t) = r_nom(t) - infl(t)  (directive-literal subtraction; deflation MANDATORY). SAME as D-211.",
+    "forward_definition": "forward_real_ret_t is the TL-real return EARNED over calendar month t (end of t-1 -> end of t)."
+  },
+
+  "window_FROZEN": {
+    "PRIMARY": {"start": "2019-01-01", "end": "2026-04-30", "primary": true},
+    "effective_basis": "coverage-guard verified ALL legs (predictor: APIFON4+ENFBEK; dependent: XU100+TUFE; cash leg: APIFON4-carry) clean from 2019-01. Effective window = max(clean starts) = 2019-01. TLREF excluded (silent-NaN until 2022-07) -- see coverage_guard_RESULT.",
+    "effective_forward_months": "first computable forward_real_ret = 2019-02; through 2026-04 -> ~87 monthly observations. Predictor r_ex_ante(t-1) requires real-rate from 2019-01 (available) -> ~86 usable lag-1 rows.",
+    "no_interpolation": "any month with missing predictor/return is DROPPED, not filled (locked principle)."
+  },
+
+  "regime_split_FROZEN": {
+    "split_date": "2022-01-01",
+    "subperiod_A": "forward-months 2019-02 .. 2021-12 (pre-inflation-acceleration; deeply negative real rates)",
+    "subperiod_B": "forward-months 2022-01 .. 2026-04 (high-inflation regime; real rate negative then turning positive 2024+)",
+    "rationale": "2022-01-01 = TR inflation-regime acceleration boundary (same convention as D-203/D-211).",
+    "stability_test": "slope sign must be the SAME in A and B.",
+    "concentration_test_LOCK": "leave-one-regime-out: removing EITHER sub-period must NOT flip the full-sample slope sign. If it flips -> effect concentrated in one regime -> FRAGILE -> keep-bar[2] FAILS."
+  },
+
+  "measurement_plan_FROZEN": {
+    "1_primary_regression": "OLS reg(forward_real_ret_t ~ a + b*r_ex_ante(t-1)); report slope b sign+magnitude and Newey-West HAC t with lags=6. Monthly NON-OVERLAPPING by construction. ALSO report r_ex_ante AR(1).",
+    "2_regime_stability": "compute slope b in A and B; apply stability_test + concentration_test.",
+    "3_deployable_leg": "signal-conditional single-asset exposure on the ex-ante real-rate LEVEL with a FIXED zero threshold (economic prior: negative real rate favors equities / financial-repression -> TINA). At end of (t-1): if r_ex_ante(t-1) < 0 -> hold XU100 long for month t (earn real_ret_t); if r_ex_ante(t-1) >= 0 -> hold cash for month t (earn real cash carry). Monthly cadence. Compare NET cumulative TL-real vs buy-and-hold XU100 NET cumulative TL-real. Zero-threshold is look-ahead-safe (no full-sample median peeking).",
+    "cash_leg_LOCK": "cash_nom(t) = (1 + APIFON4(t)/100)^(1/12) - 1  [monthly carry from the T+0-knowable short funding rate]; cash_real(t) = cash_nom(t) - infl(t). APIFON4-proxy (NOT TLREF) -- chosen pre-result because TLREF snapshot is silent-NaN until 2022-07; APIFON4 clean 2019-01 and tracks TLREF closely. Disclosed openly.",
+    "cost_model_FROZEN": "index-level switch cost: one-way = D207_TIER_MEGA_HALF_SPREAD (5.28bp); Kyle impact = 0 (index mega-liquid); commission = D204_COMMISSION_PCT (0). Cost charged on each index ENTRY and each index EXIT (one-way each; full round trip = 2x = 10.6bp). Buy-and-hold pays a single entry one-way cost."
+  },
+
+  "ex_post_control_SECONDARY_mandatory": {
+    "definition": "r_ex_post(t) = nominal(t) - CPI_YoY(t); CPI_YoY from TUFE 12-month change. ~t+45-day knowable -> lag-2.",
+    "regression": "reg(forward_real_ret_t ~ r_ex_post(t-2)) NW t (lag=6).",
+    "status": "SECONDARY / DIAGNOSIS ONLY. Does NOT count toward keep-bar (lag-2, staler; and ex-post real rate is mechanically tied to realized inflation which also enters the dependent's deflator -> interpretation caution). Reported to contrast with ex-ante lag-1. Cannot rescue a failed primary."
+  },
+
+  "keep_bar_FROZEN_all_required": {
+    "1": "primary ex-ante lag-1 regression slope NW |t| (lag=6) >= 2.0",
+    "2": "slope sign regime-stable (same sign in A AND B) AND not concentrated (leave-one-regime-out does not flip full-sample sign)",
+    "3": "deployable leg NET cumulative TL-real BEATS buy-and-hold XU100 NET cumulative TL-real (post-cost, lag-1)",
+    "4": "look-ahead-safe (lag-1 applied; contemporaneous lag-0 and ex-post lag-2 are NON-DEPLOYABLE / secondary and do NOT count)",
+    "verdict_rule": "ALL 4 PASS -> TRADEABLE (price-orthogonal macro-timing edge; CANDIDATE only). ANY fail -> TRADEABLE-DEGIL (recorded clean).",
+    "forbidden": "hi52-conditioning, sub-group slicing, composite-weight optimization, change/impulse-form mining to rescue primary, alternative nominal-leg mining, post-hoc threshold relaxation, full-sample median deploy-threshold (look-ahead)."
+  },
+
+  "thresholds_reference": {
+    "new_block": "src/signals/thresholds.py D213_* (ADDITIVE only; zero edit to existing D203/204/205/209/211/realistic_cost constants -- Strangler).",
+    "constants": "D213_NW_LAG=6, D213_KEEP_NW_T_MIN=2.0, D213_SIGNAL_THRESHOLD=0.0 (r_ex_ante<0 -> long), D213_REGIME_SPLIT='2022-01-01', D213_LOOKAHEAD_LAG_MONTHS=1, D213_EXPOST_LAG_MONTHS=2.",
+    "reused": "D207_TIER_MEGA_HALF_SPREAD=0.000528, D204_COMMISSION_PCT=0.0 (cost); both READ-ONLY."
+  },
+
+  "snapshots_content_hash_sha256_prefix": {
+    "apifon4": {"file": "data/snapshots/exposure_d213_apifon4.parquet", "hash": "e279aba1829da9d3", "series": "TP.APIFON4", "role": "nominal predictor leg + cash-carry leg"},
+    "enfbek12": {"file": "data/snapshots/exposure_d213_enfbek12.parquet", "hash": "716c5dc2685f8f1a", "series": "TP.ENFBEK.PKA12ENF", "role": "expected-inflation predictor leg"},
+    "xu100": {"file": "data/snapshots/exposure_d187_xu100.parquet", "hash": "f909f79881ca8e2b", "role": "dependent index (long leg)"},
+    "tufe": {"file": "data/snapshots/exposure_k3_d192_tufe.parquet", "hash": "28052c6f46d08446", "role": "deflator + CPI_YoY for ex-post control"},
+    "tlref_EXCLUDED": "exposure_d187_tlref NOT used (silent-NaN until 2022-07).",
+    "guard": "engine asserts these 4 hashes on load; mismatch RAISES (reproducibility)."
+  },
+
+  "strangler_constraints": {
+    "zero_touch": "committed motors (d203/204/205/209/211 + realistic_cost + thresholds existing blocks + evds_client + ballast) NOT modified; only ADD d213 files + D213_* block.",
+    "new_modules": ["src/screening/d213_real_rate.py", "src/screening/d213_config.py"],
+    "ci": "EVDS raw data does NOT enter CI; CI runs a SYNTHETIC unit test only; the real measurement is a local ARTIFACT (d213_results.json). Snapshots are tracked (force-added) per D-211 pattern.",
+    "ascii_only": true,
+    "no_absolute_paths": "snapshot paths resolved relative to repo root via Path(__file__); no machine-specific absolute path committed."
+  },
+
+  "secondary_report_only_cannot_rescue": [
+    "contemporaneous lag-0 regression (NON-DEPLOYABLE)",
+    "ex-post real-rate lag-2 control (diagnosis-only)",
+    "change/impulse form delta r_ex_ante (verdict-immutable)"
+  ],
+
+  "outputs": [
+    "docs/yol1/STAGE0_d213.json (this file)",
+    "docs/yol1/d213_results.json (after run: r_ex_ante series + primary reg b/t + regime A/B + deployable leg net-cum vs buy-hold + lag-0 + ex-post lag-2 + 4 keep-bar + verdict)",
+    "docs/research/D-213-rapor.md (verdict; lag-0 vs lag-1 vs ex-post-lag-2 contrast; price-orthogonal axis; OOS-gap explicit) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}
