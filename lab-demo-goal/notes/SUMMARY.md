@@ -18,8 +18,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L8 | POWER/SAMPLE-SIZE (sentez) | L1/L6 right-signed likit-leg, n_required(\|t\|=2) + reachability | DESCRIPTIVE-POWER-VIEW (olay-kitligi darbogaz; daily-PEAD tek-ulasilabilir) |
 | L9 | PEAD-VOLUME (sentez/feasibility) | GERCEK earnings-panel likit-SUE olay-sayimi + L8-bandi reachability | DESCRIPTIVE-VOLUME-VIEW (~95-136 likit-olay/yil; band ~1-8 yilda ulasilir; L8'i empirik dogrular) |
 | L10 | PEAD-EFFECT (sentez/feasibility) | per-olay etki-buyuklugu + recovery-carpani + ISARET-engeli | MAGNITUDE-FEASIBILITY-VIEW (olay-seviyesi LIKIT SUE +0.69%/ay ama ANLAMSIZ t=0.64; |t|=2 icin ~2-5.5x recovery; isaret-engeli YOK) |
+| L11 | FORWARD-SCAFFOLD (on-kayit+offline-dogrulama) | daily-PEAD test-harness'i (t+1 CAR, SUE-sort, NW-t, cost, keep-bar) + sentetik self-test | SCAFFOLD-SELF-TEST PASS (recovery t=5.9 / placebo t=0.18 / look-ahead-leak t=13.5; network YOK, edge-iddiasi YOK; fetch Cagan-onayina kapili) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8+L9+L10 = sentez (yeni-edge degil, karar-araclari).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8+L9+L10+L11 = sentez (yeni-edge degil, karar/forward-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -80,6 +81,16 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   (~sqrt(gun/21)) -> gercek-gereken-etki bound'dan KUCUK. SONUC: hacim yeterli + isaret-dogru +
   magnitude-makul; tek-kalan-bilinmeyen gunluk-pencere etkisi -> OFFLINE OLCULEMEZ, fetch karara-baglar.
   [L10_pead_effect_REPORT.md]
+- **L11**: daily-PEAD sentezinin TACI -- forward-deneyi CALISTIRILABILIR yapan on-kayitli test-harness.
+  Tasarim donmus (t+1 look-ahead-safe giris, market-relative [+1,+H] CAR, SUE-tercile long-short,
+  olay-kumeli NW-t, gercekci round-trip cost, keep-bar). Gercek-mod: data/cache/kap_pead_daystamped.parquet
+  geldiginde (onayli-fetch) ayni harness on-kayitli testi kosar. Offline-mod: seed'li sentetik gun-damgasiyla
+  3 self-test assert PASS -- RECOVERY (planted-drift geri-kazanilir, t=5.9, dogru-isaret), PLACEBO
+  (SUE-permute -> t=0.18), LOOK-AHEAD (olay-gunu girisi sicramayi sizdirir t=13.5 > guvenli t=5.9 ->
+  ilan-gunu t+1 ile DISLANIR). Sentetik PASS yalniz pipeline-dogrulugu+look-ahead-guvenligi kanitlar;
+  GERCEK BIST-edge'i hakkinda HICBIR sey demez. Network/scraper YOK -> fetch Cagan-onayina kapili.
+  SONUC: FORWARD #1 artik power[L8]+hacim[L9]+magnitude[L10]+calistirilabilir-harness[L11] = DORT-yonden hazir.
+  [L11_forward_daily_pead_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
