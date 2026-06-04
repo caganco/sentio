@@ -20,8 +20,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L10 | PEAD-EFFECT (sentez/feasibility) | per-olay etki-buyuklugu + recovery-carpani + ISARET-engeli | MAGNITUDE-FEASIBILITY-VIEW (olay-seviyesi LIKIT SUE +0.69%/ay ama ANLAMSIZ t=0.64; |t|=2 icin ~2-5.5x recovery; isaret-engeli YOK) |
 | L11 | FORWARD-SCAFFOLD (on-kayit+offline-dogrulama) | daily-PEAD test-harness'i (t+1 CAR, SUE-sort, NW-t, cost, keep-bar) + sentetik self-test | SCAFFOLD-SELF-TEST PASS (recovery t=5.9 / placebo t=0.18 / look-ahead-leak t=13.5; network YOK, edge-iddiasi YOK; fetch the maintainer-onayina kapili) |
 | L12 | MACRO-SURPRISE (sentez/forward-rank) | #2 surpriz-kosullu-makro power+arrival rationale (L6+L8+gercek-panel) | FORWARD-RANK-RATIONALE-VIEW (CPI ~12/yil; magnitude ~1.1-1.6x yeter; baglayan-kisit ISARET-COHERENCE; #2 yine #1'in altinda, data-gated) |
+| L13 | DAILY-PEAD TWO-GATE BAR (sentez/feasibility) | D-208 maliyet + L8 power TEK bara katlandi (L8/L9/L10+D208) | DESCRIPTIVE-FEASIBILITY-VIEW (aylik sinyal maliyet-tabanini ancak-ancak karsilar: long-only 37.7bp vs 38bp, long-short 69.4bp vs 76bp; net-bar pencerenin aylik-spread'in ~2-6x'ini ister; baglayan-duvar POWER->COST-FLOOR; #1 TEMPER edildi, NULL gercek-olasilik) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L12 = sentez (yeni-edge degil, karar/forward-araclari).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L13 = sentez (yeni-edge degil, karar/forward-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -100,6 +101,16 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   ama konsensus-surpriz verisi offline YOK -> test-edilemez. Kosulsuz etki Bonferroni-gecmez (artifakt-riski).
   SONUC: #2 magnitude-yakin + sign-coherence-vaadi tasir AMA tam-kurulu tek-fetch #1'in ALTINDA kalir
   (#1>>#2 artik sayisal-gerekceli). [L12_macro_surprise_REPORT.md]
+- **L13**: daily-PEAD'i significance-only cerceveden IKI-KAPI bara yukseltti -- D-208 gercekci maliyet
+  (~38bp likit round-trip) L8 power-duvariyla TEK ileri-bara katlandi. AYIK ana-bulgu: olculmus AYLIK
+  likit sinyali maliyet-tabanini ANCAK-ANCAK karsiliyor (long-only high-SUE +37.7bp vs tek round-trip
+  38.0bp = 0.99x; long-short half-split +69.4bp vs cift round-trip 76.1bp = 0.91x) -> POWER bir-yana,
+  maliyet-tabani bile gecilmiyor. Net-|t|=2 brut ilan-penceresi-CAR bari (konservatif 95.4/yil, 5g):
+  long-short 261bp(1yr)->142bp(8yr); baglayan-duvar kisa-ufukta POWER, uzun-ufukta sabit COST-FLOOR
+  (long-short 5g'de H=8yr). Pencere aylik-spread'in ~2-6x'ini saglamali -> daily-PEAD'in TUM-umudu
+  ilan-penceresi KONSANTRASYONU + gercek-gurultu sqrt-altinda; IKISI de offline-OLCULEMEZ. SONUC: #1
+  hala tek power-ulasilabilir sinif AMA TEMPER edildi -- net-deploy bari yuksek, aylik-sinyal marji yok,
+  fetch NULL donebilir (tek-makul-bahis, kesin-kazanc degil). [L13_daily_pead_feasibility_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik

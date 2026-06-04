@@ -29,7 +29,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu -- TAMAMLANDI (L1-L12; bkz SUMMARY.md)
+## Aday kuyrugu -- TAMAMLANDI (L1-L13; bkz SUMMARY.md)
 - L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
 - L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
 - L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
@@ -48,16 +48,20 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - L12 MACRO-SURPRISE FORWARD-RANK (sentez) -> FORWARD-RANK-RATIONALE-VIEW (gercek CPI ~12.1/yil; en-guclu
   look-ahead-safe leg post[+1,+5] +61bp t=1.48 SIGN-UNSTABLE; |t|=2 icin yalniz ~1.15x/10yr carpan ->
   darbogaz MAGNITUDE-degil SIGN-COHERENCE; offline-olculemez; #2 tam-kurulu tek-fetch #1'in ALTINDA). [TAMAM]
+- L13 DAILY-PEAD TWO-GATE BAR (sentez) -> DESCRIPTIVE-FEASIBILITY-VIEW (D-208 maliyet + L8 power TEK bara;
+  olculmus aylik sinyal maliyet-tabanini ancak-ancak karsilar [long-only 37.7/38.0bp, long-short 69.4/76.1bp];
+  net-bar pencerenin aylik-spread'in ~2-6x'ini ister; baglayan-duvar POWER->COST-FLOOR; #1 TEMPER, NULL gercek-olasilik). [TAMAM]
 
 ## Program durumu: KAPALI (mevcut-veride)
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L12 = karar/forward-araclari (yeni-edge degil).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L13 = karar/forward-araclari (yeni-edge degil).
 Mevcut-veride (fiyat/hacim/fundamental/membership/macro/earnings-aylik) cross-sectional/event
 edge alani TUKETILDI. Deger artik YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
   #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; L9 hacim + L10 magnitude + L11
-     on-kayitli-harness ile DORT-yonden hazir; ONAYLI-FETCH gerek -> data/cache/kap_pead_daystamped.parquet),
+     on-kayitli-harness + L13 iki-kapi-maliyet/power-bar ile hazir AMA AYIK-marj [aylik-sinyal maliyet-tabanini
+     ancak-karsilar -> NULL gercek-olasilik]; ONAYLI-FETCH gerek -> data/cache/kap_pead_daystamped.parquet),
   #2 SURPRIZ-KOSULLU MAKRO (etkiyi artirir, n'i degil), #3 TEFAS (yeni-build), #4 daily-foreign (en-son).
 Hepsi ag/auth + repo-read-only -> the maintainer-onayi BEKLER. Otonom-faz BURADA durur.
-Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (11/11 frozen, deploy-edge-yok, ASCII).
+Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (12/12 frozen, deploy-edge-yok, ASCII).
 
 ## Disiplin checklist (her aday)
 1. Stage-0 dondur (hipotez, pencere, evren, maliyet, keep-bar, DURUST beklenti) SONUCTAN ONCE.
