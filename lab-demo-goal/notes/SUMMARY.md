@@ -13,8 +13,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L3 | PEAD (kazanc-surprizi drift) | aylik SUE cross-sectional sort | NOT-TRADEABLE (anlamlilik+maliyet duvari) |
 | L4 | CALENDAR/SEASONALITY | XU100 takvim-etki tarama, Bonferroni | DESCRIPTIVE-VIEW (deploy-degil) |
 | L5 | WEB SENTEZ (borsapy/borsamcp + literatur) | iki otonom arastirma-raporu damitildi | yeni-veri-kuyrugu + oncelik-guncelleme |
+| L6 | MACRO-EVENT (CPI-ilan penceresi) | XU100 event-study, olay-clustered t, Bonferroni | DESCRIPTIVE-VIEW (deploy-degil; significance-wall + veri-tavani) |
 
-5/5 yeni-aday: deploy-edilebilir-edge YOK. (Onceki program: 3/3 cross-sectional + NAV + H2b zaten kapali.)
+6/6 yeni-aday: deploy-edilebilir-edge YOK. (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
 - **L1**: Niteliksel endeks-etkisi VAR (ekleme pre-efektif run-up + post reversal; cikarma ayna),
@@ -37,12 +38,18 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   (tam-gecmis); yabanci-takas-orani + analist-revizyon forward-snapshot gerektirir. Literaturde
   likit/maliyet-aware hayatta-kalmaya en-yakin: (a) PEAD [L3'te aylik-cozunurlukte elendi],
   (b) yabanci-akim ENDEKS-timing [bizde gunluk-panel YOK]. [WEB_SYNTHESIS.md]
+- **L6**: Kosulsuz CPI-ilan-penceresi XU100'de ham-anlamli bile degil (en-buyuk post[+1,+5]
+  +0.61% AMA t=1.48, rejim-stabil-degil = significance-wall, cost-testine GELMEDEN dusuyor).
+  Tek-iz = endeks-duzeyi vol-bump (ilan-gunu |AR| 1.50% vs 1.19%; EW-full'da YOK -> macro-beta,
+  yon-tasimaz). KRITIK veri-tavani: veri yalniz TARIH tasiyor, SURPRIZ (actual/forecast) YOK ->
+  drift'i tasiyan-bilesen olculemiyor; CPI-tarih proxy (+/-1-2g); PPK n=2 (cikarildi). Bu null,
+  SURPRIZ-KOSULLU testin neden YENI-VERI gerektirdigini somutlastiriyor. [L6_macro_event_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
 turnover (~0.4-0.7) bunu her kucuk-edge'in uzerine bindirir -> maliyet-sonrasi olur. Maliyet-sonrasi
 yasayabilecek TEK yapi = DUSUK-TURNOVER event-driven; ama elimizdeki dusuk-turnover olaylar
-(index-rebalance, aylik-PEAD) likit-evrende ANLAMLI-edge tasimiyor. Gorunur-edge'ler ya microcap'te
+(index-rebalance L1, aylik-PEAD L3, makro-ilan L6) likit-evrende ANLAMLI-edge tasimiyor. Gorunur-edge'ler ya microcap'te
 (yatirilamaz) ya da maliyet/anlamlilik duvarinda. Bu, onceki graveyard ile %100 tutarli.
 
 ## CAGAN ICIN SOMUT ILERI-YOL (eldeki-veriyle yeni-test degil, VERI-EDINIMI)

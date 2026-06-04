@@ -1,0 +1,223 @@
+{
+  "candidate": "L6 MACRO-EVENT drift -- unconditional CPI-release event-window on XU100 (PRIMARY, investable index) + EW-full (SECONDARY). Low-turnover event-driven class (<= ~88 events). DESCRIPTIVE VIEW by data-design.",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L6_macro_event.json",
+  "data": {
+    "n_cpi_events": 88,
+    "ppk_events_excluded_from_inference": 2,
+    "event_date_exact": false,
+    "index_roundtrip_bps_conservative": 40.0
+  },
+  "multiple_testing": {
+    "n_headline_windows": 4,
+    "bonferroni_p": 0.0125
+  },
+  "windows_fixed": {
+    "pre": [
+      -5,
+      -1
+    ],
+    "event": [
+      0,
+      0
+    ],
+    "post_tight": [
+      1,
+      5
+    ],
+    "post_wide": [
+      1,
+      10
+    ]
+  },
+  "PRIMARY_xu100": {
+    "series": "XU100",
+    "n_days": 1827,
+    "mean_daily_return": 0.00166777,
+    "n_events_aligned": 87,
+    "windows": {
+      "pre": {
+        "n_events": 87,
+        "mean_car": -0.00208788,
+        "sd_car": 0.04018103,
+        "clustered_t": -0.48466667,
+        "p_raw": 0.62914498,
+        "survives_bonf": false,
+        "window": [
+          -5,
+          -1
+        ],
+        "tradeable_lookaheadsafe": false,
+        "nw_t_daily_crosscheck": -0.50534592,
+        "regime": {
+          "pre_mean_car": -0.00298505,
+          "post_mean_car": -0.00148401,
+          "sign_stable": true
+        }
+      },
+      "event": {
+        "n_events": 87,
+        "mean_car": 0.00212014,
+        "sd_car": 0.01981771,
+        "clustered_t": 0.99786303,
+        "p_raw": 0.32114521,
+        "survives_bonf": false,
+        "window": [
+          0,
+          0
+        ],
+        "tradeable_lookaheadsafe": false,
+        "nw_t_daily_crosscheck": 0.98450913,
+        "regime": {
+          "pre_mean_car": 0.00014081,
+          "post_mean_car": 0.00345238,
+          "sign_stable": true
+        }
+      },
+      "post_tight": {
+        "n_events": 87,
+        "mean_car": 0.00611201,
+        "sd_car": 0.03857163,
+        "clustered_t": 1.47800415,
+        "p_raw": 0.14305983,
+        "survives_bonf": false,
+        "window": [
+          1,
+          5
+        ],
+        "tradeable_lookaheadsafe": true,
+        "nw_t_daily_crosscheck": 1.44933641,
+        "regime": {
+          "pre_mean_car": -0.00028491,
+          "post_mean_car": 0.01041763,
+          "sign_stable": false
+        },
+        "net_car_after_index_cost": 0.00211201,
+        "positive_and_significant_gross": false
+      },
+      "post_wide": {
+        "n_events": 87,
+        "mean_car": 0.0055038,
+        "sd_car": 0.05496247,
+        "clustered_t": 0.93401908,
+        "p_raw": 0.35290916,
+        "survives_bonf": false,
+        "window": [
+          1,
+          10
+        ],
+        "tradeable_lookaheadsafe": true,
+        "nw_t_daily_crosscheck": 0.98728416,
+        "regime": {
+          "pre_mean_car": -0.00243648,
+          "post_mean_car": 0.01084821,
+          "sign_stable": false
+        },
+        "net_car_after_index_cost": 0.0015038,
+        "positive_and_significant_gross": false
+      }
+    },
+    "volatility_view": {
+      "mean_abs_ar_event_day": 0.01500276,
+      "mean_abs_ar_other_days": 0.01187827,
+      "note": "DESCRIPTIVE information-event signature; not a tradeable directional claim."
+    }
+  },
+  "SECONDARY_ew_full": {
+    "series": "EW-full",
+    "n_days": 1847,
+    "mean_daily_return": 0.002012,
+    "n_events_aligned": 88,
+    "windows": {
+      "pre": {
+        "n_events": 88,
+        "mean_car": 0.00058086,
+        "sd_car": 0.03943992,
+        "clustered_t": 0.13815917,
+        "p_raw": 0.8904339,
+        "survives_bonf": false,
+        "window": [
+          -5,
+          -1
+        ],
+        "tradeable_lookaheadsafe": false,
+        "nw_t_daily_crosscheck": 0.1526005,
+        "regime": {
+          "pre_mean_car": 0.00552771,
+          "post_mean_car": -0.00268592,
+          "sign_stable": false
+        }
+      },
+      "event": {
+        "n_events": 88,
+        "mean_car": 0.00093782,
+        "sd_car": 0.01599194,
+        "clustered_t": 0.55012547,
+        "p_raw": 0.58364297,
+        "survives_bonf": false,
+        "window": [
+          0,
+          0
+        ],
+        "tradeable_lookaheadsafe": false,
+        "nw_t_daily_crosscheck": 0.6467401,
+        "regime": {
+          "pre_mean_car": 0.00161632,
+          "post_mean_car": 0.00048976,
+          "sign_stable": true
+        }
+      },
+      "post_tight": {
+        "n_events": 88,
+        "mean_car": 0.00313966,
+        "sd_car": 0.03884166,
+        "clustered_t": 0.75827368,
+        "p_raw": 0.45033641,
+        "survives_bonf": false,
+        "window": [
+          1,
+          5
+        ],
+        "tradeable_lookaheadsafe": true,
+        "nw_t_daily_crosscheck": 0.79388639,
+        "regime": {
+          "pre_mean_car": -0.00277618,
+          "post_mean_car": 0.00704634,
+          "sign_stable": false
+        },
+        "net_car_after_index_cost": -0.00086034,
+        "positive_and_significant_gross": false
+      },
+      "post_wide": {
+        "n_events": 88,
+        "mean_car": 0.00135606,
+        "sd_car": 0.06485265,
+        "clustered_t": 0.19615246,
+        "p_raw": 0.84494829,
+        "survives_bonf": false,
+        "window": [
+          1,
+          10
+        ],
+        "tradeable_lookaheadsafe": true,
+        "nw_t_daily_crosscheck": 0.2465258,
+        "regime": {
+          "pre_mean_car": -0.0084733,
+          "post_mean_car": 0.00784716,
+          "sign_stable": false
+        },
+        "net_car_after_index_cost": -0.00264394,
+        "positive_and_significant_gross": false
+      }
+    },
+    "volatility_view": {
+      "mean_abs_ar_event_day": 0.01072884,
+      "mean_abs_ar_other_days": 0.01058134,
+      "note": "DESCRIPTIVE information-event signature; not a tradeable directional claim."
+    }
+  },
+  "verdict": {
+    "verdict": "DESCRIPTIVE-VIEW (no deployable macro-event directional edge)",
+    "deployable_windows": [],
+    "note": "Unconditional CPI-release window only -- the data carries NO surprise magnitude (dates only) and CPI dates are a +/-1-2d rule-proxy. A null bounds the unconditional effect and motivates exact-date + actual/forecast-surprise acquisition for a future surprise-conditional test. Consistent with source meta.json (edge-prior WEAK) and the program SUMMARY (value is in NEW DATA, not new factors on existing data)."
+  }
+}
