@@ -1,0 +1,38 @@
+{
+  "candidate": "L2 SHORT-TERM REVERSAL -- contrarian (long past-losers / short past-winners), 1-month and 1-week formation=hold, liquid universe, D-207 realistic cost",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Short-horizon past returns REVERSE (Jegadeesh 1990, Lehmann 1990; Bildik-Gulay contrarian for BIST): recent losers out-return recent winners over the next week/month. Contrarian portfolio = LONG bottom past-return tercile, SHORT top past-return tercile.",
+  "data": {
+    "prices": "data/clean_universe/adjusted_prices_2019_2026.parquet (adjusted_close, value_tl)",
+    "quoted": "data/clean_universe/d207_quoted_spread_panel.parquet (D-207 cost -- also the bid-ask-bounce antidote)"
+  },
+  "specs_FROZEN": {
+    "REV_1M": {"rebalance": "monthly (last trading day of month)", "formation_days": 21, "hold": "1 rebalance period (~1 month)"},
+    "REV_1W": {"rebalance": "weekly (last trading day of each ISO week)", "formation_days": 5, "hold": "1 rebalance period (~1 week)"},
+    "note": "TWO canonical specs declared up front (NOT a swept grid). Formation return = compounded clipped daily return over the trailing formation_days ENDING AT the rebalance close (incl. day t); enter at day-t close, hold forward to the next rebalance. Look-ahead-safe."
+  },
+  "construction": {
+    "signal": "past formation-window return (LOW = loser = LONG; HIGH = winner = SHORT) -- contrarian",
+    "long_leg": "bottom tercile of past return (losers), EW -> deployable long-only read vs EW-full",
+    "short_leg": "top tercile (winners), EW -> academic loser-minus-winner spread",
+    "tercile_cut": 0.3333,
+    "min_candidates": 9
+  },
+  "benchmark": "EW-full per-period (honest bar). PRIMARY = geometric per-period relative (carry-immune).",
+  "liquidity": {"report": ["ALL", "LIQUID"], "liquid_def": ">= 1.0e7 TL trailing-63d-median value_tl at formation (D-205)"},
+  "cost": {"model": "D-207 per-stock realistic round-trip (d204.per_stock_cost_panel quoted-primary + d204_basket_net_series). Report breakeven + realized bps + turnover. NOTE: realistic spread cost is the direct antidote to bid-ask-bounce illusion -- the breakeven test asks whether the reversal exceeds the spread it is mechanically built on."},
+  "statistics": {"primary": "_nw_t (cfg lag) on per-period relative-net series", "ci": "_mean_ci block-bootstrap", "regime_split": "2022-01-01 sign-stability"},
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Short-term reversal is academically STRONG on BIST (Bildik-Gulay) BUT microcap-concentrated and contaminated by BID-ASK BOUNCE; it is also HIGH TURNOVER (weekly/monthly rebalance, buying losers = often the widest-spread names).",
+    "most_likely_verdict": "COST-WALL. The contrarian edge likely exists gross (especially REV_1W on ALL/illiquid) but is eaten by realistic spread cost on the liquid universe -- the edge ~ the spread it is built on. The L-S spread may be significant GROSS but breakeven < realistic cost. Long-loser-tercile vs EW-full may even be negative on liquid (losers are often the names that keep falling among large caps). NOT expecting a deployable edge; cheap, closes a never-isolated-tested gap. NO celebration.",
+    "cross_check": "L3 found K=1 LIQUID high-minus-low-SUE significantly NEGATIVE -- a reversal hint. L2 tests reversal DIRECTLY and independently (reversal was pre-declared in the lab AGENDA, not derived from the L3 residual)."
+  },
+  "keep_bar_FROZEN": {
+    "definition": "TRADEABLE-aday requires, on the LIQUID universe, the long-loser-tercile (deployable, market-relative) for AT LEAST ONE spec with ALL of: (1) net-after-realistic-cost relative mean > 0, (2) NW |t| >= 2.0, (3) regime sign-stable (2022-01 split). The loser-minus-winner spread is corroboration; the deployable gate is long-only.",
+    "else": "cost-wall or significance-wall -> archived. No grid-sweep over formation/hold (p-hacking forbidden)."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "reuse": ["_period_return_matrix", "ew_full_benchmark", "_relative", "_mean_ci", "_nw_t", "regime_split", "d204.per_stock_cost_panel", "d204.d204_basket_net_series", "d204.breakeven_cost_bps", "d204.effective_flat_bps"]}
+}
