@@ -15,8 +15,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L5 | WEB SENTEZ (borsapy/borsamcp + literatur) | iki otonom arastirma-raporu damitildi | yeni-veri-kuyrugu + oncelik-guncelleme |
 | L6 | MACRO-EVENT (CPI-ilan penceresi) | XU100 event-study, olay-clustered t, Bonferroni | DESCRIPTIVE-VIEW (deploy-degil; significance-wall + veri-tavani) |
 | L7 | FEASIBILITY-FRONTIER (sentez) | L1/L2/L3/L6 ledger, iki-kapi siniflama | DESCRIPTIVE-SYNTHESIS (0/20 NO-WALL; ileri go/no-go kurali) |
+| L8 | POWER/SAMPLE-SIZE (sentez) | L1/L6 right-signed likit-leg, n_required(\|t\|=2) + reachability | DESCRIPTIVE-POWER-VIEW (olay-kitligi darbogaz; daily-PEAD tek-ulasilabilir) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7 = sentez (yeni-edge degil, karar-araci).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8 = sentez (yeni-edge degil, karar-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -52,6 +53,14 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   DOGRU-isaret VE maliyet-ustu ama 2-sigma-alti (|t|=0.7-1.5). Microcap-killer=COST, liquid-killer=
   SIGNIFICANCE. Ileri go/no-go kurali damitildi (iki-kapiyi likit'te gec, dusuk-turnover/event tercih,
   power'i artir). [L7_feasibility_frontier_REPORT.md]
+- **L8**: L7-power-darbogazini SAYIYA cevirdi. Right-signed likit event-leg'lerde n_required(|t|=2)=
+  n_obs*(2/|t|)^2. BIST30-add likit (+82bp, t=0.71) ~95 tarih = ~41 yil (yilda ~2 tarih -> UMITSIZ);
+  +33bp legi ~373 yil. CPI post[+1,+5] (+61bp, t=1.48) yalniz ~1.8x olay = ~6 yil AMA regime-sign-
+  stable=FALSE -> "bekle, t=2 olur" hesabi verinin-desteklemedigi sabit-etki varsayar (SERAP). KRITIK:
+  power darbogazi olay-GELIS-HIZI (1 CPI/ay, ~2 BIST30-tarih/yil sert-tavan), orneklem-uzunlugu degil.
+  Daily-PEAD ~120 bagimsiz ifsa-tarihi/yil -> gozlenen-etki-bandi (n_req 95..759) ~0.8-6.3 yilda
+  birikir = |t|=2'yi insan-ufkunda ulasilabilir kilan TEK event-sinifi. FORWARD_DATA_SPEC
+  #1(daily-PEAD)>>#2(surpriz-makro)>>index-rebalance siralamasinin SAYISAL gerekcesi. [L8_power_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik

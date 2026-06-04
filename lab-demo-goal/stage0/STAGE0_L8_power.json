@@ -1,0 +1,45 @@
+{
+  "candidate": "L8 POWER / SAMPLE-SIZE analysis -- quantify the L7 power-bottleneck. SYNTHESIS/meta track: NO new edge, NO new data. Reads the FROZEN L1 and L6 result JSONs, isolates the right-signed-but-underpowered LIQUID event-driven legs, and computes how many INDEPENDENT observations would be needed to reach |t|=2 (and 80% power), then compares to realistic BIST event-arrival rates.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "purpose": "L7 found that on LIQUID names the binding gate is SIGNIFICANCE/POWER (not cost): the surviving archetype (low-turnover, event-driven, right-signed) is correctly identified but has too few independent observations for |t|>=2. L8 converts 'we lack power' into a hard number: per-leg n_required for |t|=2 and for 80% power, the gap vs observed n, and whether realistic BIST event volumes for that event-class can ever reach it. Output sharpens FORWARD_DATA_SPEC priority (which event-class is power-reachable).",
+  "inputs_FROZEN": [
+    "lab-demo-goal/results/l1_index_rebalance_results.json (BIST30-add LIQUID post windows; date-clustered)",
+    "lab-demo-goal/results/l6_macro_event_results.json (XU100 post-CPI windows; event-clustered, sd_car stored)"
+  ],
+  "legs_analysed_FROZEN": [
+    "L1 BIST30-add LIQUID post_[+1,+10] (date_clustered mean ~ +82bp, nw_t ~0.71, n_dates=12)",
+    "L1 BIST30-add LIQUID post_[+1,+5]  (date_clustered mean ~ +33bp, nw_t ~0.25, n_dates=12)",
+    "L6 XU100 post_tight [+1,+5] (mean_car ~ +61bp, clustered_t ~1.48, n_events=87)",
+    "L6 XU100 post_wide  [+1,+10] (mean_car ~ +55bp, clustered_t ~0.93, n_events=87)"
+  ],
+  "method_FROZEN": {
+    "primary_relation": "For a fixed effect size and per-unit variance the t-stat scales as sqrt(n): t = effect * sqrt(n). Hence n_required(target_t) = n_obs * (target_t / |t_obs|)^2, and gap_factor = (target_t / |t_obs|)^2. This needs NO sd reconstruction and is the robust headline.",
+    "implied_effect": "Effective per-unit sd = |mean| * sqrt(n_obs) / |t_obs| (HAC-implied for L1 via nw_t; reproduces sd_car for L6 via clustered_t). Standardized effect d = |mean| / sd_unit, reported for transparency.",
+    "targets": {"significance_t": 2.0, "power80_two_sided_alpha05_t": 2.801585},
+    "t_used_per_family": {"L1": "nw_t (date-clustered HAC, the program keep-bar gate)", "L6": "clustered_t (event-clustered, the program keep-bar gate)"},
+    "approximation_note": "nw_t does NOT scale exactly as sqrt(n) (HAC adjustment depends on the autocorrelation structure that itself shifts with n); the sqrt(n) law is a first-order estimate, declared as such. The qualitative ranking (decades vs years) is robust to this."
+  },
+  "event_rate_assumptions_FROZEN": {
+    "note": "Fixed a-priori arrival rates (NOT tuned). Used only to translate n_required into forward-years.",
+    "cpi_release_per_year": 12,
+    "cpi_market_count": 1,
+    "bist30_reconstitution_dates_per_year": 2,
+    "daily_pead_comparison": {
+      "liquid_names_estimate": 200,
+      "quarters_per_year": 4,
+      "independent_disclosure_dates_per_year_estimate": 120,
+      "haircut_reason": "earnings cluster in ~6-8 week seasons -> count distinct disclosure-DATES, not filings, to avoid overlap-inflated n (per L7 caution). Range 100-160; headline uses 120."
+    }
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect the two SCARCE event classes (CPI 12/yr single-market; BIST30 reconstitution ~2 dates/yr) to require so many more independent observations that they are NOT reachable in a human-relevant horizon -- index-rebalance is essentially hopeless (decades), CPI-unconditional needs ~1.5-4x more events (~13-33 yr) so the real lever there is SURPRISE-CONDITIONING (sharpen d, not grow n). Only DAILY-PEAD has an event-arrival rate (~120 independent disclosure-dates/yr) large enough to reach plausible n_required within ~1-3 years. Net: L8 gives a NUMERIC ranking that confirms FORWARD_DATA_SPEC #1 (daily-PEAD) >> #2 (surprise-macro) >> index-rebalance-alone.",
+    "most_likely_verdict": "DESCRIPTIVE-POWER-VIEW. A decision tool, not an edge. NO celebration."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data": true, "reads_only_frozen_lab_results": true, "no_edge_claim": true
+  }
+}
