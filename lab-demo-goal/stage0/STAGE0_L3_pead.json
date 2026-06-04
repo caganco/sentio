@@ -1,0 +1,41 @@
+{
+  "candidate": "L3 PEAD (post-earnings-announcement-drift) -- cross-sectional monthly SUE sort, long top-tercile (deployable) + long-short spread (academic), look-ahead-safe consume-month entry, D-207 realistic cost",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Stocks with positive earnings surprises (high SUE) drift UP over the following weeks (PEAD). On BIST the agent graded PEAD as the BEST event-driven anomaly (~+2.9%/60d, Ahlatcioglu-Okay 2020; non-price signal -> low selection bias; clears 30-40bp daily). We test the LONG top-SUE tercile (long-only deployable, market-relative) and the academic top-minus-bottom spread.",
+  "data": {
+    "signal": "data/snapshots/earnings_dates.parquet -- column `sue` = standardized YoY de-cumulated quarterly net-profit surprise (seasonal-random-walk SUE; verified ue = net_profit_q[t] - net_profit_q[t-4Q]). 6000 actionable events 2019+, 419 symbols, median ~55/month over 79 months. SUE 59% NaN overall (needs >=several quarters to standardize).",
+    "prices": "data/clean_universe/adjusted_prices_2019_2026.parquet (adjusted_close monthly returns, value_tl ADV)",
+    "quoted": "data/clean_universe/d207_quoted_spread_panel.parquet (D-207 cost)"
+  },
+  "look_ahead_safety": "A name's signal is ACTIONABLE from its `consume_from_month` (= announce_month + 1). Portfolio formed at the LAST trading day of rebalance month m uses ONLY events with consume_from_month <= m; forward return measured over (m, m+1]. consume-lag makes the info strictly public before entry. This ATTENUATES the classic daily PEAD (we miss the immediate post-announcement pop, capturing a lagged/diluted drift slice) -- declared honestly.",
+  "construction": {
+    "rebalance": "monthly (last trading day of each calendar month), 2019-01..2026-05",
+    "active_window_K_months": "a name is FRESH at rebalance month m if its most-recent event has consume_from_month in {m-K+1..m}; use that event's SUE. Hold forward one period; freshness persists K months => K-month overlapping hold.",
+    "K_primary": 3,
+    "K_profile_reported": [1, 2, 3],
+    "K_rationale": "K=3 ~ the agent's ~60-day drift horizon = PRIMARY (keep-bar applies here). K=1,2 reported as the drift-DECAY profile (event-study horizon dimension, NOT a hyperparameter grid-search for the best).",
+    "long_leg": "top tercile (top 1/3) of that month's fresh-candidate SUE, EW. Deployable long-only read = long-tercile vs EW-full benchmark (market-relative).",
+    "short_leg": "bottom tercile, EW -> academic top-minus-bottom spread (signal-strength read; NOT long-only-deployable, reported for honesty).",
+    "tercile_cut": 0.3333,
+    "min_candidates_per_month": 9
+  },
+  "benchmark": "EW-full monthly (honest bar, same as L1 and the D-203 program). PRIMARY metric = geometric per-period relative (_relative), carry-immune.",
+  "liquidity": {"report": ["ALL", "LIQUID"], "liquid_def": ">= 1.0e7 TL trailing-63d-median value_tl at formation (D-205 absolute)"},
+  "cost": {"model": "D-207 per-stock realistic round-trip via d204.per_stock_cost_panel (quoted-primary) + d204_basket_net_series (per-stock entry/exit charging). Also report breakeven bps + realized cost bps + turnover."},
+  "statistics": {"primary": "_nw_t on the monthly relative-net series (cfg D203_NW_LAGS=3)", "ci": "_mean_ci block-bootstrap", "regime_split": "2022-01-01 sign-stability"},
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "PEAD is the agent's BEST event-driven pick and the strongest a-priori survival shot of the remaining lab candidates (non-price signal -> not the microcap-mirage pattern). BUT three headwinds are declared up front:",
+    "headwind_1": "MONTHLY resolution + look-ahead-safe consume-lag ATTENUATES the daily PEAD -> we capture a lagged, diluted drift, not the sharp post-announcement pop.",
+    "headwind_2": "Cited PEAD samples PREDATE the 2019-2026 inflation regime; nominal-profit SUE is inflation-exposed (mitigated -- but not eliminated -- by CROSS-SECTIONAL ranking, which differences out the common inflation component).",
+    "headwind_3": "SUE coverage is thin/late on some names; liquid-universe events fewer.",
+    "most_likely_verdict": "weak-positive gross drift; UNCERTAIN after liquid + realistic cost. Plausibly a significance-or-cost-wall, BUT with a genuine chance of a marginal tradeable long-tercile edge (the best remaining shot). NO celebration. If it clears the keep-bar it is a DEPLOY-CANDIDATE to hand to the maintainer; if not, archived as measured."
+  },
+  "keep_bar_FROZEN": {
+    "definition": "TRADEABLE-aday requires, on the LIQUID universe, the PRIMARY K=3 long-tercile (deployable, market-relative) with ALL of: (1) net-after-realistic-cost relative mean > 0, (2) NW |t| >= 2.0 (lag 3), (3) regime sign-stable (2022-01 split, same sign both halves). The long-short spread is reported as corroboration but the DEPLOYABLE gate is the long-only tercile.",
+    "else": "significance-wall or cost-wall -> archived. No 2nd round / no grid-sweep over K or tercile cut (p-hacking forbidden)."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "reuse": ["monthly_rebalance_dates", "_period_return_matrix", "ew_full_benchmark", "_relative", "_mean_ci", "_nw_t", "regime_split", "d204.per_stock_cost_panel", "d204.d204_basket_net_series", "d204.breakeven_cost_bps", "d204.effective_flat_bps"]}
+}

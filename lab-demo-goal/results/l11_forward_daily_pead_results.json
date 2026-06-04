@@ -1,0 +1,62 @@
+{
+  "candidate": "L11 forward daily-PEAD test harness scaffold (pre-registered; offline-validated)",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L11_forward_daily_pead.json",
+  "mode": "OFFLINE synthetic self-validation",
+  "forward_panel_expected": "data\\cache\\kap_pead_daystamped.parquet",
+  "forward_panel_present": false,
+  "adv_min_tl": 10000000.0,
+  "roll": 63,
+  "h_windows": [
+    5,
+    10
+  ],
+  "seed": 20260604,
+  "synthetic_self_validation": {
+    "params": {
+      "n_sym": 60,
+      "n_days": 600,
+      "n_events": 480,
+      "sigma_daily": 0.02,
+      "drift_per_sue": 0.02,
+      "seed": 20260604
+    },
+    "recovery_H10": {
+      "n_events": 480,
+      "long_short_car": 0.042992,
+      "nw_t": 5.9081,
+      "top_mean_car": 0.018174,
+      "bot_mean_car": -0.024817
+    },
+    "placebo_H10": {
+      "n_events": 480,
+      "long_short_car": 0.001442,
+      "nw_t": 0.1755,
+      "top_mean_car": -0.003595,
+      "bot_mean_car": -0.005037
+    },
+    "lookahead_leak_H10": {
+      "n_events": 480,
+      "long_short_car": 0.099388,
+      "nw_t": 13.5291,
+      "top_mean_car": 0.047661,
+      "bot_mean_car": -0.051727
+    },
+    "asserts": {
+      "recovery_sign_positive": true,
+      "recovery_significant_t>=2": true,
+      "placebo_insignificant_t<2": true,
+      "lookahead_entry_leaks_more_than_safe": true
+    },
+    "all_asserts_pass": true
+  },
+  "summary": {
+    "headline": "Forward daily-PEAD harness pre-registered and offline-validated. Synthetic self-test asserts=PASS (recovery NW-t=5.9081, placebo NW-t=0.1755, look-ahead-leak NW-t=13.5291). NO real-data edge claimed; the real test runs only when an approved KAP day-stamp fetch delivers the panel.",
+    "interpretation": "Capstone of the daily-PEAD synthesis (L8 n_required, L9 volume, L10 effect/sign): the forward experiment is now frozen and one command from running on real day-stamps. The synthetic PASS proves only pipeline correctness and look-ahead safety; it says nothing about whether a real BIST daily-PEAD edge exists. That remains gated behind the maintainer's approval of the network fetch -- the autonomous phase deliberately stops before any pull."
+  },
+  "verdict": {
+    "verdict": "SCAFFOLD-SELF-TEST PASS (synthetic-only; no deployable edge; awaiting approved KAP day-stamp fetch)",
+    "synthetic_asserts_pass": true,
+    "real_data_run": false,
+    "no_edge_claim": true
+  }
+}

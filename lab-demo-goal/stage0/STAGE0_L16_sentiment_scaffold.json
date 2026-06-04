@@ -1,0 +1,34 @@
+{
+  "candidate": "L16 NEWS-SENTIMENT cross-sectional factor FORWARD-SCAFFOLD (pre-registered + offline-validated). A genuinely new factor AXIS (text/sentiment), explicitly named in the directive (sentiment) but never opened as a track because the offline data is a LIVE SNAPSHOT only. This track pre-registers the EXACT look-ahead-safe test that would consume a historical day-stamped news/sentiment panel IF an approved fetch delivers it, validates the pipeline on synthetic data (L11 pattern), and characterizes the real news_cache snapshot to prove WHY it is not yet backtestable. Measurement/scaffold-only, committed-engine ZERO-touch, repo READ-ONLY, NO network, ASCII.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Cross-sectionally, BIST names with POSITIVE recent news/disclosure sentiment earn positive market-relative drift over the following days (sentiment/attention premium), and NEGATIVE-sentiment names underperform. DEPLOYABLE form: long-only TOP net-sentiment tercile in the LIQUID universe, market-relative, net of realistic round-trip cost, positive and significant with a regime-stable sign.",
+  "signal_FROZEN": {
+    "definition": "Per (symbol, day) net sentiment = sum of polarity over that symbol's disclosure/news items in a trailing window, polarity assigned by a PRE-REGISTERED KAP-disclosure-type lexicon (NOT a tuned ML model -> no p-hacking knob).",
+    "polarity_lexicon_FROZEN": {
+      "positive": ["geri al", "kar pay", "temettu", "kar dagit", "olumlu", "yukseltti", "yatirim tesvik", "uzun vadeli not"],
+      "negative": ["sermaye art", "ihrac tavan", "bedelli", "devre kesici", "olumsuz", "dusurdu", "negatif", "temerrut", "konkordato", "halka arz"],
+      "neutral_examples": ["genel kurul", "genel bilgi formu", "bagimsiz denetim", "sorumluluk beyan", "ozel durum aciklamasi (genel)"]
+    },
+    "text_normalization": "ASCII-fold the Turkish headline (strip diacritics) before keyword matching, so the lexicon and harness stay ASCII while still matching Turkish text.",
+    "no_price_in_signal": "Sentiment uses news text only -> orthogonal to the price/volume/fundamental graveyard and to L1-L15. Genuinely new AXIS."
+  },
+  "look_ahead_safety_FROZEN": {
+    "rule": "Position entered the day AFTER the news day-stamp (t+1), holding [+1,+H]; the announcement-day return is EXCLUDED. Market-relative CAR (subtract EW universe). This is the same look-ahead-safe discipline as L11 daily-PEAD."
+  },
+  "universe_FROZEN": {"liquid": ">= 1.0e7 TL trailing-63-trading-day median value_tl", "scopes": ["ALL", "LIQUID"], "min_events": 9},
+  "portfolio_FROZEN": {"primary_gate": "LIQUID long-only TOP net-sentiment tercile, market-relative, net of realistic cost", "corroboration": "top-minus-bottom sentiment spread", "windows_H": [5, 10], "rebalance": "event-driven daily", "benchmark": "EW universe daily"},
+  "cost_FROZEN": "Realistic D-207-style per-stock round-trip; report realized-cost-bps, breakeven, turnover (wired at the marked point when the real panel is present).",
+  "stats_FROZEN": {"nw_t": "event-clustered Newey-West HAC t on the long-short CAR contributions", "regime_split": "2022-01-01 sign-stability", "T_SIG": 2.0},
+  "keep_bar_FROZEN": "Deploy-edge <=> PRIMARY (LIQUID long top-sentiment tercile) market-relative net CAR > 0 AND |NW-t| >= 2.0 AND regime-sign-stable. Else SENTIMENT-NOT-TRADEABLE. SCAFFOLD stage asserts pipeline-correctness only (recovery/placebo/look-ahead), claims NO real edge.",
+  "offline_validation_FROZEN": {
+    "synthetic_self_test": "Plant a sentiment-conditioned post-stamp drift in synthetic returns; assert (a) RECOVERY sign-positive and |t|>=2, (b) PLACEBO (permuted polarity) |t|<2, (c) LOOK-AHEAD entry (stamp-day) leaks more than safe t+1 entry. Same three-assert harness as L11.",
+    "snapshot_characterization": "Parse the real data/news_cache.json (DESCRIPTIVE only): distinct symbols, article count, date span, disclosure-type distribution, polarity-classifiable fraction -> quantify why it is NOT yet a backtestable historical panel."
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect NOT-RUNNABLE offline: the only sentiment/news data present is a tiny LIVE SNAPSHOT (production sentiment-cache is empty; news_cache is a handful of symbols, ~1 month, headline-only, no historical depth, no per-day historical scores). A historical day-stamped news/sentiment panel does NOT exist offline and would require an approved network fetch + scoring pipeline. So this track CRYSTALLIZES the sentiment avenue into a pre-registered, offline-validated harness (recovers a planted effect, rejects placebo/look-ahead) and documents the exact data gap, exactly as L11 did for daily-PEAD. NO real-data edge is claimed; the real test runs only on an approved historical news fetch. The news stream is dominated by KAP special-disclosures, so a single approved KAP historical-text fetch would feed sentiment (L16), NLP-type (L17) and daily-PEAD (#1) together.",
+    "most_likely_verdict": "SCAFFOLD-SELF-TEST PASS (no deployable edge; awaiting approved historical news/disclosure fetch)."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true, "no_new_data_acquisition": true, "no_edge_claim_unless_keepbar_passes": true}
+}

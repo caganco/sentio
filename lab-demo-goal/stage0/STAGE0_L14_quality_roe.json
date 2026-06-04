@@ -1,0 +1,46 @@
+{
+  "candidate": "L14 QUALITY / PROFITABILITY cross-sectional factor (ROE = net_profit / equity). A GENUINELY NEW canonical factor (Fama-French RMW / Novy-Marx profitability family) NOT in the existing graveyard (which holds value, momentum/EDGE-2, hi52, lowvol63, NAV-MR, dividend run-up H2b, foreign-flow, and the L1-L13 synthesis tracks). Measurement-only, look-ahead-safe, committed-engine ZERO-touch, repo READ-ONLY, ASCII. Tests whether high-ROE (high-quality) liquid BIST names earn a positive market-relative return after realistic D-207 cost.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Cross-sectionally, high-quality (high-ROE) firms outperform low-quality (low/negative-ROE) firms (canonical profitability premium). DEPLOYABLE form: long-only TOP-ROE-tercile in the LIQUID universe, market-relative (vs EW-full), net of realistic D-207 round-trip cost, should be positive and significant with a regime-stable sign.",
+  "signal_FROZEN": {
+    "definition": "ROE = net_profit / equity, computed per (symbol, month) from data/clean_universe/fundamentals_2019_2026.parquet; require equity > 0 AND net_profit non-null.",
+    "rank_based": "Cross-sectional TERCILE sort by ROE each formation month -- RANK-based, so robust to the fat-tailed ROE outliers (tiny-equity denominators); NO winsorization parameter (avoids a tuning knob = avoids p-hacking).",
+    "no_price_in_signal": "ROE uses net_profit and equity only -- it is a pure profitability/quality signal, ORTHOGONAL to price-based value (pe/pbv/bm/ey) and to the graveyard price/volume factors. This is what makes it a genuinely new factor, not a value re-test."
+  },
+  "look_ahead_safety_FROZEN": {
+    "lag_months": 1,
+    "rule": "At formation month M (month-end rebalance date), use ROE from fundamentals month M - LAG_MONTHS (=M-1). The fundamentals panel is a MONTHLY SNAPSHOT (mktval is point-in-time; equity/net_profit step only when a new report is RELEASED -- confirmed by mid-quarter equity jumps), so month-M data is known by end of M; the extra 1-month lag is a conservative buffer against any fiscal-period-vs-release-date attribution ambiguity. Returns are measured over the holding period AFTER the formation date (pmat convention), so no future information enters the position."
+  },
+  "universe_FROZEN": {
+    "liquid": ">= 1.0e7 TL trailing-63-trading-day median value_tl at the formation date (D-205 absolute threshold)",
+    "scopes": ["ALL", "LIQUID"],
+    "min_candidates": 9
+  },
+  "portfolio_FROZEN": {
+    "primary_gate": "LIQUID long-only TOP-ROE-tercile, market-relative (vs EW-full monthly), net of D-207 realistic per-stock round-trip cost.",
+    "corroboration": "academic long-minus-short spread (top-tercile minus bottom-tercile) reported but NOT the deploy gate.",
+    "K_primary": 1,
+    "K_profile": [1, 3],
+    "tercile": 0.3333333,
+    "rebalance": "monthly",
+    "benchmark": "EW-full monthly (honest bar)"
+  },
+  "cost_FROZEN": "D-207 per-stock realistic cost via d204.per_stock_cost_panel(close, value_tl, rebal, quoted_panel=d207_quoted) -- quoted-primary; reused identically from L3. Report realized-cost-bps, breakeven-bps, turnover.",
+  "stats_FROZEN": {
+    "nw_t": "Newey-West HAC t on the monthly market-relative series (eng._nw_t).",
+    "regime_split": "2022-01-01; sign-stable iff pre- and post-split means share sign.",
+    "T_SIG": 2.0
+  },
+  "keep_bar_FROZEN": "Deploy-edge <=> PRIMARY (K=1 LIQUID long-tercile) rel-net-after-cost mean > 0 AND |NW-t| >= 2.0 AND regime-sign-stable. All three -> TRADEABLE-EDGE-CANDIDATE (deploy-aday, next step the maintainer). Else -> QUALITY-NOT-TRADEABLE (significance/cost-wall) -> clean archive.",
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect the STRUCTURAL WALL (lab META-BULGU) to most likely bind here too: any gross quality premium that exists is likely concentrated in illiquid microcaps and/or eroded by realistic ~28-46bp liquid round-trip cost, OR insignificant in the liquid universe. Quality DOES have two features that could help vs the graveyard: (a) it is a SLOW-moving signal (financials update quarterly), so monthly re-sorting turnover -- and hence cost drag -- should be LOWER than momentum/reversal; (b) it is a defensive factor that historically pays in down-regimes, which the 2022-01-01 split could expose as sign-UNSTABLE. Net honest call: most likely QUALITY-NOT-TRADEABLE (significance or sign-instability in liquid names), but it is a genuinely untested canonical factor and a clean low-turnover candidate, so the result is worth recording either way. If it surprises and clears the keep-bar, it becomes the program's first deploy-candidate. NO celebration on a null; record whatever the result is. This is ONE pre-registered definition -- no grid sweep over ROE variants (that would be p-hacking).",
+    "most_likely_verdict": "QUALITY-NOT-TRADEABLE (liquid significance/cost-wall or regime sign-instability). Recorded whatever it is."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data_acquisition": true, "no_edge_claim_unless_keepbar_passes": true
+  }
+}

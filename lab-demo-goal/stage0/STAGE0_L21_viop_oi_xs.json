@@ -1,0 +1,48 @@
+{
+  "candidate": "L21 VIOP single-stock-futures OPEN-INTEREST cross-sectional positioning factor (REAL DATA; pre-registered, measurement-only). A GENUINELY NEW factor AXIS (per-stock derivatives positioning via futures open interest), never tested in L1-L20. Distinct from every prior track: L1-L17 are price/volume/fundamental/sentiment axes, L18 was a feasibility-block, L19 was short-sale intensity, L20 was foreign-flow cross-sectional. This is the FUTURES-POSITIONING axis (how outstanding open interest in a name's single-stock futures changes). Newly enabled because the VIOP day-end archive (data/bist_datastore_archive/viop, VIOP_GUNSONU_FIYATHACIM monthly CSVs, 2005-2026) carries per-contract ACIK POZISYON (OPEN POSITION) and segment SSF (single-stock futures). NOT a scaffold: real-data cross-sectional edge test. Repo READ-ONLY (writes only under lab-demo-goal/), NO network, ASCII.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "feasibility_PRECHECK": {
+    "cross_section_width": "month-end SSF underlyings with positive open interest, 2019-01..2026-05: median 48, min 30, max 52 (min hits exactly the 30-name floor in early 2019, grows to ~48-52 from 2021). WIDE ENOUGH for a cross-sectional tercile test (>= MIN_NAMES every month).",
+    "join": "all 63 distinct SSF underlyings (bare ticker after stripping .E) are present in the spot price panel (0 missing) -> returns and the D-205 liquidity filter both computable from spot.",
+    "decision": "FEASIBLE as a real cross-sectional test (NOT a feasibility-block like L18)."
+  },
+  "data_provenance": {
+    "viop_panel": "data/bist_datastore_archive/viop/VIOP_GUNSONU_FIYATHACIM.M.YYYYMM.csv -- day-end VIOP price/volume report, semicolon-delimited, latin-1, TWO header rows (Turkish then English). Columns (0-indexed): col0=TARIH(date), col1=SOZLESME KODU(instrument series e.g. F_AEFES0524), col3=PAZAR SEGMENTI (SSF = single-stock futures), col6=DAYANAK VARLIK (underlying e.g. AEFES.E), col7=UZLASMA FIYATI(settlement), col17=ISLEM HACMI(traded value TL), col21=ACIK POZISYON (OPEN POSITION, contracts), col22=ACIK POZISYON DEGISIMI(OI change). Multiple contract maturities per underlying; total OI per underlying = sum of col21 across that underlying's SSF contracts on a given day. Uncompressed CSVs cover 2017-03..2026-05 (89 months >= 2019-01); pre-2017 are .csv.gz and NOT used. Schema verified stable across 2019-2026.",
+    "price_panel": "data/clean_universe/adjusted_prices_2019_2026.parquet [date,symbol,close,value_tl,adjusted_close,...]; monthly returns from adjusted_close, trailing-63-trading-day median value_tl for the liquid filter. We TRADE THE SPOT STOCK; the futures OI is only the signal.",
+    "overlap_window": "VIOP months intersect price panel = 2019-01 .. 2026-05 (~89 months). The OI-growth signal needs the prior month, so the first usable signal month is ~2019-02.",
+    "symbol_join": "strip trailing .E from the VIOP underlying to match bare spot tickers (all 63 match)."
+  },
+  "hypothesis": "Derivatives positioning is (partly) informed at the single-stock level: names whose single-stock-futures OPEN INTEREST GROWS in month m (new positioning building) subsequently OUTPERFORM (informed-positioning / hedging-pressure continuation, the cross-sectional analog of Hong-Yogo 2012 aggregate open-interest-growth-predicts-returns). DEPLOYABLE form: long the HIGH-OI-growth tercile in the LIQUID spot universe, market-relative, net of realistic cost; significant and regime-stable. GENUINELY NEW axis (futures positioning), not in the L1-L20 set, and orthogonal to price/volume/fundamental/sentiment/short/foreign-flow.",
+  "signal_FROZEN": {
+    "definition": "oi_growth(symbol, month m) = total_OI_end(m) / total_OI_end(m-1) - 1, where total_OI_end(m) = sum of ACIK POZISYON (col21) across all of that underlying's SSF contracts on the LAST trading day of month m. Requires consecutive months (m-1 directly precedes m) and total_OI_end(m-1) > 0. Cross-sectional rank into terciles each month (rank-based -> robust to ratio outliers; NO winsorization parameter). SINGLE pre-registered signal definition (NO alternative normalizations / NO grid -> no multiple-testing).",
+    "sign_convention": "HIGH OI-growth (positioning building) = LONG leg; LOW OI-growth = SHORT. Corroboration L-S = mean(HIGH tercile) - mean(LOW tercile).",
+    "new_axis": "per-stock futures-market positioning (open-interest growth) -> orthogonal to the price/volume/fundamental/sentiment/short/foreign-flow set (L1-L20). Not derivable from spot price or fundamentals alone (requires the derivatives book)."
+  },
+  "look_ahead_safety_FROZEN": {
+    "primary": "signal from month m -> forward SPOT return over month m+1 (position formed at end of m). OI (ACIK POZISYON) is end-of-day PUBLIC data published same-day after close, so month-end total OI is known at month-end -> m+1 is unambiguously look-ahead-safe (cleaner than L20's monthly-bulletin publication-lag assumption).",
+    "robustness": "SKIP-MONTH variant: signal month m -> forward return over month m+2. Extra-conservative; report BOTH; sign/significance disagreement is itself a finding.",
+    "return_def": "adjusted_close(end of forward month) / adjusted_close(end of entry month) - 1, only when the forward month directly follows the prior available month (no calendar gap); market-relative = minus EW mean forward return over the same-scope universe that month."
+  },
+  "universe_FROZEN": {
+    "scopes": ["ALL", "LIQUID"],
+    "all": "all SSF underlyings with a valid OI-growth signal that month (>= MIN_NAMES).",
+    "liquid": ">= 1.0e7 TL trailing-63-trading-day median daily SPOT value_tl at the signal month-end (D-205 absolute threshold, reused).",
+    "min_names_per_month": 30
+  },
+  "portfolio_FROZEN": {
+    "primary_gate": "LIQUID HIGH-OI-growth tercile, EW long, market-relative net of cost",
+    "corroboration": "L-S spread (HIGH minus LOW tercile), and ALL-scope versions",
+    "rebalance": "monthly",
+    "benchmark": "EW same-scope universe forward return"
+  },
+  "cost_FROZEN": "Realistic round-trip per D-207/D-208 liquid range; charge round_trip_bps * monthly turnover of the long basket. round_trip_bps frozen at 40 (liquid mid-range). Report gross, net, realized turnover, breakeven_cost_bps.",
+  "stats_FROZEN": {"nw_t": "Newey-West HAC t (lag 6) on the monthly market-relative active-return series", "regime_split": "2022-01-01 sign-stability (both halves same sign)", "T_SIG": 2.0},
+  "keep_bar_FROZEN": "Deploy-edge <=> LIQUID HIGH-OI-growth tercile market-relative NET mean > 0 AND |NW-t| >= 2.0 AND regime-sign-stable, net of cost. Else VIOP-OI-XS-NOT-TRADEABLE. Two-way verdict like D-205/D-209/L19/L20: TRADEABLE-EDGE -> deploy-candidate for the maintainer review; else clean-archive. A significantly NEGATIVE spread (high-OI-growth UNDERperforms = crowding-reversal) is NOT the pre-registered edge -> NOT-TRADEABLE (a reversal signal would need a fresh pre-registration), recorded as an opposite-sign finding.",
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Prior is WEAK (weaker than L20). For: futures OI growth is a recognized positioning/hedging-pressure signal in the aggregate time-series (Hong-Yogo 2012). Against: (a) the CROSS-SECTIONAL per-stock OI-growth anomaly is NOT well-established (Hong-Yogo is aggregate time-series, one number per asset class, not a per-name cross-section); (b) the BIST SSF market is THIN (median ~48 names) and OI is concentrated -> OI-growth ratios are noisy; (c) OI change is contemporaneously tied to volume/volatility/price moves -> the look-ahead-safe m+1 design likely washes out the contemporaneous co-move, and high-OI-growth (recent-attention) names may even mean-REVERT; (d) contract-roll seasonality adds noise even after summing maturities. Most likely a significance-wall, no monotonic spread, or regime-sign-instability. NO celebration expected; record whatever the result. If it DOES clear the keep-bar it is a genuine deploy-candidate to surface to the maintainer, not to bury.",
+    "most_likely_verdict": "VIOP-OI-XS-NOT-TRADEABLE (significance-wall, contemporaneous-only co-move / crowding-reversal, or regime sign-instability); no deployable edge."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true, "no_new_data_acquisition": true, "uses_existing_local_archive_only": true, "no_edge_claim_unless_keepbar_passes": true}
+}

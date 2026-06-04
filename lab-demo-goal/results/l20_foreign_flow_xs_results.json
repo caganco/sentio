@@ -1,0 +1,165 @@
+{
+  "candidate": "L20 foreign-flow cross-sectional factor (REAL DATA; pre-registered, measurement-only)",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L20_foreign_flow_xs.json",
+  "mode": "REAL (offline foreign-flow archive + clean_universe prices)",
+  "new_axis": "per-stock foreign-investor net-flow positioning (buy/sell imbalance) -- not in L1-L19 graveyard; distinct from D-211 aggregate index-timing",
+  "params": {
+    "nw_lag": 6,
+    "tercile": 0.3333333333333333,
+    "min_names": 30,
+    "liquid_adv_min_tl": 10000000.0,
+    "round_trip_bps": 40.0,
+    "regime_split": "2022-01-01",
+    "min_yyyymm": 201901
+  },
+  "data": {
+    "foreign_obs": 41643,
+    "foreign_months": 87,
+    "signal_obs": 41555,
+    "signal_months": 87
+  },
+  "results": {
+    "ALL": {
+      "primary_m+1": {
+        "n_months": 87,
+        "month_span": [
+          "2019-01",
+          "2026-04"
+        ],
+        "avg_names": 476.8,
+        "long_rel_gross": {
+          "mean": 0.006286,
+          "nw_t": 3.4559
+        },
+        "long_rel_net": {
+          "mean": 0.003714,
+          "nw_t": 2.0316
+        },
+        "ls_gross": {
+          "mean": 0.003341,
+          "nw_t": 0.8095
+        },
+        "ls_net": {
+          "mean": -0.001803,
+          "nw_t": -0.435
+        },
+        "mean_turnover": 0.643,
+        "realized_cost_bps": 25.72,
+        "breakeven_cost_bps": 97.77,
+        "regime": {
+          "pre_mean": 0.001564,
+          "post_mean": 0.005161,
+          "sign_stable": true
+        }
+      },
+      "robust_skip_m+2": {
+        "n_months": 86,
+        "month_span": [
+          "2019-01",
+          "2026-03"
+        ],
+        "avg_names": 474.5,
+        "long_rel_gross": {
+          "mean": 0.006505,
+          "nw_t": 2.1315
+        },
+        "long_rel_net": {
+          "mean": 0.003933,
+          "nw_t": 1.2872
+        },
+        "ls_gross": {
+          "mean": 0.006781,
+          "nw_t": 1.6664
+        },
+        "ls_net": {
+          "mean": 0.001637,
+          "nw_t": 0.4011
+        },
+        "mean_turnover": 0.643,
+        "realized_cost_bps": 25.72,
+        "breakeven_cost_bps": 101.16,
+        "regime": {
+          "pre_mean": 0.008559,
+          "post_mean": 0.000757,
+          "sign_stable": true
+        }
+      }
+    },
+    "LIQUID": {
+      "primary_m+1": {
+        "n_months": 85,
+        "month_span": [
+          "2019-03",
+          "2026-04"
+        ],
+        "avg_names": 79.4,
+        "long_rel_gross": {
+          "mean": 0.001725,
+          "nw_t": 0.5735
+        },
+        "long_rel_net": {
+          "mean": -0.001046,
+          "nw_t": -0.3466
+        },
+        "ls_gross": {
+          "mean": -0.003507,
+          "nw_t": -0.6409
+        },
+        "ls_net": {
+          "mean": -0.009048,
+          "nw_t": -1.6612
+        },
+        "mean_turnover": 0.6927,
+        "realized_cost_bps": 27.71,
+        "breakeven_cost_bps": 24.9,
+        "regime": {
+          "pre_mean": -0.008164,
+          "post_mean": 0.003471,
+          "sign_stable": false
+        }
+      },
+      "robust_skip_m+2": {
+        "n_months": 84,
+        "month_span": [
+          "2019-03",
+          "2026-03"
+        ],
+        "avg_names": 78.3,
+        "long_rel_gross": {
+          "mean": 0.003432,
+          "nw_t": 1.3101
+        },
+        "long_rel_net": {
+          "mean": 0.000656,
+          "nw_t": 0.2482
+        },
+        "ls_gross": {
+          "mean": 0.004033,
+          "nw_t": 1.1326
+        },
+        "ls_net": {
+          "mean": -0.001517,
+          "nw_t": -0.423
+        },
+        "mean_turnover": 0.6938,
+        "realized_cost_bps": 27.75,
+        "breakeven_cost_bps": 49.46,
+        "regime": {
+          "pre_mean": -0.002016,
+          "post_mean": 0.002385,
+          "sign_stable": false
+        }
+      }
+    }
+  },
+  "summary": {
+    "headline": "Foreign-flow cross-sectional test on REAL data. LIQUID primary(m+1) high-imbalance long-leg market-relative NET mean=-0.001046, NW-t=-0.3466, regime-stable=False, months=85, avg-names=79.4. Verdict: NOT-TRADEABLE.",
+    "interpretation": "Opens the genuinely-new per-stock foreign-flow axis on a freshly-discovered local archive, distinct from the D-211 aggregate index-timing graveyard. Foreign flow direction is partly mechanically tied to contemporaneous month-m returns (performance-chasing); the look-ahead-safe m+1 design excludes that co-move, so a weak or reversed forward signal is plausible. Monthly granularity also weakens timing. Result recorded per the frozen keep-bar; if NOT-TRADEABLE it joins the clean archive, if TRADEABLE it is a deploy-candidate."
+  },
+  "verdict": {
+    "verdict": "FOREIGN-FLOW-XS-NOT-TRADEABLE (significance-wall, contemporaneous-only co-move, or regime sign-instability); no deployable edge",
+    "keep_bar_passed": false,
+    "deploy_candidate": false,
+    "no_edge_claim": true
+  }
+}

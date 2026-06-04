@@ -1,0 +1,373 @@
+{
+  "candidate": "L2 SHORT-TERM REVERSAL -- contrarian (long past-losers / short past-winners), 1-month and 1-week formation=hold, liquid universe, D-207 realistic cost",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L2_short_reversal.json",
+  "benchmark": "EW-full per-period (honest bar)",
+  "regime_split": "2022-01-01",
+  "liquid_def": ">= 1e+07 TL trailing-63d median",
+  "tercile": 0.3333333333333333,
+  "specs": {
+    "REV_1M": {
+      "n_rebal": 89,
+      "n_formation_periods": 88,
+      "cost_summary_frac": {
+        "quoted": 0.615482,
+        "roll": 0.03944,
+        "tier": 0.345078
+      },
+      "scopes": {
+        "ALL": {
+          "long_losers": {
+            "avg_basket_size": 159.034091,
+            "mean_turnover": 0.672145,
+            "realized_cost_bps": 131.277504,
+            "breakeven_bps": 0.0,
+            "rel_costfree": {
+              "n": 88,
+              "mean": -0.008735,
+              "nw_t": -4.986942,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.007845,
+                "post_mean": -0.009351,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 88,
+              "mean": -0.017615,
+              "nw_t": -10.205299,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.017363,
+                "post_mean": -0.01779,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "short_winners": {
+            "avg_basket_size": 159.034091,
+            "mean_turnover": 0.637818,
+            "realized_cost_bps": 128.063769,
+            "breakeven_bps": 39.465907,
+            "rel_costfree": {
+              "n": 88,
+              "mean": 0.002426,
+              "nw_t": 1.274042,
+              "ci_excludes_zero": false,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": 0.003635,
+                "post_mean": 0.001589,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": true,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 88,
+              "mean": -0.005804,
+              "nw_t": -2.92885,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.004851,
+                "post_mean": -0.006463,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "loser_minus_winner_spread": {
+            "n": 88,
+            "mean": -0.011645,
+            "nw_t": -3.632268,
+            "ci_excludes_zero": true
+          }
+        },
+        "LIQUID": {
+          "long_losers": {
+            "avg_basket_size": 26.988636,
+            "mean_turnover": 0.710134,
+            "realized_cost_bps": 46.275858,
+            "breakeven_bps": 0.0,
+            "rel_costfree": {
+              "n": 88,
+              "mean": -0.012491,
+              "nw_t": -3.221674,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.01574,
+                "post_mean": -0.010241,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 88,
+              "mean": -0.016009,
+              "nw_t": -4.193813,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.019828,
+                "post_mean": -0.013365,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "short_winners": {
+            "avg_basket_size": 26.988636,
+            "mean_turnover": 0.685693,
+            "realized_cost_bps": 46.041589,
+            "breakeven_bps": 0.0,
+            "rel_costfree": {
+              "n": 88,
+              "mean": -0.00169,
+              "nw_t": -0.28946,
+              "ci_excludes_zero": false,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.00505,
+                "post_mean": 0.000635,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": true,
+                "sign_stable": false
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 88,
+              "mean": -0.00508,
+              "nw_t": -0.862916,
+              "ci_excludes_zero": false,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.008985,
+                "post_mean": -0.002376,
+                "pre_n": 36,
+                "post_n": 52,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "loser_minus_winner_spread": {
+            "n": 88,
+            "mean": -0.010818,
+            "nw_t": -1.801702,
+            "ci_excludes_zero": false
+          }
+        }
+      }
+    },
+    "REV_1W": {
+      "n_rebal": 387,
+      "n_formation_periods": 386,
+      "cost_summary_frac": {
+        "quoted": 0.609868,
+        "roll": 0.039301,
+        "tier": 0.350831
+      },
+      "scopes": {
+        "ALL": {
+          "long_losers": {
+            "avg_basket_size": 159.514286,
+            "mean_turnover": 0.664845,
+            "realized_cost_bps": 131.519462,
+            "breakeven_bps": 0.0,
+            "rel_costfree": {
+              "n": 385,
+              "mean": -0.002079,
+              "nw_t": -4.685094,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.002343,
+                "post_mean": -0.0019,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 385,
+              "mean": -0.010864,
+              "nw_t": -24.802171,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.011414,
+                "post_mean": -0.01049,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "short_winners": {
+            "avg_basket_size": 159.514286,
+            "mean_turnover": 0.631195,
+            "realized_cost_bps": 128.604057,
+            "breakeven_bps": 16.832717,
+            "rel_costfree": {
+              "n": 385,
+              "mean": 0.001056,
+              "nw_t": 2.229717,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": 0.001951,
+                "post_mean": 0.000447,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": true,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 385,
+              "mean": -0.007103,
+              "nw_t": -12.622385,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.006488,
+                "post_mean": -0.007522,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "loser_minus_winner_spread": {
+            "n": 385,
+            "mean": -0.00308,
+            "nw_t": -3.430756,
+            "ci_excludes_zero": true
+          }
+        },
+        "LIQUID": {
+          "long_losers": {
+            "avg_basket_size": 27.225974,
+            "mean_turnover": 0.668858,
+            "realized_cost_bps": 46.885206,
+            "breakeven_bps": 0.0,
+            "rel_costfree": {
+              "n": 385,
+              "mean": -0.003602,
+              "nw_t": -4.063656,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.003317,
+                "post_mean": -0.003797,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 385,
+              "mean": -0.006803,
+              "nw_t": -7.750031,
+              "ci_excludes_zero": true,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.007073,
+                "post_mean": -0.00662,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "short_winners": {
+            "avg_basket_size": 27.225974,
+            "mean_turnover": 0.637608,
+            "realized_cost_bps": 46.042295,
+            "breakeven_bps": 16.435931,
+            "rel_costfree": {
+              "n": 385,
+              "mean": 0.001042,
+              "nw_t": 0.904699,
+              "ci_excludes_zero": false,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -8.2e-05,
+                "post_mean": 0.001807,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": true,
+                "sign_stable": false
+              }
+            },
+            "rel_net_after_cost": {
+              "n": 385,
+              "mean": -0.001959,
+              "nw_t": -1.687167,
+              "ci_excludes_zero": false,
+              "regime": {
+                "split": "2022-01-01",
+                "pre_mean": -0.003632,
+                "post_mean": -0.000819,
+                "pre_n": 156,
+                "post_n": 229,
+                "both_positive": false,
+                "only_post_positive": false,
+                "sign_stable": true
+              }
+            }
+          },
+          "loser_minus_winner_spread": {
+            "n": 385,
+            "mean": -0.004583,
+            "nw_t": -3.517437,
+            "ci_excludes_zero": true
+          }
+        }
+      }
+    }
+  },
+  "verdict": {
+    "verdict": "REVERSAL-NOT-TRADEABLE (cost/significance-wall)",
+    "gate": "LIQUID long-loser-tercile rel-net-after-cost, any spec",
+    "note": "No spec's liquid long-loser tercile clears net-after-cost>0 AND NW|t|>=2 AND regime sign-stable."
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "candidate": "L11 FORWARD DAILY-PEAD TEST HARNESS SCAFFOLD (pre-registered experiment, offline-validated). NOT a data fetch, NOT a scraper, NO network, NO new edge. This is the ANALYSIS harness that would consume KAP disclosure day-stamps (publication_date) IF an approved fetch-run delivers them, pre-registering the EXACT daily-PEAD test design (event-window CAR by SUE sort, look-ahead-safe t+1 entry, event-clustered NW-t, realistic round-trip cost, keep-bar) so the forward experiment is frozen BEFORE any real data exists. Offline it runs a deterministic SYNTHETIC self-validation that proves the pipeline recovers a planted post-announcement drift and that placebo/look-ahead controls behave -- with NO real-data edge claim.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "purpose": "L8/L9/L10 closed the daily-PEAD feasibility loop (n_required reachable at the real liquid volume; effect-size requirement modest; sign favorable-but-insignificant at monthly resolution). The single remaining unknown is the DAILY announcement-window effect, which is unmeasurable offline. L11 makes the forward experiment EXECUTABLE the moment the maintainer approves the KAP day-stamp fetch: it freezes the test design now (pre-registration), implements it, and validates the mechanics offline on synthetic day-stamps. When the real day-stamped panel is present the SAME harness runs the pre-registered test; until then it self-tests on synthetic data only.",
+  "inputs_FROZEN": [
+    "FORWARD (real, ABSENT until approved fetch): data/cache/kap_pead_daystamped.parquet -- expected schema [symbol, publication_date (day-stamp), fiscal_year, quarter, sue]; joined to data/clean_universe/adjusted_prices_2019_2026.parquet (daily adjusted_close, value_tl).",
+    "OFFLINE (now): deterministic synthetic fixture (seeded) -- no repo data mutated, no network."
+  ],
+  "method_FROZEN": {
+    "real_mode_when_panel_present": {
+      "event": "each (symbol, publication_date) with non-null SUE; entry STRICTLY at the first trading day t+1 AFTER the day-stamp (look-ahead-safe: the announcement-day jump itself is EXCLUDED -- PEAD is the drift AFTER the announcement, not the event-day return).",
+      "window": "cumulative abnormal return CAR over [+1, +H] trading days, H in {5, 10} (matches L1 post-windows); abnormal = symbol return minus EW-mean return of the LIQUID universe that day (market-relative, carry-immune).",
+      "liquidity": "LIQUID iff trailing-63d-median value_tl >= 1.0e7 TL as of t (look-ahead-safe). LIQUID subset is the deploy-relevant lens (L7).",
+      "sort": "cross-sectional SUE terciles; PRIMARY deployable leg = long top-tercile market-relative CAR; corroboration = long-short (top-minus-bottom) spread.",
+      "stat": "event-clustered Newey-West t (lag matched to H); keep-bar = rel-net CAR > 0 AND |t| >= 2.0 AND regime-sign-stable (2022-01-01 split) AND survives realistic per-event round-trip cost.",
+      "cost": "real run wires the production D-207 per-stock round-trip (quoted-primary + impact); the scaffold uses a parameterized flat round-trip placeholder and marks the substitution point.",
+      "verdict_rule": "TRADEABLE-EDGE (deploy-candidate; hand to the maintainer) iff keep-bar passes; else NOT-TRADEABLE -> daily-PEAD joins the graveyard with the strongest power-class exhausted. Either way pre-registered, recorded, no celebration."
+    },
+    "offline_self_validation": {
+      "fixture": "seeded synthetic daily returns for a universe of symbols; K planted earnings events with day-stamps and SUE values; positive-SUE events get an added post-announcement drift over [+1,+H], negative-SUE symmetric; noise dominates per-day.",
+      "asserts": [
+        "RECOVERY: the long-short SUE CAR spread has the planted sign and |event-clustered NW-t| >= 2 when the planted drift is strong.",
+        "PLACEBO: after randomly permuting SUE labels across events (seeded), the recovered |t| < 2 (no spurious effect).",
+        "LOOK-AHEAD: entry uses only [t+1, ...]; the announcement-day return is never included in CAR -- verified by construction and by an assertion that shifting entry to t leaks the planted jump."
+      ],
+      "no_real_data_claim": "synthetic recovery is a PIPELINE-CORRECTNESS proof ONLY; it says NOTHING about whether a real BIST daily-PEAD edge exists."
+    },
+    "ADV_MIN_TL": 1.0e7,
+    "ROLL": 63,
+    "H_WINDOWS": [5, 10],
+    "SEED": 20260604
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Offline this should PASS the three self-validation asserts (recovery, placebo, look-ahead), proving the harness mechanics are correct and look-ahead-safe. It produces NO statement about real BIST daily-PEAD -- that requires the approved fetch. The value is that the forward experiment is now pre-registered and one command away from running on real day-stamps. HONEST note: a passing synthetic self-test is necessary but not sufficient; the real test could still return NOT-TRADEABLE (e.g., if the daily drift is too small after realistic cost, mirroring L3's monthly null).",
+    "most_likely_verdict": "SCAFFOLD-SELF-TEST PASS (synthetic-only; no deployable edge; awaiting approved KAP day-stamp fetch). A pre-registered, offline-validated forward experiment, not an edge."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data_acquisition": true, "no_network": true, "no_scraper": true, "no_edge_claim": true
+  }
+}
