@@ -1,0 +1,12 @@
+{
+  "content_hash": "716c5dc2685f8f1a397099c66a227bdc70ca6ee542baa26110b2a2f40c432327",
+  "content_hash16": "716c5dc2685f8f1a",
+  "n_obs": 88,
+  "config_version": "d213-v1",
+  "series": "TP.ENFBEK.PKA12ENF",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-01"
+  },
+  "construction": "EVDS TCMB Survey of Market Participants 12m-ahead expected inflation; monthly annual-pct"
+}
