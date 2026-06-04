@@ -14,8 +14,10 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L4 | CALENDAR/SEASONALITY | XU100 takvim-etki tarama, Bonferroni | DESCRIPTIVE-VIEW (deploy-degil) |
 | L5 | WEB SENTEZ (borsapy/borsamcp + literatur) | iki otonom arastirma-raporu damitildi | yeni-veri-kuyrugu + oncelik-guncelleme |
 | L6 | MACRO-EVENT (CPI-ilan penceresi) | XU100 event-study, olay-clustered t, Bonferroni | DESCRIPTIVE-VIEW (deploy-degil; significance-wall + veri-tavani) |
+| L7 | FEASIBILITY-FRONTIER (sentez) | L1/L2/L3/L6 ledger, iki-kapi siniflama | DESCRIPTIVE-SYNTHESIS (0/20 NO-WALL; ileri go/no-go kurali) |
 
-6/6 yeni-aday: deploy-edilebilir-edge YOK. (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7 = sentez (yeni-edge degil, karar-araci).
+(Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
 - **L1**: Niteliksel endeks-etkisi VAR (ekleme pre-efektif run-up + post reversal; cikarma ayna),
@@ -44,6 +46,12 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   yon-tasimaz). KRITIK veri-tavani: veri yalniz TARIH tasiyor, SURPRIZ (actual/forecast) YOK ->
   drift'i tasiyan-bilesen olculemiyor; CPI-tarih proxy (+/-1-2g); PPK n=2 (cikarildi). Bu null,
   SURPRIZ-KOSULLU testin neden YENI-VERI gerektirdigini somutlastiriyor. [L6_macro_event_REPORT.md]
+- **L7**: 20 deploy-leg (L1/L2/L3/L6, LIQUID+ALL) iki-kapiya gore siniflandi -> 0 NO-WALL. INCE-BULGU:
+  likit'te BAGLAYAN kapi = ANLAMLILIK/POWER, maliyet DEGIL. Cross-sectional tercile (L2/L3) likit'te
+  YANLIS-isaret/anlamsiz; dusuk-turnover event-driven (L1 BIST30-add +82bp, L6 post-CPI +61bp) likit'te
+  DOGRU-isaret VE maliyet-ustu ama 2-sigma-alti (|t|=0.7-1.5). Microcap-killer=COST, liquid-killer=
+  SIGNIFICANCE. Ileri go/no-go kurali damitildi (iki-kapiyi likit'te gec, dusuk-turnover/event tercih,
+  power'i artir). [L7_feasibility_frontier_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
@@ -51,6 +59,14 @@ turnover (~0.4-0.7) bunu her kucuk-edge'in uzerine bindirir -> maliyet-sonrasi o
 yasayabilecek TEK yapi = DUSUK-TURNOVER event-driven; ama elimizdeki dusuk-turnover olaylar
 (index-rebalance L1, aylik-PEAD L3, makro-ilan L6) likit-evrende ANLAMLI-edge tasimiyor. Gorunur-edge'ler ya microcap'te
 (yatirilamaz) ya da maliyet/anlamlilik duvarinda. Bu, onceki graveyard ile %100 tutarli.
+
+L7-RAFINESI (iki-kapi): "tek cost-wall" yerine IKI ayri baglayici-kapi var. MICROCAP-killer = COST
+(ALL-evrende gross daha-buyuk ama turnover-cost ~46-140bp yer; 10/10 BOTH). LIQUID-killer =
+SIGNIFICANCE/POWER (likit'te cost-magnitude duser ama gross-edge ya yanlis-isaret [tercile L2/L3] ya
+da 2-sigma-alti [event-driven L1/L6 dogru-isaret +55..+82bp ama |t|=0.7-1.5]). Yani survivable-arketip
+(dusuk-turnover, event-driven, likit, dogru-isaret) DOGRU teshis edildi; eksik olan = bagimsiz
+gozlem-sayisi/POWER. Bu, "deger YENI-VERI-TURUNDE" onerisine sayisal-gerekce verir: bottleneck =
+likit dusuk-turnover olaylarda olay-sayisi + kesin-zamanlama.
 
 ## the maintainer ICIN SOMUT ILERI-YOL (eldeki-veriyle yeni-test degil, VERI-EDINIMI)
 Eldeki-veri (fiyat/hacim/fundamental/membership/macro/earnings-aylik) ile cross-sectional/event
