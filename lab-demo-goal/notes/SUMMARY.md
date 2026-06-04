@@ -21,8 +21,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L11 | FORWARD-SCAFFOLD (on-kayit+offline-dogrulama) | daily-PEAD test-harness'i (t+1 CAR, SUE-sort, NW-t, cost, keep-bar) + sentetik self-test | SCAFFOLD-SELF-TEST PASS (recovery t=5.9 / placebo t=0.18 / look-ahead-leak t=13.5; network YOK, edge-iddiasi YOK; fetch the maintainer-onayina kapili) |
 | L12 | MACRO-SURPRISE (sentez/forward-rank) | #2 surpriz-kosullu-makro power+arrival rationale (L6+L8+gercek-panel) | FORWARD-RANK-RATIONALE-VIEW (CPI ~12/yil; magnitude ~1.1-1.6x yeter; baglayan-kisit ISARET-COHERENCE; #2 yine #1'in altinda, data-gated) |
 | L13 | DAILY-PEAD TWO-GATE BAR (sentez/feasibility) | D-208 maliyet + L8 power TEK bara katlandi (L8/L9/L10+D208) | DESCRIPTIVE-FEASIBILITY-VIEW (aylik sinyal maliyet-tabanini ancak-ancak karsilar: long-only 37.7bp vs 38bp, long-short 69.4bp vs 76bp; net-bar pencerenin aylik-spread'in ~2-6x'ini ister; baglayan-duvar POWER->COST-FLOOR; #1 TEMPER edildi, NULL gercek-olasilik) |
+| L14 | QUALITY/PROFITABILITY (ROE) -- YENI FAKTOR | ROE=net_profit/equity tercile, LIQUID, D-207 maliyet, NW-t, rejim (look-ahead lag=1mo) | QUALITY-NOT-TRADEABLE (kalite-primi YOK; K=1 LIQUID long-tercile net -0.44%/ay t=-0.91; long-short ~0 t=0.28; teshis SIGNIFICANCE/SIGN-duvari, cost-DEGIL) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L13 = sentez (yeni-edge degil, karar/forward-araclari).
+7/7 yeni-EDGE-aday (L1-L4,L6 + L14): deploy-edilebilir-edge YOK. L7-L13 = sentez (yeni-edge degil, karar/forward-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -111,6 +112,14 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   ilan-penceresi KONSANTRASYONU + gercek-gurultu sqrt-altinda; IKISI de offline-OLCULEMEZ. SONUC: #1
   hala tek power-ulasilabilir sinif AMA TEMPER edildi -- net-deploy bari yuksek, aylik-sinyal marji yok,
   fetch NULL donebilir (tek-makul-bahis, kesin-kazanc degil). [L13_daily_pead_feasibility_REPORT.md]
+- **L14**: GERCEKTEN YENI canonical faktor -- QUALITY/PROFITABILITY (ROE=net_profit/equity, Fama-French
+  RMW ailesi), graveyard'da DEGIL. On-kayitli tek-tanim, rank-tercile, look-ahead lag=1ay, LIQUID +
+  D-207 maliyet. Sonuc: BIST likit-evrende kalite-primi YOK. Deploy-kapisi (K=1 LIQUID long top-ROE
+  tercile) market-relative net = -0.44%/ay, ANLAMSIZ (t=-0.91); long-short ROE spread ~0 (t=0.28,
+  benchmark-bagimsiz teyit). KRITIK teshis farki: bu COST-duvari DEGIL -- maliyet-ONCESI brut sinyal
+  zaten negatif (t=-0.66), turnover dusuk (0.20, kalite yavas-sinyal) -> SIGNIFICANCE/SIGN-duvari.
+  Rejim-stabil-negatif (pre+post 2022 negatif). META-BULGU'yu profitability-ekseninde teyit eder.
+  [L14_quality_roe_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
