@@ -1,0 +1,1767 @@
+{
+  "candidate": "L1 INDEX-REBALANCE event study (BIST100/BIST30 add/delete) -- pit_membership effective-date flips, market-adjusted CAR",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L1_index_rebalance.json",
+  "raw_event_counts": {
+    "BIST100": {
+      "add": 249,
+      "del": 245
+    },
+    "BIST30": {
+      "add": 28,
+      "del": 26
+    }
+  },
+  "cost_summary": {
+    "n_evaluated": 15420,
+    "n_roll_zero": 5417,
+    "roll_zero_frac": 0.351297,
+    "spread_source_counts": {
+      "quoted": 9422,
+      "roll": 581,
+      "tier": 5417
+    },
+    "spread_source_frac": {
+      "quoted": 0.611025,
+      "roll": 0.037678,
+      "tier": 0.351297
+    },
+    "mean_round_trip_roll": 0.012293,
+    "mean_round_trip_tier": 0.011196
+  },
+  "benchmark": "EW-full daily (honest bar)",
+  "regime_split": "2022-01-01",
+  "windows_def": {
+    "pre_[-10,-1]": [
+      -10,
+      -1
+    ],
+    "pre_[-5,-1]": [
+      -5,
+      -1
+    ],
+    "event_[0]": [
+      0,
+      0
+    ],
+    "post_[+1,+5]": [
+      1,
+      5
+    ],
+    "post_[+1,+10]": [
+      1,
+      10
+    ],
+    "post_[+1,+21]": [
+      1,
+      21
+    ],
+    "around_[-1,+1]": [
+      -1,
+      1
+    ]
+  },
+  "tradeable_windows": [
+    "post_[+1,+5]",
+    "post_[+1,+10]",
+    "post_[+1,+21]"
+  ],
+  "liquid_def": ">= 1e+07 TL trailing-63d median value_tl",
+  "groups": {
+    "BIST100-add": {
+      "n_events": 249,
+      "windows": {
+        "pre_[-10,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 247,
+              "mean": 0.009133,
+              "t": 1.41672
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": 0.005286,
+              "t": 0.656894,
+              "nw_t": 0.757497
+            },
+            "regime": {
+              "pre_mean": 0.013968,
+              "post_mean": 0.006006,
+              "pre_n": 97,
+              "post_n": 150,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.003692,
+              "ci95_high": 0.022238,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": -0.014358,
+              "t": -1.096678
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": -0.00025,
+              "t": -0.016102,
+              "nw_t": -0.016361
+            },
+            "regime": {
+              "pre_mean": -0.022911,
+              "post_mean": -0.011127,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.040703,
+              "ci95_high": 0.009939,
+              "excludes_zero": false
+            }
+          }
+        },
+        "pre_[-5,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 247,
+              "mean": 0.002037,
+              "t": 0.406406
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.001911,
+              "t": -0.339773,
+              "nw_t": -0.3116
+            },
+            "regime": {
+              "pre_mean": 0.015097,
+              "post_mean": -0.006409,
+              "pre_n": 97,
+              "post_n": 150,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.00776,
+              "ci95_high": 0.012509,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": -0.008443,
+              "t": -0.804297
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": 0.001381,
+              "t": 0.108525,
+              "nw_t": 0.103681
+            },
+            "regime": {
+              "pre_mean": 0.005267,
+              "post_mean": -0.013622,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.028945,
+              "ci95_high": 0.011509,
+              "excludes_zero": false
+            }
+          }
+        },
+        "event_[0]": {
+          "ALL": {
+            "per_event": {
+              "n": 246,
+              "mean": 0.002192,
+              "t": 1.094096
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": 0.004232,
+              "t": 1.494039,
+              "nw_t": 1.482733
+            },
+            "regime": {
+              "pre_mean": 0.003989,
+              "post_mean": 0.001023,
+              "pre_n": 97,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.001617,
+              "ci95_high": 0.006133,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": 0.004233,
+              "t": 0.908112
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": 0.004237,
+              "t": 0.820194,
+              "nw_t": 0.783435
+            },
+            "regime": {
+              "pre_mean": 0.015183,
+              "post_mean": 9.6e-05,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.004989,
+              "ci95_high": 0.013355,
+              "excludes_zero": false
+            }
+          }
+        },
+        "post_[+1,+5]": {
+          "ALL": {
+            "per_event": {
+              "n": 247,
+              "mean": -0.00111,
+              "t": -0.236578
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.000215,
+              "t": -0.042441,
+              "nw_t": -0.048972
+            },
+            "regime": {
+              "pre_mean": -0.002589,
+              "post_mean": -0.000153,
+              "pre_n": 97,
+              "post_n": 150,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.010369,
+              "ci95_high": 0.007958,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 247,
+              "gross_mean": -0.00111,
+              "median_round_trip_bps": 60.265397,
+              "mean_round_trip_bps": 77.78762,
+              "net_mean_after_cost": -0.008889,
+              "net_positive": false,
+              "net_t": -1.90681
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": -0.010564,
+              "t": -0.98018
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": -0.002787,
+              "t": -0.228245,
+              "nw_t": -0.24852
+            },
+            "regime": {
+              "pre_mean": 0.011762,
+              "post_mean": -0.018999,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.032308,
+              "ci95_high": 0.008741,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 62,
+              "gross_mean": -0.010564,
+              "median_round_trip_bps": 40.798479,
+              "mean_round_trip_bps": 51.351523,
+              "net_mean_after_cost": -0.0157,
+              "net_positive": false,
+              "net_t": -1.456928
+            }
+          }
+        },
+        "post_[+1,+10]": {
+          "ALL": {
+            "per_event": {
+              "n": 247,
+              "mean": -0.001632,
+              "t": -0.262429
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.00199,
+              "t": -0.2359,
+              "nw_t": -0.248783
+            },
+            "regime": {
+              "pre_mean": -0.007336,
+              "post_mean": 0.002056,
+              "pre_n": 97,
+              "post_n": 150,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.013989,
+              "ci95_high": 0.010564,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 247,
+              "gross_mean": -0.001632,
+              "median_round_trip_bps": 60.265397,
+              "mean_round_trip_bps": 77.78762,
+              "net_mean_after_cost": -0.009411,
+              "net_positive": false,
+              "net_t": -1.517172
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": -0.022985,
+              "t": -2.09164
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": -0.021566,
+              "t": -1.853623,
+              "nw_t": -1.762793
+            },
+            "regime": {
+              "pre_mean": 0.004782,
+              "post_mean": -0.033474,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.044464,
+              "ci95_high": -0.002789,
+              "excludes_zero": true
+            },
+            "cost": {
+              "n": 62,
+              "gross_mean": -0.022985,
+              "median_round_trip_bps": 40.798479,
+              "mean_round_trip_bps": 51.351523,
+              "net_mean_after_cost": -0.02812,
+              "net_positive": false,
+              "net_t": -2.568611
+            }
+          }
+        },
+        "post_[+1,+21]": {
+          "ALL": {
+            "per_event": {
+              "n": 247,
+              "mean": 0.004275,
+              "t": 0.44243
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": 0.010825,
+              "t": 1.044824,
+              "nw_t": 1.12588
+            },
+            "regime": {
+              "pre_mean": -0.002933,
+              "post_mean": 0.008937,
+              "pre_n": 97,
+              "post_n": 150,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.014815,
+              "ci95_high": 0.023503,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 247,
+              "gross_mean": 0.004275,
+              "median_round_trip_bps": 60.265397,
+              "mean_round_trip_bps": 77.78762,
+              "net_mean_after_cost": -0.003503,
+              "net_positive": false,
+              "net_t": -0.36366
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": -0.031613,
+              "t": -1.824198
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": -0.019851,
+              "t": -0.881348,
+              "nw_t": -0.876944
+            },
+            "regime": {
+              "pre_mean": 0.029289,
+              "post_mean": -0.05462,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.064461,
+              "ci95_high": 0.00131,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 62,
+              "gross_mean": -0.031613,
+              "median_round_trip_bps": 40.798479,
+              "mean_round_trip_bps": 51.351523,
+              "net_mean_after_cost": -0.036748,
+              "net_positive": false,
+              "net_t": -2.129018
+            }
+          }
+        },
+        "around_[-1,+1]": {
+          "ALL": {
+            "per_event": {
+              "n": 246,
+              "mean": 0.005468,
+              "t": 1.30513
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": 0.003509,
+              "t": 0.742213,
+              "nw_t": 0.933134
+            },
+            "regime": {
+              "pre_mean": 0.009277,
+              "post_mean": 0.002988,
+              "pre_n": 97,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.002628,
+              "ci95_high": 0.014104,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 62,
+              "mean": 0.005056,
+              "t": 0.530721
+            },
+            "date_clustered": {
+              "n_dates": 27,
+              "mean_of_date_means": 0.006619,
+              "t": 0.680085,
+              "nw_t": 0.732287
+            },
+            "regime": {
+              "pre_mean": 0.01738,
+              "post_mean": 0.0004,
+              "pre_n": 17,
+              "post_n": 45,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.01489,
+              "ci95_high": 0.023092,
+              "excludes_zero": false
+            }
+          }
+        }
+      }
+    },
+    "BIST100-del": {
+      "n_events": 245,
+      "windows": {
+        "pre_[-10,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 243,
+              "mean": -0.003285,
+              "t": -0.632406
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.004204,
+              "t": -0.636877,
+              "nw_t": -0.817977
+            },
+            "regime": {
+              "pre_mean": -0.004673,
+              "post_mean": -0.002409,
+              "pre_n": 94,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.013425,
+              "ci95_high": 0.006983,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 55,
+              "mean": -0.002653,
+              "t": -0.254029
+            },
+            "date_clustered": {
+              "n_dates": 22,
+              "mean_of_date_means": 0.00195,
+              "t": 0.212419,
+              "nw_t": 0.180771
+            },
+            "regime": {
+              "pre_mean": -0.016702,
+              "post_mean": 0.006713,
+              "pre_n": 22,
+              "post_n": 33,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.022293,
+              "ci95_high": 0.017162,
+              "excludes_zero": false
+            }
+          }
+        },
+        "pre_[-5,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 243,
+              "mean": -0.000303,
+              "t": -0.092546
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.002162,
+              "t": -0.428714,
+              "nw_t": -0.525206
+            },
+            "regime": {
+              "pre_mean": -0.004398,
+              "post_mean": 0.00228,
+              "pre_n": 94,
+              "post_n": 149,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.006427,
+              "ci95_high": 0.005948,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 55,
+              "mean": -0.001555,
+              "t": -0.192997
+            },
+            "date_clustered": {
+              "n_dates": 22,
+              "mean_of_date_means": 0.000416,
+              "t": 0.039553,
+              "nw_t": 0.043055
+            },
+            "regime": {
+              "pre_mean": -0.012632,
+              "post_mean": 0.005829,
+              "pre_n": 22,
+              "post_n": 33,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.016019,
+              "ci95_high": 0.014207,
+              "excludes_zero": false
+            }
+          }
+        },
+        "event_[0]": {
+          "ALL": {
+            "per_event": {
+              "n": 241,
+              "mean": -0.000799,
+              "t": -0.472988
+            },
+            "date_clustered": {
+              "n_dates": 29,
+              "mean_of_date_means": -0.000687,
+              "t": -0.34809,
+              "nw_t": -0.405942
+            },
+            "regime": {
+              "pre_mean": -0.001195,
+              "post_mean": -0.000555,
+              "pre_n": 92,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.003987,
+              "ci95_high": 0.002547,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 54,
+              "mean": 0.008115,
+              "t": 2.012725
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": 0.007056,
+              "t": 1.476599,
+              "nw_t": 1.342255
+            },
+            "regime": {
+              "pre_mean": 0.011904,
+              "post_mean": 0.005704,
+              "pre_n": 21,
+              "post_n": 33,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": 0.000663,
+              "ci95_high": 0.016641,
+              "excludes_zero": true
+            }
+          }
+        },
+        "post_[+1,+5]": {
+          "ALL": {
+            "per_event": {
+              "n": 243,
+              "mean": -0.004012,
+              "t": -1.209689
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.005609,
+              "t": -0.858921,
+              "nw_t": -0.891028
+            },
+            "regime": {
+              "pre_mean": -0.004733,
+              "post_mean": -0.003557,
+              "pre_n": 94,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.010066,
+              "ci95_high": 0.002385,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 243,
+              "gross_mean": -0.004012,
+              "median_round_trip_bps": 59.232553,
+              "mean_round_trip_bps": 87.447032,
+              "net_mean_after_cost": -0.012756,
+              "net_positive": false,
+              "net_t": -3.801967
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 55,
+              "mean": -0.001494,
+              "t": -0.185108
+            },
+            "date_clustered": {
+              "n_dates": 22,
+              "mean_of_date_means": 0.005669,
+              "t": 0.59436,
+              "nw_t": 0.524084
+            },
+            "regime": {
+              "pre_mean": -0.021663,
+              "post_mean": 0.011952,
+              "pre_n": 22,
+              "post_n": 33,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.016449,
+              "ci95_high": 0.015325,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 55,
+              "gross_mean": -0.001494,
+              "median_round_trip_bps": 45.555466,
+              "mean_round_trip_bps": 64.567238,
+              "net_mean_after_cost": -0.007951,
+              "net_positive": false,
+              "net_t": -0.976614
+            }
+          }
+        },
+        "post_[+1,+10]": {
+          "ALL": {
+            "per_event": {
+              "n": 243,
+              "mean": -0.004581,
+              "t": -1.022529
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.005149,
+              "t": -0.994374,
+              "nw_t": -0.969233
+            },
+            "regime": {
+              "pre_mean": -0.007761,
+              "post_mean": -0.002575,
+              "pre_n": 94,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.013243,
+              "ci95_high": 0.004317,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 243,
+              "gross_mean": -0.004581,
+              "median_round_trip_bps": 59.232553,
+              "mean_round_trip_bps": 87.447032,
+              "net_mean_after_cost": -0.013326,
+              "net_positive": false,
+              "net_t": -2.963271
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 55,
+              "mean": -0.011853,
+              "t": -1.251654
+            },
+            "date_clustered": {
+              "n_dates": 22,
+              "mean_of_date_means": -0.006755,
+              "t": -0.561101,
+              "nw_t": -0.637106
+            },
+            "regime": {
+              "pre_mean": -0.029477,
+              "post_mean": -0.000103,
+              "pre_n": 22,
+              "post_n": 33,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.029473,
+              "ci95_high": 0.006235,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 55,
+              "gross_mean": -0.011853,
+              "median_round_trip_bps": 45.555466,
+              "mean_round_trip_bps": 64.567238,
+              "net_mean_after_cost": -0.018309,
+              "net_positive": false,
+              "net_t": -1.912166
+            }
+          }
+        },
+        "post_[+1,+21]": {
+          "ALL": {
+            "per_event": {
+              "n": 243,
+              "mean": -0.016586,
+              "t": -2.488993
+            },
+            "date_clustered": {
+              "n_dates": 31,
+              "mean_of_date_means": -0.021486,
+              "t": -3.151797,
+              "nw_t": -3.01829
+            },
+            "regime": {
+              "pre_mean": -0.020448,
+              "post_mean": -0.01415,
+              "pre_n": 94,
+              "post_n": 149,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.029368,
+              "ci95_high": -0.003388,
+              "excludes_zero": true
+            },
+            "cost": {
+              "n": 243,
+              "gross_mean": -0.016586,
+              "median_round_trip_bps": 59.232553,
+              "mean_round_trip_bps": 87.447032,
+              "net_mean_after_cost": -0.025331,
+              "net_positive": false,
+              "net_t": -3.775952
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 55,
+              "mean": -0.015969,
+              "t": -1.063539
+            },
+            "date_clustered": {
+              "n_dates": 22,
+              "mean_of_date_means": -0.012391,
+              "t": -0.750719,
+              "nw_t": -0.757044
+            },
+            "regime": {
+              "pre_mean": -0.046859,
+              "post_mean": 0.004624,
+              "pre_n": 22,
+              "post_n": 33,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.044868,
+              "ci95_high": 0.013914,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 55,
+              "gross_mean": -0.015969,
+              "median_round_trip_bps": 45.555466,
+              "mean_round_trip_bps": 64.567238,
+              "net_mean_after_cost": -0.022426,
+              "net_positive": false,
+              "net_t": -1.478026
+            }
+          }
+        },
+        "around_[-1,+1]": {
+          "ALL": {
+            "per_event": {
+              "n": 241,
+              "mean": -0.00141,
+              "t": -0.513909
+            },
+            "date_clustered": {
+              "n_dates": 29,
+              "mean_of_date_means": 0.000636,
+              "t": 0.179183,
+              "nw_t": 0.184901
+            },
+            "regime": {
+              "pre_mean": -0.005457,
+              "post_mean": 0.001089,
+              "pre_n": 92,
+              "post_n": 149,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.006522,
+              "ci95_high": 0.003991,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 54,
+              "mean": 0.006313,
+              "t": 0.797536
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": 0.013234,
+              "t": 1.1488,
+              "nw_t": 0.952953
+            },
+            "regime": {
+              "pre_mean": -0.003072,
+              "post_mean": 0.012285,
+              "pre_n": 21,
+              "post_n": 33,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.008337,
+              "ci95_high": 0.022681,
+              "excludes_zero": false
+            }
+          }
+        }
+      }
+    },
+    "BIST30-add": {
+      "n_events": 28,
+      "windows": {
+        "pre_[-10,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": 0.021097,
+              "t": 1.301285
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": 0.02757,
+              "t": 1.434876,
+              "nw_t": 1.331697
+            },
+            "regime": {
+              "pre_mean": 0.020043,
+              "post_mean": 0.021518,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.00972,
+              "ci95_high": 0.053947,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.032238,
+              "t": 1.428042
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.037509,
+              "t": 1.574902,
+              "nw_t": 1.811835
+            },
+            "regime": {
+              "pre_mean": 0.003963,
+              "post_mean": 0.044805,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.009615,
+              "ci95_high": 0.074176,
+              "excludes_zero": false
+            }
+          }
+        },
+        "pre_[-5,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": -0.00228,
+              "t": -0.167752
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": 0.002334,
+              "t": 0.135615,
+              "nw_t": 0.120804
+            },
+            "regime": {
+              "pre_mean": 0.007564,
+              "post_mean": -0.006217,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.028519,
+              "ci95_high": 0.023512,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.006323,
+              "t": 0.395988
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.008254,
+              "t": 0.48056,
+              "nw_t": 0.465486
+            },
+            "regime": {
+              "pre_mean": -0.009758,
+              "post_mean": 0.01347,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.01852,
+              "ci95_high": 0.041353,
+              "excludes_zero": false
+            }
+          }
+        },
+        "event_[0]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": 0.000209,
+              "t": 0.029117
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": 0.003683,
+              "t": 0.43926,
+              "nw_t": 0.449248
+            },
+            "regime": {
+              "pre_mean": 0.012073,
+              "post_mean": -0.004537,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.014543,
+              "ci95_high": 0.012838,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.004645,
+              "t": 0.492931
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.005165,
+              "t": 0.51022,
+              "nw_t": 0.531075
+            },
+            "regime": {
+              "pre_mean": 0.025109,
+              "post_mean": -0.00445,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.016199,
+              "ci95_high": 0.01985,
+              "excludes_zero": false
+            }
+          }
+        },
+        "post_[+1,+5]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": -0.011631,
+              "t": -0.855761
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": -0.006919,
+              "t": -0.411913,
+              "nw_t": -0.526857
+            },
+            "regime": {
+              "pre_mean": 0.004701,
+              "post_mean": -0.018164,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.038488,
+              "ci95_high": 0.014524,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 28,
+              "gross_mean": -0.011631,
+              "median_round_trip_bps": 42.171992,
+              "mean_round_trip_bps": 49.723409,
+              "net_mean_after_cost": -0.016604,
+              "net_positive": false,
+              "net_t": -1.197106
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": -0.000994,
+              "t": -0.047039
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.003316,
+              "t": 0.152077,
+              "nw_t": 0.25155
+            },
+            "regime": {
+              "pre_mean": -0.016227,
+              "post_mean": 0.005776,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.038225,
+              "ci95_high": 0.038921,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 13,
+              "gross_mean": -0.000994,
+              "median_round_trip_bps": 27.620669,
+              "mean_round_trip_bps": 38.694887,
+              "net_mean_after_cost": -0.004864,
+              "net_positive": false,
+              "net_t": -0.230794
+            }
+          }
+        },
+        "post_[+1,+10]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": -0.013055,
+              "t": -0.912145
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": -0.010868,
+              "t": -0.597841,
+              "nw_t": -0.680052
+            },
+            "regime": {
+              "pre_mean": 0.006858,
+              "post_mean": -0.02102,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.041995,
+              "ci95_high": 0.01302,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 28,
+              "gross_mean": -0.013055,
+              "median_round_trip_bps": 42.171992,
+              "mean_round_trip_bps": 49.723409,
+              "net_mean_after_cost": -0.018027,
+              "net_positive": false,
+              "net_t": -1.231958
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.002485,
+              "t": 0.120604
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.008238,
+              "t": 0.410075,
+              "nw_t": 0.7112
+            },
+            "regime": {
+              "pre_mean": 3.7e-05,
+              "post_mean": 0.003572,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.037127,
+              "ci95_high": 0.040241,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 13,
+              "gross_mean": 0.002485,
+              "median_round_trip_bps": 27.620669,
+              "mean_round_trip_bps": 38.694887,
+              "net_mean_after_cost": -0.001385,
+              "net_positive": false,
+              "net_t": -0.067691
+            }
+          }
+        },
+        "post_[+1,+21]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": -0.031278,
+              "t": -1.531597
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": -0.021299,
+              "t": -0.856781,
+              "nw_t": -1.106275
+            },
+            "regime": {
+              "pre_mean": -0.012255,
+              "post_mean": -0.038887,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.066564,
+              "ci95_high": 0.010605,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 28,
+              "gross_mean": -0.031278,
+              "median_round_trip_bps": 42.171992,
+              "mean_round_trip_bps": 49.723409,
+              "net_mean_after_cost": -0.036251,
+              "net_positive": false,
+              "net_t": -1.769915
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": -0.006159,
+              "t": -0.152607
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.001288,
+              "t": 0.031716,
+              "nw_t": 0.047642
+            },
+            "regime": {
+              "pre_mean": -0.027623,
+              "post_mean": 0.003381,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.078446,
+              "ci95_high": 0.072472,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 13,
+              "gross_mean": -0.006159,
+              "median_round_trip_bps": 27.620669,
+              "mean_round_trip_bps": 38.694887,
+              "net_mean_after_cost": -0.010028,
+              "net_positive": false,
+              "net_t": -0.248977
+            }
+          }
+        },
+        "around_[-1,+1]": {
+          "ALL": {
+            "per_event": {
+              "n": 28,
+              "mean": -0.003913,
+              "t": -0.276916
+            },
+            "date_clustered": {
+              "n_dates": 21,
+              "mean_of_date_means": 6.1e-05,
+              "t": 0.003571,
+              "nw_t": 0.002787
+            },
+            "regime": {
+              "pre_mean": 0.029435,
+              "post_mean": -0.017252,
+              "pre_n": 8,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.032617,
+              "ci95_high": 0.021277,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.010292,
+              "t": 0.673059
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.01227,
+              "t": 0.754239,
+              "nw_t": 0.789098
+            },
+            "regime": {
+              "pre_mean": 0.033768,
+              "post_mean": -0.000141,
+              "pre_n": 4,
+              "post_n": 9,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.021317,
+              "ci95_high": 0.038664,
+              "excludes_zero": false
+            }
+          }
+        }
+      }
+    },
+    "BIST30-del": {
+      "n_events": 26,
+      "windows": {
+        "pre_[-10,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": -0.014879,
+              "t": -0.667699
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": -0.024024,
+              "t": -1.068581,
+              "nw_t": -1.007241
+            },
+            "regime": {
+              "pre_mean": -0.026177,
+              "post_mean": -0.01149,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.060873,
+              "ci95_high": 0.02362,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": -0.040592,
+              "t": -1.289816
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": -0.048589,
+              "t": -1.548891,
+              "nw_t": -1.791368
+            },
+            "regime": {
+              "pre_mean": -0.009515,
+              "post_mean": -0.046242,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.108272,
+              "ci95_high": 0.01474,
+              "excludes_zero": false
+            }
+          }
+        },
+        "pre_[-5,-1]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": 0.016573,
+              "t": 1.470973
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": 0.009899,
+              "t": 0.925454,
+              "nw_t": 0.814814
+            },
+            "regime": {
+              "pre_mean": -0.012555,
+              "post_mean": 0.025312,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.003755,
+              "ci95_high": 0.037571,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.009028,
+              "t": 0.578311
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.00368,
+              "t": 0.293239,
+              "nw_t": 0.364243
+            },
+            "regime": {
+              "pre_mean": 0.016724,
+              "post_mean": 0.007629,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.018336,
+              "ci95_high": 0.038156,
+              "excludes_zero": false
+            }
+          }
+        },
+        "event_[0]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": 0.006438,
+              "t": 1.147109
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": 0.007043,
+              "t": 1.084001,
+              "nw_t": 1.011007
+            },
+            "regime": {
+              "pre_mean": 0.004053,
+              "post_mean": 0.007154,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.003954,
+              "ci95_high": 0.017407,
+              "excludes_zero": false
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.011642,
+              "t": 1.26172
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.009866,
+              "t": 1.057936,
+              "nw_t": 1.304484
+            },
+            "regime": {
+              "pre_mean": 0.003751,
+              "post_mean": 0.013076,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.00517,
+              "ci95_high": 0.029724,
+              "excludes_zero": false
+            }
+          }
+        },
+        "post_[+1,+5]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": 0.001016,
+              "t": 0.096253
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": 0.003606,
+              "t": 0.286315,
+              "nw_t": 0.273841
+            },
+            "regime": {
+              "pre_mean": 0.018689,
+              "post_mean": -0.004286,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.020702,
+              "ci95_high": 0.020209,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 26,
+              "gross_mean": 0.001016,
+              "median_round_trip_bps": 36.615922,
+              "mean_round_trip_bps": 47.040618,
+              "net_mean_after_cost": -0.003688,
+              "net_positive": false,
+              "net_t": -0.354185
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": -0.010733,
+              "t": -0.667228
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": -0.013864,
+              "t": -0.832615,
+              "nw_t": -0.918635
+            },
+            "regime": {
+              "pre_mean": 0.00857,
+              "post_mean": -0.014243,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.043955,
+              "ci95_high": 0.017338,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 13,
+              "gross_mean": -0.010733,
+              "median_round_trip_bps": 34.193915,
+              "mean_round_trip_bps": 35.299783,
+              "net_mean_after_cost": -0.014263,
+              "net_positive": false,
+              "net_t": -0.883452
+            }
+          }
+        },
+        "post_[+1,+10]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": -0.001094,
+              "t": -0.093031
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": 0.007278,
+              "t": 0.589485,
+              "nw_t": 0.666031
+            },
+            "regime": {
+              "pre_mean": 0.016096,
+              "post_mean": -0.006251,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.022144,
+              "ci95_high": 0.021295,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 26,
+              "gross_mean": -0.001094,
+              "median_round_trip_bps": 36.615922,
+              "mean_round_trip_bps": 47.040618,
+              "net_mean_after_cost": -0.005798,
+              "net_positive": false,
+              "net_t": -0.488377
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.010041,
+              "t": 0.565496
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.01199,
+              "t": 0.666867,
+              "nw_t": 1.017213
+            },
+            "regime": {
+              "pre_mean": 0.038499,
+              "post_mean": 0.004866,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": -0.024203,
+              "ci95_high": 0.042925,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 13,
+              "gross_mean": 0.010041,
+              "median_round_trip_bps": 34.193915,
+              "mean_round_trip_bps": 35.299783,
+              "net_mean_after_cost": 0.006511,
+              "net_positive": true,
+              "net_t": 0.366133
+            }
+          }
+        },
+        "post_[+1,+21]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": -0.026877,
+              "t": -1.693054
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": -0.022926,
+              "t": -1.404234,
+              "nw_t": -1.770832
+            },
+            "regime": {
+              "pre_mean": 0.006173,
+              "post_mean": -0.036793,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.05834,
+              "ci95_high": 0.001931,
+              "excludes_zero": false
+            },
+            "cost": {
+              "n": 26,
+              "gross_mean": -0.026877,
+              "median_round_trip_bps": 36.615922,
+              "mean_round_trip_bps": 47.040618,
+              "net_mean_after_cost": -0.031581,
+              "net_positive": false,
+              "net_t": -2.002373
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": -0.040338,
+              "t": -1.945054
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": -0.043742,
+              "t": -2.070395,
+              "nw_t": -1.962116
+            },
+            "regime": {
+              "pre_mean": 0.015773,
+              "post_mean": -0.05054,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": false
+            },
+            "ci": {
+              "ci95_low": -0.082143,
+              "ci95_high": -0.002715,
+              "excludes_zero": true
+            },
+            "cost": {
+              "n": 13,
+              "gross_mean": -0.040338,
+              "median_round_trip_bps": 34.193915,
+              "mean_round_trip_bps": 35.299783,
+              "net_mean_after_cost": -0.043868,
+              "net_positive": false,
+              "net_t": -2.123475
+            }
+          }
+        },
+        "around_[-1,+1]": {
+          "ALL": {
+            "per_event": {
+              "n": 26,
+              "mean": 0.030184,
+              "t": 3.219056
+            },
+            "date_clustered": {
+              "n_dates": 20,
+              "mean_of_date_means": 0.028992,
+              "t": 2.809025,
+              "nw_t": 2.963655
+            },
+            "regime": {
+              "pre_mean": 0.028589,
+              "post_mean": 0.030662,
+              "pre_n": 6,
+              "post_n": 20,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": 0.012889,
+              "ci95_high": 0.048757,
+              "excludes_zero": true
+            }
+          },
+          "LIQUID": {
+            "per_event": {
+              "n": 13,
+              "mean": 0.038322,
+              "t": 2.508587
+            },
+            "date_clustered": {
+              "n_dates": 12,
+              "mean_of_date_means": 0.033186,
+              "t": 2.167477,
+              "nw_t": 2.410621
+            },
+            "regime": {
+              "pre_mean": 0.024736,
+              "post_mean": 0.040792,
+              "pre_n": 2,
+              "post_n": 11,
+              "sign_stable": true
+            },
+            "ci": {
+              "ci95_low": 0.010988,
+              "ci95_high": 0.06811,
+              "excludes_zero": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "verdict": {
+    "verdict": "INDEX-EFFECT-VIEW (not a deployable tradeable edge)",
+    "note": "No look-ahead-safe [+1,+K] liquid window clears keep-bar (net-after-cost positive AND date-clustered |t|>=2 AND regime sign-stable). Pre-effective windows are DESCRIPTIVE only. Consistent with honest pre-declared expectation (index-effect MODERATE-but-decaying; volume>price; peaks effective day)."
+  }
+}

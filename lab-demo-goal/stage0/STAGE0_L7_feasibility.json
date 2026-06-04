@@ -1,0 +1,28 @@
+{
+  "candidate": "L7 FEASIBILITY-FRONTIER -- consolidated cost/significance ledger over the lab graveyard (L1,L2,L3,L6). SYNTHESIS/meta track: NO new edge tested, NO new data. Reads existing FROZEN result JSONs and classifies each deployable leg against pre-declared gates.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "purpose": "Convert the program's qualitative meta-finding ('apparent edges die on the liquid universe after realistic cost') into a PRECISE two-gate classification, grounded entirely in already-measured numbers. Output a reusable a-priori go/no-go rule for future candidates.",
+  "inputs_FROZEN": [
+    "lab-demo-goal/results/l1_index_rebalance_results.json (event-study, single round-trip)",
+    "lab-demo-goal/results/l2_short_reversal_results.json (basket, turnover/cost)",
+    "lab-demo-goal/results/l3_pead_results.json (basket, turnover/cost)",
+    "lab-demo-goal/results/l6_macro_event_results.json (event-study, index round-trip)"
+  ],
+  "gates_FROZEN": {
+    "deployable_leg": "the leg whose POSITIVE significance would constitute the claimed edge: for baskets = the long-edge leg at LIQUID scope (and ALL for contrast); for event-studies = the look-ahead-safe post window at LIQUID.",
+    "SIGNIFICANCE_SIGN_gate": "PASS iff gross (cost-free) deployable-leg has the RIGHT sign (positive for a long-edge) AND |nw_t| (or event-clustered |t|) >= 2.0. FAIL = SIGNIFICANCE-or-SIGN-WALL (no edge even at zero cost).",
+    "COST_gate": "PASS iff, having passed the significance gate, the NET-after-realistic-cost series stays positive AND |t| >= 2.0. FAIL = COST-WALL (real gross edge, eaten by realized cost).",
+    "classification": "NO-WALL (passes both -> deploy-candidate) / SIGNIFICANCE-or-SIGN-WALL / COST-WALL / BOTH (fails significance AND, hypothetically at zero-cost-significance, would also fail cost)."
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect a TWO-GATE structure, not a single 'cost-wall'. Hypothesis: on the LIQUID universe the BINDING gate is SIGNIFICANCE/SIGN -- the gross edge itself is insignificant or wrong-signed BEFORE cost matters (apparent edges live in microcap). On the ALL/microcap universe the gross edge is larger but turnover-driven realized cost (~46-140bp) triggers the COST-WALL. Net: no candidate reaches NO-WALL.",
+    "most_likely_verdict": "DESCRIPTIVE-SYNTHESIS. A forward go/no-go rule: a new candidate is worth a full disciplined test only if a cheap pre-check plausibly clears BOTH gates on LIQUID names (right-signed gross with enough independent observations for |t|>=2, AND turnover-implied breakeven below a realistic ~28-46bp). NO celebration; this is a decision tool, not an edge."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data": true, "reads_only_frozen_lab_results": true
+  }
+}

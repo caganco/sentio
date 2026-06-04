@@ -1,0 +1,56 @@
+{
+  "candidate": "L6 MACRO-EVENT drift -- unconditional CPI-release event-window on XU100 (PRIMARY, investable index) + EW-full (SECONDARY). Low-turnover event-driven class (<= ~88 events). DESCRIPTIVE VIEW by data-design.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Scheduled macro information releases (TUIK CPI prints) can induce a systematic index reaction/drift around the release. The academically interesting form is SURPRISE-CONDITIONAL drift (reaction scales with actual-minus-forecast). Our data carries ONLY release DATES -- no actual/forecast values -> NO surprise magnitude. We therefore test the UNCONDITIONAL release-window effect, which is the CEILING of what this data can support. A null here is informative: it bounds the unconditional effect and motivates acquiring exact dates + actual/forecast surprises.",
+  "data": {
+    "events": "data/snapshots/macro_event_dates.parquet -- cpi_release rows only (n=88, source=tuik-rule-proxy, exact=False, 2019-01..2026-04 ref-months). ppk_decision rows (n=2) are EXCLUDED from inference (too few) and reported descriptively only.",
+    "event_date_caveat": "CPI dates are a rule-proxy (3rd of M+1 rolled past weekends); true TUIK release lands within ~1-2 days. This +/-1-2 trading-day smear is why a WIDE post window [+1,+10] is pre-declared alongside the tight [+1,+5].",
+    "market_series_PRIMARY": "data/snapshots/exposure_d187_xu100.parquet (XU100 price index level, investable market-timing proxy). Daily simple return.",
+    "market_series_SECONDARY": "EW-full daily (clip_clean_returns over adjusted_prices_2019_2026.parquet; honest bar, microcap-heavy, NOT directly investable) -- robustness only.",
+    "look_ahead_note": "event_date = public release day (TUIK ~10:00 local, intraday). Event-day return r(t0) is partially contaminated by the release -> event[0] is DESCRIPTIVE only. The look-ahead-safe TRADEABLE entry is t0+1."
+  },
+  "event_alignment_FROZEN": {
+    "tau0": "first trading day on-or-after event_date in the XU100 trading calendar.",
+    "abnormal_return": "AR(t) = r_index(t) - mean_daily_return(full sample of that series). CAR(window) = sum of AR over the window days. (Unconditional-mean benchmark = market-timing-overlay null: did the window beat the average day?)",
+    "windows_FIXED_NOT_SEARCHED": {
+      "pre": "[-5,-1] (run-up into the print; DESCRIPTIVE, not look-ahead-tradeable without the date in advance -- but CPI dates ARE scheduled, so pre is borderline-tradeable; reported, gated separately)",
+      "event": "[0] (release day; CONTAMINATED -> DESCRIPTIVE only)",
+      "post_tight": "[+1,+5] (look-ahead-safe TRADEABLE; enter t0+1)",
+      "post_wide": "[+1,+10] (look-ahead-safe TRADEABLE; absorbs the +/-1-2d proxy-date smear)"
+    }
+  },
+  "statistics_FROZEN": {
+    "primary_stat": "event-clustered t on per-event CAR: mean(CAR)/ (sd(CAR)/sqrt(n_events)). CPI events are ~21 trading days apart -> windows do not overlap materially, so events are treated as independent draws (conservative vs intraday-overlap). NW-t (HAC) reported as a cross-check on the daily AR series.",
+    "regime_split": "2022-01-01 (pre/post sign-stability of the window CAR mean).",
+    "volatility_view": "DESCRIPTIVE: mean |AR| on event[0] and post vs other days (information-event signature). NOT a tradeable directional claim."
+  },
+  "multiple_testing": {
+    "n_headline_windows": 4,
+    "correction": "Bonferroni across the 4 fixed windows (alpha_adj = 0.05/4 = 0.0125) on the PRIMARY (XU100) series. Report RAW t/p, NW-t, and survives-Bonferroni flags. NO window/subperiod/sub-universe search.",
+    "anti_phacking": "Window set is FIXED and declared here BEFORE measurement. No grid sweep. Single pre-registered run."
+  },
+  "tradeability_frame": {
+    "instrument": "XU100 is an index; the realistic tradeable wrapper is a BIST index futures/ETF overlay. Representative round-trip cost is pre-set CONSERVATIVELY at ~40bp (BIST100-tier per-name realistic; index futures are typically CHEAPER, so 40bp is a hard upper bound). commission=0 consistent with program.",
+    "gross_first": "If the post[+1,+K] gross CAR is not statistically significant AND positive, the candidate fails on the SIGNIFICANCE wall and cost is moot. Cost is applied only to a gross-significant positive window.",
+    "overlay_opportunity_cost": "Holding the index only in a ~5-10 day post-CPI window each month means sitting OUT of the strong inflation drift the rest of the time -> large opportunity-cost drag (same lesson as L4 TOM-overlay). Reported."
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect NO deployable directional edge. The drift-carrying component is the SURPRISE, which this data lacks; proxy dates (+/-1-2d) smear any tight reaction; PPK history is missing (n=2). A descriptive volatility bump around the print is plausible, but that is not a tradeable long/short signal. This is consistent with the source meta.json's own classification ('data acquisition only; edge-prior WEAK, no edge claimed') and with the program SUMMARY meta-finding (value is in NEW DATA, not new factors on existing data).",
+    "most_likely_verdict": "DESCRIPTIVE-VIEW (or DATA-LIMITED-INCONCLUSIVE). NO celebration. The scientific payoff = bounding the unconditional effect and concretely motivating exact-date + actual/forecast-surprise acquisition for a future surprise-conditional test."
+  },
+  "keep_bar_FROZEN": {
+    "definition": "TRADEABLE-EDGE (deploy-candidate) ONLY IF: post[+1,+K] gross CAR is positive AND event-clustered |t| >= 2.0 AND survives Bonferroni (p < 0.0125) AND regime-sign-stable (2022-01 split) AND remains net-positive after the ~40bp representative index round-trip cost AND beats a buy-and-hold overlay comparison. ALL must hold on the PRIMARY (XU100) series.",
+    "else": "DESCRIPTIVE-VIEW (effect characterized but not deployable) or DATA-LIMITED-INCONCLUSIVE (if power is too thin to conclude). Archived either way. N<=1 -- single pre-registered run, no 2nd round."
+  },
+  "discipline": {
+    "measurement_only": true,
+    "optimization_forbidden": true,
+    "look_ahead_safe": true,
+    "committed_engine_zero_touch": true,
+    "repo_read_only": true,
+    "ascii_only": true,
+    "reuse": ["clip_clean_returns (EW-full secondary)", "_nw_t (HAC cross-check)", "regime_split (concept)"]
+  }
+}

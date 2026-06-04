@@ -1,0 +1,37 @@
+{
+  "candidate": "L13 DAILY-PEAD TWO-GATE FEASIBILITY BAR (SYNTHESIS/feasibility). NO new edge, NO new data acquisition, NO optimization, NO re-test. Reads the FROZEN L8 (power band) + L9 (empirical arrival rate) + L10 (monthly liquid SUE effect + event sd) results and the committed D-208 realistic-cost artifact to fold the COST wall and the POWER wall into ONE forward bar for the decisive daily-PEAD experiment. Computes the MINIMUM gross announcement-window CAR a daily-PEAD leg must deliver to clear BOTH gates (net |t|=2 after realistic round-trip cost) as a function of holding window and horizon, decomposes it into cost-component vs power-component, identifies which wall binds at each horizon, and contrasts the resulting bar against the measured monthly liquid SUE signal. Upgrades FORWARD_DECISION_CARD from point-estimates to a two-gate bar.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "purpose": "L8 established daily-PEAD is the ONLY power-reachable event class IF its standardized effect lands in the measured liquid-event band; L9 grounded the arrival rate (~95-136/yr); L10 measured the monthly liquid SUE half-split (+0.69%, insignificant) and the event sd (~18.5%/mo) and framed daily-PEAD as a magnitude/recovery question. NONE of L8-L11 folded the D-207/D-208 realistic COST wall into the daily-PEAD reachability bar -- they reported significance (power) only. L13 closes that: it combines the two walls (cost + power) into a single forward bar for daily-PEAD, so the decision card states the EXACT gross window-drift the unmeasurable announcement-window effect must clear to be DEPLOYABLE (not merely significant), and which wall binds at each horizon. The bar uses ONLY frozen, measured inputs and the standard random-walk variance scaling; it does NOT put a prior on the unmeasurable daily-window effect -- it bounds the REQUIREMENT, not the effect.",
+  "inputs_FROZEN": [
+    "lab-demo-goal/results/l8_power_results.json (n_required band [94.9,758.6]; measured liquid-event standardized-effect band)",
+    "lab-demo-goal/results/l9_pead_volume_results.json (bounded_daily_date_clusters_per_year=95.4 [conservative]; empirical_liquid_events_per_year=136.4 [optimistic])",
+    "lab-demo-goal/results/l10_pead_effect_results.json (LIQUID half-split effect_pos_minus_neg=+0.006944; mean_pos=+0.00377 [long-only high-SUE market-relative]; sd_event_liquid=0.185073)",
+    "docs/yol1/d208_results.json (selected_picks_summary.mean_round_trip_roll=0.003804 [liquid round-trip]; realistic_cost_flat_bps_equiv=41.75)"
+  ],
+  "method_FROZEN": {
+    "window_sd_scaling": "sigma_window = sigma_month * sqrt(H_hold / 21), the standard random-walk variance-time scaling (21 trading days/month). This is exactly the scaling L10's window_noise_caveat invokes; it is NOT a free parameter.",
+    "power_component": "min window-CAR for |t|=2 with zero cost = T_SIG * sigma_window / sqrt(n), where n = arrival_rate * horizon_years.",
+    "cost_component": "fixed per-event round-trip cost from D-208 liquid selected-picks (c_rt=0.003804). Long-only leg = 1 round-trip; long-short SUE-spread leg = 2 round-trips (BIST short constraints flagged).",
+    "two_gate_bar": "min gross per-event window-CAR for NET |t|=2 = cost_component + power_component (cost shifts the whole power bar UP by the fixed cost). Cost FLOOR (n->inf) = cost_component: even with infinite data the gross drift must exceed the round-trip cost to be net-positive.",
+    "binding_wall": "COST if cost_component >= power_component else POWER, per (leg, holding-window, horizon).",
+    "concentration_requirement": "concentration_ratio = two_gate_bar / monthly_leg_effect = how many times the FULL monthly liquid SUE spread the few-day announcement window must deliver to clear the bar. <=1 means the full monthly spread (if perfectly concentrated) suffices; >1 means the window must deliver MORE than the entire monthly spread (not achievable from this signal without amplification).",
+    "cost_floor_vs_monthly": "monthly_leg_effect / cost_component: if <1, the monthly leg effect does not even cover the round-trip cost -- net-positive is impossible from this signal at monthly resolution regardless of sample size; only announcement-window concentration above the cost floor can rescue it.",
+    "legs": "LONG-ONLY high-SUE market-relative (effect=mean_pos, 1 round-trip) and LONG-SHORT SUE half-split (effect=effect_pos_minus_neg, 2 round-trips).",
+    "T_SIG": 2.0,
+    "TD_PER_MONTH": 21,
+    "H_HOLD_DAYS": [5, 10],
+    "HORIZONS_YEARS": [1, 3, 5, 8],
+    "RATES": {"conservative": "L9 bounded_daily_date_clusters_per_year", "optimistic": "L9 empirical_liquid_events_per_year"}
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect the two-gate bar to be DEMANDING and the binding wall to be POWER at short horizons (sigma_window/sqrt(n) large) shading to the COST FLOOR at long horizons (power-component shrinks with sqrt(n); the fixed round-trip cost remains). Expect the starkest finding to be that the measured monthly liquid SUE signal has LITTLE-TO-NO margin over the cost floor: long-only high-SUE monthly market-relative mean (+0.38%) is near/below a single round-trip (~0.38%), and the long-short half-split (+0.69%) is near a double round-trip (~0.76%). If so, daily-PEAD viability hinges ENTIRELY on whether announcement-window CONCENTRATION lifts the few-day CAR materially above the monthly average AND the true window noise is at/below sqrt-scaling -- BOTH unmeasurable offline. This would TEMPER (not kill) the #1 ranking: still the only power-reachable class, but the net-deployable bar is high and the monthly signal does not have margin to spare, so the fetch could well return NULL. HONEST caveats: (a) L10's window_noise_caveat says true window noise may be BELOW sqrt-scaling (post-announcement drift steadier than random walk), which would LOWER the bar; (b) the monthly SUE half-split is itself insignificant (may be noise); (c) canonical PEAD in developed markets DOES concentrate post-announcement, but that is unmeasured in BIST liquid names. Result recorded whatever it is.",
+    "most_likely_verdict": "DESCRIPTIVE-FEASIBILITY-VIEW. A data-grounded two-gate bar that sharpens (not decides) the daily-PEAD go/no-go: viability hinges on unmeasurable announcement-window concentration beating a quantified cost floor. NO edge claim; result recorded whatever it is."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data_acquisition": true, "no_edge_claim": true
+  }
+}

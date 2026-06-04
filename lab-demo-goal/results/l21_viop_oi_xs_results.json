@@ -1,0 +1,166 @@
+{
+  "candidate": "L21 VIOP single-stock-futures open-interest cross-sectional positioning (REAL DATA; pre-registered, measurement-only)",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L21_viop_oi_xs.json",
+  "mode": "REAL (offline VIOP day-end archive + clean_universe spot prices)",
+  "new_axis": "per-stock futures-market positioning (open-interest growth) -- not in L1-L20; orthogonal to price/volume/fundamental/sentiment/short/foreign-flow",
+  "params": {
+    "nw_lag": 6,
+    "tercile": 0.3333333333333333,
+    "min_names": 30,
+    "liquid_adv_min_tl": 10000000.0,
+    "round_trip_bps": 40.0,
+    "regime_split": "2022-01-01",
+    "min_yyyymm": 201901
+  },
+  "data": {
+    "oi_obs": 3947,
+    "oi_months": 89,
+    "oi_underlyings": 63,
+    "signal_obs": 3881,
+    "signal_months": 88
+  },
+  "results": {
+    "ALL": {
+      "primary_m+1": {
+        "n_months": 87,
+        "month_span": [
+          "2019-02",
+          "2026-04"
+        ],
+        "avg_names": 44.0,
+        "long_rel_gross": {
+          "mean": -0.001148,
+          "nw_t": -0.5294
+        },
+        "long_rel_net": {
+          "mean": -0.004108,
+          "nw_t": -1.8848
+        },
+        "ls_gross": {
+          "mean": -0.003184,
+          "nw_t": -0.8672
+        },
+        "ls_net": {
+          "mean": -0.009103,
+          "nw_t": -2.4602
+        },
+        "mean_turnover": 0.7399,
+        "realized_cost_bps": 29.6,
+        "breakeven_cost_bps": -15.52,
+        "regime": {
+          "pre_mean": -0.004334,
+          "post_mean": -0.003956,
+          "sign_stable": true
+        }
+      },
+      "robust_skip_m+2": {
+        "n_months": 86,
+        "month_span": [
+          "2019-02",
+          "2026-03"
+        ],
+        "avg_names": 43.9,
+        "long_rel_gross": {
+          "mean": -0.001621,
+          "nw_t": -0.4577
+        },
+        "long_rel_net": {
+          "mean": -0.004572,
+          "nw_t": -1.2935
+        },
+        "ls_gross": {
+          "mean": -0.003907,
+          "nw_t": -0.6501
+        },
+        "ls_net": {
+          "mean": -0.009809,
+          "nw_t": -1.634
+        },
+        "mean_turnover": 0.7377,
+        "realized_cost_bps": 29.51,
+        "breakeven_cost_bps": -21.97,
+        "regime": {
+          "pre_mean": 0.005238,
+          "post_mean": -0.011304,
+          "sign_stable": false
+        }
+      }
+    },
+    "LIQUID": {
+      "primary_m+1": {
+        "n_months": 32,
+        "month_span": [
+          "2021-12",
+          "2026-04"
+        ],
+        "avg_names": 31.8,
+        "long_rel_gross": {
+          "mean": -0.007372,
+          "nw_t": -3.6032
+        },
+        "long_rel_net": {
+          "mean": -0.010415,
+          "nw_t": -5.1334
+        },
+        "ls_gross": {
+          "mean": -0.017044,
+          "nw_t": -2.8344
+        },
+        "ls_net": {
+          "mean": -0.023131,
+          "nw_t": -3.8089
+        },
+        "mean_turnover": 0.7609,
+        "realized_cost_bps": 30.44,
+        "breakeven_cost_bps": -96.88,
+        "regime": {
+          "pre_mean": 2e-06,
+          "post_mean": -0.010751,
+          "sign_stable": false
+        }
+      },
+      "robust_skip_m+2": {
+        "n_months": 31,
+        "month_span": [
+          "2021-12",
+          "2026-03"
+        ],
+        "avg_names": 31.8,
+        "long_rel_gross": {
+          "mean": -0.003772,
+          "nw_t": -0.5471
+        },
+        "long_rel_net": {
+          "mean": -0.006811,
+          "nw_t": -0.9894
+        },
+        "ls_gross": {
+          "mean": -0.007637,
+          "nw_t": -0.5637
+        },
+        "ls_net": {
+          "mean": -0.013714,
+          "nw_t": -1.0158
+        },
+        "mean_turnover": 0.7596,
+        "realized_cost_bps": 30.39,
+        "breakeven_cost_bps": -49.66,
+        "regime": {
+          "pre_mean": 0.008165,
+          "post_mean": -0.00731,
+          "sign_stable": false
+        }
+      }
+    }
+  },
+  "summary": {
+    "headline": "VIOP single-stock-futures open-interest cross-sectional test on REAL data. LIQUID primary(m+1) high-OI-growth long-leg market-relative NET mean=-0.010415, NW-t=-5.1334, regime-stable=False, months=32, avg-names=31.8. Verdict: NOT-TRADEABLE.",
+    "interpretation": "Opens the genuinely-new per-stock futures-positioning axis (open-interest growth) on the existing local VIOP archive. Cross-sectional per-name OI-growth predictability is far less established than the aggregate Hong-Yogo result; OI change is contemporaneously tied to volume/volatility, so the look-ahead-safe m+1 design likely washes it out (or shows crowding-reversal), and the thin SSF cross-section is noisy. Result recorded per the frozen keep-bar; if NOT-TRADEABLE it joins the clean archive, if TRADEABLE it is a deploy-candidate."
+  },
+  "verdict": {
+    "verdict": "VIOP-OI-XS-NOT-TRADEABLE (significance-wall, contemporaneous-only co-move / crowding-reversal, or regime sign-instability); no deployable edge",
+    "keep_bar_passed": false,
+    "deploy_candidate": false,
+    "no_edge_claim": true
+  }
+}

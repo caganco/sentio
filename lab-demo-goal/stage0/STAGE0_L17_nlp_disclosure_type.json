@@ -1,0 +1,37 @@
+{
+  "candidate": "L17 NLP DISCLOSURE-TYPE-conditioned forward-return FORWARD-SCAFFOLD (pre-registered + offline-validated). A genuinely new factor AXIS (text classification / event-type taxonomy), explicitly named in the directive (NLP) but never opened as a track. DISTINCT from L16 sentiment-polarity: here the signal is WHICH KAP disclosure TYPE a name just filed (buyback vs capital-increase vs rating vs dividend vs governance ...), and whether a given type predicts subsequent market-relative drift. NLP-LITE = a pre-registered keyword taxonomy (not a tuned model). Multiple-testing controlled (Bonferroni across types). Scaffold-only, committed-engine ZERO-touch, repo READ-ONLY, NO network, ASCII.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Specific KAP disclosure TYPES carry information about subsequent returns (e.g., buyback announcements -> positive drift; rights-issue / capital-increase -> negative drift), independent of a single polarity score. DEPLOYABLE form: long the names that just filed a positive-information type, in the LIQUID universe, market-relative, net of cost; significant after Bonferroni across the tested type set.",
+  "signal_FROZEN": {
+    "definition": "Classify each disclosure headline into ONE of a PRE-REGISTERED type taxonomy via ASCII-folded keyword matching; event = (symbol, day-stamp, type). Test each type's [+1,+H] market-relative CAR vs zero with event-clustered NW-t, and the cross-type ranking.",
+    "type_taxonomy_FROZEN": {
+      "BUYBACK": ["geri al"],
+      "DIVIDEND": ["kar pay", "temettu", "kar dagit"],
+      "CAPITAL_INCREASE": ["sermaye art", "ihrac tavan", "bedelli", "halka arz"],
+      "RATING": ["derecelendir"],
+      "GOVERNANCE": ["genel kurul", "yonetim kurulu", "esas sozlesme"],
+      "AUDIT_REPORT": ["bagimsiz denetim", "finansal rapor", "sorumluluk beyan"],
+      "CIRCUIT_BREAKER": ["devre kesici"],
+      "SPECIAL_GENERAL": ["ozel durum aciklamasi"],
+      "OTHER": []
+    },
+    "no_price_in_signal": "Type is derived from disclosure text only -> orthogonal to the price/volume/fundamental graveyard and to L1-L16. New AXIS (event-type classification)."
+  },
+  "look_ahead_safety_FROZEN": {"rule": "t+1 entry after the day-stamp, holding [+1,+H]; announcement-day return EXCLUDED; market-relative (subtract EW universe). Same discipline as L11/L16."},
+  "universe_FROZEN": {"liquid": ">= 1.0e7 TL trailing-63-trading-day median value_tl", "scopes": ["ALL", "LIQUID"], "min_events_per_type": 9},
+  "portfolio_FROZEN": {"primary_gate": "LIQUID long names filing a positive-information type, market-relative net of cost", "corroboration": "per-type CAR ranking + long-short of best-vs-worst type", "windows_H": [5, 10], "rebalance": "event-driven daily", "benchmark": "EW universe daily"},
+  "cost_FROZEN": "Realistic D-207-style per-stock round-trip; report realized-cost-bps, breakeven, turnover (wired when real panel present).",
+  "stats_FROZEN": {"nw_t": "event-clustered Newey-West HAC t per type", "multiple_testing": "Bonferroni across the number of tested types (guards against type-fishing)", "regime_split": "2022-01-01 sign-stability", "T_SIG": 2.0},
+  "keep_bar_FROZEN": "Deploy-edge <=> a positive-information type's LIQUID market-relative net CAR > 0 AND Bonferroni-survived |NW-t| AND regime-sign-stable. Else NLP-TYPE-NOT-TRADEABLE. SCAFFOLD stage asserts pipeline-correctness only.",
+  "offline_validation_FROZEN": {
+    "synthetic_self_test": "Plant a post-stamp drift for ONE designated type only; assert (a) RECOVERY of that type's CAR sign-positive and |t|>=2, (b) PLACEBO (permuted type labels) |t|<2, (c) LOOK-AHEAD entry leaks more than safe t+1 entry. L11-pattern three asserts.",
+    "snapshot_characterization": "Apply the taxonomy to the real data/news_cache.json (DESCRIPTIVE only): per-type article counts, share classified as OTHER -> quantify taxonomy coverage and the data gap."
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect NOT-RUNNABLE offline for the same reason as L16: only a tiny live news SNAPSHOT exists, no historical day-stamped text panel. This track crystallizes the NLP avenue into a pre-registered, Bonferroni-controlled, offline-validated harness and documents the gap. The taxonomy is intentionally COARSE keyword-matching (transparent, no tuned knob); a richer model is a later step once historical text exists. NO real-data edge claimed. KAP-disclosure-dominated snapshot -> shares the same approved historical-text fetch as L16 and #1 daily-PEAD.",
+    "most_likely_verdict": "SCAFFOLD-SELF-TEST PASS (no deployable edge; awaiting approved historical disclosure-text fetch)."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true, "no_new_data_acquisition": true, "no_edge_claim_unless_keepbar_passes": true}
+}
