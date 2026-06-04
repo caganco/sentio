@@ -1,0 +1,93 @@
+{
+  "directive": "D-209",
+  "title": "H2b TEMETTU-RUNUP re-test under D-207 corrected cost -- the demo-goal dividend pre-ex run-up, eliminated under FLAT cost, measured for the FIRST time with the corrected per-stock realistic cost -- Stage 0 pre-registration (FROZEN before results)",
+  "preregistered_date": "2026-06-04",
+  "config_module": "src/screening/d209_config.py (frozen MEASUREMENT geometry; decision/cost constants live in src/signals/thresholds.py D209_* + reused D205_*/D204_*/D203_*)",
+  "config_version": "d209-v1",
+  "decision_owner": "the project. The harness MEASURES + RECOMMENDS; it does NOT finalize deployment. Even a TRADEABLE-EDGE verdict makes H2b a deploy CANDIDATE at most (a separate the project decision). Deployment is NEVER auto-triggered.",
+
+  "what_this_is": "D-209 re-runs the FROZEN demo-goal H2/H2b dividend pre-ex run-up signal (detection + book PORTED bit-for-bit from the demo-goal H2 lab; NO new definition, NO threshold re-pick) and changes ONLY the COST INPUT: the demo-goal FLAT 20/100bp-per-side cost (which eliminated H2b) is replaced by the D-207-corrected per-stock realistic cost (Roll+Kyle, EOD-quoted-primary). Two FROZEN demo-goal variants are reported (NO 'best' selected); the better one is the headline.",
+
+  "why": "H2b was the SINGLE t>=2 candidate left in the demo-goal graveyard (0bp daily NW-t=2.57), but it was eliminated under a FLAT 20/100bp/side cost and was NEVER measured with the D-207-corrected per-stock cost. Now that NRR-010/D-207 corrected the inflated cost model (de-inflated ~12-25x on liquid names), H2b deserves the same fair-footing re-test hi52 got in D-208. This is the last clean measurement of H2b: still tradeable, or a significance wall like hi52?",
+
+  "honest_expectation": "Declared BEFORE results, NO celebration expected. The frozen demo-goal h2b_runup_basket.json already shows the daily-relative NW-t at 20bp/side = 0.86 (ALL) / 1.16 (liquid). 20bp/side ~= 40bp round-trip ~= the D-207-corrected cost (~42bp, per D-208). So the corrected cost is in the same neighborhood as the 20bp/side column where H2b is ALREADY insignificant -> the PROBABLE verdict is YINE-TRADEABLE-DEGIL via a SIGNIFICANCE wall (an hi52 twin), NOT a cost wall. If a variant unexpectedly clears NW|t|>=2 after cost, that is a genuine surprise and is reported openly. Either outcome is recorded. Valuable because it is cheap and closes a graveyard gap.",
+
+  "candidate_N_note": "H2b's first OFFICIAL Yol-1 measurement (count = 1 of N<=3). The demo-goal FLAT-cost elimination was a LAB result, not a Yol-1 official round. D-209 is the official re-test on the committed engine under corrected cost. N<=3 SON: if YINE-TRADEABLE-DEGIL, H2b is clean-archived; NO 4th round.",
+
+  "the_only_difference_FROZEN": {
+    "demo_goal_cost_FLAT": "V1 run_book: drag[t] = cost_turn[t] * (bp/1e4) where cost_turn[t] = (n_enter+n_exit)/max(n_held,1) and bp is PER-SIDE (a round trip = 2*bp/1e4). V2 tradeable: netmean(a,bp) = mean(a - 2*bp/1e4) (one FLAT round-trip per event). Grid [0,20,100] bp/side.",
+    "d209_cost_corrected_D207": "FLAT replaced by the per-name round-trip rt[sym] (D-207 quoted-primary): every entry OR exit charges a ONE-WAY 0.5*rt[sym]; a full round trip costs rt[sym]. The frozen turnover STRUCTURE (enter/exit bodies, /n_held for V1; one round-trip per event for V2) is preserved verbatim -- ONLY the per-name cost RATE changes. REDUCTION GUARANTEE: when rt is uniform == 2*bp/1e4 the per-name drag equals the frozen FLAT drag EXACTLY (asserted by tests/test_d209_h2b_runup.py).",
+    "everything_else_IDENTICAL": "ex-date detection (tr_index_gross.pct - adjusted_close.pct > 0.005), the [-5,-1] (V1) and [-10,-1] (V2) windows, exit-before-ex (no dividend, no 15% tax), the EW_FULL market benchmark, the invested-day market-RELATIVE primary metric (carry-immune), NW lag 5 (V1), the regime split 2022-01-01, the frozen D-202 panel."
+  },
+
+  "frozen_signal_geometry": {
+    "detection": {
+      "rule": "ex-date where tr_index_gross.pct_change() - adjusted_close.pct_change() > D209_EX_GAP_MIN (0.005), per symbol; est_div_yield = that gap. PORTED bit-for-bit from the demo-goal H2 lab.",
+      "reproduction_guard": "On the frozen local build panel this reproduces ~1108 events / 265 symbols (demo-goal H2 lab figure). The engine RAISES if the count falls outside [900,1300] events / [220,300] symbols (detection must not drift)."
+    },
+    "V1_daily_churn": {
+      "source": "demo-goal h2b_runup_basket.py BIREBIR",
+      "window": [-5, -1],
+      "rule": "EW long-only daily book; a name is HELD on day t iff its ex-date is in [t+1, t+5]; exit before ex. drag (per-name) on enter/exit. PRIMARY = invested-day (strat_net - EW_FULL) arithmetic series. NW HAC t, lag = 5.",
+      "significance_metric": "Newey-West |t| (lag 5) on the after-cost daily relative series."
+    },
+    "V2_discrete_capture": {
+      "source": "demo-goal H2 lab tradeable() 'RUNUP_capture' leg BIREBIR",
+      "window": [-10, -1],
+      "hold_days": 10,
+      "rule": "per (symbol, ex) event ONE round-trip: compound return over [-10,-1] (10 trading days = 'hold-10g'), EW-combined per ex-month, exit before ex, add_div=False (no dividend captured -> no tax). The per-event FLAT 2*bp is replaced by the per-event rt[sym] (evaluated at the entry day pos-10). rel = (1+g)/(1+bm)-1 vs the EW market over the SAME window.",
+      "significance_metric": "simple t on the monthly cohort after-cost relative series (the frozen significance metric for this aggregated leg; the daily NW-lag-5 estimator does not apply to a monthly cohort series).",
+      "interpretation_note": "The directive's 'discrete-capture (hold-10g)' is interpreted as the FROZEN demo-goal RUNUP_capture leg ([-10,-1], 10-day hold, one round-trip per event, exit before ex). This is a faithful frozen-signal reading -- NOT a 'hold 10 days AFTER ex' (which would cross the ex-date, capture the dividend + 15% tax, and reverse the thesis). The interpretation is declared here, frozen before results."
+    }
+  },
+
+  "liquid_universe_FROZEN_REUSE_D205": {
+    "thresholds_constant": "D205_LIQUID_ADV_MIN_TL",
+    "value_tl": 10000000.0,
+    "trailing_days": 63,
+    "definition": "A name is liquid at its ex-date iff its trailing-63d-median daily traded value (value_tl) >= 1e7 TL. ABSOLUTE threshold (NOT a tercile), per the directive '>=1e7 ADV, D-205-esik'. Both an ALL-events and a LIQUID-events book are reported for V1 and V2.",
+    "look_ahead_safe": "trailing median up to and including the ex-date; never forward."
+  },
+
+  "cost_geometry_CORRECTED_D207_REUSE": {
+    "model": "Per-stock round-trip = 2*(one-way HALF-spread + Kyle one-way impact) + commission(0). Spread source per (date,name): EOD quoted half-spread (observed, vol-robust) -> 252d-Roll/2 fallback -> re-scaled D207 tier half-spread. The committed src/screening/realistic_cost.py + d204_hi52_stress.per_stock_cost_panel (post-D-207) is REUSED as-is; the quoted panel is INJECTED.",
+    "quoted_panel": "Built locally by src/screening/quoted_spread.load_or_build_quoted_panel over the event symbols, window=D207_QUOTED_WINDOW(63), min_coverage=D207_QUOTED_MIN_COVERAGE(21). INJECTED (archive never enters CI).",
+    "lambda_kyle": 1.0, "sigma_window": 21, "adv_window": 63, "commission_pct": 0.0, "order_value_tl": 20000, "fallback_roll_window": 252,
+    "note": "lambda_kyle / order_value / windows are FROZEN at the D-204/D-207 values; calibration = optimization = FORBIDDEN. The cost CHANGE is purely FLAT -> D-207 per-name, NOT a re-tune."
+  },
+
+  "keep_bar_FROZEN": {
+    "rule": "Per variant: cost-after relative mean > 0 AND |t| >= 2 (V1 = NW lag 5; V2 = simple t) AND regime sign-stable (2022-01-01 split, same sign both sides) AND survives in the liquid universe (liquid-subset cost-after relative mean > 0 AND |t| >= 2).",
+    "t_min": 2.0,
+    "thresholds_constant": "D209_GATE_NW_T_MIN (reuses D205_GATE_NW_T_MIN = 2.0)",
+    "rationale": "Identical in spirit to the demo-goal STAGE0_H2b keep-bar (rel net > 0 AND NW|t|>=2 AND regime sign-stable AND survives liquid). The liquid-survival leg is what makes it retail-tradeable; an illiquid-only edge is not deployable."
+  },
+
+  "verdict_rule_FROZEN_2way": {
+    "engine": "src/screening/d209_h2b_runup.d209_verdict (no new thresholds, no re-pick).",
+    "TRADEABLE_EDGE": "EITHER frozen variant (V1 or V2) clears the FULL keep-bar on its frozen significance metric -> H2b's first deployable Yol-1 FORM (a deploy CANDIDATE; deploy is a separate the project decision, NOT auto-triggered). The better variant is the headline.",
+    "YINE_TRADEABLE_DEGIL": "Neither variant clears the keep-bar -> H2b is NOT tradeable on a fair (corrected-cost) footing -> clean closure, temiz-arsiv. Distinguish in the report whether the wall is SIGNIFICANCE (|t| < 2 even after cost; the expected case) or COST (rel turns negative only after cost).",
+    "no_post_hoc_relaxation": "No threshold, gate, signal, window, or universe is loosened. The ONLY change vs the demo-goal lab is swapping the FLAT cost for the D-207-corrected per-name cost."
+  },
+
+  "constraints": {
+    "measurement_only": "Optimization FORBIDDEN; grid-sweep FORBIDDEN (p-hacking). Stage-0 frozen BEFORE results.",
+    "look_ahead_safe": "Positions are established 1..10 trading days BEFORE the ex-date and exited before ex; the liquid filter and cost use only trailing data.",
+    "committed_engine_zero_touch": "d203/d204/d205 engines + realistic_cost + thresholds existing blocks are READ-ONLY; D-209 only ADDS the D209_* threshold block and new d209_* files.",
+    "strangler": "Frozen demo-goal detection/book PORTED (bit-for-bit, reproduction-guarded); D-207 cost engine REUSED.",
+    "ascii_only": true
+  },
+
+  "snapshots": {
+    "price": {"file": "data/clean_universe/adjusted_prices_2019_2026.parquet",
+              "content_hash_sha256_prefix": "fd207550da312b19", "source": "D-202 (reused from D-203/204/205); carries tr_index_gross + adjusted_close so ex-date detection reproduces locally"},
+    "quoted_spread_archive": {"dir": "data/bist_datastore_archive/prices_official", "note": "EOD best bid/ask source for the quoted panel; LOCAL only, NOT in CI"},
+    "quoted_spread_cache": {"file": "data/clean_universe/d207_quoted_spread_panel.parquet", "note": "cached [date x symbol] proportional quoted-spread panel; gitignored"}
+  },
+
+  "outputs": [
+    "docs/yol1/STAGE0_d209.json (this file)",
+    "docs/yol1/d209_results.json (after run: V1/V2 x ALL/LIQUID -- invested-days, concurrency, gross/net relative mean, t, realized round-trip bps, breakeven, turnover, regime split, + the 2-way verdict; LOCALLY generated, committed as an artifact since the parquets are CI-absent)",
+    "docs/research/D-209-rapor.md (measurement + two variants + cost + regime + HUKUM; OOS/honesty explicit) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}

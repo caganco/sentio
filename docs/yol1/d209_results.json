@@ -1,0 +1,169 @@
+{
+  "directive": "D-209",
+  "phase": "H2b TEMETTU-RUNUP re-test (frozen demo-goal signal, D-207 corrected cost)",
+  "config_version": "d209-v1",
+  "timestamp_utc": "2026-06-04T00:29:30Z",
+  "price_content_hash": "fd207550da312b19",
+  "candidate": "H2b TEMETTU-RUNUP (dividend pre-ex run-up, exit before ex -> no tax) -- D-209 ilk-resmi-olcum (N<=3), demo-goal-FLAT-eleme sonrasi D-207-duzeltilmis-maliyet re-test",
+  "detection": {
+    "ex_gap_min": 0.005,
+    "n_events": 1108,
+    "n_symbols": 265,
+    "median_est_div_yield": 0.022795,
+    "n_liquid_events": 163,
+    "reproduction_band": "demo-goal H2 lab ~1108 events / 265 symbols (BIREBIR)"
+  },
+  "cost_model": {
+    "model": "D-207 per-stock realistic (Roll+Kyle, EOD-quoted-primary)",
+    "quoted_injected": true,
+    "summary": {
+      "n_evaluated": 351954,
+      "n_roll_zero": 120100,
+      "roll_zero_frac": 0.341238,
+      "spread_source_counts": {
+        "quoted": 211458,
+        "roll": 20396,
+        "tier": 120100
+      },
+      "spread_source_frac": {
+        "quoted": 0.600811,
+        "roll": 0.057951,
+        "tier": 0.341238
+      },
+      "mean_round_trip_roll": 0.011676,
+      "mean_round_trip_tier": 0.010836
+    },
+    "note": "FLAT 2*bp/side REPLACED by per-name round-trip rt[sym]; reduces EXACTLY to FLAT when rt is uniform. commission Midas=0."
+  },
+  "v1_daily_churn": {
+    "ALL": {
+      "label": "ALL",
+      "variant": "V1-daily-churn",
+      "hold_window": [
+        -5,
+        -1
+      ],
+      "n_events": 1108,
+      "invested_days": 1302,
+      "total_days": 1848,
+      "invested_frac": 0.704545,
+      "concurrency_mean": 4.249616,
+      "concurrency_median": 3.0,
+      "concurrency_max": 24,
+      "mean_turnover_twoSide": 0.429356,
+      "gross_rel_mean": 0.00129,
+      "gross_rel_nw_t": 2.565426,
+      "net_rel_mean": -0.001228,
+      "net_rel_nw_t": -2.273039,
+      "net_rel_n": 1302,
+      "realized_cost_roundtrip_bps": 117.311465,
+      "breakeven_roundtrip_bps": 60.094579,
+      "regime": {
+        "pre": -0.000622,
+        "post": -0.001588,
+        "sign_stable": true
+      },
+      "nw_lag": 5
+    },
+    "LIQUID": {
+      "label": "LIQUID",
+      "variant": "V1-daily-churn",
+      "hold_window": [
+        -5,
+        -1
+      ],
+      "n_events": 163,
+      "invested_days": 497,
+      "total_days": 1848,
+      "invested_frac": 0.268939,
+      "concurrency_mean": 1.639839,
+      "concurrency_median": 1.0,
+      "concurrency_max": 6,
+      "mean_turnover_twoSide": 0.339671,
+      "gross_rel_mean": 0.000553,
+      "gross_rel_nw_t": 0.605107,
+      "net_rel_mean": 6.8e-05,
+      "net_rel_nw_t": 0.074028,
+      "net_rel_n": 497,
+      "realized_cost_roundtrip_bps": 28.552786,
+      "breakeven_roundtrip_bps": 32.537717,
+      "regime": {
+        "pre": -0.000643,
+        "post": 0.000393,
+        "sign_stable": false
+      },
+      "nw_lag": 5
+    }
+  },
+  "v2_discrete_capture": {
+    "ALL": {
+      "label": "ALL",
+      "variant": "V2-discrete-capture",
+      "hold_window": [
+        -10,
+        -1
+      ],
+      "hold_days": 10,
+      "n_events": 1108,
+      "n_months": 81,
+      "gross_mean": 0.033249,
+      "rel_costfree_mean": 0.0112,
+      "rel_costfree_t": 1.716191,
+      "net_rel_mean": 0.000651,
+      "net_rel_t": 0.103319,
+      "net_rel_n": 81,
+      "realized_cost_roundtrip_bps": 109.110474,
+      "breakeven_roundtrip_bps": 115.0,
+      "regime": {
+        "pre": -0.008635,
+        "post": 0.006716,
+        "sign_stable": false
+      }
+    },
+    "LIQUID": {
+      "label": "LIQUID",
+      "variant": "V2-discrete-capture",
+      "hold_window": [
+        -10,
+        -1
+      ],
+      "hold_days": 10,
+      "n_events": 163,
+      "n_months": 53,
+      "gross_mean": 0.015623,
+      "rel_costfree_mean": -0.002705,
+      "rel_costfree_t": -0.34157,
+      "net_rel_mean": -0.005389,
+      "net_rel_t": -0.677121,
+      "net_rel_n": 53,
+      "realized_cost_roundtrip_bps": 27.597661,
+      "breakeven_roundtrip_bps": 0.0,
+      "regime": {
+        "pre": -0.017336,
+        "post": 0.000755,
+        "sign_stable": false
+      }
+    }
+  },
+  "verdict": {
+    "verdict": "YINE-TRADEABLE-DEGIL",
+    "headline_variant": "V1",
+    "keep_bar_v1": {
+      "rel_after_cost_positive": false,
+      "nw_t_ge_2": true,
+      "regime_sign_stable": true,
+      "survives_liquid": false,
+      "pass": false
+    },
+    "keep_bar_v2": {
+      "rel_after_cost_positive": true,
+      "nw_t_ge_2": false,
+      "regime_sign_stable": false,
+      "survives_liquid": false,
+      "pass": false
+    },
+    "keep_bar_def": "cost-after rel mean>0 AND |t|>=2 (V1 NW lag5 / V2 simple-t) AND regime sign-stable AND survives liquid (>=1e7 ADV)",
+    "note": "H2b duzeltilmis-maliyette de tradeable-DEGIL -> KAPANIR, temiz-arsiv (N<=3 SON, 4.tur YOK). onceden-ilan-edilen beklenti (anlamlilik-duvari, hi52-ikizi) OLCUMLE-dogrulandi; maliyet-bahanesi kalkti, kutlama-yok."
+  },
+  "honest_framing": "ONCEDEN-ilan: demo-goal FLAT 20bp/side sutununda ZATEN NW-t=0.86(ALL)/1.16(likit); 20bp/side~=40bp round-trip~=D-207 duzeltilmis(~42bp). beklenti=anlamlilik-duvari (hi52-ikizi), kutlama-YOK. sonuc-ne-olursa kaydedilir. N<=3-SON."
+}
