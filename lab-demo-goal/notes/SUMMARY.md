@@ -28,11 +28,14 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L18 | VIOP index-basis TIMING overlay -- FORWARD-SCAFFOLD | feasibility + dunku-basis long/flat overlay, NW-t; sentetik safe/placebo/contemporaneous-leak | SCAFFOLD-SELF-TEST PASS (safe t=5.08 / placebo t=-0.77 / contemp-leak t=26.09; PREMISE FALSIFIED -- VIOP arsivi LOKAL var; gercek-run insa-edilmis baz-paneli + spot XU030 ister, ag-fetch DEGIL) |
 | L19 | SHORT-SALE-INTENSITY (cross-sectional) -- YENI FAKTOR, GERCEK-VERI | short-TL/toplam-TL tercile, LOW=LONG, LIQUID, market-relative net, NW-t lag6, rejim (m+1 + skip-m+2) | SHORT-INTENSITY-NOT-TRADEABLE (LIQUID LOW-tercile m+1 net -0.36%/ay t=-0.58, WRONG-SIGNED; tum \|t\|<1.1; SIGNIFICANCE/SIGN-duvari + LIQUID rejim-INSTABILITESI; cost-DEGIL) |
 | L20 | FOREIGN-FLOW (per-stock cross-sectional) -- YENI FAKTOR, GERCEK-VERI | imbalance=(alis-satis)/(alis+satis) tercile, HIGH=LONG, LIQUID, market-relative net, NW-t lag6, rejim (m+1 + skip-m+2) | FOREIGN-FLOW-XS-NOT-TRADEABLE (LIQUID HIGH-tercile m+1 net -0.10%/ay t=-0.35, rejim-INSTABIL; ALL m+1 long-bacak t=2.03 ama L-S-spread ~0/U-bicim microcap-artefakti, m+2'de coker; D-211 index-timing'den AYRI) |
+| L21 | VIOP TEK-HISSE-FUTURES ACIK-POZISYON (cross-sectional) -- YENI FAKTOR, GERCEK-VERI | oi_growth=total_OI(m)/total_OI(m-1)-1 tercile, HIGH=LONG, LIQUID-spot, market-relative net, NW-t lag6, rejim (m+1 + skip-m+2) | VIOP-OI-XS-NOT-TRADEABLE (LIQUID HIGH-tercile m+1 net -1.04%/ay t=-5.13 ama TEZ-TERSI/NEGATIF -> keep-bar net>0 GECMEZ; baskin desen crowding-reversal AMA on-kayit-DEGIL + m+2'de coker t=-0.99 + LIQUID rejim-INSTABIL + kisa enflasyon-penceresi; iki-yonlu hukumle reversal CLAIM-edilmez) |
 
-11/11 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS): deploy-edilebilir-edge YOK.
+12/12 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS + L21 viop-OI-XS): deploy-edilebilir-edge YOK.
 L7-L13 = sentez (karar/forward-araclari); L16/L17/L18 = forward-scaffold (sentetik-PASS, edge-iddiasi YOK).
 (Onceki program: 3/3 cross-sectional + NAV + H2b zaten kapali; foreign-flow INDEX-TIMING D-211'de kapaliydi --
-L20 simdi AYRI per-stock CROSS-SECTIONAL varyanti gercek-veride test etti = yine NOT-TRADEABLE.)
+L20 simdi AYRI per-stock CROSS-SECTIONAL varyanti gercek-veride test etti = yine NOT-TRADEABLE. L21 = VIOP
+turev-konumlanma ekseni gercek-veride = yine NOT-TRADEABLE, ek-olarak guclu-anlamli TEZ-TERSI reversal-izi
+ama on-kayit-DEGIL/m+2-coker -> iki-yonlu hukumle claim-edilmedi.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
 - **L1**: Niteliksel endeks-etkisi VAR (ekleme pre-efektif run-up + post reversal; cikarma ayna),
@@ -175,6 +178,19 @@ L20 simdi AYRI per-stock CROSS-SECTIONAL varyanti gercek-veride test etti = yine
   koruma calisti: gate on-kayitliydi). Teshis SIGNIFICANCE/SIGN-duvari + es-zamanli-co-move(forward-DEGIL) +
   LIQUID rejim-INSTABILITESI; cost-DEGIL (LIQUID gross zaten ~0). Hepsi ON-BEYAN dogrulandi. FOREIGN-FLOW-XS-NOT-TRADEABLE.
   [L20_foreign_flow_xs_REPORT.md]
+- **L21**: GERCEKTEN YENI eksen, GERCEK-veride -- VIOP TEK-HISSE-FUTURES ACIK-POZISYON cross-sectional (futures
+  open-interest buyumesi), var-olan `data/bist_datastore_archive/viop` arsiviyle acildi (VIOP_GUNSONU per-sozlesme
+  ACIK POZISYON, segment SSF; 89 ay / 63 dayanak / 3947 OI-gozlem). Fizibilite ON-CHECK: ay-sonu pozitif-OI SSF
+  medyan 48 / min 30 -> tercile testi FIZIBIL (L18-tipi blok DEGIL); 63/63 dayanak spot-panelde. Tez (Hong-Yogo
+  cross-sectional analogu): yuksek-OI-growth=LONG. Sonuc: deploy-kapisi (LIQUID HIGH-tercile m+1) market-relative
+  net = -1.04%/ay, GUCLU-ANLAMLI (t=-5.13) ama TEZ-TERSI/NEGATIF -> keep-bar net>0 GECMEZ + rejim-INSTABIL.
+  Baskin desen tezin TERSI = crowding/dikkat-reversal (LIQUID long-bacak t=-5.13, L-S t=-3.81; ALL L-S t=-2.46
+  rejim-stabil-negatif) AMA edge-CLAIM-EDILMEZ: (a) iki-yonlu hukum -- reversal on-kayitli-DEGIL, isaret-donderme
+  = p-hacking; (b) LIQUID-kapi KISA-yakin enflasyon-penceresi (2021-12..2026-04, 32 ay) + KENDI-icinde rejim-INSTABIL;
+  (c) m+2'de COKER (t=-0.99); (d) breakeven NEGATIF (on-kayitli yonde brut prim YOK). Teshis es-zamanli-co-move +
+  crowding-reversal + LIQUID rejim-INSTABILITESI + INCE-kesit (avg 31.8); cost-DEGIL. Hepsi ON-BEYAN dogrulandi.
+  Reversal-gozlemi AYRI gelecek-track adayi olarak loglandi (Cagan-mandasi + taze Stage-0 + m+2-survival +
+  rejim-stabilite + gercekci short-maliyeti gerekir). VIOP-OI-XS-NOT-TRADEABLE. [L21_viop_oi_xs_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
@@ -217,20 +233,22 @@ deploy-degil). Sonuclar ne-olursa-olsun kaydedildi. Grid-supurme/2.tur YOK. Prod
 SIFIR-dokunus (yalniz lab-demo-goal/ yazildi).
 
 ## PROGRAM DURUMU (guncel -- 2026-06-04)
-20 track tamamlandi (L1-L20): FF5-cross-sectional supurmesi tam (size/value=mezarlik, momentum/reversal/
+21 track tamamlandi (L1-L21): FF5-cross-sectional supurmesi tam (size/value=mezarlik, momentum/reversal/
 hi52/lowvol/NAV/temettu zaten kapali, RMW=L14, CMA=L15), short-selling-positioning GERCEK-test (L19),
-per-stock foreign-flow cross-sectional GERCEK-test (L20), sentiment/NLP/VIOP forward-scaffold'lari
-(L16/L17/L18, sentetik-PASS). 11/11 yeni-EDGE-aday deploy-edge YOK; verdict'ler honest-non-deployable.
+per-stock foreign-flow cross-sectional GERCEK-test (L20), VIOP futures open-interest cross-sectional
+GERCEK-test (L21), sentiment/NLP/VIOP-basis forward-scaffold'lari (L16/L17/L18, sentetik-PASS).
+12/12 yeni-EDGE-aday deploy-edge YOK; verdict'ler honest-non-deployable.
 
 VERI-DURUMU DUZELDI (onceki "ucu de offline-veri-yok" YANLISTI): `data/bist_datastore_archive/` LOKAL
 arsivi kesfedildi -> VIOP (#9), foreign-flow (#4), fundamental-ratios, short-selling artik LOKAL-MEVCUT,
-ag-fetch GEREKMEDEN otonom-kosulabilir. short-selling (L19) ve foreign-flow cross-sectional (L20) KOSULDU
--- ikisi de NOT-TRADEABLE. HALA-eksik: sentiment/NLP tarihsel metin-corpus (#7/#8 -- yalniz snapshot) +
-corporate_actions/dividends/index_components (arsivde HALA BOS).
+ag-fetch GEREKMEDEN otonom-kosulabilir. short-selling (L19), foreign-flow cross-sectional (L20) ve VIOP
+futures open-interest cross-sectional (L21) KOSULDU -- ucu de NOT-TRADEABLE. HALA-eksik: sentiment/NLP
+tarihsel metin-corpus (#7/#8 -- yalniz snapshot) + corporate_actions/dividends/index_components (arsivde HALA BOS).
 
 KALAN GERCEK ag/auth-gates -> [BLOCKED_AVENUES.md]: #1 daily-PEAD (KAP gun-damgasi fetch, en-yuksek power),
 #2 surprise-makro, #3 TEFAS, #6 analist-revizyon, #7 sentiment-corpus, #8 NLP-metin-corpus. OTONOM-KOSULABILIR
 KALAN (ag-fetch GEREKMEZ, [ARSIV-MEVCUT]): fundamental-ratios (degoran/ORAN .xls; P/E-P/B-vb. -- ama FF5
 value/quality/investment zaten L14/L15/mezarlikta, prior-zayif), VIOP index-basis overlay (once LOKAL
-baz-paneli build: front XU030 + spot XU030 hizalama), VIOP open-interest konumlanma ekseni (on-kayitsiz).
+baz-paneli build: front XU030 + spot XU030 hizalama, prior-zayif). VIOP open-interest konumlanma ekseni
+artik L21'de KOSULDU (NOT-TRADEABLE; tezin-tersi crowding-reversal-izi on-kayitsiz, ayri-track adayi).
 Otonom-faz ag-pull yapmadan durur ama LOKAL-arsiv okuma in-scope ve arastirma-isinin kendisidir.
