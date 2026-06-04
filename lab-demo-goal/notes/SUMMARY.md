@@ -16,8 +16,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L6 | MACRO-EVENT (CPI-ilan penceresi) | XU100 event-study, olay-clustered t, Bonferroni | DESCRIPTIVE-VIEW (deploy-degil; significance-wall + veri-tavani) |
 | L7 | FEASIBILITY-FRONTIER (sentez) | L1/L2/L3/L6 ledger, iki-kapi siniflama | DESCRIPTIVE-SYNTHESIS (0/20 NO-WALL; ileri go/no-go kurali) |
 | L8 | POWER/SAMPLE-SIZE (sentez) | L1/L6 right-signed likit-leg, n_required(\|t\|=2) + reachability | DESCRIPTIVE-POWER-VIEW (olay-kitligi darbogaz; daily-PEAD tek-ulasilabilir) |
+| L9 | PEAD-VOLUME (sentez/feasibility) | GERCEK earnings-panel likit-SUE olay-sayimi + L8-bandi reachability | DESCRIPTIVE-VOLUME-VIEW (~95-136 likit-olay/yil; band ~1-8 yilda ulasilir; L8'i empirik dogrular) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8 = sentez (yeni-edge degil, karar-araclari).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8+L9 = sentez (yeni-edge degil, karar-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -61,6 +62,14 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   Daily-PEAD ~120 bagimsiz ifsa-tarihi/yil -> gozlenen-etki-bandi (n_req 95..759) ~0.8-6.3 yilda
   birikir = |t|=2'yi insan-ufkunda ulasilabilir kilan TEK event-sinifi. FORWARD_DATA_SPEC
   #1(daily-PEAD)>>#2(surpriz-makro)>>index-rebalance siralamasinin SAYISAL gerekcesi. [L8_power_REPORT.md]
+- **L9**: L8'in VARSAYDIGI daily-PEAD hizini (~120/yil) GERCEK earnings-paneliyle olctu. 2019+ SUE-
+  testable 5735 olay AMA yalniz %19 likit (1091) -> likidite YINE baglayan-kisit. Likit ~136 olay/yil;
+  ay->gun bounded ~95 date-cluster/yil (L8-varsayiminin ~1.3x icinde = empirik-dogrulama). L8 n_req-bandi
+  [95,759]: guclu-etki (+82bp, n~95) ~1 yilda, en-zayif (+33bp, n~759) ~8 yilda ulasilir -> daily-PEAD
+  bandi <10yil ULASILABILIR (kit-siniflari CPI 12/yil & index ~2/yil ezici-asar). SONUC: FORWARD #1
+  artik teorik-power degil, GERCEK-likit-hacimle bandi-gecirir-gosterildi. CAVEAT: ay-cozunurluk
+  date-cluster'a TAVAN; gercek-deger gun-damgasinin etkiyi monthly-attenuation'dan kurtarmasina bagli.
+  [L9_pead_volume_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik

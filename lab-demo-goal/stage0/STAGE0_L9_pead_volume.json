@@ -1,0 +1,31 @@
+{
+  "candidate": "L9 EMPIRICAL PEAD EVENT-VOLUME + power-shortfall bound. SYNTHESIS/feasibility track: NO new edge, NO new data acquisition, NO optimization. Uses the EXISTING monthly earnings panel (data/snapshots/earnings_dates.parquet) + the price panel to replace L8's ASSUMED daily-PEAD arrival rate (~120/yr) with the REAL liquid earnings event volume, and bounds whether a day-stamped daily-PEAD test could reach the L8 n_required band.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "purpose": "L8 showed daily-PEAD is the only power-reachable event class IF its effect sits in the observed band, using an ESTIMATED ~120 disclosure-dates/yr. L9 grounds that estimate empirically: count the actual liquid, SUE-testable earnings events available in the lab window, and bound the month->day independent-observation multiplier. Output a data-backed reachability statement (does real BIST liquid earnings volume clear n_required = 95..759 for |t|=2?).",
+  "inputs_FROZEN": [
+    "data/snapshots/earnings_dates.parquet (24937 events, 195 announce-months 2008-2025; 10131 SUE-nonnull; month-resolution, look-ahead-safe consume_from_month)",
+    "data/clean_universe/adjusted_prices_2019_2026.parquet (value_tl for liquidity; 681 symbols, 2019-2026)",
+    "lab-demo-goal/results/l8_power_results.json (n_required band for |t|=2)"
+  ],
+  "method_FROZEN": {
+    "window": "lab window only: fiscal_year >= 2019 (matches the price panel and L3).",
+    "testable_subset": "SUE non-null (the events a SUE-sorted PEAD test can actually use).",
+    "liquidity": "per (symbol, announce_month): trailing-63-trading-day median value_tl as of the last trading day on-or-before announce_month end; LIQUID iff >= 1.0e7 TL (D-205 absolute threshold). Look-ahead-safe (trailing only).",
+    "counts": "total testable events, LIQUID testable events, distinct announce-months (month-resolution date-cluster proxy), all also per-year.",
+    "month_to_day_multiplier": "month-resolution clusters each announce-month into ONE date; day-stamping splits a month's filings across distinct announce-DATES. Bound distinct announce-DATES per month as min(events_in_month, TRADING_DAYS_PER_MONTH=21). Sum over the window = bounded independent date-clusters a daily-PEAD test could obtain. This is a CEILING (assumes filings spread across distinct days up to the trading-day cap).",
+    "reachability": "compare bounded daily date-clusters (total and per-year) against the L8 n_required band [95, 759] for |t|=2. Report years-to-band at the empirical per-year rate.",
+    "TRADING_DAYS_PER_MONTH": 21,
+    "ADV_MIN_TL": 1.0e7
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect the real liquid SUE-testable volume to be on the order of ~150-250 liquid names x ~4 quarters ~ several-hundred events/yr, spreading (day-stamped) across ~60-100 distinct announce-dates/yr. That should CONFIRM L8's ~120/yr estimate to within a factor of ~2 and clear the n_required band (95-759) within ~1-4 years -- i.e., daily-PEAD remains the only power-reachable class, now on EMPIRICAL not assumed volume. HONEST caveat: month-resolution caps the date-cluster count to a BOUND, not the true daily count; and SUE coverage (~41% of events) shrinks the testable set. Possible surprise: if liquid+SUE coverage is thin (<~80 events/yr), the reachability horizon stretches and the daily-PEAD case weakens.",
+    "most_likely_verdict": "DESCRIPTIVE-VOLUME-VIEW. A data-grounded feasibility number, not an edge. NO celebration; result recorded whatever it is."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data_acquisition": true, "no_edge_claim": true
+  }
+}
