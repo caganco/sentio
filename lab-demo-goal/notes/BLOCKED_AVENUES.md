@@ -23,8 +23,9 @@ en-likit + likit buyuk-cap single-stock-futures alt-kumesi), `short_selling` (ay
 (23M, 1995-2026), `prices_official`/`prices_weekly`. HALA-BOS (dogru-bicimde bloke): `corporate_actions`,
 `dividends`, `index_components`.
 
-SONUC: short-selling ekseni L19'da GERCEK-veride test edildi (SHORT-INTENSITY-NOT-TRADEABLE, asagi).
-VIOP/foreign-flow/fundamental-ratios artik otonom-kosulabilir [ARSIV-MEVCUT]; sentiment/NLP icin tarihsel
+SONUC: short-selling ekseni L19'da GERCEK-veride test edildi (SHORT-INTENSITY-NOT-TRADEABLE, asagi) ve
+per-stock foreign-flow ekseni L20'de GERCEK-veride test edildi (FOREIGN-FLOW-XS-NOT-TRADEABLE, #4). VIOP +
+fundamental-ratios HALA otonom-kosulabilir [ARSIV-MEVCUT] ama prior-zayif; sentiment/NLP icin tarihsel
 metin-corpus HALA yok (yalniz snapshot) -> L16/L17 scaffold'lari acildi ama gercek-test icin metin-fetch lazim.
 Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
 
@@ -58,13 +59,17 @@ Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
 - NE GEREKIR: TEFAS'tan yeni-build cekim-hatti (ag-fetch + parse + panel-insa). the maintainer-onayli kosum.
 - HAZIR-DURUM: spec-asamasinda; harness yok. FORWARD_DATA_SPEC #3.
 
-## #4 YABANCI-AKIM -- per-stock foreign-flow timing  [ARSIV-MEVCUT] (onceki [MANUEL-AUTH+DATA-GAP] DUZELTILDI)
-- DUZELTME: `data/bist_datastore_archive/foreign_flow` (18M, 1997-2026) LOKAL MEVCUT -> "tarihsel-panel
-  uretilemez" on-beyani YANLIS. Ag-fetch GEREKMEZ; otonom-kosulabilir.
-- ACIK-KALAN: arsivin tam-semasi (gunluk-mu/per-stock-mu, alan-tanimlari) HENUZ dogrulanmadi; D-211
-  foreign-flow index-timing zaten kapali (graveyard) -> bu cross-sectional/per-stock varyant icin
-  prior ZAYIF. Bir track acilmadan once sema-dogrulama + Stage-0-on-kayit gerekir.
-- HAZIR-DURUM: veri-engeli KALKTI; track acilabilir (otonom). Onceki "ucretli/forward-snapshot" gerekce gecersiz.
+## #4 YABANCI-AKIM -- per-stock foreign-flow cross-sectional  [ARSIV-MEVCUT] -> L20 KOSULDU (NOT-TRADEABLE)
+- DUZELTME: `data/bist_datastore_archive/foreign_flow` (351 aylik .xls, 1997-2026) LOKAL MEVCUT -> "tarihsel-panel
+  uretilemez" on-beyani YANLIS. Ag-fetch GEREKMEZ; otonom-kosuldu.
+- SEMA-DOGRULANDI: legacy OLE2 .xls (xlrd), sheet 'TURKCE', per-stock satir: col0=sembol(.E), col3=ALIS-TL,
+  col6=SATIS-TL; market-segment basliklari col1'de (atlanir). Sema 2019/2021/2023/2026'da stabil; evren 367->606.
+  Yani veri PER-STOCK + aylik -> cross-sectional test MUMKUN (D-211 aggregate index-timing'den AYRI).
+- KOSULDU (L20): imbalance=(alis-satis)/(alis+satis), HIGH=LONG, LIQUID, market-relative net, NW-t lag6, rejim,
+  m+1+skip-m+2; 2019-01..2026-04 (87 ay). SONUC: deploy-kapisi (LIQUID HIGH m+1) net -0.10%/ay t=-0.35,
+  rejim-INSTABIL -> FOREIGN-FLOW-XS-NOT-TRADEABLE. ALL m+1 long-bacak t=2.03 ama L-S-spread ~0/U-bicim microcap-
+  artefakti (gate disinda). ON-BEYAN edilen zayif-prior dogrulandi (es-zamanli-co-move forward'a tasinmiyor).
+- HAZIR-DURUM: KAPANDI (gercek-veride test edildi, temiz-arsiv). [L20_foreign_flow_xs_REPORT.md]
 
 ## #5 KURUMSAL-AKSIYON (corp-action) VERI-KAYNAGI -- DataStore  [SERVER-BLOK]
 - NEDEN bakilamadi: DataStore uzerinden corp-action veri-turleri (100460/461/462/471/3184) sunucu
@@ -122,15 +127,18 @@ Asagidaki ilgili maddeler bu duzeltmeye gore guncellendi.
 
 ## OZET (the maintainer icin) -- 2026-06-04 guncel
 - OTONOM-OFFLINE faz icin BLOKE-EDICI yok: cross-sectional/event edge alani eldeki-veriyle tuketildi
-  (L1-L15 FF5-tam) + sentiment/NLP/VIOP scaffold'lari (L16/L17/L18) + short-selling GERCEK-test (L19).
+  (L1-L15 FF5-tam) + sentiment/NLP/VIOP scaffold'lari (L16/L17/L18) + short-selling GERCEK-test (L19) +
+  per-stock foreign-flow GERCEK-test (L20).
 - VERI-DURUMU DUZELDI: `data/bist_datastore_archive/` kesfi sayesinde VIOP (#9) + foreign-flow (#4) +
   fundamental-ratios + short-selling (#10) artik LOKAL-MEVCUT [ARSIV-MEVCUT] -> ag-fetch GEREKMEDEN
-  otonom-kosulabilir. short-selling kosuldu (L19, NOT-TRADEABLE). HALA-eksik: sentiment/NLP tarihsel
-  metin-corpus (#7/#8) + corporate_actions/dividends/index_components (arsivde HALA BOS).
+  otonom-kosulabilir. short-selling (L19) + foreign-flow cross-sectional (L20) KOSULDU = ikisi de
+  NOT-TRADEABLE. HALA-eksik: sentiment/NLP tarihsel metin-corpus (#7/#8) +
+  corporate_actions/dividends/index_components (arsivde HALA BOS).
 - GERCEK [DATA-GAP]/[MANUEL-AUTH] kalan: #1 DAILY-PEAD (KAP gun-damgali fetch), #2 makro-surprise,
   #3 TEFAS, #6 analist-revizyon, #7 sentiment-corpus, #8 NLP-metin-corpus. Bunlar ag/auth bekler.
 - EN-YUKSEK getiri/hazirlik orani DEGISMEDI: #1 DAILY-PEAD (harness on-kayitli + calistirilabilir).
   Karar destegi: [FORWARD_DECISION_CARD.md].
-- OTONOM-KOSULABILIR yeni-isler (ag-fetch GEREKMEZ, [ARSIV-MEVCUT]): foreign-flow cross-sectional (#4,
-  zayif-prior), fundamental-ratios genis-oran-supurmesi, VIOP index-basis overlay (#9, once LOKAL baz-paneli
-  build: front XU030 vadeli + spot XU030 hizalama). Hepsi sema-dogrulama + Stage-0-on-kayit ister.
+- OTONOM-KOSULABILIR KALAN (ag-fetch GEREKMEZ, [ARSIV-MEVCUT]): fundamental-ratios genis-oran-supurmesi
+  (prior-zayif: FF5 value/quality/investment zaten L14/L15/mezarlikta), VIOP index-basis overlay (#9, once
+  LOKAL baz-paneli build: front XU030 vadeli + spot XU030 hizalama), VIOP open-interest konumlanma ekseni.
+  Hepsi sema-dogrulama + Stage-0-on-kayit ister. (foreign-flow #4 ARTIK KAPALI -- L20'de kosuldu.)

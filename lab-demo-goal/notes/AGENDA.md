@@ -15,6 +15,9 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - Investment/asset-growth: equity-growth proxy (L15, SIGNIFICANCE/SIGN-duvari -- deploy-formunda prim YOK).
 - Short-selling positioning: short-intensity (L19, GERCEK-veri; SIGNIFICANCE/SIGN-duvari + LIQUID rejim-
   instabilitesi; LOW-tercile yanlis-isaret). KAPANDI.
+- Foreign-flow per-stock cross-sectional: imbalance (L20, GERCEK-veri; LIQUID HIGH-tercile m+1 net -0.10%/ay
+  t=-0.35, rejim-INSTABIL; ALL-long-bacak t=2.03 ama L-S-spread~0/U-bicim microcap-artefakti, gate-disinda;
+  D-211 index-timing'den AYRI). KAPANDI.
 - ANA DERS: cogu gorunur-edge illikit-microcap'te yasiyor, likit-evrende gercekci-maliyet
   sonrasi kayboluyor. Likit-evren + ~30-40bp maliyet = gercek test.
 
@@ -33,7 +36,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu -- TAMAMLANDI (L1-L19; bkz SUMMARY.md)
+## Aday kuyrugu -- TAMAMLANDI (L1-L20; bkz SUMMARY.md)
 - L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
 - L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
 - L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
@@ -75,19 +78,24 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - L19 SHORT-SALE-INTENSITY -- YENI FAKTOR, GERCEK-VERI -> SHORT-INTENSITY-NOT-TRADEABLE (short_selling
   arsiviyle acildi; LIQUID LOW-tercile m+1 net -0.36%/ay t=-0.58 WRONG-SIGNED; tum |t|<1.1; SIGNIFICANCE/
   SIGN-duvari + LIQUID rejim-instabilitesi; yapisal-engeller [yasak-bosluk/thin-evren/aylik] ON-BEYAN dogrulandi). [TAMAM]
+- L20 FOREIGN-FLOW per-stock cross-sectional -- YENI FAKTOR, GERCEK-VERI -> FOREIGN-FLOW-XS-NOT-TRADEABLE
+  (foreign_flow arsiviyle acildi, 87 ay; imbalance=(alis-satis)/(alis+satis), HIGH=LONG; LIQUID HIGH m+1 net
+  -0.10%/ay t=-0.35 + rejim-INSTABIL; ALL m+1 long-bacak t=2.03 ama L-S-spread~0/U-bicim microcap-artefakti
+  gate-disinda, m+2'de coker; es-zamanli-co-move forward'a tasinmiyor; D-211 index-timing'den AYRI). [TAMAM]
 
 ## Program durumu (guncel)
-10/10 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity): deploy-edge YOK.
+11/11 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS): deploy-edge YOK.
 L7-L13 = karar/forward-araclari; L16/L17/L18 = forward-scaffold (sentetik-PASS, edge-iddiasi YOK).
 VERI-DURUMU DUZELDI: `data/bist_datastore_archive/` LOKAL kesfi -> VIOP/foreign-flow/fundamental-ratios/
-short-selling artik LOKAL-MEVCUT (ag-fetch GEREKMEZ). short-selling kosuldu (L19). Deger hala buyuk-olcude
-YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
+short-selling artik LOKAL-MEVCUT (ag-fetch GEREKMEZ). short-selling (L19) + foreign-flow cross-sectional (L20)
+KOSULDU = ikisi de NOT-TRADEABLE. Deger hala buyuk-olcude YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
   #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; L9 hacim + L10 magnitude + L11
      on-kayitli-harness + L13 iki-kapi-maliyet/power-bar ile hazir AMA AYIK-marj; ONAYLI-FETCH gerek
      -> data/cache/kap_pead_daystamped.parquet) -- HALA ag/auth-gated,
   #2 SURPRIZ-KOSULLU MAKRO + #3 TEFAS + sentiment/NLP-corpus (#7/#8) -- HALA ag/auth-gated.
-OTONOM-KOSULABILIR (ag-fetch GEREKMEZ, arsiv-mevcut): foreign-flow cross-sectional (zayif-prior),
-fundamental-ratios genis oran-supurmesi, VIOP index-basis overlay (once LOKAL baz-paneli build).
+OTONOM-KOSULABILIR KALAN (ag-fetch GEREKMEZ, arsiv-mevcut): fundamental-ratios genis oran-supurmesi
+(prior-zayif: FF5 zaten L14/L15/mezarlik), VIOP index-basis overlay (once LOKAL baz-paneli build), VIOP
+open-interest konumlanma ekseni. (foreign-flow ARTIK kapali -- L20.)
 Otonom-faz ag-pull yapmadan durur; LOKAL-arsiv okuma in-scope. Detay -> [BLOCKED_AVENUES.md].
 Lab butunlugu: `harness/verify_lab.py` (read-only) -> deploy-edge-yok, ASCII, frozen Stage-0.
 

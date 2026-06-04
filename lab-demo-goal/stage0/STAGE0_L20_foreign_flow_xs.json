@@ -1,0 +1,42 @@
+{
+  "candidate": "L20 FOREIGN-FLOW cross-sectional factor (REAL DATA; pre-registered, measurement-only). A GENUINELY NEW factor AXIS (per-stock foreign investor net-flow positioning), never tested cross-sectionally in L1-L19. Distinct from the D-211 graveyard, which was foreign-flow INDEX-TIMING (aggregate market-level); this is the CROSS-SECTIONAL per-stock variant (which stocks foreigners net-accumulate). Newly enabled because a real offline foreign-flow archive was discovered (data/bist_datastore_archive/foreign_flow, monthly per-stock foreign buy/sell value, 1997-2026). NOT a scaffold: real-data cross-sectional edge test. Repo READ-ONLY (writes only under lab-demo-goal/), NO network, ASCII.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "data_provenance": {
+    "foreign_panel": "data/bist_datastore_archive/foreign_flow/yabanciYYYYMM.zip -> legacy OLE2 .xls (read with xlrd engine), sheet 'TURKCE', monthly Yabanci (foreign-investor) buy/sell report. Per stock row: col0=symbol(.E), col1=name, col2=buy nominal shares, col3=BUY value TL, col4=buy USD, col5=sell nominal shares, col6=SELL value TL, col7=sell USD. Market-segment headers (YILDIZ/ANA/ALT PAZAR, YAKIN IZLEME, etc.) sit in col1 and are skipped by the .E symbol-row filter. Schema verified stable across 2019/2021/2023/2026 (8 cols, TURKCE sheet); universe grows 367->606 names.",
+    "price_panel": "data/clean_universe/adjusted_prices_2019_2026.parquet [date,symbol,close,value_tl,adjusted_close,...]; monthly returns from adjusted_close, monthly total traded TL from sum(value_tl), trailing-63-trading-day median value_tl for the liquid filter.",
+    "overlap_window": "foreign-flow months intersect price panel = 2019-01 .. 2026-04 (~88 months). Foreign archive extends to 1997 but only 2019+ joins the adjusted-price panel, so the tradeable test window is 2019-01 .. 2026-04.",
+    "symbol_join": "strip trailing .E from foreign-flow symbols to match bare price tickers."
+  },
+  "hypothesis": "Foreign-investor flow is (partly) informed at the single-stock level: stocks that foreigners NET-BUY in month m (high foreign buy/sell imbalance) subsequently OUTPERFORM (short-horizon continuation / informed-flow, Richards 2005 and Froot-O'Connell-Seasholes 2001 for emerging markets). DEPLOYABLE form: long the HIGH-imbalance tercile in the LIQUID universe, market-relative, net of realistic cost; significant and regime-stable. This is the per-stock CROSS-SECTIONAL test, NOT the D-211 aggregate index-timing signal (graveyard).",
+  "signal_FROZEN": {
+    "definition": "foreign_imbalance(symbol, month m) = (buy_tl(m) - sell_tl(m)) / (buy_tl(m) + sell_tl(m)), bounded in [-1,+1], scale-free, cross-sectionally comparable. Computed per stock-month from cols 3 and 6. Cross-sectional rank into terciles each month. SINGLE pre-registered signal definition (NO alternative normalizations / NO grid -> no multiple-testing).",
+    "sign_convention": "HIGH imbalance (foreign net-buying) = LONG leg; LOW imbalance (foreign net-selling) = SHORT. Corroboration L-S = mean(HIGH tercile) - mean(LOW tercile).",
+    "new_axis": "per-stock foreign-investor positioning flow -> orthogonal to the price/volume/fundamental/sentiment/short graveyard (L1-L19), and distinct from D-211 (aggregate index-timing). Not derivable from price or fundamentals alone."
+  },
+  "look_ahead_safety_FROZEN": {
+    "primary": "signal from month m -> forward return over month m+1 (position formed at end of m). ASSUMPTION (stated): the monthly foreign-flow report for month m is published at/just after month-end and is available at the start of m+1 (true for BIST's monthly foreign-investor bulletin).",
+    "robustness": "SKIP-MONTH variant: signal month m -> forward return over month m+2 (position formed at end of m+1). Unambiguously look-ahead-safe; bounds publication-lag sensitivity. Report BOTH; sign/significance disagreement is itself a finding.",
+    "return_def": "adjusted_close(end of forward month) / adjusted_close(end of entry month) - 1, only when the forward month directly follows the prior available month (no calendar gap); market-relative = minus EW mean forward return over the same-scope universe that month."
+  },
+  "universe_FROZEN": {
+    "scopes": ["ALL", "LIQUID"],
+    "liquid": ">= 1.0e7 TL trailing-63-trading-day median daily value_tl at the signal month-end (D-205 absolute threshold, reused).",
+    "min_names_per_month": 30
+  },
+  "portfolio_FROZEN": {
+    "primary_gate": "LIQUID HIGH-imbalance tercile, EW long, market-relative net of cost",
+    "corroboration": "L-S spread (HIGH minus LOW tercile), and ALL-scope versions",
+    "rebalance": "monthly",
+    "benchmark": "EW same-scope universe forward return"
+  },
+  "cost_FROZEN": "Realistic round-trip per D-207/D-208 liquid range; charge round_trip_bps * monthly turnover of the long basket. round_trip_bps frozen at 40 (liquid mid-range). Report gross, net, realized turnover, breakeven_cost_bps.",
+  "stats_FROZEN": {"nw_t": "Newey-West HAC t (lag 6) on the monthly market-relative active-return series", "regime_split": "2022-01-01 sign-stability (both halves same sign)", "T_SIG": 2.0},
+  "keep_bar_FROZEN": "Deploy-edge <=> LIQUID HIGH-imbalance tercile market-relative NET mean > 0 AND |NW-t| >= 2.0 AND regime-sign-stable, net of cost. Else FOREIGN-FLOW-XS-NOT-TRADEABLE. Two-way verdict like D-205/D-209/L19: TRADEABLE-EDGE -> deploy-candidate for the maintainer review; else clean-archive. A significantly NEGATIVE spread (foreign-bought UNDERperforms = reversal) is NOT the pre-registered edge -> NOT-TRADEABLE (reversal would need a fresh pre-registration), recorded as an opposite-sign finding.",
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Prior is MODERATE-to-WEAK. For: cross-sectional foreign-flow predictability has emerging-market support (Richards 2005). Against: (a) the foreign-flow TIMING axis is already graveyarded at the index level (D-211); (b) foreign flow direction is partly MECHANICALLY correlated with CONTEMPORANEOUS month-m returns (foreigners chase past performance) -> the look-ahead-safe m+1 test may capture little once the contemporaneous co-move is excluded, and could even reverse; (c) MONTHLY (not daily) granularity weakens timing; (d) the imbalance ratio is noisy for low-activity names (mitigated by the LIQUID filter). Most likely a significance-wall or regime-sign-instability. NO celebration expected; record whatever the result. If it DOES clear the keep-bar it is a genuine deploy-candidate to surface to the maintainer, not to bury.",
+    "most_likely_verdict": "FOREIGN-FLOW-XS-NOT-TRADEABLE (significance-wall, contemporaneous-only co-move, or regime sign-instability); no deployable edge."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true, "no_new_data_acquisition": true, "uses_existing_local_archive_only": true, "no_edge_claim_unless_keepbar_passes": true}
+}
