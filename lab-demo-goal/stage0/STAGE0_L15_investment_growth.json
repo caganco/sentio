@@ -1,0 +1,48 @@
+{
+  "candidate": "L15 INVESTMENT / ASSET-GROWTH cross-sectional factor (Fama-French CMA: Conservative-Minus-Aggressive). The LAST untested canonical Fama-French 5-factor leg (market trivial; size/SMB and value/HML in graveyard; profitability/RMW = L14; investment/CMA = THIS). Proxy: trailing-12-month BOOK-EQUITY growth (total-asset growth unavailable in the panel). Measurement-only, look-ahead-safe, committed-engine ZERO-touch, repo READ-ONLY, ASCII. Tests whether LOW-growth (conservative) liquid BIST names earn a positive market-relative return after realistic D-207 cost.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "Cross-sectionally, CONSERVATIVE firms (low asset/equity growth) outperform AGGRESSIVE firms (high growth) -- the canonical investment premium (CMA). Aggressive issuance/retention-driven balance-sheet expansion predicts lower subsequent returns. DEPLOYABLE form: long-only LOW-growth tercile in the LIQUID universe, market-relative (vs EW-full), net of realistic D-207 round-trip cost, should be positive and significant with a regime-stable sign.",
+  "signal_FROZEN": {
+    "definition": "g = equity_t / equity_{t-12mo} - 1, the trailing-12-month book-equity growth per (symbol, month), from data/clean_universe/fundamentals_2019_2026.parquet; require both equity observations > 0 and the 12-month-prior observation present.",
+    "sign_convention": "LOW growth = LONG (conservative); HIGH growth = SHORT (aggressive). So the deployable long leg is the BOTTOM-growth tercile (mirror of L14 which longs the TOP-ROE tercile). The long-minus-short academic spread is therefore LOW-growth minus HIGH-growth.",
+    "rank_based": "Cross-sectional TERCILE sort by g each formation month -- RANK-based, so robust to the extreme fat-tailed growth outliers observed in coverage (max ~6.7e4, min ~-1.0 from tiny/recapitalized equity denominators); NO winsorization parameter (avoids a tuning knob = avoids p-hacking).",
+    "proxy_caveat_DECLARED": "Book-equity growth is a PROXY for FF's total-asset growth (assets not in the panel). It captures retained earnings + net equity issuance but MISSES debt-financed asset growth, so it is a partial measure of the investment factor. This limitation is declared BEFORE results; a null does not refute CMA in full, only the equity-growth proxy of it on liquid BIST. Equity-growth alone is still a recognized conservative-investment proxy in the literature.",
+    "no_price_in_signal": "g uses equity only -- ORTHOGONAL to price-based value (pe/pbv/bm/ey) and to the graveyard price/volume factors, and distinct from L14 ROE (a level, not a growth). Genuinely new, not a re-test."
+  },
+  "look_ahead_safety_FROZEN": {
+    "lag_months": 1,
+    "rule": "At formation month M (month-end rebalance date), use g from fundamentals month M - LAG_MONTHS (=M-1), where g itself is the trailing-12-month equity change ending at M-1. The fundamentals panel is a MONTHLY SNAPSHOT (equity steps only when a new report is RELEASED -- confirmed by mid-quarter equity jumps), so month-(M-1) data is known by end of M; the extra 1-month lag is a conservative buffer against fiscal-period-vs-release-date attribution ambiguity. Returns are measured over the holding period AFTER the formation date (pmat convention), so no future information enters the position."
+  },
+  "universe_FROZEN": {
+    "liquid": ">= 1.0e7 TL trailing-63-trading-day median value_tl at the formation date (D-205 absolute threshold)",
+    "scopes": ["ALL", "LIQUID"],
+    "min_candidates": 9
+  },
+  "portfolio_FROZEN": {
+    "primary_gate": "LIQUID long-only BOTTOM-growth (conservative) tercile, market-relative (vs EW-full monthly), net of D-207 realistic per-stock round-trip cost.",
+    "corroboration": "academic long-minus-short spread (low-growth minus high-growth tercile) reported but NOT the deploy gate.",
+    "K_primary": 1,
+    "K_profile": [1, 3],
+    "tercile": 0.3333333,
+    "rebalance": "monthly",
+    "benchmark": "EW-full monthly (honest bar)"
+  },
+  "cost_FROZEN": "D-207 per-stock realistic cost via d204.per_stock_cost_panel(close, value_tl, rebal, quoted_panel=d207_quoted) -- quoted-primary; reused identically from L3/L14. Report realized-cost-bps, breakeven-bps, turnover.",
+  "stats_FROZEN": {
+    "nw_t": "Newey-West HAC t on the monthly market-relative series (eng._nw_t).",
+    "regime_split": "2022-01-01; sign-stable iff pre- and post-split means share sign.",
+    "T_SIG": 2.0
+  },
+  "keep_bar_FROZEN": "Deploy-edge <=> PRIMARY (K=1 LIQUID long-tercile = BOTTOM-growth) rel-net-after-cost mean > 0 AND |NW-t| >= 2.0 AND regime-sign-stable. All three -> TRADEABLE-EDGE-CANDIDATE (deploy-aday, next step the maintainer). Else -> INVESTMENT-NOT-TRADEABLE (significance/cost-wall or sign-instability) -> clean archive.",
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect the STRUCTURAL WALL (lab META-BULGU) to most likely bind here too. Like quality (L14), the investment factor is a SLOW-moving signal (equity updates quarterly), so monthly turnover/cost drag should be LOW -- but L14 showed low turnover does not rescue a factor whose gross liquid signal is absent. Two extra concerns specific to L15: (a) the equity-growth PROXY misses debt-financed growth, so even a real CMA could be muted here; (b) on inflationary BIST 2021-23, nominal equity growth is dominated by inflation revaluation/retention, which may scramble the conservative-vs-aggressive ranking and produce a sign-UNSTABLE result across the 2022-01-01 split. Net honest call: most likely INVESTMENT-NOT-TRADEABLE (liquid significance/cost-wall or sign-instability), but it is the last untested canonical FF5 leg and a clean low-turnover candidate, so the result is worth recording either way. If it surprises and clears the keep-bar, it becomes a deploy-candidate. NO celebration on a null; record whatever the result is. ONE pre-registered definition -- no grid sweep over growth windows or asset/equity variants (that would be p-hacking).",
+    "most_likely_verdict": "INVESTMENT-NOT-TRADEABLE (liquid significance/cost-wall or regime sign-instability). Recorded whatever it is."
+  },
+  "discipline": {
+    "measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true,
+    "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true,
+    "no_new_data_acquisition": true, "no_edge_claim_unless_keepbar_passes": true
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "candidate": "L18 VIOP / DERIVATIVES feasibility + index-basis-overlay FORWARD-SCAFFOLD (pre-registered + offline-validated). A genuinely new factor AXIS (futures/options), explicitly named in the directive (VIOP) but never opened as a track because NO VIOP data exists offline (neither in the lab nor production). This track pre-registers the candidate VIOP factors, reasons about which are FEASIBLE given BIST VIOP liquidity (the L7/L8 liquidity/power logic applied to derivatives), and offline-validates the ONE liquid-reachable design (an index-futures basis TIMING overlay) on synthetic data. Scaffold-only, committed-engine ZERO-touch, repo READ-ONLY, NO network, ASCII.",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "candidate_factors_FROZEN": {
+    "single_stock_cross_sectional": ["open-interest change", "put/call ratio", "implied-vol skew", "single-stock futures basis"],
+    "index_level_overlay": ["XU030 index-futures basis (futures-spot)/spot", "near-vs-far term-structure"]
+  },
+  "feasibility_reasoning_FROZEN": {
+    "claim": "BIST VIOP single-stock futures/options are mostly ILLIQUID -- only the XU030 index future (and a small handful of single-stock futures) carry tradeable depth. So a CROSS-SECTIONAL single-stock VIOP factor is liquidity-infeasible (the same liquid-universe wall that killed cross-sectional legs in L7, now binding at the instrument-existence level). The ONLY liquid-reachable VIOP play is an INDEX-LEVEL basis/term-structure TIMING OVERLAY -- which is NOT cross-sectional stock selection but a market-timing overlay (adjacent to the already-graveyarded foreign-flow index-timing, D-211).",
+    "consequence": "Pre-register and validate ONLY the index-basis overlay (the feasible design); explicitly DECLARE the single-stock cross-sectional VIOP factor as liquidity-infeasible BEFORE seeing any data."
+  },
+  "hypothesis": "The XU030 index-futures BASIS carries a time-varying risk-premium/positioning signal: e.g., persistent backwardation (negative basis) precedes positive index returns. DEPLOYABLE form: a look-ahead-safe long/flat index overlay conditioned on yesterday's basis state, evaluated net of futures round-trip cost, significant and regime-stable.",
+  "signal_FROZEN": {
+    "definition": "state(t) from basis observed at close t = (futures_t - spot_t)/spot_t (and near-far term-structure); position taken at t+1; predict index return over [+1,+H]. Look-ahead-safe: only information through close t enters the t+1 position.",
+    "no_cross_section": "This is an INDEX overlay, not stock-selection -> orthogonal to the cross-sectional graveyard; the single-stock VIOP cross-section is declared infeasible above."
+  },
+  "stats_FROZEN": {"nw_t": "Newey-West HAC t on the overlay's daily active return", "regime_split": "2022-01-01 sign-stability", "T_SIG": 2.0},
+  "cost_FROZEN": "Index-futures round-trip cost (a few bp; far below equity round-trip) -- wired when a real VIOP panel is present.",
+  "keep_bar_FROZEN": "Deploy-edge <=> index-basis overlay active-return mean > 0 AND |NW-t| >= 2.0 AND regime-sign-stable, net of futures cost. Else VIOP-OVERLAY-NOT-TRADEABLE. The single-stock cross-sectional VIOP factor is pre-declared liquidity-infeasible (no keep-bar; data-existence wall). SCAFFOLD stage asserts pipeline-correctness only.",
+  "offline_validation_FROZEN": {
+    "synthetic_self_test": "Plant a predictive basis->next-day-return relationship PLUS a strong contemporaneous co-movement; assert (a) RECOVERY: yesterday's-basis overlay sign-correct and |t|>=2, (b) PLACEBO (shuffled basis) |t|<2, (c) LOOK-AHEAD: using contemporaneous (same-day) basis leaks the co-movement -> |t| materially higher than the safe lagged design. L11-pattern three asserts adapted to a timing overlay.",
+    "data_inventory": "Confirm programmatically that NO VIOP data file exists offline (documents the data-existence wall)."
+  },
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Expect NOT-RUNNABLE offline: there is NO VIOP data at all (verified absent). Beyond the data gap, the feasibility reasoning pre-declares that the single-stock cross-sectional VIOP factor is liquidity-infeasible on BIST and that only an index-basis overlay is liquid-reachable -- and an index overlay is a market-timing bet adjacent to the already-graveyarded foreign-flow index-timing, so even with data its prior is weak. This track crystallizes the VIOP avenue: pre-registers the candidates, applies the liquidity/power logic to rule the cross-section infeasible, and offline-validates the one feasible (overlay) design. NO real-data edge claimed; the real test needs an approved VIOP panel fetch.",
+    "most_likely_verdict": "SCAFFOLD-SELF-TEST PASS (no deployable edge; single-stock VIOP cross-section pre-declared liquidity-infeasible; index-basis overlay awaiting approved VIOP fetch)."
+  },
+  "discipline": {"measurement_only": true, "optimization_forbidden": true, "look_ahead_safe": true, "committed_engine_zero_touch": true, "repo_read_only": true, "ascii_only": true, "no_new_data_acquisition": true, "no_edge_claim_unless_keepbar_passes": true}
+}

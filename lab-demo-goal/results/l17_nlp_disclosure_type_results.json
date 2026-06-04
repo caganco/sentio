@@ -1,0 +1,86 @@
+{
+  "candidate": "L17 NLP disclosure-type-conditioned forward-return scaffold (pre-registered; offline-validated)",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L17_nlp_disclosure_type.json",
+  "mode": "OFFLINE synthetic self-validation + snapshot characterization",
+  "forward_panel_expected": "data\\cache\\kap_disclosure_text_daystamped.parquet",
+  "forward_panel_present": false,
+  "h_windows": [
+    5,
+    10
+  ],
+  "seed": 20260604,
+  "taxonomy_types": [
+    "BUYBACK",
+    "DIVIDEND",
+    "CAPITAL_INCREASE",
+    "RATING",
+    "GOVERNANCE",
+    "AUDIT_REPORT",
+    "CIRCUIT_BREAKER",
+    "SPECIAL_GENERAL",
+    "OTHER"
+  ],
+  "synthetic_self_validation": {
+    "params": {
+      "n_sym": 60,
+      "n_days": 600,
+      "n_events": 540,
+      "target_type": "BUYBACK",
+      "drift": 0.03,
+      "n_types_tested": 9,
+      "bonferroni_alpha": 0.005555555555555556,
+      "seed": 20260604
+    },
+    "recovery_BUYBACK_H10": {
+      "n_events": 55,
+      "mean_car": 0.024696,
+      "nw_t": 2.6968
+    },
+    "placebo_H10": {
+      "n_events": 55,
+      "mean_car": 0.004178,
+      "nw_t": 0.9171
+    },
+    "lookahead_leak_H10": {
+      "n_events": 55,
+      "mean_car": 0.056109,
+      "nw_t": 7.1984
+    },
+    "asserts": {
+      "recovery_sign_positive": true,
+      "recovery_significant_t>=2": true,
+      "placebo_insignificant_t<2": true,
+      "lookahead_entry_leaks_more_than_safe": true
+    },
+    "all_asserts_pass": true
+  },
+  "snapshot_characterization": {
+    "present": true,
+    "distinct_symbols": 6,
+    "total_articles": 60,
+    "type_counts": {
+      "BUYBACK": 6,
+      "DIVIDEND": 2,
+      "CAPITAL_INCREASE": 4,
+      "RATING": 3,
+      "GOVERNANCE": 3,
+      "AUDIT_REPORT": 3,
+      "CIRCUIT_BREAKER": 8,
+      "SPECIAL_GENERAL": 11,
+      "OTHER": 20
+    },
+    "other_frac": 0.3333,
+    "is_backtestable_panel": false,
+    "gap": "snapshot only: a few symbols, ~1 month, headline-only -> no historical day-stamped text panel; type-conditioned CAR test needs an approved historical disclosure fetch."
+  },
+  "summary": {
+    "headline": "NLP disclosure-type harness pre-registered (Bonferroni across types) and offline-validated. Synthetic self-test asserts=PASS (BUYBACK recovery NW-t=2.6968, placebo NW-t=0.9171, look-ahead-leak NW-t=7.1984). Real news_cache is a 6-symbol snapshot (OTHER-frac=0.3333) -- NOT a backtestable historical panel. NO real-data edge claimed.",
+    "interpretation": "Crystallizes the directive's NLP avenue into the L11 forward-scaffold form, distinct from L16 polarity: it asks WHICH disclosure type predicts drift, multiple-testing-controlled. Frozen and pipeline-validated; only a historical day-stamped disclosure-text fetch (the maintainer-gated, shared with L16 + #1 daily-PEAD) is missing."
+  },
+  "verdict": {
+    "verdict": "SCAFFOLD-SELF-TEST PASS (synthetic-only; no deployable edge; awaiting approved historical disclosure-text fetch)",
+    "synthetic_asserts_pass": true,
+    "real_data_run": false,
+    "no_edge_claim": true
+  }
+}

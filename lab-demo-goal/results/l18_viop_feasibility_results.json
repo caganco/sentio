@@ -1,0 +1,72 @@
+{
+  "candidate": "L18 VIOP feasibility + index-basis-overlay scaffold (pre-registered; offline-validated)",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L18_viop_feasibility.json",
+  "mode": "OFFLINE synthetic self-validation + feasibility",
+  "forward_panel_expected": "data\\cache\\viop_basis_daystamped.parquet",
+  "forward_panel_present": false,
+  "seed": 20260604,
+  "stage0_premise_falsified": {
+    "frozen_claim": "STAGE0 honest_expectation pre-declared NO VIOP data offline (verified absent).",
+    "observed": "raw VIOP end-of-day archive IS present locally (data/bist_datastore_archive/viop).",
+    "handling": "Stage-0 left frozen as the historical pre-registration; the falsification is recorded here at results-time (keep-bar/test-design unchanged; only the data-status expectation was wrong)."
+  },
+  "feasibility": {
+    "single_stock_cross_section": "PARTIALLY REVISED: a liquid large-cap single-stock-futures subset exists (AKBNK/EREGL/BIMAS...); a broad cross-section is still thin, but the blanket 'all single-stock VIOP illiquid' claim is too strong.",
+    "index_basis_overlay": "buildable on real local data (XU030 future = most-traded contract); a market-timing overlay, adjacent to the graveyarded foreign-flow index-timing (D-211) -> weak prior even with data. Needs a spot XU030 level for the basis.",
+    "open_interest_axis": "ACIK POZISYON (open interest) + OI-change are in the archive -> an additional positioning signal (index- or single-stock-level) not yet pre-registered."
+  },
+  "data_inventory": {
+    "viop_files_found_count": 331,
+    "viop_data_present": true,
+    "raw_archive_dir": "data\\bist_datastore_archive\\viop",
+    "raw_archive_eod_months": 256,
+    "raw_archive_span": [
+      "VIOP_GUNSONU_FIYATHACIM.M.200502.csv.gz",
+      "VIOP_GUNSONU_FIYATHACIM.M.202605.csv"
+    ],
+    "note": "STAGE0 'verified absent' premise FALSIFIED: a raw VIOP end-of-day archive is present (per-contract daily settlement/OHLC/VWAP/traded-value + OPEN INTEREST, XU030 index future is the most-traded contract, plus a liquid large-cap single-stock-future subset). Still MISSING for a real overlay run: a constructed basis panel (front-month XU030 future settlement aligned to a daily SPOT XU030 level)."
+  },
+  "synthetic_self_validation": {
+    "params": {
+      "n": 1200,
+      "sigma": 0.008,
+      "beta_pred": 0.002,
+      "gamma_contemp": 0.01,
+      "seed": 20260604
+    },
+    "safe_lagged_overlay": {
+      "n": 1199,
+      "mean_active": 0.00193,
+      "nw_t": 5.0846
+    },
+    "placebo": {
+      "n": 1199,
+      "mean_active": -0.00029,
+      "nw_t": -0.7668
+    },
+    "lookahead_contemporaneous": {
+      "n": 1199,
+      "mean_active": 0.008178,
+      "nw_t": 26.0887
+    },
+    "asserts": {
+      "recovery_sign_positive": true,
+      "recovery_significant_t>=2": true,
+      "placebo_insignificant_t<2": true,
+      "lookahead_contemporaneous_leaks_more_than_safe": true
+    },
+    "all_asserts_pass": true
+  },
+  "summary": {
+    "headline": "VIOP feasibility + index-basis overlay harness pre-registered and offline-validated. Synthetic self-test asserts=PASS (safe-lagged overlay NW-t=5.0846, placebo NW-t=-0.7668, contemporaneous-leak NW-t=26.0887). VIOP raw archive present offline=True (premise 'absent' FALSIFIED). NO real-data edge claimed.",
+    "interpretation": "Crystallizes the directive's VIOP avenue. The Stage-0 'no VIOP data' premise was wrong: a raw end-of-day archive (2005-2026, settlement/OHLC/OI, XU030 future most-traded) is local. The index-basis TIMING overlay is pipeline-validated but carries a weak prior (timing-overlay, foreign-flow-adjacent). The real run needs a CONSTRUCTED basis panel (front XU030 future vs a daily SPOT XU030 level) -- no network fetch, just a local build + the maintainer go-ahead."
+  },
+  "verdict": {
+    "verdict": "SCAFFOLD-SELF-TEST PASS (synthetic-only; no deployable edge; VIOP raw archive present locally but the index-basis overlay still needs a constructed basis panel + spot XU030 level before a real run)",
+    "synthetic_asserts_pass": true,
+    "real_data_run": false,
+    "viop_raw_archive_present": true,
+    "basis_panel_built": false,
+    "no_edge_claim": true
+  }
+}
