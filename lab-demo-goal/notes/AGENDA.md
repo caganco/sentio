@@ -29,18 +29,25 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu (oncelik sirasi)
-- L1 INDEX-REBALANCE (pit_membership): BIST100/30 ekleme/cikarma event study. Event-driven,
-  dusuk-turnover -> maliyet-survivable. Index-inclusion effect literaturde belgeli (Shleifer
-  1986, Harris-Gurel). EN-YUKSEK-NOVELTY + deploy-edilebilir (uyeler likit). [BASLIYOR]
-- L2 SHORT-TERM REVERSAL (1w/1m): BIST'in en-belgeli anomalisi (Bildik-Gulay contrarian).
-  Likit-evren + gercekci maliyet. DURUST beklenti: muhtemelen maliyet-duvari (yuksek turnover,
-  kaybedenleri al). Ama hic izole-test edilmedi.
-- L3 PEAD: earnings drift, SUE high-minus-low forward return, look-ahead-safe. Aylik.
-- L4 CALENDAR/SEASONALITY: turn-of-month / day-of-week / month / pre-holiday. Ucuz tarama,
-  cogu maliyet-sonrasi tradeable-degil; VIEW olarak belgele. Multiple-testing-aware.
-- L5 WEB SENTEZ: borsapy/borsamcp veri turleri + BIST anomali literaturu -> yeni-aday katalog.
-- (sonra) macro-surprise drift, volume-shock reversal, VWAP-deviation reversal, lottery/MAX.
+## Aday kuyrugu -- TAMAMLANDI (L1-L8; bkz SUMMARY.md)
+- L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
+- L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
+- L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
+- L4 CALENDAR/SEASONALITY -> DESCRIPTIVE-VIEW (temiz multiple-testing null). [TAMAM]
+- L5 WEB SENTEZ -> yeni-veri-kuyrugu + oncelik (FORWARD_DATA_SPEC). [TAMAM]
+- L6 MACRO-EVENT (CPI-ilan) -> DESCRIPTIVE-VIEW (significance-wall + veri-tavani). [TAMAM]
+- L7 FEASIBILITY-FRONTIER (sentez) -> DESCRIPTIVE-SYNTHESIS (0/20 NO-WALL; iki-kapi go/no-go). [TAMAM]
+- L8 POWER/SAMPLE-SIZE (sentez) -> DESCRIPTIVE-POWER-VIEW (olay-kitligi darbogaz; daily-PEAD
+  tek-ulasilabilir; FORWARD_DATA_SPEC #1>>#2>>index-rebalance sayisal-gerekce). [TAMAM]
+
+## Program durumu: KAPALI (mevcut-veride)
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8 = karar-araclari (yeni-edge degil).
+Mevcut-veride (fiyat/hacim/fundamental/membership/macro/earnings-aylik) cross-sectional/event
+edge alani TUKETILDI. Deger artik YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
+  #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; sema-hazir, ONAYLI-FETCH gerek),
+  #2 SURPRIZ-KOSULLU MAKRO (etkiyi artirir, n'i degil), #3 TEFAS (yeni-build), #4 daily-foreign (en-son).
+Hepsi ag/auth + repo-read-only -> Cagan-onayi BEKLER. Otonom-faz BURADA durur.
+Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (7/7 frozen, deploy-edge-yok, ASCII).
 
 ## Disiplin checklist (her aday)
 1. Stage-0 dondur (hipotez, pencere, evren, maliyet, keep-bar, DURUST beklenti) SONUCTAN ONCE.
