@@ -25,6 +25,11 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
   medyan +19.2%/yil ama deploy-edge OFFLINE kurulamaz -> VIOP-TS-FEASIBILITY-BLOCKED: temiz tez-testi
   slope->SPOT-XU030-getiri icin spot XU030 SEVIYESI 2017-2026 lokal-YOK + tek offline-varyant roll-down-confounded
   ve zaten anlamsiz [naif NW-t=-1.08, carry-soyulmus NW-t=-0.97]). KAPANDI (index-basis ekseni).
+- VIOP per-stock futures FUNDING-BASIS cross-sectional: basis_ann (L23, GERCEK-veri; 89 ay/63 dayanak/3906 baz-gozlem;
+  medyan +29.2%/yil contango=TL-carry-domine; LONG=DUSUK-basis tercile; LIQUID DUSUK m+1 net -0.14%/ay t=-0.36
+  ANLAMSIZ + rejim-INSTABIL -> keep-bar GECMEZ; ALL DUSUK-bacak GUCLU-ANLAMLI NEGATIF [t=-3.21/-3.38] = TEZ-TERSI
+  [YUKSEK-basis-outperform] -> iki-yonlu hukumle CLAIM-EDILMEZ, opposite-sign ayri-track loglandi; spot-bacak
+  L22'nin tersine OFFLINE-VAR -> GERCEK olculmus-null, feasibility-blok DEGIL). KAPANDI (per-stock funding-basis ekseni).
 - ANA DERS: cogu gorunur-edge illikit-microcap'te yasiyor, likit-evrende gercekci-maliyet
   sonrasi kayboluyor. Likit-evren + ~30-40bp maliyet = gercek test.
 
@@ -43,7 +48,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu -- TAMAMLANDI (L1-L22; bkz SUMMARY.md)
+## Aday kuyrugu -- TAMAMLANDI (L1-L23; bkz SUMMARY.md)
 - L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
 - L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
 - L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
@@ -103,23 +108,36 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
   [~ -slope*dt] ve ZATEN anlamsiz [naif NW-t=-1.08, carry-soyulmus NW-t=-0.97, |t|<2]; slope-TLREF korr -0.17 zayif
   -> egri carry/gurultu-domine; L18'in acik-biraktigi index-basis ekseni DURUSTCE KAPANDI; spot-basis Cagan-kapili
   ileri-aday loglandi). [TAMAM]
+- L23 VIOP TEK-HISSE-FUTURES FUNDING-BASIS cross-sectional -- YENI EKSEN (per-stock TUREV BASIS SEVIYESI), GERCEK-VERI
+  -> VIOP-SS-BASIS-XS-NOT-TRADEABLE (viop arsivi SSF segment; 89 ay/63 dayanak/3906 baz-gozlem/2019-01..2026-05;
+  basis_ann=ln(F_front.settle/S_raw_close)/(dte/365), F_front=dte>=10 en-kucuk-vade, TEK on-kayitli tanim; medyan
+  +29.2%/yil %93.9 contango = SEVIYE TL-carry-domine, tercile-rank ortak-carry'yi soyar; ON-KAYITLI NEGATIF isaret
+  LONG=DUSUK-basis tercile; PRIMARY LIQUID DUSUK m+1 market-relative net -0.14%/ay NW-t=-0.36 ANLAMSIZ + rejim-INSTABIL
+  -> uc-kosul-UCU-DE GECMEZ; ALL DUSUK-bacak GUCLU-ANLAMLI NEGATIF [NW-t=-3.21 m+1 / -3.38 m+2] = TEZIN-TAM-TERSI
+  [zengin-future-continuation ve/veya Q2-temettu-takvim seasonal'i] -> iki-yonlu hukumle CLAIM-EDILMEZ, opposite-sign
+  ayri gelecek-track loglandi; KRITIK FARK: spot-bacak L22'nin tersine OFFLINE-VAR [ham close] -> GERCEK olculmus-null,
+  feasibility-blok DEGIL; per-stock funding-basis ekseni [L22 index-basisinin tamamlayicisi] DURUSTCE KAPANDI). [TAMAM]
 
 ## Program durumu (guncel)
-12/12 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS + L21 viop-OI-XS): deploy-edge YOK.
+13/13 yeni-EDGE-aday (L1-L4,L6 + L14 quality + L15 investment + L19 short-intensity + L20 foreign-flow-XS + L21 viop-OI-XS + L23 viop-basis-XS): deploy-edge YOK.
 L7-L13 = karar/forward-araclari; L16/L17/L18 = forward-scaffold (sentetik-PASS, edge-iddiasi YOK);
-L22 = TUREV TERIM-YAPISI GERCEK-olcum -> feasibility/veri-blok (deploy-edge degil; index-basis ekseni KAPANDI).
+L22 = TUREV TERIM-YAPISI GERCEK-olcum -> feasibility/veri-blok (deploy-edge degil; index-basis ekseni KAPANDI);
+L23 = per-stock TUREV FUNDING-BASIS GERCEK-olcum -> olculmus-null (spot-bacak L22'nin tersine offline-VAR; feasibility-blok DEGIL).
 VERI-DURUMU DUZELDI: `data/bist_datastore_archive/` LOKAL kesfi -> VIOP/foreign-flow/fundamental-ratios/
 short-selling artik LOKAL-MEVCUT (ag-fetch GEREKMEZ). short-selling (L19) + foreign-flow cross-sectional (L20)
-+ VIOP futures open-interest cross-sectional (L21) KOSULDU = ucu de NOT-TRADEABLE; VIOP index-futures
-terim-yapisi (L22) GERCEK-olculdu = feasibility-blocked (temiz spot-bacak offline-YOK + roll-down confound).
++ VIOP futures open-interest cross-sectional (L21) + VIOP per-stock funding-basis cross-sectional (L23) KOSULDU =
+dordu de NOT-TRADEABLE; VIOP index-futures terim-yapisi (L22) GERCEK-olculdu = feasibility-blocked
+(temiz spot-bacak offline-YOK + roll-down confound).
 Deger hala buyuk-olcude YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
   #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; L9 hacim + L10 magnitude + L11
      on-kayitli-harness + L13 iki-kapi-maliyet/power-bar ile hazir AMA AYIK-marj; ONAYLI-FETCH gerek
      -> data/cache/kap_pead_daystamped.parquet) -- HALA ag/auth-gated,
   #2 SURPRIZ-KOSULLU MAKRO + #3 TEFAS + sentiment/NLP-corpus (#7/#8) -- HALA ag/auth-gated.
-OTONOM-KOSULABILIR offline-kuyruk (graveyard-disi) artik buyuk-olcude TUKENDI: kalan tek-sey fundamental-ratios
-genis oran-supurmesi = TEK-tanim-otesi grid-supurme = p-hacking (YASAK; ustelik FF5 zaten L14/L15/mezarlikta).
-VIOP index-basis overlay L22'de KOSULDU (feasibility-blocked); foreign-flow L20'de, VIOP open-interest L21'de kapali.
+OTONOM-KOSULABILIR offline-kuyruk (graveyard-disi) artik TUKENDI: gercekten-yeni offline-touchable eksenlerin tumu
+(short L19, foreign-flow L20, VIOP-OI L21, VIOP index-TS L22, VIOP per-stock-basis L23) kosuldu; kalan tek-sey
+fundamental-ratios genis oran-supurmesi = TEK-tanim-otesi grid-supurme = p-hacking (YASAK; ustelik FF5 zaten
+L14/L15/mezarlikta). VIOP index-basis overlay L22'de KOSULDU (feasibility-blocked); foreign-flow L20'de, VIOP
+open-interest L21'de, VIOP per-stock funding-basis L23'te kapali.
 Otonom-faz ag-pull yapmadan durur; LOKAL-arsiv okuma in-scope. Detay -> [BLOCKED_AVENUES.md].
 Lab butunlugu: `harness/verify_lab.py` (read-only) -> deploy-edge-yok, ASCII, frozen Stage-0.
 
