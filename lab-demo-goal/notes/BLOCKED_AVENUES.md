@@ -105,7 +105,7 @@ gercek-test icin metin-fetch lazim. Asagidaki ilgili maddeler bu duzeltmeye gore
 - NE GEREKIR (gercek-run): tarihsel KAP-ifsa tam-metin arsivi (gun-damgali) + NLP-pipeline. Ag-fetch, the maintainer-onayli.
   #1/#7 ile ayni fetch-altyapisina baglanir (KAP-gun-damgasi cekirdek).
 
-## #9 VIOP / TUREVLER -- vadeli-opsiyon tabanli faktorler  [ARSIV-MEVCUT] (L18 BASIS-SCAFFOLD; L21 OI-XS KOSULDU; L22 TERIM-YAPISI KOSULDU)
+## #9 VIOP / TUREVLER -- vadeli-opsiyon tabanli faktorler  [ARSIV-MEVCUT] (L18 BASIS-SCAFFOLD; L21 OI-XS KOSULDU; L22 TERIM-YAPISI KOSULDU; L23 PER-STOCK-BASIS KOSULDU)
 - DUZELTME: "VIOP verisi BIZDE HIC YOK" on-beyani FALSIFIE -- `data/bist_datastore_archive/viop` (927M,
   2005-2026) LOKAL MEVCUT: per-kontrat gunluk settlement/OHLC/VWAP/traded-value + ACIK-POZISYON,
   XU030 vadeli en-likit kontrat + likit buyuk-cap single-stock-futures alt-kumesi (AKBNK/EREGL/BIMAS...).
@@ -131,10 +131,23 @@ gercek-test icin metin-fetch lazim. Asagidaki ilgili maddeler bu duzeltmeye gore
   isaret-var ama kucuk, corr +0.12]. slope-TLREF korr (2019+) -0.17 zayif -> egri carry/gurultu-domine.
   L18'in acik-biraktigi index-basis ekseni DURUSTCE KAPANDI; spot-basis = harici-gunluk-SPOT-XU030 gerektiren
   the maintainer-kapili ILERI-aday loglandi. [L22_viop_term_structure_REPORT.md]
+- PER-STOCK FUNDING-BASIS ekseni L23'te KOSULDU -> VIOP-SS-BASIS-XS-NOT-TRADEABLE. L22'nin index-basisinin
+  TAMAMLAYICISI ama KRITIK FARK: spot-bacak burada OFFLINE-VAR (ham `close`) -> L22'yi data-bloklayan tam-leg
+  MEVCUT, yani bu GERCEK olculmus-null, feasibility-blok DEGIL. SSF segment, en-yakin-vade uzlasma fiyatinin
+  ham-spota yillik primi: basis_ann=ln(F_front.settle/S_raw_close)/(dte/365), F_front=dte>=10 en-kucuk-vade,
+  TEK on-kayitli tanim; 89 ay/63 dayanak/3906 baz-gozlem/2019-01..2026-05. Tanimlayici: medyan +29.2%/yil
+  %93.9 contango -> SEVIYE TL-carry-domine (NOT temettu-getiri ~0.02-0.05), tercile-rank ortak-carry'yi soyar.
+  ON-KAYITLI NEGATIF isaret (yuksek-basis=zengin-future/kalabalik-long/pahali-short -> spot UNDERperform) ->
+  LONG=DUSUK-basis tercile. SONUC: PRIMARY (LIQUID DUSUK m+1) market-relative net -0.14%/ay NW-t=-0.36 ANLAMSIZ
+  + rejim-INSTABIL -> uc-kosul-UCU-DE GECMEZ. ALL DUSUK-bacak GUCLU-ANLAMLI NEGATIF (NW-t=-3.21 m+1 / -3.38 m+2)
+  = TEZIN-TAM-TERSI (zengin-future-continuation ve/veya Q2-temettu-takvim seasonal'i DUSUK-basis-bacagi kirletiyor)
+  -> iki-yonlu hukumle CLAIM-EDILMEZ, opposite-sign ayri gelecek-track loglandi. Per-stock funding-basis ekseni
+  DURUSTCE KAPANDI. [L23_viop_ss_basis_REPORT.md]
 - HAZIR-DURUM: L18 basis-overlay forward-scaffold acildi (`harness/l18_*`, sentetik self-test PASS) -> L22
-  bunu GERCEK-olcume cevirdi ve ekseni KAPATTI (feasibility-blocked, spot-bacak offline-yok); L21
-  OI-cross-sectional GERCEK-veride KOSULDU ve KAPANDI (NOT-TRADEABLE). VIOP acik-pozisyon + terim-yapisi
-  eksenleri artik ON-KAYITLI ve test-edildi.
+  bunu index-seviyede GERCEK-olcume cevirdi ve index-basis ekseni KAPATTI (feasibility-blocked, spot-bacak
+  offline-yok); L23 per-stock-seviyede GERCEK-olctu (spot-bacak offline-VAR) ve per-stock-basis ekseni KAPATTI
+  (olculmus-null); L21 OI-cross-sectional GERCEK-veride KOSULDU ve KAPANDI (NOT-TRADEABLE). VIOP acik-pozisyon +
+  terim-yapisi + per-stock-funding-basis eksenlerinin tumu artik ON-KAYITLI ve test-edildi.
 
 ## #10 SHORT-SELLING-INTENSITY -- short-konumlanma cross-sectional  [ARSIV-MEVCUT] -> L19 KOSULDU (NOT-TRADEABLE)
 - DURUM: `data/bist_datastore_archive/short_selling` LOKAL MEVCUT (aylik per-stock acial-satis-TL, 92 dolu-ay
@@ -150,19 +163,24 @@ gercek-test icin metin-fetch lazim. Asagidaki ilgili maddeler bu duzeltmeye gore
 - OTONOM-OFFLINE faz icin BLOKE-EDICI yok: cross-sectional/event edge alani eldeki-veriyle tuketildi
   (L1-L15 FF5-tam) + sentiment/NLP/VIOP-basis scaffold'lari (L16/L17/L18) + short-selling GERCEK-test (L19) +
   per-stock foreign-flow GERCEK-test (L20) + VIOP futures open-interest GERCEK-test (L21) + VIOP index-futures
-  terim-yapisi GERCEK-olcum (L22 -> feasibility-blocked).
+  terim-yapisi GERCEK-olcum (L22 -> feasibility-blocked) + VIOP per-stock funding-basis GERCEK-test
+  (L23 -> olculmus-null, spot-bacak offline-VAR).
 - VERI-DURUMU DUZELDI: `data/bist_datastore_archive/` kesfi sayesinde VIOP (#9) + foreign-flow (#4) +
   fundamental-ratios + short-selling (#10) artik LOKAL-MEVCUT [ARSIV-MEVCUT] -> ag-fetch GEREKMEDEN
   otonom-kosulabilir. short-selling (L19) + foreign-flow cross-sectional (L20) + VIOP open-interest
-  cross-sectional (L21) KOSULDU = ucu de NOT-TRADEABLE; VIOP index-futures terim-yapisi (L22) GERCEK-olculdu
-  = VIOP-TS-FEASIBILITY-BLOCKED (temiz spot-bacak 2017-2026 offline-YOK + roll-down confound, ZATEN anlamsiz).
+  cross-sectional (L21) + VIOP per-stock funding-basis cross-sectional (L23) KOSULDU = dordu de NOT-TRADEABLE;
+  VIOP index-futures terim-yapisi (L22) GERCEK-olculdu = VIOP-TS-FEASIBILITY-BLOCKED (temiz spot-bacak 2017-2026
+  offline-YOK + roll-down confound, ZATEN anlamsiz). L23 KRITIK FARK: per-stock spot-bacak L22'nin tersine
+  OFFLINE-VAR -> GERCEK olculmus-null, feasibility-blok DEGIL.
   HALA-eksik: sentiment/NLP tarihsel metin-corpus (#7/#8) + corporate_actions/dividends/index_components
   (arsivde HALA BOS) + temiz gunluk SPOT XU030 seviye-serisi 2017-2026 (L22 spot-basis-gercek-test icin).
 - GERCEK [DATA-GAP]/[MANUEL-AUTH] kalan: #1 DAILY-PEAD (KAP gun-damgali fetch), #2 makro-surprise,
   #3 TEFAS, #6 analist-revizyon, #7 sentiment-corpus, #8 NLP-metin-corpus, + spot-XU030-level (L22-gated). ag/auth bekler.
 - EN-YUKSEK getiri/hazirlik orani DEGISMEDI: #1 DAILY-PEAD (harness on-kayitli + calistirilabilir).
   Karar destegi: [FORWARD_DECISION_CARD.md].
-- OTONOM-KOSULABILIR offline-kuyruk (graveyard-disi) artik buyuk-olcude TUKENDI: kalan tek-sey
-  fundamental-ratios genis-oran-supurmesi = TEK-tanim-otesi grid = p-hacking (YASAK; FF5 value/quality/
+- OTONOM-KOSULABILIR offline-kuyruk (graveyard-disi) artik TUKENDI: gercekten-yeni offline-touchable eksenlerin
+  tumu (short L19, foreign-flow L20, VIOP-OI L21, VIOP index-TS L22, VIOP per-stock-basis L23) kosuldu; kalan
+  tek-sey fundamental-ratios genis-oran-supurmesi = TEK-tanim-otesi grid = p-hacking (YASAK; FF5 value/quality/
   investment zaten L14/L15/mezarlikta). VIOP index-basis overlay (#9) L22'de KOSULDU ve feasibility-blocked.
-  (foreign-flow #4 L20'de, VIOP open-interest #9 L21'de KAPALI.) Yeni offline-edge icin YENI-VERI-TURU gerekir.
+  (foreign-flow #4 L20'de, VIOP open-interest #9 L21'de, VIOP per-stock funding-basis #9 L23'te KAPALI.)
+  Yeni offline-edge icin YENI-VERI-TURU gerekir.
