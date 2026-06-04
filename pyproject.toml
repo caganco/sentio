@@ -43,6 +43,14 @@ module = [
 ]
 ignore_errors = true
 
+# RR-Y1-005 validation engine (Yol-1 infra, DEC-045): anti-slop -- the infra
+# itself must be typed. Force annotations on every def under src/engine/.
+[[tool.mypy.overrides]]
+module = ["src.engine.*"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+
 [tool.ruff]
 line-length = 100            # was 88 (D-117 user request)
 target-version = "py311"
