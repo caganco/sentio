@@ -933,6 +933,28 @@ D207_TIER_MICRO_HALF_SPREAD: float = 0.000692  # raw 5.59bp -> ratcheted monoton
 D207_FIDELITY_BAND_LO_BPS: float = 7.0
 D207_FIDELITY_BAND_HI_BPS: float = 35.0
 
+# --- D-209: H2b TEMETTU-RUNUP re-test under D-207 corrected cost (MEASUREMENT-only) ---
+# The H2b signal (dividend pre-ex run-up) was eliminated in the demo-goal lab under a FLAT
+# 20/100bp-per-side cost, but was NEVER measured with the D-207 corrected per-stock realistic
+# cost. D-209 re-runs the FROZEN demo-goal H2 signal (NO new definition) under the corrected
+# cost and decides: still tradeable, or a significance wall like hi52? These constants are the
+# FROZEN geometry of the two frozen demo-goal signal variants -- pre-registered in
+# docs/yol1/STAGE0_d209.json BEFORE any result. NO optimization, NO grid-sweep.
+# V1 (daily-churn basket, demo-goal h2b_runup_basket.py BIREBIR): a name is HELD on day t iff
+# its dividend ex-date is 1..5 trading days ahead (window [-5,-1]); exit before ex -> no tax.
+D209_HOLD_LO: int = -5                    # V1 run-up window low (5 trading days before ex)
+D209_HOLD_HI: int = -1                    # V1 run-up window high (1 trading day before ex)
+# V2 (low-turnover discrete capture = demo-goal H2 "RUNUP_capture" leg, BIREBIR): per (symbol,
+# ex) event ONE round-trip, compound return over window [-10,-1] (10 trading days = "hold-10g"),
+# EW-combined per ex-month, exit before ex. add_div=False (no dividend captured -> no tax).
+D209_V2_HOLD_LO: int = -10                # V2 discrete-capture window low (10 trading days before ex)
+D209_V2_HOLD_HI: int = -1                 # V2 discrete-capture window high (1 trading day before ex)
+D209_EX_GAP_MIN: float = 0.005            # ex-date detection: tr_index_gross.pct - adj_close.pct > this
+D209_NW_LAG: int = 5                       # Newey-West HAC lag for the daily relative series (V1)
+D209_REGIME_SPLIT: str = "2022-01-01"     # pre/post regime split for sign-stability gate
+# Liquid universe + cost windows REUSE the D205/D204 single-source constants (>=1e7 ADV floor,
+# 63-day trailing median; D204_ROLL_WINDOW / D204_LAMBDA_KYLE / D207 quoted-primary cost).
+
 # --- BIST50 ticker universe (D-116, quarterly review) ---
 # Kaynak: BIST 50 endeksi Mayıs 2026 kompozisyonu. Her çeyrek dönemde BIST web
 # sitesinden güncellenmeli. NOT: SPEC'teki taslakta "TKFEN" iki kez geçiyordu;
