@@ -1,0 +1,83 @@
+{
+  "directive": "D-213",
+  "config_version": "d213-v1",
+  "run_utc": "2026-06-04T08:28:51Z",
+  "window": {
+    "start": "2019-01-01",
+    "end": "2026-04-30",
+    "n_forward_months": 87
+  },
+  "predictor": "r_ex_ante(t-1) = APIFON4(t-1) - ENFBEK.PKA12ENF(t-1), LEVEL, lag-1 (~t+15g)",
+  "dependent": "XU100 price-only monthly nominal - TUFE_MoM = TL-real",
+  "r_ex_ante_summary": {
+    "mean": 2.2562068965517246,
+    "std": 15.201526640086321,
+    "min": -28.990000000000002,
+    "max": 24.08,
+    "ar1": 0.9861678762916933,
+    "share_negative": 0.3448275862068966
+  },
+  "1_primary_regression": {
+    "slope": -0.0010011562022621211,
+    "t": -1.8164836246761442,
+    "n": 87,
+    "r2": 0.031799264906415825,
+    "intercept": 0.010259654592600392,
+    "rea_ar1": 0.9861678762916933,
+    "nonoverlap": "monthly forward return vs lag-1 predictor -> non-overlapping by construction"
+  },
+  "2_regime_stability": {
+    "split": "2022-01-01",
+    "A_2019_2021": {
+      "slope": -0.0014996958445641884,
+      "t": -0.7913496807106264,
+      "n": 35
+    },
+    "B_2022_2026": {
+      "slope": -0.0009755605351036895,
+      "t": -1.7677293739925577,
+      "n": 52
+    },
+    "full_sign": -1,
+    "same_sign_AB": true,
+    "leave_one_regime_out_keeps_sign": true
+  },
+  "3_deployable_leg": {
+    "n_months": 87,
+    "deploy_rule": "r_ex_ante(t-1) < 0 -> XU100 long; else APIFON4 cash carry",
+    "share_index_long": 0.3448275862068966,
+    "n_switches": 4,
+    "oneway_cost_bps": 5.28,
+    "strat_net_cum_real": 0.8549513217728089,
+    "buyhold_net_cum_real": 0.47482066112303234,
+    "strat_beats_buyhold": true,
+    "rel_monthly_mean": 0.0010023410141161366,
+    "rel_monthly_nw_t": 0.15724000352590065,
+    "cash_leg_note": "APIFON4-derived real carry (NOT TLREF -- silent-NaN until 2022-07); clean 2019-01."
+  },
+  "4_contemporaneous_diagnosis": {
+    "slope": -0.001097796556868229,
+    "t": -1.9099611657441804,
+    "n": 87,
+    "r2": 0.03856395401389834,
+    "intercept": 0.010585203579613615,
+    "status": "NON-DEPLOYABLE (uses end-of-month-t rate level, not knowable at start of t)"
+  },
+  "secondary_report_only": {
+    "ex_post_lag2": {
+      "slope": -0.0005013486598061989,
+      "t": -1.2384954368415746,
+      "n": 86,
+      "status": "report-only, verdict-immutable (lag-2 staler; CPI also enters deflator -> caution)"
+    },
+    "change_form_delta_rea": "NOT RUN as primary -- secondary/forbidden-to-rescue; LEVEL is the locked primary."
+  },
+  "keep_bar": {
+    "1_primary_nw_t_ge_2": false,
+    "2_regime_stable_not_concentrated": true,
+    "3_deployable_beats_buyhold": true,
+    "4_lookahead_safe": true
+  },
+  "verdict": "TRADEABLE-DEGIL",
+  "oos_gap_note": "2019-2026 is one long high-inflation regime; a true inflation-normalization OOS is ABSENT. Real rates swung from deeply negative (2021-23 repression) to positive (2024+). Deployment is a separate the project decision."
+}
