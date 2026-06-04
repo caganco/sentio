@@ -29,6 +29,16 @@ POWER artiran veri: (a) daha-cok bagimsiz olay, (b) gun-damgali kesin-zamanlama 
 - **Test (siradaki L-track)**: daily-PEAD, long top-SUE likit-tercile vs EW-full, [t+1,+K] dar-pencere,
   D-207 maliyet, olay-clustered t. Beklenti-prior: L7 der ki survivable-arketip ama POWER-sinirli;
   gun-damgali daha-cok-olay 2-sigma sansini ARTIRIR (en-iyi tek-bahis). HONEST: yine de duvar-mumkun.
+  L8-power-gerekce: daily-PEAD ~120 bagimsiz ifsa-tarihi/yil -> n_required(|t|=2)=95..759 bandi
+  ~0.8-6.3 yilda birikir = |t|=2'yi insan-ufkunda ulasilabilir kilan TEK event-sinifi.
+- **OFFLINE-COVERAGE PROBE (read-only, 2026-06-04)**: `data/cache/` SADECE 4 proof-of-concept
+  kap_fr cache'i tasiyor (AKSEN/T 2024-2025) ve HEPSI BOS (0 satir). ANCAK sema gun-damgasini
+  DOGRULUYOR: kolonlar [date, ticker, year, period, revenue, gross_profit, net_income, total_assets,
+  equity, **publication_date**] -> `publication_date` tam-da gereken ifsa-gun-damgasi, modulun
+  TASARLANMIS cikti-alani. SONUC: daily-PEAD gun-damgasi OFFLINE-MEVCUT-DEGIL (0 satir), AMA yeni-
+  scraper de GEREKMEZ -- mevcut `kap_historical_fetcher` semasi hazir; tek-gereken the maintainer-onayli
+  AG-CEKIM kosusu (MKK VYK API, ~likit-evren x 2019-2025). `kap_company_map.json` (ticker->company-id)
+  zaten cache'te -> cekim-girdisi de hazir. Premis netlesti: "yeni-build" DEGIL, "onayli-fetch-run".
 
 ### #2 -- SURPRIZ-KOSULLU MAKRO: kesin CPI-tarih + actual/forecast + PPK tam-gecmis (orta-yuksek)
 - **Neden**: L6 KOSULSUZ ilan-penceresi null'du; drift'i tasiyan-bilesen SURPRIZ (actual-forecast).
