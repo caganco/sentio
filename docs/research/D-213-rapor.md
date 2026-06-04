@@ -184,6 +184,22 @@ one-way 5.28bp, yalniz 4 switch; maliyet bahanesi yok. Bayatlik-bahanesi de yok:
 lag-0 (t=-1.91) -> knowable-form es-zamanli-formla ayni; icerik kayip-degil, BASITCE-ZAYIF. AR1=0.99
 Stambaugh-yanliligi gercek-t'yi daha-da-asagi-cekecek -> hukum saglamlasir.
 
+**MEZARLIK-DURUSTLUGU -- "total-return olsa kurtarirdi" YANLIS-ACILISINI ONCEDEN KAPAT
+(invariyans-ispati):** Bagimli XU100 fiyat-only'dur (temettu YOK; meta.json caveat'i: equity
+~%2-4/yil cezali). Gelecek-biz "tam total-return endeks olsaydi keep-bar[1] gecerdi" diye
+yeniden-acmasin diye burada matematiksel olarak kapatiyoruz. Yanltmayan TEK total-return
+duzeltmesi -- sabit (flat) yillik temettu-getirisi ekleme -- primary anlamliligi YAPISI GEREGI
+DEGISTIREMEZ: `r_nom'(t)=r_nom(t)+d` (d=yillik/12 sabit) -> `real_ret'(t)=real_ret(t)+d`, yani
+bagimliya **sabit eklemek** OLS egimini ve onun NW-t'sini DEGISTIRMEZ (yalniz kesisimi kaydirir).
+Dolayisiyla keep-bar[1]'in NW|t|=1.82'si sabit-temettu altinda AYNEN 1.82 kalir -- TR-fix fail'i
+kurtaramaz. (Gercek/mevsimsel TR egimi oynatabilirdi AMA tam-TR endeksi yerelde KURULAMAZ:
+snapshot fiyat-only, `dividends/`+`index_components/`+`corporate_actions/` arsiv-klasorleri BOS,
+kompozisyon-agirligi yok -> her yeniden-kurulum cok-serbestlik-dereceli = yanltma araci, REDDEDILDI.)
+TR-fix'in TEK gercek etkisi deploy-bacak ekonomisidir ve YONU bizim-aleyhimize: temettu always-in
+buy-hold'u, bazen-cash timing'den daha-cok besler -> B&H'i yenmek ZORLASIR; yani fiyat-only kurulum
+timing'imizi hafifce KAYIRIYORDU. Ozet: bu duvar anlamlilik-duvaridir, temettu-handikap-duvari
+DEGIL. Tam fizibilite: `docs/yol1/RR-Y1-003-totalreturn-fizibilite.md`.
+
 **D-211'den ayrim (ogretici):** D-211'de yabanci-akim "es-hareket, oncu-degil"di (lag-0 guclu, knowable
 lag-2 bos). D-213'te ex-ante reel-faiz dogru-isaretli, rejim-stabil, deploy-bacagi buy-hold'u geciyor
 VE knowable-form es-zamanli-formla ayni guctedir -- AMA bu guc anlamlilik-baremine (t>=2) ulasmiyor.
