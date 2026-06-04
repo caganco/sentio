@@ -1,0 +1,64 @@
+{
+  "candidate": "L1 INDEX-REBALANCE event study (BIST100/BIST30 add/delete) -- pit_membership effective-date flips, market-adjusted CAR",
+  "lab": "lab-demo-goal",
+  "frozen_before_results": true,
+  "freeze_timestamp_utc": "2026-06-04",
+  "hypothesis": "BIST index reconstitution produces abnormal returns around the effective date (index-inclusion/exclusion effect). Additions run up into the effective day and may reverse afterward; deletions mirror. Tradeable read requires a post-effective look-ahead-safe window.",
+  "data": {
+    "membership_panel": "data/clean_universe/pit_membership_2019_2026.parquet (date/symbol/in_bist100/in_bist30, POINT-IN-TIME, untouched)",
+    "price_panel": "data/clean_universe/adjusted_prices_2019_2026.parquet (adjusted_close, value_tl)",
+    "quoted_spread_panel": "data/clean_universe/d207_quoted_spread_panel.parquet (D-207 realistic cost)",
+    "span": "2019-01-02 .. 2026-05-26, 1848 trading days, 681 symbols"
+  },
+  "event_definition": {
+    "addition": "prev=False -> curr=True on a symbol's in_INDEX series (first date new status holds); prev must be non-NaN (no birth-of-panel artifacts)",
+    "deletion": "prev=True -> curr=False",
+    "tau0": "the flip date = EFFECTIVE date in our panel (clusters on quarter starts Jan/Apr/Jul/Oct 1 = BIST review effective days). Announcement is ~2 weeks earlier (NOT in panel).",
+    "groups": ["BIST100-add", "BIST100-del", "BIST30-add", "BIST30-del"],
+    "expected_counts": {"bist100_add": 249, "bist100_del": 245, "bist30_add": 28, "bist30_del": 26, "note": "2020-01-02 has a 23/23 cluster (large reconstitution / source change) -- KEPT, not excluded (exclusion would be p-hacking); flagged in report."}
+  },
+  "abnormal_return": "AR_t = r_i,t - r_mkt,t ; r_i = clipped daily simple return (adjusted_close, +/-10% clip via clip_clean_returns); r_mkt = equal-weight daily return of FULL eligible universe (ew_full daily, honest bar). CAR(window) = sum of AR over the window's trading days, aligned to each event's tau0 index in its own return series.",
+  "windows": {
+    "pre_DESCRIPTIVE_not_tradeable": [[-10, -1], [-5, -1]],
+    "event_day": [[0, 0]],
+    "post_TRADEABLE_lookahead_safe": [[1, 5], [1, 10], [1, 21]],
+    "around": [[-1, 1]],
+    "tradeable_note": "ONLY [+1,+K] is look-ahead-safe/tradeable: flip observed at tau0 (effective date), position entered at tau0+1 close. Pre-windows require knowing the event in advance (announcement date NOT in data) -> DESCRIPTIVE only."
+  },
+  "statistics": {
+    "per_event_t": "mean CAR / (std / sqrt(N_events)) -- naive, treats events independent",
+    "date_clustered_t": "PRIMARY: collapse events to one mean-CAR per effective-date (~32 dates), t-stat across event-dates -- conservative for same-date market-shock correlation (Bildik-Gulay style)",
+    "nw_lags": "reuse cfg.D203_NW_LAGS (3) ONLY on the date-collapsed series ordered in time",
+    "ci": "reuse _mean_ci block-bootstrap on per-event CAR for reporting"
+  },
+  "liquidity": {
+    "report": ["ALL", "LIQUID"],
+    "liquid_def": "trailing-63d-median value_tl >= 1.0e7 TL at tau0 (D-205 absolute threshold). Index members are generally liquid so LIQUID ~= ALL for BIST100; reported honestly anyway."
+  },
+  "cost": {
+    "model": "D-207 per-stock realistic round-trip (quoted-primary, Roll fallback, tier). ONE round-trip per event for the [+1,+K] tradeable read (enter +1, exit +K) -> very low turnover.",
+    "midpoint_assumption_bps": 35,
+    "report": ["per-event realized round-trip bps (median/mean)", "breakeven bps", "net CAR after cost"]
+  },
+  "regime_split": {"split": "2022-01-01", "require": "sign-stable both halves for a tradeable verdict"},
+  "honest_expectation_DECLARED_BEFORE_RESULTS": {
+    "summary": "Agent graded index-inclusion MODERATE but globally DECAYING. Bildik-Gulay 2008 (BIST): VOLUME effect > PRICE effect; price effect peaks ON the effective day then partially REVERSES.",
+    "pre_window_adds": "likely POSITIVE run-up (-10..-1) -- index-fund front-running -- but DESCRIPTIVE (not cleanly tradeable without announcement date).",
+    "post_window_adds": "likely FLAT-to-NEGATIVE (reversal) -- so the look-ahead-safe tradeable long window probably does NOT offer a positive long edge for additions; a weak long-deletion / short-addition mean-reversion is plausible.",
+    "most_likely_verdict": "DESCRIPTIVE-VIEW (pre-effective index-effect real but not tradeable) + tradeable-window NOT a deployable long edge. Possible weak post-effective reversal. NOT expecting a clean deployable edge. Thin event count (~250 adds across ~32 dates) -> significance-wall risk high.",
+    "celebration": "NONE. Cheap, closes a gap, highest-novelty with data-in-hand. Result recorded whatever it is."
+  },
+  "keep_bar_FROZEN": {
+    "definition": "TRADEABLE-aday requires, on the LIQUID universe, a look-ahead-safe [+1,+K] window with ALL of: (1) |net CAR after realistic round-trip cost| > 0 in a deployable direction, (2) date-clustered |t| >= 2.0, (3) regime sign-stable (2022-01 split, same sign both halves), (4) a coherent long-only-deployable direction (long-adds OR long-deletes; a long/short add-minus-del spread is noted but not long-only-deployable).",
+    "else": "VIEW (index-effect documented, descriptive) OR significance/cost-wall -> archived. No 2nd round / no grid-sweep (p-hacking forbidden)."
+  },
+  "discipline": {
+    "measurement_only": true,
+    "optimization_forbidden": true,
+    "look_ahead_safe": true,
+    "committed_engine_zero_touch": true,
+    "repo_read_only": true,
+    "ascii_only": true,
+    "reuse": ["clip_clean_returns", "_mean_ci", "_nw_t", "regime_split (concept)", "D-207 per_stock_cost_panel / round_trip"]
+  }
+}
