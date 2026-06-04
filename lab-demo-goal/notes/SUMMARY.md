@@ -19,8 +19,9 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
 | L9 | PEAD-VOLUME (sentez/feasibility) | GERCEK earnings-panel likit-SUE olay-sayimi + L8-bandi reachability | DESCRIPTIVE-VOLUME-VIEW (~95-136 likit-olay/yil; band ~1-8 yilda ulasilir; L8'i empirik dogrular) |
 | L10 | PEAD-EFFECT (sentez/feasibility) | per-olay etki-buyuklugu + recovery-carpani + ISARET-engeli | MAGNITUDE-FEASIBILITY-VIEW (olay-seviyesi LIKIT SUE +0.69%/ay ama ANLAMSIZ t=0.64; |t|=2 icin ~2-5.5x recovery; isaret-engeli YOK) |
 | L11 | FORWARD-SCAFFOLD (on-kayit+offline-dogrulama) | daily-PEAD test-harness'i (t+1 CAR, SUE-sort, NW-t, cost, keep-bar) + sentetik self-test | SCAFFOLD-SELF-TEST PASS (recovery t=5.9 / placebo t=0.18 / look-ahead-leak t=13.5; network YOK, edge-iddiasi YOK; fetch Cagan-onayina kapili) |
+| L12 | MACRO-SURPRISE (sentez/forward-rank) | #2 surpriz-kosullu-makro power+arrival rationale (L6+L8+gercek-panel) | FORWARD-RANK-RATIONALE-VIEW (CPI ~12/yil; magnitude ~1.1-1.6x yeter; baglayan-kisit ISARET-COHERENCE; #2 yine #1'in altinda, data-gated) |
 
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8+L9+L10+L11 = sentez (yeni-edge degil, karar/forward-araclari).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L12 = sentez (yeni-edge degil, karar/forward-araclari).
 (Onceki program: 3/3 cross-sectional + NAV + H2b + foreign-flow zaten kapali.)
 
 ## DETAYLI bulgular (her rapor ayri dosyada)
@@ -91,6 +92,14 @@ keep-bar SONUCTAN ONCE donduruldu. Hicbir grid-supurme / p-hacking yapilmadi.
   GERCEK BIST-edge'i hakkinda HICBIR sey demez. Network/scraper YOK -> fetch Cagan-onayina kapili.
   SONUC: FORWARD #1 artik power[L8]+hacim[L9]+magnitude[L10]+calistirilabilir-harness[L11] = DORT-yonden hazir.
   [L11_forward_daily_pead_REPORT.md]
+- **L12**: FORWARD_DATA_SPEC #2'yi (surpriz-kosullu makro) sayisallastirdi. GERCEK makro-panel: CPI
+  ~12.1/yil (L8'i dogrular). En-guclu look-ahead-safe leg post_tight [+1,+5]: kosulsuz +61bp, t=1.48,
+  SIGN-UNSTABLE. |t|=2 icin gereken surpriz-CARPANI yalniz ~1.15x (10yil) / ~1.62x (5yil) -> magnitude
+  neredeyse-ulasilir. DEMEK: #2'nin darbogazi power-magnitude DEGIL, ISARET-COHERENCE (en-guclu leg
+  yon-tutarsiz). Surpriz-kosullama (surpriz-isareti -> tepki-isareti) tam-bunu saglayabilecek mekanizma,
+  ama konsensus-surpriz verisi offline YOK -> test-edilemez. Kosulsuz etki Bonferroni-gecmez (artifakt-riski).
+  SONUC: #2 magnitude-yakin + sign-coherence-vaadi tasir AMA tam-kurulu tek-fetch #1'in ALTINDA kalir
+  (#1>>#2 artik sayisal-gerekceli). [L12_macro_surprise_REPORT.md]
 
 ## META-BULGU (programin ana-dersinin pekismesi)
 Tekrar-eden YAPISAL DUVAR: likit-evrende gercekci round-trip ~28-46bp. Tercile-sepet + aylik/haftalik
