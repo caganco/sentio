@@ -1,0 +1,104 @@
+{
+  "directive": "D-211",
+  "thread": "RR-Y1-002 (Yol-1-lab, Cerceve-B continuous time-series forecasting)",
+  "title": "Foreign-flow aggregate -> forward BIST-index TL-REAL return: first official measurement (N<=3, count=1)",
+  "preregistered_date": "2026-06-04",
+  "config_module": "src/screening/d211_config.py",
+  "config_version": "d211-v1",
+  "decision_owner": "Orchestrator+Cagan. Harness MEASURES + RECOMMENDS; never auto-deploys. Even a TRADEABLE verdict is a CANDIDATE only (separate O+Cagan decision).",
+
+  "discipline_note": "Committed BEFORE any D-211 result is computed and BEFORE any result is seen. The engine (src/screening/d211_foreign_flow.py) REFUSES to run unless this file exists. ALL thresholds/definitions/keep-bar below are FROZEN and will NOT be relaxed post-hoc (no predictor redefinition, no window widening, no lag re-pick, no cost re-calibration, no keep-bar loosening). Post-hoc relaxation = guard-RAISE. MEASUREMENT-ONLY; optimization FORBIDDEN. N=1 candidate (aggregate foreign-flow market-timing). This is a MEASUREMENT, NOT an optimization.",
+
+  "question_single": "Does this-month aggregate foreign NET flow, in the form knowable with the ~6-week publication lag (i.e. lag-2), predict next-month BIST-index TL-REAL return? Single-asset time series. NOT stock selection.",
+
+  "honest_expectation": "prior LOW. RR-038 foreign single-name forecast weak; foreign participation at multi-year lows; ~6wk lag is a handicap; timing has beaten us twice (DISC-2). Likely verdict TRADEABLE-DEGIL -- but this time on a PRICE-ORTHOGONAL axis, MEASURED. Surprise possibility: aggregate-timing content that single-name tests missed; if it appears it is reported plainly. Whatever the result, it is recorded (no celebration).",
+
+  "predictor_FROZEN": {
+    "name": "NF_pct",
+    "raw_source": "data/bist_datastore_archive/foreign_flow/yabanciYYYYMM.zip (monthly .xls, per-stock, USD columns)",
+    "why_usd": "USD columns chosen to reduce TL-inflation scale distortion (LOCKED, not mined).",
+    "aggregation": "month m: NET_usd(m) = SUM over all tickers (buy_usd - sell_usd); GROSS_usd(m) = SUM over all tickers (buy_usd + sell_usd).",
+    "stationarization_PRIMARY_ONLY": "NF_pct(m) = NET_usd(m) / GROSS_usd(m)  -> natural [-1,1], scale-free 'net tilt of foreign activity'.",
+    "alternative_definitions_status": "z-score(NET_usd) and NET_usd/mcap are SECONDARY-REPORT ONLY. They CANNOT rescue a failed primary (cherry-pick FORBIDDEN). Alternative-definition mining is FORBIDDEN.",
+    "lookahead_lag_LOCK": "To predict return-month t, predictor = NF_pct(t-2). Rationale: month (t-2) flow is published ~mid (t-1) (~6wk lag) so it is in the information set at end of (t-1) = the decision point entering month t. Look-ahead-safe.",
+    "contemporaneous_status": "lag-0 reg(real_ret_t ~ NF_pct(t)) is reported for DIAGNOSIS ONLY, stamped NON-DEPLOYABLE; it does NOT count toward any keep-bar.",
+    "ticker_filter": "rows where col0 matches ^[A-Z0-9]{2,6}\\.E$ (segment sub-headers excluded). Parser geometry mirrors demo_smart_money/lab/ff_data.py (PORTED, read-only)."
+  },
+
+  "dependent_FROZEN": {
+    "index_series": "XU100.IS price-only, data/snapshots/exposure_d187_xu100.parquet (date,value).",
+    "index_caveat": "price-only, NO dividends (per snapshot meta: equity disadvantaged ~2-4%/yr). XU100 total-return is NOT available locally -> price-return used (directive-allowed fallback).",
+    "nominal_monthly_return": "r_nom(t) = idx(month-end t) / idx(month-end t-1) - 1, using the last available trading-day value within each calendar month.",
+    "tufe_series": "data/snapshots/exposure_k3_d192_tufe.parquet (CPI index, 2010-01..2026-05).",
+    "tufe_monthly": "infl(t) = tufe(month-end t)/tufe(month-end t-1) - 1.",
+    "real_return_LOCK": "real_ret(t) = r_nom(t) - infl(t)  (directive-literal subtraction; deflation MANDATORY).",
+    "forward_definition": "forward_real_ret_t is the TL-real return EARNED over calendar month t (end of t-1 -> end of t)."
+  },
+
+  "window_FROZEN": {
+    "PRIMARY": {"start": "2019-01-01", "end": "2026-04-30", "primary": true},
+    "deviation_from_directive": "Directive named PRIMARY 2010-01..2026-04 'snapshot temiz, YENI-PULL YOK'. DATA-FACT (RR-Y1-002 STAGE-0 / D-210): the only clean LOCAL XU100 series (exposure_d187_xu100, XU100.IS price-only) covers 2019-01..2026-04 ONLY; prices_official BIST100-index column is entirely NULL; clean_universe adj-prices+adj-factors also start 2019, so a corporate-action-clean index pre-2019 is NOT locally constructible. Cagan (Orchestrator) APPROVED Option-1 on 2026-06-04: set PRIMARY = 2019-01..2026-04 (no new pull), freeze the rest as directed.",
+    "effective_forward_months": "first computable forward_real_ret = 2019-02 (needs idx Jan-end & Feb-end); through 2026-04 -> ~87 monthly observations. Predictor NF_pct(t-2) requires FF from 2018-12 (available).",
+    "OPTIONAL_extension_2006_2010": "N/A -- no local XU100 pre-2019. Dropped (cannot run); not a primary-verdict input.",
+    "gap_2017_04": "foreign_flow 2017-04 file is MISSING. It falls OUTSIDE the 2019+ window, so it does not affect this measurement. NO interpolation anywhere (locked principle); any future month with missing predictor or return is DROPPED, not filled."
+  },
+
+  "regime_split_FROZEN": {
+    "split_date": "2022-01-01",
+    "subperiod_A": "forward-months 2019-02 .. 2021-12 (pre-inflation-acceleration)",
+    "subperiod_B": "forward-months 2022-01 .. 2026-04 (high-inflation regime)",
+    "rationale": "2022-01-01 = calendar-year boundary where TR inflation regime accelerated (matches D-203 PRIMARY split convention). Replaces the directive's 2010-2017/2018-2026 split, which is moot under the 2019+ window.",
+    "stability_test": "slope sign must be the SAME in A and B.",
+    "concentration_test_LOCK": "leave-one-regime-out: removing EITHER sub-period must NOT flip the full-sample slope sign. If it flips -> effect concentrated in one regime -> FRAGILE -> keep-bar[2] FAILS (value-factor lesson)."
+  },
+
+  "measurement_plan_FROZEN": {
+    "1_primary_regression": "OLS reg(forward_real_ret_t ~ a + b*NF_pct(t-2)); report slope b sign+magnitude and Newey-West HAC t with lags=6 (directive lag>=6). Series is monthly NON-OVERLAPPING by construction (lag-2 predictor, 1-month forward). Stambaugh-awareness: ALSO report NF_pct AR(1) persistence and note the non-overlap.",
+    "2_regime_stability": "compute slope b in A and B; apply stability_test + concentration_test (above).",
+    "3_deployable_leg": "signal-conditional single-asset exposure: at end of (t-1), if NF_pct(t-2) > 0 -> hold XU100 long for month t (earn real_ret_t); if <= 0 -> hold TLREF cash for month t (earn real TLREF carry). Monthly cadence, low turnover. Compare NET cumulative TL-real vs buy-and-hold XU100 NET cumulative TL-real.",
+    "cash_leg_source": "TLREF cash real = tlref_nom(t) - infl(t); tlref_nom from data/snapshots/exposure_d187_tlref.parquet MoM (return-index). NOTE: TLREF real-data starts 2022-07; pre-2022-07 is D-187 proxy-extended -> reported but flagged.",
+    "cost_model_FROZEN": "index-level switch cost: one-way = D207_TIER_MEGA_HALF_SPREAD (5.28bp); Kyle impact = 0 (index = mega-liquid, deepest book); commission = D204_COMMISSION_PCT (0). Cost charged on each index ENTRY and each index EXIT (one-way each; full in-out round trip = 2x = 10.6bp). Buy-and-hold pays a single entry one-way cost. NO per-stock Roll/Kyle (this is a single-index instrument, not a basket)."
+  },
+
+  "keep_bar_FROZEN_all_required": {
+    "1": "primary regression slope NW |t| (lag=6) >= 2.0",
+    "2": "slope sign regime-stable (same sign in A AND B) AND not concentrated (leave-one-regime-out does not flip full-sample sign)",
+    "3": "deployable leg NET cumulative TL-real BEATS buy-and-hold XU100 NET cumulative TL-real (post-cost, lag-2)",
+    "4": "look-ahead-safe (lag-2 applied; contemporaneous lag-0 leg is NON-DEPLOYABLE and does NOT count)",
+    "verdict_rule": "ALL 4 PASS -> TRADEABLE (price-orthogonal aggregate-timing edge; CANDIDATE only). ANY fail -> TRADEABLE-DEGIL (recorded clean).",
+    "forbidden": "hi52-conditioning, sub-group slicing, composite-weight optimization, alternative predictor-definition mining to rescue primary, post-hoc threshold relaxation."
+  },
+
+  "thresholds_reference": {
+    "new_block": "src/signals/thresholds.py D211_* (ADDITIVE only; zero edit to existing D203/204/205/209/realistic_cost constants -- Strangler).",
+    "constants": "D211_NW_LAG=6, D211_KEEP_NW_T_MIN=2.0, D211_SIGNAL_THRESHOLD=0.0 (NF_pct>0 long), D211_REGIME_SPLIT='2022-01-01'.",
+    "reused": "D207_TIER_MEGA_HALF_SPREAD=0.000528, D204_COMMISSION_PCT=0.0 (cost); both READ-ONLY."
+  },
+
+  "snapshots_content_hash_sha256_prefix": {
+    "xu100": {"file": "data/snapshots/exposure_d187_xu100.parquet", "hash": "f909f79881ca8e2b"},
+    "tufe":  {"file": "data/snapshots/exposure_k3_d192_tufe.parquet", "hash": "28052c6f46d08446"},
+    "tlref": {"file": "data/snapshots/exposure_d187_tlref.parquet", "hash": "85368181d60a4dce"},
+    "foreign_flow": {"dir": "data/bist_datastore_archive/foreign_flow", "file_count": 351, "first": "yabanci199701.zip", "last": "yabanci202604.zip", "note": "read-only archive; NOT in CI (synthetic test only)."},
+    "guard": "engine asserts these hashes on load; mismatch RAISES (reproducibility)."
+  },
+
+  "strangler_constraints": {
+    "zero_touch": "committed motors (d203/204/205/209 + realistic_cost + thresholds existing blocks + ballast) NOT modified; only ADD d211 files + D211_* block.",
+    "new_modules": ["src/screening/d211_foreign_flow.py", "src/screening/d211_config.py"],
+    "ci": "the foreign_flow archive does NOT enter CI; CI runs a SYNTHETIC unit test only; the real measurement is a local ARTIFACT (d211_results.json).",
+    "ascii_only": true,
+    "no_absolute_paths": "archive path resolved via the main-repo data junction / relative path; no machine-specific absolute path committed."
+  },
+
+  "secondary_report_only_cannot_rescue": [
+    "contemporaneous lag-0 regression (NON-DEPLOYABLE)",
+    "alt stationarization: z-score(NET_usd), NET_usd/mcap (sign-only, verdict-immutable)"
+  ],
+
+  "outputs": [
+    "docs/yol1/STAGE0_d211.json (this file)",
+    "docs/yol1/d211_results.json (after run: NF_pct series + primary reg b/t + regime A/B + deployable leg net-cum vs buy-hold + 4 keep-bar + verdict + secondary)",
+    "docs/research/D-211-rapor.md (verdict TRADEABLE / TRADEABLE-DEGIL; price-orthogonal axis; lag-2 honesty; OOS-gap explicit) + docs/RESEARCH_REGISTRY.md line"
+  ]
+}
