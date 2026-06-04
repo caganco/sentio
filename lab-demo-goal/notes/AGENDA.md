@@ -11,6 +11,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
   hi52 (anlamlilik-duvari, D-208), lowvol63 (SERAP), value-rejim-kolu (elendi). 3/3 kapali.
 - Time-series: NAV-iskonto-MR holding (SERAP, D-206).
 - Event: dividend pre-ex run-up H2b (anlamlilik-duvari, D-209, KAPANDI).
+- Quality/profitability: ROE (L14, SIGNIFICANCE/SIGN-duvari -- brut zaten negatif, kalite-primi YOK).
 - ANA DERS: cogu gorunur-edge illikit-microcap'te yasiyor, likit-evrende gercekci-maliyet
   sonrasi kayboluyor. Likit-evren + ~30-40bp maliyet = gercek test.
 
@@ -29,7 +30,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu -- TAMAMLANDI (L1-L13; bkz SUMMARY.md)
+## Aday kuyrugu -- TAMAMLANDI (L1-L14; bkz SUMMARY.md)
 - L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
 - L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
 - L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
@@ -51,9 +52,12 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - L13 DAILY-PEAD TWO-GATE BAR (sentez) -> DESCRIPTIVE-FEASIBILITY-VIEW (D-208 maliyet + L8 power TEK bara;
   olculmus aylik sinyal maliyet-tabanini ancak-ancak karsilar [long-only 37.7/38.0bp, long-short 69.4/76.1bp];
   net-bar pencerenin aylik-spread'in ~2-6x'ini ister; baglayan-duvar POWER->COST-FLOOR; #1 TEMPER, NULL gercek-olasilik). [TAMAM]
+- L14 QUALITY/PROFITABILITY (ROE) -- YENI FAKTOR -> QUALITY-NOT-TRADEABLE (BIST likit kalite-primi YOK;
+  K=1 LIQUID long top-ROE net -0.44%/ay t=-0.91; long-short ~0 t=0.28; maliyet-ONCESI brut zaten negatif
+  -> SIGNIFICANCE/SIGN-duvari, cost-DEGIL; rejim-stabil-negatif). Graveyard'a profitability-ekseni eklendi. [TAMAM]
 
 ## Program durumu: KAPALI (mevcut-veride)
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L13 = karar/forward-araclari (yeni-edge degil).
+7/7 yeni-EDGE-aday (L1-L4,L6 + L14 quality): deploy-edilebilir-edge YOK. L7-L13 = karar/forward-araclari (yeni-edge degil).
 Mevcut-veride (fiyat/hacim/fundamental/membership/macro/earnings-aylik) cross-sectional/event
 edge alani TUKETILDI. Deger artik YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
   #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; L9 hacim + L10 magnitude + L11
@@ -61,7 +65,7 @@ edge alani TUKETILDI. Deger artik YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
      ancak-karsilar -> NULL gercek-olasilik]; ONAYLI-FETCH gerek -> data/cache/kap_pead_daystamped.parquet),
   #2 SURPRIZ-KOSULLU MAKRO (etkiyi artirir, n'i degil), #3 TEFAS (yeni-build), #4 daily-foreign (en-son).
 Hepsi ag/auth + repo-read-only -> Cagan-onayi BEKLER. Otonom-faz BURADA durur.
-Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (12/12 frozen, deploy-edge-yok, ASCII).
+Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (13/13 frozen, deploy-edge-yok, ASCII).
 
 ## Disiplin checklist (her aday)
 1. Stage-0 dondur (hipotez, pencere, evren, maliyet, keep-bar, DURUST beklenti) SONUCTAN ONCE.

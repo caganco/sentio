@@ -1,0 +1,424 @@
+{
+  "candidate": "L14 QUALITY / PROFITABILITY cross-sectional factor (ROE = net_profit / equity). A GENUINEL",
+  "stage0": "lab-demo-goal\\stage0\\STAGE0_L14_quality_roe.json",
+  "benchmark": "EW-full monthly (honest bar)",
+  "regime_split": "2022-01-01",
+  "signal": "ROE = net_profit/equity (equity>0), rank-tercile, look-ahead lag=1mo",
+  "n_formation_months": 88,
+  "cost_summary": {
+    "n_evaluated": 43509,
+    "n_roll_zero": 15014,
+    "roll_zero_frac": 0.345078,
+    "spread_source_counts": {
+      "quoted": 26779,
+      "roll": 1716,
+      "tier": 15014
+    },
+    "spread_source_frac": {
+      "quoted": 0.615482,
+      "roll": 0.03944,
+      "tier": 0.345078
+    },
+    "mean_round_trip_roll": 0.012376,
+    "mean_round_trip_tier": 0.011287
+  },
+  "liquid_def": ">= 1e+07 TL trailing-63d median",
+  "lag_months": 1,
+  "K_primary": 1,
+  "tercile": 0.3333333333333333,
+  "roe_months_available": 81,
+  "by_K": {
+    "1": {
+      "ALL": {
+        "long_tercile": {
+          "n_periods": 80,
+          "avg_basket_size": 148.3125,
+          "mean_turnover": 0.093585,
+          "realized_cost_bps": 136.435066,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 80,
+            "mean": -0.001255,
+            "nw_t": -0.610113,
+            "ci95_low": -0.005036,
+            "ci95_high": 0.002389,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.001333,
+              "post_mean": -0.00121,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 80,
+            "mean": -0.002893,
+            "nw_t": -1.397071,
+            "ci95_low": -0.006675,
+            "ci95_high": 0.000824,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.002865,
+              "post_mean": -0.002909,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "short_tercile": {
+          "n_periods": 80,
+          "avg_basket_size": 148.3125,
+          "mean_turnover": 0.098086,
+          "realized_cost_bps": 137.555073,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 80,
+            "mean": -0.003005,
+            "nw_t": -1.282626,
+            "ci95_low": -0.006951,
+            "ci95_high": 0.001034,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": 0.000645,
+              "post_mean": -0.00508,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": false
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 80,
+            "mean": -0.004712,
+            "nw_t": -1.998084,
+            "ci95_low": -0.008639,
+            "ci95_high": -0.000651,
+            "ci_excludes_zero": true,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.001338,
+              "post_mean": -0.00663,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "long_minus_short_spread": {
+          "n": 80,
+          "mean": 0.00159,
+          "nw_t": 0.363698,
+          "ci_excludes_zero": false
+        }
+      },
+      "LIQUID": {
+        "long_tercile": {
+          "n_periods": 80,
+          "avg_basket_size": 24.875,
+          "mean_turnover": 0.20379,
+          "realized_cost_bps": 40.520726,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 80,
+            "mean": -0.003214,
+            "nw_t": -0.663333,
+            "ci95_low": -0.012997,
+            "ci95_high": 0.006083,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.008653,
+              "post_mean": -0.000121,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 80,
+            "mean": -0.004426,
+            "nw_t": -0.912002,
+            "ci95_low": -0.014223,
+            "ci95_high": 0.004931,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.010006,
+              "post_mean": -0.001254,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "short_tercile": {
+          "n_periods": 80,
+          "avg_basket_size": 24.875,
+          "mean_turnover": 0.194492,
+          "realized_cost_bps": 60.463229,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 80,
+            "mean": -0.006701,
+            "nw_t": -1.091489,
+            "ci95_low": -0.01777,
+            "ci95_high": 0.00446,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.009543,
+              "post_mean": -0.005085,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 80,
+            "mean": -0.008261,
+            "nw_t": -1.348737,
+            "ci95_low": -0.019381,
+            "ci95_high": 0.002791,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.011461,
+              "post_mean": -0.006441,
+              "pre_n": 29,
+              "post_n": 51,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "long_minus_short_spread": {
+          "n": 80,
+          "mean": 0.002121,
+          "nw_t": 0.275259,
+          "ci_excludes_zero": false
+        }
+      }
+    },
+    "3": {
+      "ALL": {
+        "long_tercile": {
+          "n_periods": 79,
+          "avg_basket_size": 148.759494,
+          "mean_turnover": 0.071151,
+          "realized_cost_bps": 114.550745,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 79,
+            "mean": -0.00296,
+            "nw_t": -1.490871,
+            "ci95_low": -0.006463,
+            "ci95_high": 0.000441,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.004387,
+              "post_mean": -0.002219,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 79,
+            "mean": -0.0042,
+            "nw_t": -2.113428,
+            "ci95_low": -0.00771,
+            "ci95_high": -0.000796,
+            "ci_excludes_zero": true,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.005509,
+              "post_mean": -0.003521,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "short_tercile": {
+          "n_periods": 79,
+          "avg_basket_size": 148.759494,
+          "mean_turnover": 0.073538,
+          "realized_cost_bps": 115.336146,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 79,
+            "mean": -0.001527,
+            "nw_t": -0.680379,
+            "ci95_low": -0.005244,
+            "ci95_high": 0.002659,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": 0.002575,
+              "post_mean": -0.003657,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": false
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 79,
+            "mean": -0.002802,
+            "nw_t": -1.254225,
+            "ci95_low": -0.006455,
+            "ci95_high": 0.001302,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": 0.001114,
+              "post_mean": -0.004835,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": false
+            }
+          }
+        },
+        "long_minus_short_spread": {
+          "n": 79,
+          "mean": -0.001839,
+          "nw_t": -0.426214,
+          "ci_excludes_zero": false
+        }
+      },
+      "LIQUID": {
+        "long_tercile": {
+          "n_periods": 79,
+          "avg_basket_size": 24.708861,
+          "mean_turnover": 0.127699,
+          "realized_cost_bps": 39.614007,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 79,
+            "mean": -0.005613,
+            "nw_t": -1.093169,
+            "ci95_low": -0.015292,
+            "ci95_high": 0.003337,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.010378,
+              "post_mean": -0.003139,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 79,
+            "mean": -0.006521,
+            "nw_t": -1.268665,
+            "ci95_low": -0.016122,
+            "ci95_high": 0.002415,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.011436,
+              "post_mean": -0.00397,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "short_tercile": {
+          "n_periods": 79,
+          "avg_basket_size": 24.708861,
+          "mean_turnover": 0.129866,
+          "realized_cost_bps": 59.633868,
+          "breakeven_bps": 0.0,
+          "rel_costfree": {
+            "n": 79,
+            "mean": -0.008433,
+            "nw_t": -1.452924,
+            "ci95_low": -0.018534,
+            "ci95_high": 0.002054,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.01208,
+              "post_mean": -0.00654,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          },
+          "rel_net_after_cost": {
+            "n": 79,
+            "mean": -0.00963,
+            "nw_t": -1.661331,
+            "ci95_low": -0.019707,
+            "ci95_high": 0.000926,
+            "ci_excludes_zero": false,
+            "regime": {
+              "split": "2022-01-01",
+              "pre_mean": -0.013584,
+              "post_mean": -0.007577,
+              "pre_n": 27,
+              "post_n": 52,
+              "both_positive": false,
+              "only_post_positive": false,
+              "sign_stable": true
+            }
+          }
+        },
+        "long_minus_short_spread": {
+          "n": 79,
+          "mean": 0.001106,
+          "nw_t": 0.144833,
+          "ci_excludes_zero": false
+        }
+      }
+    }
+  },
+  "verdict": {
+    "verdict": "QUALITY-NOT-TRADEABLE (significance/cost-wall or regime sign-instability); no deployable edge",
+    "gate": "K=1 LIQUID long-tercile rel-net-after-cost",
+    "net_after_cost_mean": -0.004426,
+    "nw_t": -0.912002,
+    "regime_sign_stable": true,
+    "net_positive": false,
+    "significant": false,
+    "passes_keep_bar": false,
+    "no_edge_claim": true,
+    "note": "Deployable gate = long-only liquid top-ROE tercile after D-207 realistic cost. Long-short spread reported as corroboration only. ONE pre-registered ROE definition (no variant sweep)."
+  }
+}
