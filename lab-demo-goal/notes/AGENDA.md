@@ -29,7 +29,7 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - trend_v1_ohlcv: 89 sembol full OHLCV (gap/range studies, ama dar evren).
 - exposure: gold_tl (2023+), tlref, tufe, xu100 (2019+).
 
-## Aday kuyrugu -- TAMAMLANDI (L1-L8; bkz SUMMARY.md)
+## Aday kuyrugu -- TAMAMLANDI (L1-L11; bkz SUMMARY.md)
 - L1 INDEX-REBALANCE (pit_membership) -> INDEX-EFFECT-VIEW (deploy-degil). [TAMAM]
 - L2 SHORT-TERM REVERSAL (1w/1m) -> NOT-TRADEABLE (yanlis-isaret + maliyet-duvari). [TAMAM]
 - L3 PEAD (aylik SUE) -> NOT-TRADEABLE (anlamlilik+maliyet duvari; aylik-cozunurluk dersi). [TAMAM]
@@ -39,15 +39,22 @@ anlamlilik-vs-maliyet duvari ayrimi, look-ahead-safe ZORUNLU, ASCII.
 - L7 FEASIBILITY-FRONTIER (sentez) -> DESCRIPTIVE-SYNTHESIS (0/20 NO-WALL; iki-kapi go/no-go). [TAMAM]
 - L8 POWER/SAMPLE-SIZE (sentez) -> DESCRIPTIVE-POWER-VIEW (olay-kitligi darbogaz; daily-PEAD
   tek-ulasilabilir; FORWARD_DATA_SPEC #1>>#2>>index-rebalance sayisal-gerekce). [TAMAM]
+- L9 PEAD-VOLUME (sentez) -> DESCRIPTIVE-VOLUME-VIEW (gercek likit ~136 olay/yil, %19 likit;
+  bounded ~95 date-cluster/yil; L8'in ~120/yil varsayimini ~1.3x icinde dogrular). [TAMAM]
+- L10 PEAD-EFFECT (sentez) -> MAGNITUDE-FEASIBILITY-VIEW (olay-seviyesi LIKIT SUE +0.69%/ay ama
+  ANLAMSIZ t=0.64; |t|=2 icin ~2-5.5x recovery; isaret-engeli YOK; gunluk-pencere etkisi offline-olculemez). [TAMAM]
+- L11 FORWARD-SCAFFOLD (on-kayit+offline-dogrulama) -> SCAFFOLD-SELF-TEST PASS (daily-PEAD test-harness'i
+  on-kayitli; sentetik recovery t=5.9/placebo t=0.18/look-ahead-leak t=13.5; network YOK, edge-iddiasi YOK). [TAMAM]
 
 ## Program durumu: KAPALI (mevcut-veride)
-6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7+L8 = karar-araclari (yeni-edge degil).
+6/6 yeni-EDGE-aday: deploy-edilebilir-edge YOK. L7-L11 = karar/forward-araclari (yeni-edge degil).
 Mevcut-veride (fiyat/hacim/fundamental/membership/macro/earnings-aylik) cross-sectional/event
 edge alani TUKETILDI. Deger artik YENI-VERI-TURUNDE (FORWARD_DATA_SPEC):
-  #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; sema-hazir, ONAYLI-FETCH gerek),
+  #1 DAILY-PEAD (KAP gun-damgasi; L8 = tek power-ulasilabilir sinif; L9 hacim + L10 magnitude + L11
+     on-kayitli-harness ile DORT-yonden hazir; ONAYLI-FETCH gerek -> data/cache/kap_pead_daystamped.parquet),
   #2 SURPRIZ-KOSULLU MAKRO (etkiyi artirir, n'i degil), #3 TEFAS (yeni-build), #4 daily-foreign (en-son).
 Hepsi ag/auth + repo-read-only -> Cagan-onayi BEKLER. Otonom-faz BURADA durur.
-Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (7/7 frozen, deploy-edge-yok, ASCII).
+Lab butunlugu: `harness/verify_lab.py` (read-only) -> PASS (10/10 frozen, deploy-edge-yok, ASCII).
 
 ## Disiplin checklist (her aday)
 1. Stage-0 dondur (hipotez, pencere, evren, maliyet, keep-bar, DURUST beklenti) SONUCTAN ONCE.
