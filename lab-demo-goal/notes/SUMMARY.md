@@ -81,6 +81,12 @@ ONERI: siradaki-faz = lab'da bir VERI-SNAPSHOT cekim-hatti (KAP gunluk-olay + ya
 sonra bu yeni-veri-turleriyle dusuk-turnover event-driven test. Mevcut-veride yeni-faktor aramak
 azalan-getiri; deger artik YENI-VERI-TURUNDE.
 
+DETAYLI ONCELIKLI SPEC (mevcut-infra-eslemeli, look-ahead-safe-kayit-kurali, CALISTIRILMADI):
+[FORWARD_DATA_SPEC.md]. L7-power-gerekce ile siralandi: #1 DAILY-PEAD (KAP ifsa gun-damgasi;
+kap_historical_fetcher zaten disclosureDetail.time veriyor -> infra-cogu-hazir, EN-YUKSEK power-kazanci),
+#2 surpriz-kosullu makro (kesin-CPI-tarih+actual/forecast+PPK-gecmis), #3 TEFAS (yeni-build),
+#4 per-stock gunluk yabanci-oran (L7-prior olumsuz; en-son).
+
 ## Disiplin teyidi
 Hicbir aday icin kutlama yapilmadi; hepsi DURUST-beklentiyle (cogu duvar-bekleniyordu) ONCEDEN
 beyan edildi ve olcumle dogrulandi. Tek SURPRIZ = L2'nin reversal-yerine-momentum cikmasi (yine de
