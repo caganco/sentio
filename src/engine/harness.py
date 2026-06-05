@@ -265,8 +265,10 @@ def harness(
     (d213 precedent). It is optional so synthetic panels stay runnable without a
     frozen Stage-0 file; real pre-registered runs pass the path.
     """
-    if stage0_path is not None:
-        require_stage0(stage0_path)
+    stage0 = require_stage0(stage0_path) if stage0_path is not None else None
+    n_trials = (
+        stage0.denenen_konfig_sayisi if stage0 is not None else config.DSR_DEFAULT_N_TRIALS
+    )
 
     mode = split_spec.split_mode
     out = EngineOutput(split_mode=str(mode), n_names=len(panel.names))
@@ -285,7 +287,7 @@ def harness(
             guards.append(f"Mod-A leg did not complete ({type(exc).__name__}: {exc})")
     if mode in (SplitMode.TEMPORAL, SplitMode.PANEL):
         try:
-            modb_res = run_modb(panel, signal, split_spec, dial_config)
+            modb_res = run_modb(panel, signal, split_spec, dial_config, n_trials=n_trials)
         except Exception as exc:  # noqa: BLE001 -- legs are isolated by contract
             guards.append(f"Mod-B leg did not complete ({type(exc).__name__}: {exc})")
 
@@ -334,6 +336,13 @@ def harness(
     # --- Mod-B temporal overfit measures (DSR + proxy PBO when A absent) ---
     if modb_res is not None:
         out.dsr = cast("float", modb_res["dsr"])
+        out.dsr_n_trials = cast("int", modb_res["dsr_n_trials"])
+        if out.dsr_n_trials > 1:
+            notes.append(
+                f"dsr deflated for N={out.dsr_n_trials} tried configs (Stage-0 "
+                "denenen_konfig_sayisi): multiple-test / search overfit is the DSR "
+                "layer's job, NOT bucket-PBO (single-prototype-internal)"
+            )
         if out.pbo is None:
             out.pbo = cast("float", modb_res["pbo"])
             notes.append(

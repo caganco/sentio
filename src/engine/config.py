@@ -43,6 +43,14 @@ MIN_NAMES_CROSS_SECTION = 30  # min names to compute IC_t for a date
 FORWARD_RETURN_BASIS = "tr_index_gross"  # total-return (Section 3.5/C5); net is a dial
 NW_LAG_DAILY = 5
 NW_LAG_MONTHLY = 3
+# FAZ-4 near-zero-variance floor for nw_tstat. A numerically-constant input has a
+# tiny-but-POSITIVE HAC variance (inexact-float FP rounding leaves s ~ 1e-32) that
+# slips past the s<=0 guard and yields an explosive spurious t. The guard returns NaN
+# when s <= eps*mean^2, i.e. relative variance s/mean^2 <= eps. eps=1e-12 sits two
+# decades below the smallest LEGITIMATE relative variance (test_perfect_signal ~1e-10)
+# and far below the C12 golden's (~1e2), so it fires ONLY on degenerate input -- the
+# golden byte-repro and the d211/d213 equivalence never trip it.
+NW_VAR_FLOOR_EPS = 1e-12
 WINSORIZE_LOWER = 0.01
 WINSORIZE_UPPER = 0.99
 
@@ -76,6 +84,13 @@ MONTHLY_TEMPORAL_CPCV_FORBIDDEN = True
 
 # DSR (Section 4.2)
 DSR_MIN = 0.95
+# FAZ-4 (b): trial-count deflation. The honest tried-config count N (Stage-0
+# denenen_konfig_sayisi) feeds the Bailey-LdP E[max] order statistic, which becomes
+# compute_dsr's benchmark_sr -> the canonical deflated DSR. N=1 -> E[max]=0 -> no
+# deflation -> DSR byte-identical to the pre-FAZ-4 call (zero regression). Multiple-test
+# / search overfit is the DSR layer's job -- NOT bucket-PBO (single-prototype-internal).
+EULER_MASCHERONI = 0.5772156649  # same constant as statistical_validation.min_btl_days
+DSR_DEFAULT_N_TRIALS = 1  # no Stage-0 -> assume a single trial -> no deflation
 
 # benchmark floor (Section 7): real return must beat max(TUFE, TLREF); TLREF from 2022-07
 BENCHMARK_TLREF_FROM = "2022-07"

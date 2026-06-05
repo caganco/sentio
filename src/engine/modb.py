@@ -29,6 +29,7 @@ from src.backtest.statistical_validation import compute_dsr, compute_pbo, sharpe
 from . import config
 from .contracts import DialConfig, Panel, SortDepth, SplitSpec
 from .data_adapter import forward_return
+from .dsr import deflation_benchmark_sr
 from .signal_protocol import Signal, assert_pm1_compliant
 from .stats import nw_tstat, rank_ic_series
 
@@ -90,13 +91,18 @@ def _active_return_series(
 
 
 def run_modb(
-    panel: Panel, signal: Signal, spec: SplitSpec, dial: DialConfig
+    panel: Panel, signal: Signal, spec: SplitSpec, dial: DialConfig, *, n_trials: int = 1
 ) -> dict[str, object]:
     """Run the Mod-B temporal-CPCV leg and return a result dict.
 
     Keys: ``n_paths``, ``pooled_oos_ic_t`` / ``pooled_oos_ic_mean`` / ``n_ic_obs``,
     ``oos_sharpe`` (per-path distribution) / ``oos_sharpe_median``, ``pbo``
-    (+ ``pbo_is_simplified_proxy``), ``dsr``, and split provenance.
+    (+ ``pbo_is_simplified_proxy``), ``dsr`` (+ ``dsr_n_trials`` /
+    ``dsr_deflation_benchmark_sr``), and split provenance.
+
+    ``n_trials`` is the honest tried-config count (Stage-0 ``denenen_konfig_sayisi``);
+    it deflates the DSR via the Bailey-LdP E[max] benchmark (FAZ-4 (b)). The default
+    1 -> no deflation -> the DSR is byte-identical to the pre-FAZ-4 call.
     """
     dates = panel.dates
     names = panel.names
@@ -126,7 +132,11 @@ def run_modb(
         skew = 0.0
     if not math.isfinite(kurt):
         kurt = 3.0
-    dsr = compute_dsr(oos_sharpe, T=t_oos, skewness=skew, kurtosis=kurt)
+    sr_obs = float(np.mean(oos_sharpe)) if oos_sharpe else 0.0
+    benchmark_sr = deflation_benchmark_sr(sr_obs, t_oos, skew, kurt, n_trials)
+    dsr = compute_dsr(
+        oos_sharpe, T=t_oos, skewness=skew, kurtosis=kurt, benchmark_sr=benchmark_sr
+    )
 
     return {
         "n_paths": cv.n_paths,
@@ -138,6 +148,8 @@ def run_modb(
         "pbo": pbo,
         "pbo_is_simplified_proxy": True,
         "dsr": dsr,
+        "dsr_n_trials": int(n_trials),
+        "dsr_deflation_benchmark_sr": float(benchmark_sr),
         "embargo_h": int(spec.embargo_h),
         "cpcv_n": int(spec.cpcv_n),
         "cpcv_k": int(spec.cpcv_k),
