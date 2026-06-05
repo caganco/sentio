@@ -58,9 +58,16 @@ MIN_NAMES_PER_ARM = 50  # Section 3.3: each arm >= 50 names
 AGREEMENT_CROSS_IC_T_MIN = 2.0  # median_R(t_IC_cross) > 2.0 in BOTH directions
 SIGN_CONSISTENCY_MIN = 0.90
 PBO_THRESHOLD = 0.50  # REAL CSCV median-rank (Lopez de Prado) -- NOT the Mod-B proxy
+# PBO median-rank axis: decile-fixed, DECOUPLED from the tilt's sort_depth dial. Coupling the
+# overfit-measurement resolution to a strategy knob would open a post-hoc degree-of-freedom
+# ("we tried tercile-PBO and it dropped"); a frozen constant (not a dial) closes that.
+PBO_N_BUCKETS = 10
+MIN_NAMES_PER_BUCKET = 3  # degenerate-bucket guard: a bucket below this -> NaN (bucket-analog of
+#                           the NW near-zero-variance guard; stops a thin bucket faking a winner)
 
 # residual cross-sectional correlation (Section 4.2) -- SEPARATE from agreement (4.3 mixing-ban)
 RESIDUAL_CORR_NULL_PCTILE = 95
+RESIDUAL_NULL_RESAMPLES = 200  # random re-splits that build the permutation rho_arms null
 
 # CPCV (Mod-B temporal; daily). Monthly temporal-CPCV is forbidden -> Mod-A mandatory.
 CPCV_DAILY_N = 10
