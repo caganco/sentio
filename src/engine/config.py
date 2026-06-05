@@ -80,6 +80,13 @@ AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE = 50  # = unrelaxed MIN_NAMES_PER_ARM. RR-
 #   floor relaxed to 30 and an arm of ~37; such an underpowered PASS must surface as 'low', never clean.
 AGREEMENT_MIN_R_FOR_HIGH_CONFIDENCE = 50  # = SPLIT_R_MIN. Effective name-splits below this -> 'low'.
 
+# intra-regime forward time-holdout floor (Mod-C; RR-Y1-010) -- additive trustworthiness annotation on
+# the holdout persistence verdict; orthogonal to the keep-bars (DEC-049 untouched). Below this many daily
+# holdout IC observations the grade is 'low'. A DIRECTIONAL floor (honest underpowered declaration), NOT a
+# deployable-confidence threshold: BIST 2019-2026 has few non-overlapping within-regime forward holdouts.
+# Frozen BEFORE any demonstration run (coverage-criterion, not verdict-criterion).
+HOLDOUT_MIN_IC_OBS_FOR_HIGH_CONFIDENCE = 60
+
 # residual cross-sectional correlation (Section 4.2) -- SEPARATE from agreement (4.3 mixing-ban)
 RESIDUAL_CORR_NULL_PCTILE = 95
 RESIDUAL_NULL_RESAMPLES = 200  # random re-splits that build the permutation rho_arms null

@@ -29,6 +29,7 @@ class SplitMode(StrEnum):
     NAME = "A"  # Mod A: name-split (cross-sectional)
     TEMPORAL = "B"  # Mod B: temporal CPCV (purge + embargo)
     PANEL = "A+B"  # combined
+    TIME_HOLDOUT = "C"  # Mod C: intra-regime forward time-holdout (RR-Y1-010)
 
 
 class Frequency(StrEnum):
@@ -79,6 +80,27 @@ class AgreementConfidence(StrEnum):
     CONFOUNDED = "confounded"  # shared-factor flag OR single-regime eval window
 
 
+class HoldoutConfidence(StrEnum):
+    """Trustworthiness qualifier on the Mod-C intra-regime time-holdout verdict (RR-Y1-010).
+
+    Additive ONLY: orthogonal to ``holdout_persistence_pass`` -- it annotates whether
+    the preconditions for a trustworthy forward-persistence read held, never makes a
+    factor pass/fail. Deliberately a SEPARATE enum from ``AgreementConfidence`` because
+    the regime semantics are OPPOSITE-but-consistent across the two modes:
+
+    - Mod-A (``AgreementConfidence``): a single-regime eval window is SUSPECT -- a
+      within-regime common-factor artifact can fake a clean conjugate PASS.
+    - Mod-C (this enum): single-regime is the DESIGN, not a confound (the question is
+      precisely "does it persist forward WITHIN one regime"). The confound here is the
+      holdout window CROSSING ``REGIME_SPLIT`` -- if train sits in one regime and the
+      holdout spills into another, the same-regime-persistence question is polluted.
+    """
+
+    HIGH = "high"  # adequate holdout breadth + no confounded trigger
+    LOW = "low"  # underpowered: holdout IC observations below a frozen floor
+    CONFOUNDED = "confounded"  # holdout crosses REGIME_SPLIT OR shared-factor flag on the holdout
+
+
 @dataclass(frozen=True, eq=False)
 class Panel:
     """Loaded data panel. All frames are wide: index=date, columns=symbol.
@@ -121,6 +143,7 @@ class SplitSpec:
     sort_depth: SortDepth = SortDepth.TERCILE
     min_names_per_arm: int = config.MIN_NAMES_PER_ARM
     name_split_method: NameSplitMethod = NameSplitMethod.LIQUIDITY  # Mod-A only (Section 3.2)
+    holdout_start: str | None = None  # Mod-C boundary (ISO date); train < (this - embargo), holdout >= this
 
     def __post_init__(self) -> None:
         if self.embargo_h < 1:
@@ -129,6 +152,11 @@ class SplitSpec:
             raise ValueError(f"cpcv_k ({self.cpcv_k}) must be < cpcv_n ({self.cpcv_n})")
         if self.R < 1:
             raise ValueError(f"R must be >= 1 (got {self.R})")
+        if self.split_mode is SplitMode.TIME_HOLDOUT and self.holdout_start is None:
+            raise ValueError(
+                "split_mode C (TIME_HOLDOUT) requires holdout_start (the pre-registered "
+                "train/holdout boundary date); none was given."
+            )
         # Section 3.6 / 8: monthly temporal-CPCV is power-poor -> Mod-A mandatory.
         if (
             config.MONTHLY_TEMPORAL_CPCV_FORBIDDEN
@@ -225,6 +253,17 @@ class EngineOutput:
     # verdict-confidence qualifier (RR-Y1-009; additive, orthogonal to agreement_pass)
     agreement_confidence: AgreementConfidence | None = None
     agreement_confidence_reasons: tuple[str, ...] = ()
+    # intra-regime forward time-holdout (Mod-C; RR-Y1-010; additive, only on TIME_HOLDOUT runs)
+    holdout_persistence_pass: bool | None = None
+    holdout_ic_t: float | None = None
+    holdout_ic_mean: float | None = None
+    train_ic_t: float | None = None
+    train_ic_mean: float | None = None
+    holdout_sign_consistent: bool | None = None
+    n_holdout_obs: int | None = None
+    n_train_obs: int | None = None
+    holdout_confidence: HoldoutConfidence | None = None
+    holdout_confidence_reasons: tuple[str, ...] = ()
     # per-regime breakdown (bullet 7; manual label)
     per_regime: dict[str, dict[str, float]] = field(default_factory=dict)
     # parameter plateau / sensitivity (bullet 8)
