@@ -123,11 +123,19 @@ class TestNeweyWestEdges:
         assert np.isnan(nw_tstat(np.zeros(5), lag=3))  # n=5 < lag+3=6
 
     def test_zero_variance_is_nan(self):
-        # Exact-constant -> deviations are exactly 0 -> HAC variance 0 -> NaN.
-        # (np.full(50, 0.7) would NOT qualify: 0.7 is inexact, so FP rounding
-        # leaves a ~1e-30 dispersion and yields a huge finite t -- that is the
-        # near-constant case covered by test_perfect_signal_is_large_t.)
+        # Exact-constant -> deviations exactly 0 -> HAC variance 0 -> NaN (the
+        # s <= 0 guard). np.full(50, 0.7) is NEAR-constant (0.7 inexact -> FP
+        # rounding leaves ~1e-32 dispersion) and is now ALSO NaN via the FAZ-4
+        # near-zero-variance floor -- see test_near_constant_is_nan.
         assert np.isnan(nw_tstat(np.ones(50), lag=5))
+
+    def test_near_constant_is_nan(self):
+        # FAZ-4 floor-guard. A numerically-constant input has a tiny-but-POSITIVE
+        # HAC variance (~1e-32) that slips past the s <= 0 guard and would yield an
+        # EXPLOSIVE spurious t. The s <= eps*mean^2 floor NaNs it; the genuine
+        # tiny-but-real dispersion in test_perfect_signal_is_large_t (relative
+        # variance ~1e-10, 100x above the 1e-12 floor) still returns t > 50.
+        assert np.isnan(nw_tstat(np.full(50, 0.7), lag=5))
 
     def test_perfect_signal_is_large_t(self):
         x = 0.05 + np.zeros(60)
