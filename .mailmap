@@ -1,0 +1,6 @@
+# Coalesce author/committer identities into one canonical GitHub identity.
+# Display-only (git shortlog/log/blame + GitHub contributor view); does NOT
+# rewrite history. dependabot[bot] is intentionally left untouched.
+Cagan <89398864+caganco@users.noreply.github.com> <89398864+caganco@users.noreply.github.com>
+Cagan <89398864+caganco@users.noreply.github.com> <89398864+raypun78@users.noreply.github.com>
+Cagan <89398864+caganco@users.noreply.github.com> <cagancebeci78@gmail.com>

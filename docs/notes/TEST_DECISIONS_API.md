@@ -5,7 +5,7 @@
 ### 1. Start the API Server
 
 ```bash
-cd c:\Users\cagan\bist-trading-system
+cd path/to/bist-trading-system
 python server.py
 ```
 
@@ -40,7 +40,7 @@ curl http://localhost:5000/decisions | jq -r '.content' | head -100
 ### 3. Open Chat UI
 
 ```bash
-# In browser: file:///c:/Users/cagan/bist-trading-system/chat.html
+# In browser: file:///path/to/bist-trading-system/chat.html
 # Or double-click chat.html
 ```
 
