@@ -1,39 +1,40 @@
-# RR-Y1-005 Doğrulama Motoru — Kullanım Kılavuzu ve Matematiksel Model
+# RR-Y1-005 Validation Engine — Operator Guide and Mathematical Model
 
-> **Kapsam:** `src/engine/` paketi — genel amaçlı, ayarlanabilir, post-hoc denetlenebilir
-> strateji-doğrulama harness'i.
-> **Tasarım:** RR-Y1-005-TEST-MOTORU-TASARIM v0.2 (ne/neden) · **Matematik:** RR-Y1-005B-MATEMATIKSEL-SPEC v1.1 (biçimsel çekirdek)
-> **Sürüm:** `src.engine.__version__` · **Yazar:** Cagan
+> **Scope:** the `src/engine/` package — a general-purpose, tunable, post-hoc-auditable
+> strategy-validation harness.
+> **Design:** RR-Y1-005-TEST-MOTORU-TASARIM v0.2 (what/why) · **Math:** RR-Y1-005B-MATEMATIKSEL-SPEC v1.1 (formal core)
+> **Version:** `src.engine.__version__` · **Author:** Cagan
 
 ---
 
-## 0. Bir cümlede ne yapar?
+## 0. What does it do, in one sentence?
 
-Motor, bir **prototip sinyali** alır ve onun "gerçek mi yoksa overfit mi" olduğunu
-tek bir pass/fail bitine indirgemeden, **Section-7 çıktı VEKTÖRÜ** olarak raporlar:
+The engine takes a **prototype signal** and reports whether it is "real or overfit"
+**without collapsing it to a single pass/fail bit** — as a **Section-7 output VECTOR**:
 
 ```
 harness(panel, signal, split_spec, dial_config) -> EngineOutput
 ```
 
-Çıktı bir karar değil, bir **kanıt panosudur**: getiri/maliyet, anlamlılık (PBO/DSR/NW-t),
-conjugate uyum, rejim kırılımı, parametre platosu, ve her ölçümün **güven niteliği**.
-Kararı okuyan insan verir; motor sadece dürüst sayıları üretir.
+The output is not a decision but an **evidence board**: returns/cost, significance
+(PBO/DSR/NW-t), conjugate agreement, regime breakdown, parameter plateau, and the
+**confidence qualifier** of each measurement. A human reads it and decides; the engine
+only produces honest numbers.
 
-### Tasarım ilkeleri (değişmez)
+### Design principles (immutable)
 
-| İlke | Anlamı |
-|------|--------|
-| **Strangler** | Motor, commit edilmiş motorları (`src/screening`, `src/backtest`) **salt-okunur** import eder; hiçbir commit'li dosyaya dokunmaz, lab kodu import etmez. |
-| **Vektör çıktı** | `EngineOutput` bir bit değil, ~30 alanlı bir vektördür. Pass/fail yorumu okuyucuya aittir. |
-| **Partial-leg sözleşmesi** | Bir bacak (Mod-A/B/C) tamamlanamazsa harness **asla raise etmez**; ilgili alanlar `None` kalır, `guard_messages`'a sebep yazılır. |
-| **PM-1 yasası** | Motor asla bir nakit-kapısı (cash-gate) sinyali değerlendirmez. Boşta = tam-yatırımlı eşit-ağırlık; tetik sepet İÇİNDE yeniden-tilt yapar. |
-| **Stage-0 dondurma** | Hipotez ölçümden ÖNCE dondurulur. `stage0_path` verildiğinde dosya yoksa/sürüklendiyse motor **çalışmayı reddeder**. |
-| **Anti-slop golden** | C12 gerçek-veri determinizm çıpası (NW-t gross 6.928414 / net -6.274774 @ lag10, n=1375) byte-byte yeniden üretilir. |
+| Principle | Meaning |
+|-----------|---------|
+| **Strangler** | The engine imports committed motors (`src/screening`, `src/backtest`) **read-only**; it touches no committed file and imports no lab code. |
+| **Vector output** | `EngineOutput` is not a bit but a ~30-field vector. The pass/fail interpretation belongs to the reader. |
+| **Partial-leg contract** | If a leg (Mod-A/B/C) cannot complete, the harness **never raises**; the corresponding fields stay `None` and the reason is recorded in `guard_messages`. |
+| **PM-1 law** | The engine never evaluates a cash-gate signal. Idle = fully-invested equal-weight; a trigger re-tilts WITHIN the basket. |
+| **Stage-0 freeze** | The hypothesis is frozen BEFORE measurement. When `stage0_path` is given, the engine **refuses to run** if the file is absent/drifted. |
+| **Anti-slop golden** | The C12 real-data determinism anchor (NW-t gross 6.928414 / net -6.274774 @ lag10, n=1375) is reproduced byte-for-byte. |
 
 ---
 
-## 1. Mimari ve veri akışı
+## 1. Architecture and data flow
 
 ```
                          ┌─────────────────────────────────────────────┐
@@ -41,50 +42,50 @@ Kararı okuyan insan verir; motor sadece dürüst sayıları üretir.
                          │            market/tufe/tlref, wide frames)    │
                          └─────────────────────────────────────────────┘
                                           │
-   Signal (protokol: scores(panel,names,asof) -> Series)                 │
-   SplitSpec  (split yapısı: mode, embargo, R, CPCV, holdout_start)      │
-   DialConfig (8 ayar düğmesi)                                           │
+   Signal (protocol: scores(panel,names,asof) -> Series)                 │
+   SplitSpec  (split structure: mode, embargo, R, CPCV, holdout_start)   │
+   DialConfig (8 tuning dials)                                           │
                                           ▼
                          ┌──────────────  harness()  ──────────────┐
                          │  dispatch by split_mode:                 │
-                         │   A   -> run_moda  (isim-bölme conjugate)│
-                         │   B   -> run_modb  (zamansal CPCV)       │
-                         │   A+B -> her ikisi (PANEL)               │
-                         │   C   -> run_modc  (rejim-içi time-holdout)
+                         │   A   -> run_moda  (name-split conjugate)│
+                         │   B   -> run_modb  (temporal CPCV)       │
+                         │   A+B -> both (PANEL)                     │
+                         │   C   -> run_modc  (intra-regime holdout)│
                          │                                          │
-                         │  + her zaman: tradeable tilt getiri/    │
-                         │    maliyet (D-207 stack), benchmark floor│
+                         │  + always: tradeable tilt returns/cost   │
+                         │    (D-207 stack), benchmark floor        │
                          │    (TUFE/TLREF), per-regime, plateau     │
                          └──────────────────┬───────────────────────┘
                                             ▼
-                                       EngineOutput  (Section-7 vektör)
+                                       EngineOutput  (Section-7 vector)
 ```
 
-### Modül haritası
+### Module map
 
-| Modül | Sorumluluk |
-|-------|------------|
-| `contracts.py` | Tüm tipler: enum'lar, `Panel`, `SplitSpec`, `DialConfig`, `EngineOutput`. |
-| `config.py` | Donmuş yapısal sabitler + dial varsayılanları (tek doğru kaynak). |
-| `data_adapter.py` | `load_panel`, `liquid_names`, `forward_return` (ileri getiri). |
-| `stats.py` | Matematiksel çekirdek: `rank_ic_series`, `ic_ir`, `nw_tstat` (Newey-West HAC). |
+| Module | Responsibility |
+|--------|----------------|
+| `contracts.py` | All types: enums, `Panel`, `SplitSpec`, `DialConfig`, `EngineOutput`. |
+| `config.py` | Frozen structural constants + dial defaults (single source of truth). |
+| `data_adapter.py` | `load_panel`, `liquid_names`, `forward_return` (forward return). |
+| `stats.py` | The mathematical core: `rank_ic_series`, `ic_ir`, `nw_tstat` (Newey-West HAC). |
 | `neutralizer.py` | `rolling_beta` (look-ahead-safe), `residualize`, `market_neutral_forward`. |
-| `moda.py` | Mod-A: likidite-katmanlı isim-bölme conjugate çekirdek + residual korelasyon. |
-| `modb.py` | Mod-B: zamansal CPCV → OOS Sharpe dağılımı → PBO/DSR. |
-| `modc.py` | Mod-C: rejim-içi ileri time-holdout persistence (RR-Y1-010). |
-| `pbo.py` | Gerçek CSCV median-rank PBO (Lopez de Prado) — Mod-A çekirdeğinin kullandığı. |
-| `dsr.py` | DSR trial-count deflation benchmark (Bailey-LdP E[max] dereceli-istatistik). |
-| `benchmark.py` | Reel-getiri deflate + benchmark-floor: reel getiri > max(TUFE, TLREF). |
-| `confidence.py` | Mod-A güven niteliği (`assess_agreement_confidence`). |
-| `holdout_confidence.py` | Mod-C güven niteliği (`assess_holdout_confidence`). |
-| `signal_protocol.py` | `Signal` protokolü + `assert_pm1_compliant` (PM-1 gardı). |
-| `stage0_validator.py` | Stage-0 ön-kayıt: yoksa-reddet + snapshot içerik-hash gardı. |
-| `lockbox.py` | Tek-atışlık held-out kilidi (single-shot held-out subset seal). |
-| `harness.py` | Üst-düzey assembler — tek giriş noktası. |
+| `moda.py` | Mod-A: liquidity-stratified name-split conjugate core + residual correlation. |
+| `modb.py` | Mod-B: temporal CPCV → OOS Sharpe distribution → PBO/DSR. |
+| `modc.py` | Mod-C: intra-regime forward time-holdout persistence (RR-Y1-010). |
+| `pbo.py` | Real CSCV median-rank PBO (Lopez de Prado) — the one the Mod-A core uses. |
+| `dsr.py` | DSR trial-count deflation benchmark (Bailey-LdP E[max] order statistic). |
+| `benchmark.py` | Real-return deflate + benchmark-floor: real return > max(TUFE, TLREF). |
+| `confidence.py` | Mod-A confidence qualifier (`assess_agreement_confidence`). |
+| `holdout_confidence.py` | Mod-C confidence qualifier (`assess_holdout_confidence`). |
+| `signal_protocol.py` | The `Signal` protocol + `assert_pm1_compliant` (PM-1 guard). |
+| `stage0_validator.py` | Stage-0 pre-registration: refuse-if-absent + snapshot content-hash guard. |
+| `lockbox.py` | Single-shot held-out subset seal. |
+| `harness.py` | The top-level assembler — the single entry point. |
 
 ---
 
-## 2. Hızlı başlangıç
+## 2. Quick start
 
 ```python
 import pandas as pd
@@ -94,10 +95,10 @@ from src.engine.contracts import (
 from src.engine.data_adapter import load_panel
 from src.engine.harness import harness
 
-# 1) Paneli yükle (clean_universe + snapshots; DataHub DEĞİL -- strangler)
-panel = load_panel()                       # config.PRICES_PARQUET'ten
+# 1) Load the panel (clean_universe + snapshots; NOT DataHub -- strangler)
+panel = load_panel()                       # from config.PRICES_PARQUET
 
-# 2) Bir prototip sinyali tanımla (zero-discretion cross-sectional scorer)
+# 2) Define a prototype signal (zero-discretion cross-sectional scorer)
 class MomentumSignal:
     name = "mom_12_1"
     construction_window = 21               # = Mod-B embargo h (Section 3.4)
@@ -105,11 +106,11 @@ class MomentumSignal:
         px = panel.close.loc[:asof, names]
         return (px.iloc[-1] / px.iloc[-self.construction_window] - 1.0)
 
-# 3) Bölme yapısı + ayarlar
+# 3) Split structure + dials
 spec = SplitSpec(split_mode=SplitMode.NAME, frequency=Frequency.DAILY)
-dials = DialConfig()                        # donmuş v1.1 varsayılanları
+dials = DialConfig()                        # frozen v1.1 defaults
 
-# 4) Çalıştır
+# 4) Run
 out = harness(panel, MomentumSignal(), spec, dials)
 
 print(out.agreement_pass, out.agreement_confidence)
@@ -117,225 +118,290 @@ print(out.net_active_ann, out.beats_benchmark_floor)
 print(out.pbo, out.dsr, out.nw_t)
 ```
 
-**Ön-kayıtlı (pre-registered) çalıştırma** için `stage0_path` geç:
+For a **pre-registered run**, pass `stage0_path`:
 
 ```python
 out = harness(panel, sig, spec, dials, stage0_path="data/stage0/RR-Y1-XXX.json")
-# Dosya yoksa veya snapshot içerik-hash'i sürüklendiyse -> Stage0Error (motor reddeder)
+# If the file is absent or the snapshot content-hash has drifted -> Stage0Error (the engine refuses)
 ```
 
 ---
 
-## 3. Sözleşmeler (Contracts)
+## 3. Contracts
 
-### 3.1 `Panel` — yüklü veri
+### 3.1 `Panel` — loaded data
 
-Tüm frame'ler **wide**: index=tarih, sütun=sembol.
+All frames are **wide**: index=date, columns=symbol.
 
-| Alan | Tip | Açıklama |
-|------|-----|----------|
-| `close` | DataFrame | Düzeltilmiş kapanış. |
-| `tr_gross` / `tr_net` | DataFrame | Toplam-getiri endeksi (temettü reinvest), brüt/net. |
-| `value_tl` | DataFrame | Günlük işlem hacmi (likidite proxy'si). |
-| `membership` | dict | PIT endeks üyeliği (`{"bist100": 0/1, ...}`). |
-| `market` | Series | Piyasa endeksi seviyesi (XU100); getiri = `pct_change`. |
-| `tufe` / `tlref` | Series | TÜFE / TLREF seviye serileri (benchmark floor için). |
-| `frequency` | Frequency | `DAILY` (varsayılan) / `MONTHLY`. |
+| Field | Type | Description |
+|-------|------|-------------|
+| `close` | DataFrame | Adjusted close. |
+| `tr_gross` / `tr_net` | DataFrame | Total-return index (dividends reinvested), gross/net. |
+| `value_tl` | DataFrame | Daily traded value (liquidity proxy). |
+| `membership` | dict | PIT index membership (`{"bist100": 0/1, ...}`). |
+| `market` | Series | Market index level (XU100); returns = `pct_change`. |
+| `tufe` / `tlref` | Series | CPI / TLREF level series (for the benchmark floor). |
+| `frequency` | Frequency | `DAILY` (default) / `MONTHLY`. |
 
-Yardımcı property: `panel.dates`, `panel.names`. `eq=False` çünkü DataFrame `__eq__`
-eleman-bazlıdır (oto-üretilmiş eşitlik "ambiguous truth value" hatası verirdi).
+Helper properties: `panel.dates`, `panel.names`. `eq=False` because DataFrame `__eq__`
+is element-wise (an auto-generated equality would raise "ambiguous truth value").
 
-### 3.2 `SplitSpec` — bölme yapısı (Stage-0'da donar)
+### 3.2 `SplitSpec` — split structure (frozen at Stage-0)
 
-| Alan | Varsayılan | Anlam |
-|------|------------|-------|
+| Field | Default | Meaning |
+|-------|---------|---------|
 | `split_mode` | — | `A` / `B` / `A+B` / `C`. |
 | `frequency` | — | `DAILY` / `MONTHLY`. |
-| `embargo_h` | `1` | = sinyal construction-window'u (Section 3.4); `>= 1`. |
-| `R` | `50` | Tohum-sabit isim-bölme sayısı (Mod-A). |
-| `seed` | `0` | Tekrarlanabilirlik tohumu. |
-| `cpcv_n` / `cpcv_k` | `10` / `2` | Mod-B CPCV blokları; `k < n` zorunlu. |
-| `split_arm_floor_tl` | `1e7` | Kol-başına likidite tabanı (ADV). |
+| `embargo_h` | `1` | = the signal's construction-window (Section 3.4); `>= 1`. |
+| `R` | `50` | Seed-fixed name-split count (Mod-A). |
+| `seed` | `0` | Reproducibility seed. |
+| `cpcv_n` / `cpcv_k` | `10` / `2` | Mod-B CPCV blocks; `k < n` required. |
+| `split_arm_floor_tl` | `1e7` | Per-arm liquidity floor (ADV). |
 | `sort_depth` | `TERCILE` | `tercile` / `decile` / `topN`. |
-| `min_names_per_arm` | `50` | Section 3.3: her kol >= 50 isim. |
-| `name_split_method` | `LIQUIDITY` | `liquidity` (ADV-katmanlı) / `random`. |
-| `holdout_start` | `None` | Mod-C sınırı (ISO tarih). `C` modunda **zorunlu**. |
+| `min_names_per_arm` | `50` | Section 3.3: each arm >= 50 names. |
+| `name_split_method` | `LIQUIDITY` | `liquidity` (ADV-stratified) / `random`. |
+| `holdout_start` | `None` | Mod-C boundary (ISO date). **Required** in `C` mode. |
 
-`__post_init__` gardları: `embargo_h >= 1`; `cpcv_k < cpcv_n`; `R >= 1`;
-`C` modunda `holdout_start` zorunlu; **monthly → yalnızca Mod-A** (zamansal-CPCV
-aylık frekansta güç-fakiridir, Section 3.6).
+`__post_init__` guards: `embargo_h >= 1`; `cpcv_k < cpcv_n`; `R >= 1`;
+`holdout_start` required in `C` mode; **monthly → Mod-A only** (temporal-CPCV is
+power-poor at monthly frequency, Section 3.6).
 
-### 3.3 `DialConfig` — 8 ayar düğmesi (Section 5)
+### 3.3 `DialConfig` — the 8 tuning dials (Section 5)
 
-Düğmeler 2 (split-mode), 4 (embargo), 8 (arm-floor + sort-depth) `SplitSpec`'te yaşar
-(bölme yapısıdır); geri kalanı burada:
+Dials 2 (split-mode), 4 (embargo) and 8 (arm-floor + sort-depth) live in `SplitSpec`
+(they are split structure); the rest live here:
 
-| Dial | Alan | Varsayılan | Rol |
-|------|------|------------|-----|
-| 1 | `psi` | `spearman` | Cross-sectional rank-IC tipi. |
-| 3 | `neutralization` | `("market",)` | Nötrleme faktörleri (`market` minimum, Mod-A için zorunlu). |
-| — | `return_basis` | `tr_index_gross` | Brüt/net toplam-getiri tabanı. |
-| 7 | `cut_policies` | anchored/rolling/expanding | Cut-family (Faz-3'te wire değil). |
-| 5 | `use_pbo` | `True` | PBO kapısı açık mı. |
-| 6 | `use_dsr` | `True` | DSR kapısı açık mı. |
-| — | `nw_lag` | `None` | `None` → frekanstan çözülür (daily 5 / monthly 3). |
-| — | `winsorize` | `(0.01, 0.99)` | Winsorize sınırları. |
-| — | `beta_window` | `126` | Beta tahmin penceresi (gün). |
-| — | `agreement_t_min` | `2.0` | Conjugate t eşiği. |
-| — | `sign_consistency_min` | `0.90` | İşaret-tutarlılık tabanı. |
-| — | `pbo_max` | `0.50` | Gerçek CSCV PBO tavanı. |
-| — | `dsr_min` | `0.95` | DSR tabanı. |
-| — | `residual_corr_null_pctile` | `95` | Residual korelasyon null yüzdesi. |
+| Dial | Field | Default | Role |
+|------|-------|---------|------|
+| 1 | `psi` | `spearman` | Cross-sectional rank-IC type. |
+| 3 | `neutralization` | `("market",)` | Neutralization factors (`market` is the minimum, mandatory for Mod-A). |
+| — | `return_basis` | `tr_index_gross` | Gross/net total-return basis. |
+| 7 | `cut_policies` | anchored/rolling/expanding | Cut-family (not wired in Faz-3). |
+| 5 | `use_pbo` | `True` | Whether the PBO gate is on. |
+| 6 | `use_dsr` | `True` | Whether the DSR gate is on. |
+| — | `nw_lag` | `None` | `None` → resolved from frequency (daily 5 / monthly 3). |
+| — | `winsorize` | `(0.01, 0.99)` | Winsorize bounds. |
+| — | `beta_window` | `126` | Beta estimation window (days). |
+| — | `agreement_t_min` | `2.0` | Conjugate t threshold. |
+| — | `sign_consistency_min` | `0.90` | Sign-consistency floor. |
+| — | `pbo_max` | `0.50` | Real CSCV PBO ceiling. |
+| — | `dsr_min` | `0.95` | DSR floor. |
+| — | `residual_corr_null_pctile` | `95` | Residual correlation null percentile. |
 
-`requires_market_neutralization(mode)`: Mod-A / PANEL'de `market` nötrleme yoksa raise.
-`nw_lag_for(frequency)`: `nw_lag` None ise daily=5 / monthly=3 döndürür.
+`requires_market_neutralization(mode)`: raises if `market` neutralization is absent in
+Mod-A / PANEL. `nw_lag_for(frequency)`: returns daily=5 / monthly=3 when `nw_lag` is None.
 
-### 3.4 `EngineOutput` — Section-7 çıktı vektörü
+### 3.4 `EngineOutput` — the Section-7 output vector
 
-Her alan `None`/boş varsayılanlıdır; kısmi bir koşu bile geçerli bir nesnedir.
+Every field defaults to `None`/empty; even a partial run is a valid object.
 
-| Grup | Alanlar |
-|------|---------|
-| **Getiri** | `gross_active_ann`, `net_active_ann`, `cost_ann`, `tax_ann`, `mean_rt_bps` |
-| **Fair-null** (Faz-3'te None) | `null_percentile`, `mirror_active_ann` |
+| Group | Fields |
+|-------|--------|
+| **Returns** | `gross_active_ann`, `net_active_ann`, `cost_ann`, `tax_ann`, `mean_rt_bps` |
+| **Fair-null** (None in Faz-3) | `null_percentile`, `mirror_active_ann` |
 | **Benchmark floor** | `real_active_ann`, `benchmark_floor_ann`, `beats_benchmark_floor` |
-| **Anlamlılık** | `pbo`, `deflated_oos_t` (None), `dsr`, `dsr_n_trials`, `nw_t` |
+| **Significance** | `pbo`, `deflated_oos_t` (None), `dsr`, `dsr_n_trials`, `nw_t` |
 | **Conjugate (Mod-A)** | `agreement_pass`, `agreement_t_cross_median`, `sign_consistency`, `residual_cross_sectional_corr`, `residual_corr_flag` |
-| **Mod-A güven** | `agreement_confidence`, `agreement_confidence_reasons` |
+| **Mod-A confidence** | `agreement_confidence`, `agreement_confidence_reasons` |
 | **Holdout (Mod-C)** | `holdout_persistence_pass`, `holdout_ic_t/mean`, `train_ic_t/mean`, `holdout_sign_consistent`, `n_holdout_obs`, `n_train_obs`, `holdout_confidence`, `holdout_confidence_reasons` |
-| **Rejim & plato** | `per_regime`, `plateau_map` |
-| **Gardlar** | `pm1_guard_raised`, `guard_messages` |
-| **Köken** | `n_obs`, `n_names`, `split_mode`, `notes` |
+| **Regime & plateau** | `per_regime`, `plateau_map` |
+| **Guards** | `pm1_guard_raised`, `guard_messages` |
+| **Provenance** | `n_obs`, `n_names`, `split_mode`, `notes` |
 
 ---
 
-## 4. Matematiksel model
+## 4. Mathematical model
 
-Aşağıdaki notasyon `src/engine/stats.py`, `neutralizer.py`, `moda.py`, `pbo.py`,
-`dsr.py`, `benchmark.py` ile birebir tutarlıdır.
+The notation below is in exact correspondence with `src/engine/stats.py`,
+`neutralizer.py`, `moda.py`, `pbo.py`, `dsr.py`, `benchmark.py`.
 
-### 4.1 Cross-sectional rank-IC ve onun anlamlılığı
+### 4.1 Cross-sectional rank-IC and its significance
 
-Her tarih `t` için, eligible isimler kümesi üzerinde sinyal skorları `s_{i,t}` ile
-ileri rezidüel getiri `r_{i,t}` arasındaki **Spearman rank korelasyonu** hesaplanır:
+For each date `t`, the **Spearman rank correlation** between the signal scores `s_{i,t}`
+and the forward residual returns `r_{i,t}` is computed over the eligible name set:
 
 ```
-IC_t = corr_spearman( rank(s_{·,t}), rank(r_{·,t}) ),   |{i: ikisi de finite}| >= 30
+IC_t = corr_spearman( rank(s_{·,t}), rank(r_{·,t}) ),   |{i: both finite}| >= 30
 ```
 
-(`MIN_NAMES_CROSS_SECTION = 30`; tabanı geçmeyen tarih atlanır.) Bu, günlük IC
-serisini `{IC_t}` verir (`rank_ic_series`).
+(`MIN_NAMES_CROSS_SECTION = 30`; a date that fails the floor is skipped.) This gives the
+daily IC series `{IC_t}` (`rank_ic_series`).
 
-**Information Ratio** (`ic_ir`): IC serisinin sinyal-gürültü oranı,
+**Information Ratio** (`ic_ir`): the signal-to-noise ratio of the IC series,
 
 ```
 IR = mean_t(IC) / std_t(IC),   std ddof=1
 ```
 
-**Newey-West HAC t-istatistiği** (`nw_tstat`) — IC serisinin ortalamasının,
-otokorelasyona-dayanıklı t-değeri. Bartlett çekirdekli HAC varyans (POPÜLASYON
-varyansı konvansiyonu, C12 golden ile tutarlı):
+**Newey-West HAC t-statistic** (`nw_tstat`) — the autocorrelation-robust t-value of the
+IC series mean. HAC variance with a Bartlett kernel (POPULATION-variance convention,
+consistent with the C12 golden):
 
 ```
 e   = IC - mean(IC)
 γ_0 = (e·e) / n
 γ_k = (e[k:]·e[:-k]) / n,                k = 1..L
-s   = γ_0 + 2 · Σ_{k=1}^{L} (1 - k/(L+1)) · γ_k         (Bartlett ağırlıkları)
+s   = γ_0 + 2 · Σ_{k=1}^{L} (1 - k/(L+1)) · γ_k         (Bartlett weights)
 t   = mean(IC) / sqrt(s / n)
 ```
 
-Gardlar:
-- `n < L + 3` → `NaN` (HAC için yetersiz örnek).
-- **FAZ-4 sıfıra-yakın-varyans tabanı:** `s <= eps · mean^2` (eps = `1e-12`) → `NaN`.
-  Sayısal-sabit bir girdi, FP yuvarlamasından dolayı `s ~ 1e-32` gibi minik-ama-pozitif
-  bir HAC varyansına sahip olabilir; bu `s <= 0` gardını atlayıp patlayan sahte bir t
-  üretir. Göreli-varyans tabanı yalnızca dejenere girdide tetiklenir; C12 golden
-  (~1e2 göreli varyans) ve d211/d213 denkliği asla tetiklemez.
+Guards:
+- `n < L + 3` → `NaN` (insufficient sample for HAC).
+- **FAZ-4 near-zero-variance floor:** `s <= eps · mean^2` (eps = `1e-12`) → `NaN`.
+  A numerically-constant input can have a tiny-but-positive HAC variance (`s ~ 1e-32`)
+  from FP rounding that slips past the `s <= 0` guard and yields an explosive spurious t.
+  The relative-variance floor fires only on degenerate input; the C12 golden
+  (~1e2 relative variance) and the d211/d213 equivalence never trip it.
 
-`L` (lag) frekanstan çözülür: daily=5, monthly=3 (`NW_LAG_DAILY/MONTHLY`).
+`L` (lag) is resolved from frequency: daily=5, monthly=3 (`NW_LAG_DAILY/MONTHLY`).
 
-### 4.2 Piyasa-beta nötrleme (look-ahead-safe)
+### 4.2 Market-beta neutralization (look-ahead-safe)
 
-Faktörün anlamlı olabilmesi için piyasa-beta etkisi temizlenir (Section 3.5,
-Mod-A'da **zorunlu**). `rolling_beta`, **bakışı-geleceğe-kaçırmaz**: pencereden önce
-`shift(1)` uygulanır, böylece `t` günündeki beta yalnızca `t-1` ve öncesine dayanır.
+For a factor to be meaningful, the market-beta effect is removed (Section 3.5, **mandatory**
+in Mod-A). `rolling_beta` **never leaks the future**: a `shift(1)` is applied before the
+window, so the beta on day `t` rests only on `t-1` and earlier.
 
 ```
 β_{i,t} = Cov_{W}( r^{daily}_{i}, r^{daily}_{mkt} ) / Var_{W}( r^{daily}_{mkt} )
 ```
 
-W = `BETA_WINDOW_DAYS = 126`, en az `0.8·W` gözlem (`BETA_MIN_COVERAGE`), popülasyon
-varyansı. Rezidüalizasyon (kesişimsiz):
+W = `BETA_WINDOW_DAYS = 126`, at least `0.8·W` observations (`BETA_MIN_COVERAGE`),
+population variance. Residualization (no intercept):
 
 ```
 r̃_{i,t} = r_{i,t} - β_{i,t} · r_{mkt,t}            (residualize)
 ```
 
-**İleri yön** (`market_neutral_forward`): GEÇMİŞ günlük getirilerden tahmin edilen beta,
-İLERİ piyasa hareketine uygulanır → ileri rezidüel getiri `resid_fwd`. Bu, Mod-A ve
-Mod-C'nin IC'yi üzerinde hesapladığı seridir.
+**Forward direction** (`market_neutral_forward`): a beta estimated from PAST daily returns
+is applied to the FORWARD market move → the forward residual return `resid_fwd`. This is the
+series on which Mod-A and Mod-C compute the IC.
 
-### 4.3 Conjugate uyum — Mod-A'nın 3-parçalı PASS bariyeri
+### 4.3 The Conjugate-Universes Model (formal)
 
-Section 4.1. Evren, **likidite-katmanlı çift-randomizasyon** ile iki kola (`X_1`, `X_2`)
-ayrılır: isimler ADV'ye göre sıralanır, komşu çiftler tohum-sabit yazı-tura ile bölünür
-(her kolda eşit likidite). `R = 50` tohum üzerinde tekrarlanır. Beta TÜM panelde **bir
-kez** tahmin edilip kola dilimlenir (yapısal kol bağımsızlığı). PASS, **üç koşulun da**
-sağlanmasıdır:
+This is the formal underpinning of Mod-A: rather than splitting *time*, the **investable
+universe is split into two disjoint name-arms** and we ask whether a signal that ranks the
+names in one half also ranks the (different) names in the other half, on market-neutralized
+returns.
+
+**Eligible universe.** At split-time `t_split`, the eligible set is
 
 ```
-(1)  median_R( t_IC^{cross} )  >  2.0      HER İKİ yönde (X_1→X_2 ve X_2→X_1)
-(2)  sign_consistency          >= 0.90     (IC işaretinin kollar arası tutarlılığı)
-(3)  PBO_CSCV                  <  0.50      (gerçek median-rank PBO; proxy DEĞİL)
+N = { i : ADV_i(t_split) >= F_liq  AND  i trades continuously over [d0, d1] }
+```
+
+where `ADV_i(t_split)` is the look-ahead-safe trailing median traded value and
+`F_liq = split_arm_floor_tl = 1e7`:
+
+```
+ADV_i(t_split) = median{ V_{i,τ} : τ <= t_split, last L_adv observations },   L_adv = 63
+```
+
+**Liquidity-stratified pair-randomization.** Order `N` by descending ADV,
+`π = (π_1, ..., π_n)` with `ADV_{π_1} >= ADV_{π_2} >= ...`, and form adjacent pairs
+`P_p = {π_{2p-1}, π_{2p}}`, `p = 1..⌊n/2⌋` (the odd leftover — the least-liquid name — is
+dropped to keep balance). For split `r` (an independent seed-derived RNG stream), draw
+coins `c_p^{(r)} ~ Bernoulli(1/2)` iid and assign:
+
+```
+X_1^{(r)} = { π_{2p-1} if c_p=0 else π_{2p}   :  p = 1..⌊n/2⌋ }
+X_2^{(r)} = { π_{2p}   if c_p=0 else π_{2p-1} :  p = 1..⌊n/2⌋ }
+```
+
+By construction the two arms are **disjoint, equal-sized, and liquidity-balanced**:
+
+```
+X_1^{(r)} ∩ X_2^{(r)} = ∅,    |X_1^{(r)}| = |X_2^{(r)}| = ⌊n/2⌋
+```
+
+so an `X_1 ↔ X_2` difference can never be a liquidity artifact. The split space has
+cardinality `2^{⌊n/2⌋} ≫ R`, so the `R` seeds sample a rich distribution rather than one
+near-degenerate point. Alphabetical/ordered assignment is FORBIDDEN; both supported methods
+(`LIQUIDITY`, `RANDOM`) shuffle.
+
+**Structural arm independence.** The market-neutral forward residual `r̃_{i,t}` (§4.2) is the
+SAME for a name regardless of arm: beta is estimated once on the full panel and sliced per
+arm (`rolling_beta` takes no arm argument), so the name-split cannot change a residual — arm
+independence is structural, not promised (a unit test pins it).
+
+**The conjugate read.** For each arm `a ∈ {X_1, X_2}` and date `t`, the within-arm
+cross-sectional rank-IC and its per-arm, per-split Newey-West t-stat are
+
+```
+IC_t^{(a)} = corr_spearman( s_{·,t}|_a , r̃_{·,t}|_a ),   |{i ∈ a : finite}| >= 30
+T_a^{(r)}  = nw_tstat( {IC_t^{(a)}}_t , L )
+```
+
+For a zero-discretion (parameter-free) scorer, "fit in `X_1` / evaluate in `X_2`" reduces
+to the IC realized in the evaluation arm, since there are no fitted parameters to carry —
+the conjugacy lives in the disjoint name partition, not in a re-estimation. Aggregated over
+the `R` splits:
+
+```
+τ_cross = min( median_r T_{X_1}^{(r)},  median_r T_{X_2}^{(r)} )                       (cross-direction median t)
+κ       = (1/R) Σ_r 1[ sign(mean_t IC^{(X_1,r)}) == sign(mean_t IC^{(X_2,r)}) ≠ 0 ]    (sign consistency)
+```
+
+### 4.4 Conjugate agreement — Mod-A's 3-part PASS bar
+
+Section 4.1. PASS requires **all three conditions** to hold (the third, PBO, is §4.6):
+
+```
+(1)  median_R( t_IC^{cross} )  >  2.0      in BOTH directions (X_1→X_2 and X_2→X_1)
+(2)  sign_consistency          >= 0.90     (κ: cross-arm consistency of the IC sign)
+(3)  PBO_CSCV                  <  0.50      (real median-rank PBO; NOT the proxy)
+```
+
+```
+agreement_pass = [median_r T_{X_1} > 2.0] ∧ [median_r T_{X_2} > 2.0] ∧ [κ >= 0.90] ∧ [PBO < 0.50]
 ```
 
 (`AGREEMENT_CROSS_IC_T_MIN=2.0`, `SIGN_CONSISTENCY_MIN=0.90`, `PBO_THRESHOLD=0.50`.)
 
-### 4.4 Residual cross-sectional korelasyon (AYRI hesap, Section 4.2)
+### 4.5 Residual cross-sectional correlation (SEPARATE computation, Section 4.2)
 
-Conjugate uyumdan **kasıtlı olarak ayrı** tutulur (4.3 karıştırma-yasağı). İki kolun
-aktif-getiri eş-hareketi bir **permütasyon null**'una karşı bayraklanır: gözlenen
-kol-korelasyonu, `RESIDUAL_NULL_RESAMPLES=200` rastgele yeniden-bölmeden kurulan null
-dağılımının `RESIDUAL_CORR_NULL_PCTILE=95`'inci yüzdesini aşıyorsa `residual_corr_flag=True`.
-Bu, "kollar paylaşılan bir ortak-faktör tarafından sürülüyor mu?" dedektörüdür
-(RR-Y1-008'in hi52 confound'unu yakalayan aynı makine).
+Kept **deliberately separate** from conjugate agreement (the 4.3 mixing-ban). The two arms'
+active-return co-movement is flagged against a **permutation null**: if the observed arm
+correlation exceeds the `RESIDUAL_CORR_NULL_PCTILE=95`-th percentile of the null
+distribution built from `RESIDUAL_NULL_RESAMPLES=200` random re-splits, `residual_corr_flag=True`.
+This is the "are the arms driven by a shared common-factor?" detector (the same machine that
+caught RR-Y1-008's hi52 confound).
 
-### 4.5 Gerçek CSCV PBO (Bailey & Lopez de Prado) — `pbo.py`
+### 4.6 Real CSCV PBO (Bailey & Lopez de Prado) — `pbo.py`
 
-Basit proxy (`P(OOS Sharpe < 0)`) overfit'i **göremez**: bir strateji pozitif OOS Sharpe
-verip yine de birçok adayın IS-en-şanslısı olabilir. Gerçek CSCV, conjugate bağlama
-şöyle eşlenir:
-- Seçilen "config"ler **cross-sectional sort-bucket'ları** (decile'lar, `PBO_N_BUCKETS=10`),
-  split'ler değil. (Config'ler split olsaydı, gerçek bir faktör her split'i iyi yapardı,
-  aralarındaki sıralama gürültü olurdu, PBO → 0.5 — gömülü-faktör fixture'ını yanlışlıkla
-  fail ederdi. Bucket-as-config bunu çözer.)
-- Kombinatoryal yeniden-örnekleme = `R` isim-bölmesi.
-- IS = kol `X_1`, OOS = kol `X_2` (ve simetriği; çağıran ortalar).
+The simple proxy (`P(OOS Sharpe < 0)`) **cannot see** overfit: a strategy can post a positive
+OOS Sharpe and still be the IS-luckiest of many candidates. The real CSCV is mapped to the
+conjugate context as follows:
+- The "configs" being selected among are **cross-sectional sort-buckets** (deciles,
+  `PBO_N_BUCKETS=10`), not the splits. (If configs were the splits, a real factor would make
+  every split good, the ranking among them would be noise, and PBO → 0.5 — falsely failing
+  the embedded-factor fixture. Buckets-as-config avoids that.)
+- The combinatorial resampling = the `R` name-splits.
+- IS = arm `X_1`, OOS = arm `X_2` (and the symmetric direction; the caller averages).
 
-Her split için IS-en-iyi bucket `b*`'ın OOS göreli sırasının logit'i:
+For each split, the logit of the IS-best bucket `b*`'s OOS relative rank:
 
 ```
-ω      = avg_rank(b* OOS değeri) / (n_valid + 1)            (Bailey-LdP ortalama-rank)
+ω      = avg_rank(b* OOS value) / (n_valid + 1)            (Bailey-LdP average-rank)
 λ      = log( ω / (1 - ω) )
-PBO    = (λ < 0 olan split oranı)
+PBO    = fraction of splits with λ < 0
 ```
 
-Saf gürültü → ~0.5; IS→OOS transfer eden bucket sırası → ~0; ters sıra → ~1. En az 2
-ortak-geçerli bucket gerekir; dejenere bucket'lar (`MIN_NAMES_PER_BUCKET=3` altı) NaN
-gelir ve dışlanır.
+Pure noise → ~0.5; a bucket order that transfers IS→OOS → ~0; an inverted order → ~1. At
+least 2 jointly-valid buckets are required; degenerate buckets (below `MIN_NAMES_PER_BUCKET=3`)
+arrive as NaN and are excluded.
 
-### 4.6 Deflated Sharpe Ratio — trial-count deflation (`dsr.py`)
+### 4.7 Deflated Sharpe Ratio — trial-count deflation (`dsr.py`)
 
-Çoklu-test / arama-overfit'i **DSR'ın N-deflasyonu** yakalar (bucket-PBO DEĞİL — o
-tek-prototip-içi overfit'i ölçer; farklı katman). Dürüst denenen-config sayısı `N`
-(Stage-0 `denenen_konfig_sayisi`) Bailey-LdP `E[max]` dereceli-istatistiğini besler:
+Multiple-test / search-overfit is caught by the DSR's **N-deflation** (NOT by bucket-PBO,
+which measures single-prototype-internal overfit; a different layer). The honest tried-config
+count `N` (Stage-0 `denenen_konfig_sayisi`) feeds the Bailey-LdP `E[max]` order statistic:
 
 ```
 E[max_N] = (1 - γ)·Φ^{-1}(1 - 1/N) + γ·Φ^{-1}(1 - 1/(N·e)),   γ = Euler-Mascheroni
 ```
 
-`N <= 1 → E[max]=0` (tek deneme çoklu-test şişmesi taşımaz; DSR pre-FAZ-4 ile
-byte-özdeş). Deflation benchmark:
+`N <= 1 → E[max]=0` (a single trial carries no multiple-test inflation; the DSR is
+byte-identical to the pre-FAZ-4 call). The deflation benchmark:
 
 ```
 denom² = 1 - skew·SR + (kurt-1)/4 · SR²
@@ -343,34 +409,34 @@ se_SR  = sqrt( denom² / (T-1) )
 benchmark_sr = se_SR · E[max_N]
 ```
 
-Bu, commit'li `compute_dsr`'ye `benchmark_sr` olarak verilince kanonik deflated DSR
-`Φ(SR/se_SR - E[max_N])`'yi tam olarak verir. **Strangler:** commit'li tahminci yeniden
-KULLANILIR, asla yeniden yazılmaz. `DSR_MIN = 0.95`.
+Fed to the committed `compute_dsr` as `benchmark_sr`, this yields exactly the canonical
+deflated DSR `Φ(SR/se_SR - E[max_N])`. **Strangler:** the committed estimator is REUSED,
+never rewritten. `DSR_MIN = 0.95`.
 
-### 4.7 Benchmark floor — reel getiri eşiği (`benchmark.py`, Section 6)
+### 4.8 Benchmark floor — real-return threshold (`benchmark.py`, Section 6)
 
-Donmuş kural:
-- **Reel-deflate:** her zaman TÜFE (2019+, panel boyunca finite).
-- **Benchmark-floor:** 2022-07 öncesi = yalnız-TÜFE; 2022-07+ = `max(TÜFE, TLREF)`.
-- **Sessiz-NaN tuzağı (d213 emsali):** temiz TLREF serisi 2022-07 öncesi NaN'dır. Floor
-  penceresi bu bölgeye uzanırsa NaN'ın `max`'ı sessizce çökertmesine İZİN VERİLMEZ —
-  gard-RAISE (mesaj kaydedilir) ve o pencere için yalnız-TÜFE'ye düşülür.
+Frozen rule:
+- **Real-deflate:** always TUFE (CPI, 2019+, finite throughout the panel).
+- **Benchmark-floor:** pre-2022-07 = TUFE-only; 2022-07+ = `max(TUFE, TLREF)`.
+- **Silent-NaN trap (d213 precedent):** the clean TLREF series is NaN before 2022-07. If the
+  floor window reaches into that region, the NaN is NOT allowed to silently collapse the
+  `max` — guard-RAISE (the message is recorded) and fall back to TUFE-only for that window.
 
-TÜFE/TLREF **seviye** serileridir, dolayısıyla yıllıklaştırma takvim-günü CAGR'dir
-(`asof` ile, snapshot'ların aylık indeksine dayanıklı):
+TUFE/TLREF are **level** series, so annualization is a calendar-day CAGR (via `asof`, robust
+to the snapshots' monthly index):
 
 ```
 CAGR = (level(d1) / level(d0)) ^ (365.25 / days) - 1
-real_active = (1 + nominal_active) / (1 + TÜFE_ann) - 1
-beats = real_active > max(TÜFE_ann, TLREF_ann)
+real_active = (1 + nominal_active) / (1 + TUFE_ann) - 1
+beats = real_active > max(TUFE_ann, TLREF_ann)
 ```
 
-### 4.8 Mod-C — rejim-içi ileri time-holdout persistence (RR-Y1-010)
+### 4.9 Mod-C — intra-regime forward time-holdout persistence (RR-Y1-010)
 
-Çekirdek araştırma sorusunu doğrudan yanıtlar: bir cross-sectional faktörü bir EĞİTİM
-zaman-penceresinde dondur, forward rank-IC'sini AYNI REJİM içindeki SONRAKİ bir held-out
-penceresinde ölç; aralarına bir **embargo** (= ileri-getiri ufku) konularak inşa-dönemi
-getirisinin sınırı geçmesi engellenir.
+Answers the core research question directly: freeze a cross-sectional factor on a TRAINING
+time-window, measure its forward rank-IC on a LATER held-out window WITHIN THE SAME regime,
+with an **embargo** (= the forward-return horizon) purged between them so no construction-period
+return leaks across the boundary.
 
 ```
 boundary  = holdout_start
@@ -379,224 +445,224 @@ pre       = eval_dates[ < boundary ]
 train     = pre[ : len(pre) - embargo_h ]              (embargo purge)
 ```
 
-Persistence PASS **mevcut bariyeri yeniden kullanır** (yeni tunable YOK):
+Persistence PASS **reuses the existing bar** (NO new tunable):
 
 ```
 persistence_pass = (holdout_ic_t > agreement_t_min[=2.0])  AND  sign(holdout_IC) == sign(train_IC)
 ```
 
-Güç hakkındaki dürüstlük bariyeri yumuşatarak değil, **ayrı holdout güven niteliği** ile
-taşınır (§5). Dejenere bölme (sınır eval penceresi dışında, ya da train/holdout `< lag+3`)
-→ `holdout_persistence_pass=None` + guard mesajı, yanıltıcı sayı değil.
+Honesty about power is carried not by softening the bar but by the **separate holdout
+confidence qualifier** (§5). A degenerate split (boundary outside the eval window, or
+train/holdout `< lag+3`) → `holdout_persistence_pass=None` + a guard message, never a
+misleading number.
 
 ---
 
-## 5. Güven nitelikleri (confidence qualifiers)
+## 5. Confidence qualifiers
 
-İkisi de **yalnızca ek (additive)**: pass/fail bayraklarını ASLA değiştirmez, keep-bar'lara
-ortogonaldir (DEC-049 dokunulmaz). Bir ölçümün **güvenilirlik ön-koşullarının** sağlanıp
-sağlanmadığını niteler. Öncelik her ikisinde de: **confounded > low > high**.
+Both are **additive only**: they NEVER alter the pass/fail flags and are orthogonal to the
+keep-bars (DEC-049 untouched). They qualify whether the **preconditions** for a trustworthy
+measurement held. The precedence in both is: **confounded > low > high**.
 
 ### 5.1 Mod-A — `assess_agreement_confidence` (RR-Y1-009)
 
-| Grade | Tetikleyici |
-|-------|-------------|
-| `CONFOUNDED` | `residual_corr_flag` (paylaşılan ortak-faktör) **VEYA** tek-rejim eval penceresi. |
-| `LOW` | kol < `AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE=50` **VEYA** R < `AGREEMENT_MIN_R_FOR_HIGH_CONFIDENCE=50`. |
-| `HIGH` | hiçbiri tetiklenmedi. |
+| Grade | Trigger |
+|-------|---------|
+| `CONFOUNDED` | `residual_corr_flag` (shared common-factor) **OR** a single-regime eval window. |
+| `LOW` | arm < `AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE=50` **OR** R < `AGREEMENT_MIN_R_FOR_HIGH_CONFIDENCE=50`. |
+| `HIGH` | none tripped. |
 
-RR-Y1-008'in kapattığı boşluk: bilinen-ölü bir momentum-proxy, küçük-kollu tek-rejim
-pencerede `agreement_pass=True` üretmişti. Conjugate'in dar sorusu ("isim-spesifik
-overfit yok") doğru yanıtlanmıştı ama sonuç rejim-içi ortak-faktör artefaktıydı.
+The gap RR-Y1-008 closed: a known-dead momentum-proxy produced `agreement_pass=True` on a
+small-arm, single-regime window. The conjugate's narrow question ("no name-specific overfit")
+was answered correctly, but the result was a within-regime common-factor artifact.
 
 ### 5.2 Mod-C — `assess_holdout_confidence` (RR-Y1-010)
 
-| Grade | Tetikleyici |
-|-------|-------------|
-| `CONFOUNDED` | holdout `REGIME_SPLIT`'i geçiyor **VEYA** holdout penceresinde residual flag. |
+| Grade | Trigger |
+|-------|---------|
+| `CONFOUNDED` | the holdout crosses `REGIME_SPLIT` **OR** a residual flag fires on the holdout window. |
 | `LOW` | `n_holdout_obs < HOLDOUT_MIN_IC_OBS_FOR_HIGH_CONFIDENCE=60`. |
-| `HIGH` | hiçbiri tetiklenmedi. |
+| `HIGH` | none tripped. |
 
-**Zıt-ama-tutarlı rejim semantiği (kritik nüans):**
-- **Mod-A:** tek-rejim eval penceresi = ŞÜPHELİ (rejim-içi ortak-faktör artefaktı temiz
-  bir conjugate PASS'i taklit edebilir).
-- **Mod-C:** tek-rejim = TASARIM, confound değil (soru tam olarak "tek rejim içinde ileri
-  taşır mı"). Buradaki confound, holdout penceresinin `REGIME_SPLIT`'i (2022-01-01)
-  GEÇMESİDİR — train bir rejimde, holdout diğerine taşarsa "aynı-rejim persistence"
-  sorusu kirlenir.
+**Opposite-but-consistent regime semantics (the critical nuance):**
+- **Mod-A:** a single-regime eval window is SUSPECT (a within-regime common-factor artifact
+  can fake a clean conjugate PASS).
+- **Mod-C:** single-regime is the DESIGN, not a confound (the question is precisely "does it
+  persist forward WITHIN one regime"). The confound here is the holdout window CROSSING
+  `REGIME_SPLIT` (2022-01-01) — if train sits in one regime and the holdout spills into
+  another, the same-regime-persistence question is polluted.
 
-Bu yüzden iki ayrı enum'dur (`AgreementConfidence` vs `HoldoutConfidence`), tek bir
-"single-regime → confounded" kuralı değil.
+That is why these are two separate enums (`AgreementConfidence` vs `HoldoutConfidence`), not a
+single "single-regime → confounded" rule.
 
 ---
 
-## 6. Ön-kayıt disiplini (Stage-0 + Lockbox)
+## 6. Pre-registration discipline (Stage-0 + Lockbox)
 
-### 6.1 Stage-0 — hipotezi ölçümden ÖNCE dondur (`stage0_validator.py`)
+### 6.1 Stage-0 — freeze the hypothesis BEFORE measurement (`stage0_validator.py`)
 
-`harness(..., stage0_path=...)` verildiğinde motor `require_stage0` ile şunları zorlar:
-dosya MEVCUT, şema-geçerli, `frozen_before_results is True`, ve (opsiyonel) frozen
-snapshot içerik-hash'i (`sha256[:16]`, d213 emsali) tutuyor. Dosya yoksa → **çalışmayı
-reddeder** (post-hoc-lock, Section 5).
+When `harness(..., stage0_path=...)` is given, `require_stage0` enforces that the file is
+PRESENT, schema-valid, `frozen_before_results is True`, and (optionally) the frozen snapshot's
+content-hash (`sha256[:16]`, d213 precedent) matches. If the file is absent → it **refuses to
+run** (post-hoc-lock, Section 5).
 
-Zorunlu alanlar (`REQUIRED_FIELDS`, 18 adet): `prototip_id`, `hipotez`, `tutunma_noktasi`
-(`cross_sectional`/`timing`/`panel`), `split_modu` (`A`/`B`/`A+B`), `psi`,
-`faktor_notrleme` (boş-olmayan liste, `market` minimum), `embargo_h`, `split_arm_floor`,
-`sort_depth`, `hedef_rejim`, `frekans` (`daily`/`monthly`), `getiri_tabani`, `keep_bar`
-(`pbo_max` + `dsr_min` anahtarları zorunlu), `denenen_konfig_sayisi` (→ DSR deflation N),
-`frozen_before_results`, `date_frozen`, `snapshots_content_hash_sha256_prefix`,
-`strangler_constraints`. **monthly → split_modu 'A'** zorunlu.
+Required fields (`REQUIRED_FIELDS`, 18): `prototip_id`, `hipotez`, `tutunma_noktasi`
+(`cross_sectional`/`timing`/`panel`), `split_modu` (`A`/`B`/`A+B`), `psi`, `faktor_notrleme`
+(non-empty list, `market` minimum), `embargo_h`, `split_arm_floor`, `sort_depth`, `hedef_rejim`,
+`frekans` (`daily`/`monthly`), `getiri_tabani`, `keep_bar` (`pbo_max` + `dsr_min` keys
+required), `denenen_konfig_sayisi` (→ DSR deflation N), `frozen_before_results`, `date_frozen`,
+`snapshots_content_hash_sha256_prefix`, `strangler_constraints`. **monthly → split_modu 'A'**
+required.
 
-Opsiyonel alanlar (yoksa `None`, geriye dönük uyumlu): lockbox (`lockbox_spec`,
-`lockbox_content_hash`) ve Mod-C kaydı (`eval_window_start`, `eval_window_end`,
+Optional fields (None when absent, backward compatible): lockbox (`lockbox_spec`,
+`lockbox_content_hash`) and the Mod-C record (`eval_window_start`, `eval_window_end`,
 `holdout_start`).
 
-### 6.2 Lockbox — tek-atışlık held-out kilidi (`lockbox.py`)
+### 6.2 Lockbox — single-shot held-out seal (`lockbox.py`)
 
-İş akışı: discovery set'te yinele → DONDUR → bağımsız veride **bir KEZ** değerlendir.
-Stage-0 *tasarımı* dondurur; lockbox ek olarak bir held-out veri alt-kümesini mühürler
-(isme, zaman bloğuna ya da ikisine göre) ve şu koşullar sağlanmadıkça skorlamayı
-reddeder: Stage-0 mevcut + frozen + `lockbox_fingerprint(panel)` == kayıtlı hash. Sonra
-değerlendirmeyi **consumed** olarak işaretler — mühürlü set bir daha tuning yüzeyi
-olamaz.
+The workflow: iterate on the discovery set → FREEZE → evaluate ONCE on independent data.
+Stage-0 freezes the *design*; the lockbox additionally seals a held-out data subset (by name,
+by time block, or both) and refuses to score unless: Stage-0 is present + frozen +
+`lockbox_fingerprint(panel)` == the registered hash. It then marks the evaluation as
+**consumed** — the sealed set can never again become a tuning surface.
 
 ```
 lockbox_fingerprint = sha256( names_sorted | dates_sorted | close_float64_bytes )[:16]
 ```
 
-Marker dosyası (`{stem}.lockbox-consumed.json`) **commit edilmek üzere tasarlanmıştır** —
-git-ignored DEĞİL. Taze `git checkout` sonrası marker mevcut olduğundan ikinci koşu
-reddedilir (inkar-edilemez disiplin). Marker gerçek veri taşımaz: yalnız `prototip_id`,
-16-karakter hash, `denenen_konfig_sayisi`, UTC `consumed_at`. Tüketim, harness'ın DÖNMEDEN
-ÖNCEKİ SON eylemidir — koşu ortasında çökme lockbox'ı yakmaz.
+The marker file (`{stem}.lockbox-consumed.json`) is **designed to be committed** — NOT
+git-ignored. After a fresh `git checkout` the marker is present, so a second run is refused
+(non-repudiable discipline). The marker carries no real data: only `prototip_id`, the 16-char
+hash, `denenen_konfig_sayisi`, and a UTC `consumed_at`. Consumption is the harness's LAST
+action BEFORE returning — a crash mid-run does not burn the lockbox.
 
 ---
 
-## 7. Modlara göre kullanım örnekleri
+## 7. Usage examples by mode
 
-### 7.1 Mod-A — isim-bölme conjugate (cross-sectional faktör)
+### 7.1 Mod-A — name-split conjugate (cross-sectional factor)
 
 ```python
 spec = SplitSpec(split_mode=SplitMode.NAME, frequency=Frequency.DAILY,
                  R=50, sort_depth=SortDepth.TERCILE)
 out  = harness(panel, sig, spec, DialConfig())
 assert out.agreement_pass in (True, False)
-# Oku: agreement_pass + agreement_confidence (HIGH/LOW/CONFOUNDED) + pbo
+# Read: agreement_pass + agreement_confidence (HIGH/LOW/CONFOUNDED) + pbo
 ```
 
-### 7.2 Mod-B — zamansal CPCV (timing sinyali)
+### 7.2 Mod-B — temporal CPCV (timing signal)
 
 ```python
 spec = SplitSpec(split_mode=SplitMode.TEMPORAL, frequency=Frequency.DAILY,
                  cpcv_n=10, cpcv_k=2, embargo_h=sig.construction_window)
 out  = harness(panel, sig, spec, DialConfig())
-# Oku: dsr, dsr_n_trials, pbo (proxy -- not'a bak), pooled OOS NW-t
+# Read: dsr, dsr_n_trials, pbo (proxy -- see the note), pooled OOS NW-t
 ```
 
-### 7.3 Mod-C — rejim-içi ileri time-holdout (RR-Y1-010)
+### 7.3 Mod-C — intra-regime forward time-holdout (RR-Y1-010)
 
 ```python
 spec = SplitSpec(split_mode=SplitMode.TIME_HOLDOUT, frequency=Frequency.DAILY,
                  holdout_start="2024-09-01", embargo_h=sig.construction_window)
 out  = harness(panel, sig, spec, DialConfig())
-# Oku: holdout_persistence_pass + holdout_confidence + (train_ic_t vs holdout_ic_t)
+# Read: holdout_persistence_pass + holdout_confidence + (train_ic_t vs holdout_ic_t)
 ```
 
-### 7.4 PANEL — A+B birlikte
+### 7.4 PANEL — A+B together
 
 ```python
 spec = SplitSpec(split_mode=SplitMode.PANEL, frequency=Frequency.DAILY)
 out  = harness(panel, sig, spec, DialConfig())
-# Hem agreement_* (Mod-A) hem dsr (Mod-B) dolar. Mod-C PANEL'e KATILMAZ (kasıtlı).
+# Both agreement_* (Mod-A) and dsr (Mod-B) populate. Mod-C does NOT join PANEL (by design).
 ```
 
 ---
 
-## 8. Çıktıyı okuma rehberi
+## 8. Reading the output
 
-Motor karar vermez; aşağıdaki **birlikte-okuma** mantığı önerilir:
+The engine does not decide; the following **joint-reading** logic is recommended:
 
-1. **Tradeable mi?** `net_active_ann > 0` **ve** `beats_benchmark_floor is True`
-   (reel getiri max(TÜFE,TLREF)'i yeniyor mu). Brüt pozitif ama net negatifse → maliyet-öldü.
-2. **İstatistiksel olarak gerçek mi?** `nw_t` büyük, `pbo < 0.50`, `dsr >= 0.95`.
-3. **Overfit değil mi (Mod-A)?** `agreement_pass is True` **ve** `agreement_confidence is HIGH`.
-   `CONFOUNDED`/`LOW` ise PASS'e güvenme — `agreement_confidence_reasons`'ı oku.
-4. **İleri taşıyor mu (Mod-C)?** `holdout_persistence_pass is True` **ve**
+1. **Is it tradeable?** `net_active_ann > 0` **and** `beats_benchmark_floor is True` (does
+   the real return beat max(TUFE,TLREF)). Gross positive but net negative → cost-killed.
+2. **Is it statistically real?** `nw_t` large, `pbo < 0.50`, `dsr >= 0.95`.
+3. **Not overfit (Mod-A)?** `agreement_pass is True` **and** `agreement_confidence is HIGH`.
+   If `CONFOUNDED`/`LOW`, do not trust the PASS — read `agreement_confidence_reasons`.
+4. **Does it persist forward (Mod-C)?** `holdout_persistence_pass is True` **and**
    `holdout_confidence is HIGH`.
-5. **Rejim-kararlı mı?** `per_regime` pre/post 2022 her iki kolda da aynı işaret mi.
-6. **Curve-fit değil mi?** `plateau_map` komşu (sort_depth × ufuk) noktalarında stabil mi.
-7. **Gardlar:** `guard_messages` ve `notes` boş mu — değilse hangi alan neden `None`?
+5. **Regime-stable?** Does `per_regime` carry the same sign pre/post 2022 in both arms.
+6. **Not curve-fit?** Is `plateau_map` stable across neighboring (sort_depth × horizon) points.
+7. **Guards:** are `guard_messages` and `notes` empty — if not, which field is `None` and why?
 
-> **Altın kural:** `None` bir başarısızlık değil, **dürüst bir "üretilmedi"**dir. Mesela
-> Mod-A-only koşuda `dsr` None'dur (DSR Mod-B'nin zamansal-Sharpe ölçüsüdür); `null_percentile`
-> ve `deflated_oos_t` Faz-3'te bacaklar tarafından üretilmez.
+> **Golden rule:** `None` is not a failure but an honest "not produced". For example, in a
+> Mod-A-only run `dsr` is None (DSR is Mod-B's temporal-Sharpe measure); `null_percentile` and
+> `deflated_oos_t` are not produced by the legs in Faz-3.
 
 ---
 
-## 9. Donmuş sabitler (tek doğru kaynak: `config.py`)
+## 9. Frozen constants (single source of truth: `config.py`)
 
-| Sabit | Değer | Rol |
-|-------|-------|-----|
+| Constant | Value | Role |
+|----------|-------|------|
 | `IC_TYPE` | `spearman` | Cross-sectional rank-IC. |
-| `MIN_NAMES_CROSS_SECTION` | `30` | IC için min isim. |
+| `MIN_NAMES_CROSS_SECTION` | `30` | Min names for IC. |
 | `NW_LAG_DAILY` / `NW_LAG_MONTHLY` | `5` / `3` | HAC bandwidth. |
-| `NW_VAR_FLOOR_EPS` | `1e-12` | Sıfıra-yakın-varyans NaN tabanı. |
-| `BETA_WINDOW_DAYS` | `126` | Beta penceresi. |
-| `BETA_MIN_COVERAGE` | `0.8` | Min beta kapsamı. |
-| `SPLIT_R_MIN` | `50` | Mod-A isim-bölme sayısı. |
-| `MIN_NAMES_PER_ARM` | `50` | Kol-başına min isim. |
-| `AGREEMENT_CROSS_IC_T_MIN` | `2.0` | Conjugate t eşiği. |
-| `SIGN_CONSISTENCY_MIN` | `0.90` | İşaret tutarlılığı. |
-| `PBO_THRESHOLD` | `0.50` | Gerçek CSCV PBO tavanı. |
-| `PBO_N_BUCKETS` | `10` | PBO decile sayısı (sort_depth'ten DECOUPLED). |
-| `MIN_NAMES_PER_BUCKET` | `3` | Dejenere-bucket gardı. |
-| `RESIDUAL_CORR_NULL_PCTILE` | `95` | Residual korelasyon null yüzdesi. |
-| `RESIDUAL_NULL_RESAMPLES` | `200` | Permütasyon null yeniden-bölmeleri. |
-| `CPCV_DAILY_N` / `CPCV_DAILY_K` | `10` / `2` | Mod-B CPCV blokları. |
-| `DSR_MIN` | `0.95` | DSR tabanı. |
-| `DSR_DEFAULT_N_TRIALS` | `1` | Stage-0 yoksa → deflation yok. |
-| `EULER_MASCHERONI` | `0.5772156649` | E[max] dereceli-istatistik. |
-| `AGREEMENT_MIN_ARM/R_FOR_HIGH_CONFIDENCE` | `50` / `50` | Mod-A güven tabanı. |
-| `HOLDOUT_MIN_IC_OBS_FOR_HIGH_CONFIDENCE` | `60` | Mod-C güven tabanı (directional, deployable DEĞİL). |
-| `REGIME_SPLIT` | `2022-01-01` | Manuel rejim sınırı. |
-| `BENCHMARK_TLREF_FROM` | `2022-07` | TLREF floor'a girdiği tarih. |
-| `LIQUID_ADV_MIN_TL` | `1e7` | Likidite tabanı (ADV-TL). |
-| `TRADING_DAYS_YR` | `252.0` | Getiri-serisi yıllıklaştırma. |
+| `NW_VAR_FLOOR_EPS` | `1e-12` | Near-zero-variance NaN floor. |
+| `BETA_WINDOW_DAYS` | `126` | Beta window. |
+| `BETA_MIN_COVERAGE` | `0.8` | Min beta coverage. |
+| `SPLIT_R_MIN` | `50` | Mod-A name-split count. |
+| `MIN_NAMES_PER_ARM` | `50` | Min names per arm. |
+| `AGREEMENT_CROSS_IC_T_MIN` | `2.0` | Conjugate t threshold. |
+| `SIGN_CONSISTENCY_MIN` | `0.90` | Sign consistency. |
+| `PBO_THRESHOLD` | `0.50` | Real CSCV PBO ceiling. |
+| `PBO_N_BUCKETS` | `10` | PBO decile count (DECOUPLED from sort_depth). |
+| `MIN_NAMES_PER_BUCKET` | `3` | Degenerate-bucket guard. |
+| `RESIDUAL_CORR_NULL_PCTILE` | `95` | Residual correlation null percentile. |
+| `RESIDUAL_NULL_RESAMPLES` | `200` | Permutation null re-splits. |
+| `CPCV_DAILY_N` / `CPCV_DAILY_K` | `10` / `2` | Mod-B CPCV blocks. |
+| `DSR_MIN` | `0.95` | DSR floor. |
+| `DSR_DEFAULT_N_TRIALS` | `1` | No Stage-0 → no deflation. |
+| `EULER_MASCHERONI` | `0.5772156649` | E[max] order statistic. |
+| `AGREEMENT_MIN_ARM/R_FOR_HIGH_CONFIDENCE` | `50` / `50` | Mod-A confidence floor. |
+| `HOLDOUT_MIN_IC_OBS_FOR_HIGH_CONFIDENCE` | `60` | Mod-C confidence floor (directional, NOT deployable). |
+| `REGIME_SPLIT` | `2022-01-01` | Manual regime boundary. |
+| `BENCHMARK_TLREF_FROM` | `2022-07` | Date TLREF enters the floor. |
+| `LIQUID_ADV_MIN_TL` | `1e7` | Liquidity floor (ADV-TL). |
+| `TRADING_DAYS_YR` | `252.0` | Return-series annualization. |
 
-**C12 golden çıpası:** `C12_GOLDEN_GROSS_NWT=6.928414`, `C12_GOLDEN_NET_NWT=-6.274774`
-@ `C12_GOLDEN_NW_LAG=10`, `C12_GOLDEN_N_POOLED=1375`. Bu, motorun gerçek veride
-determinist olduğunu kanıtlayan byte-yeniden-üretim testidir; metodolojik doğruluğun
-kanıtı DEĞİL (o, 3 sentetik Mod-A fixture + sentetik-null üzerinde durur).
-
----
-
-## 10. Garantiler ve sınırlar
-
-**Garantiler:**
-- **Sıfır regresyon:** ek alanlar/modlar varsayılan `None`; mevcut modlar byte-değişmez.
-- **PM-1 uyumu:** her ağırlık vektörü `assert_pm1_compliant`'tan geçer; nakit-kapısı RAISE.
-- **Look-ahead-safe:** beta `shift(1)` ile geçmişe dayanır; Mod-B/Mod-C embargo purge yapar.
-- **Determinizm:** tohum-sabit (`seed`); C12 golden byte-byte yeniden-üretilir.
-- **Strangler:** commit'li motorlar salt-okunur; `test_engine_no_lab_import.py` lab-import'u yasaklar.
-
-**Dürüst sınırlar:**
-- **Mod-C BIST 2019-2026'da yapısal olarak güç-fakiridir** (az sayıda örtüşmeyen rejim-içi
-  ileri holdout). `HOLDOUT_MIN_IC_OBS_FOR_HIGH_CONFIDENCE=60` bir directional tabandır,
-  deployable-güven eşiği değil. Değer = kavramsal-doğru enstrüman + 2026-2027 ileri dönemine
-  hazırlık.
-- **Faz-3'te üretilmeyen alanlar:** `null_percentile`, `mirror_active_ann` (fair-null
-  resampler kapsam dışı), `deflated_oos_t` (cut-family deflation wire değil). Hepsi `None` +
-  not, asla uydurulmaz.
-- **Mod-B PBO bir basit-proxy'dir** (`pbo_is_simplified_proxy=True`); gerçek CSCV
-  median-rank PBO Mod-A çekirdeğine aittir.
+**C12 golden anchor:** `C12_GOLDEN_GROSS_NWT=6.928414`, `C12_GOLDEN_NET_NWT=-6.274774`
+@ `C12_GOLDEN_NW_LAG=10`, `C12_GOLDEN_N_POOLED=1375`. This is the byte-reproduction test that
+proves the engine deterministic on real data; it is NOT the proof of methodological correctness
+(that rests on the 3 synthetic Mod-A fixtures + the synthetic-null).
 
 ---
 
-## 11. İlgili belgeler
+## 10. Guarantees and limits
 
-- Tasarım: `RR-Y1-005-TEST-MOTORU-TASARIM` v0.2
-- Matematik: `RR-Y1-005B-MATEMATIKSEL-SPEC` v1.1
+**Guarantees:**
+- **Zero regression:** new fields/modes default to `None`; existing modes are byte-unchanged.
+- **PM-1 compliance:** every weight vector passes `assert_pm1_compliant`; a cash-gate RAISES.
+- **Look-ahead-safe:** beta rests on the past via `shift(1)`; Mod-B/Mod-C purge an embargo.
+- **Determinism:** seed-fixed (`seed`); the C12 golden is reproduced byte-for-byte.
+- **Strangler:** committed motors are read-only; `test_engine_no_lab_import.py` forbids lab imports.
+
+**Honest limits:**
+- **Mod-C is structurally power-poor on BIST 2019-2026** (few non-overlapping within-regime
+  forward holdouts). `HOLDOUT_MIN_IC_OBS_FOR_HIGH_CONFIDENCE=60` is a directional floor, not a
+  deployable-confidence threshold. The value = the conceptually-correct instrument + readiness
+  for the 2026-2027 forward period.
+- **Fields not produced in Faz-3:** `null_percentile`, `mirror_active_ann` (the fair-null
+  resampler is out of scope), `deflated_oos_t` (cut-family deflation not wired). All `None` +
+  a note, never fabricated.
+- **The Mod-B PBO is a simplified proxy** (`pbo_is_simplified_proxy=True`); the real CSCV
+  median-rank PBO belongs to the Mod-A core.
+
+---
+
+## 11. Related documents
+
+- Design: `RR-Y1-005-TEST-MOTORU-TASARIM` v0.2
+- Math: `RR-Y1-005B-MATEMATIKSEL-SPEC` v1.1
 - Mod-C verdict: `docs/research/RR-Y1-010-intra-regime-time-holdout.md`
-- Güven niteliği (Mod-A): `docs/research/RR-Y1-009-*`
+- Confidence qualifier (Mod-A): `docs/research/RR-Y1-009-*`
 - Registry: `docs/RESEARCH_REGISTRY.md`
-- Karar geçmişi: `docs/DECISIONS.md`
+- Decision history: `docs/DECISIONS.md`
