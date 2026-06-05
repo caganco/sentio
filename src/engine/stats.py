@@ -82,6 +82,15 @@ def nw_tstat(x: npt.ArrayLike, *, lag: int) -> float:
     Bartlett weights, same ``n < lag + 3`` guard -- returning only the t-value
     (the precedent returns ``(t, mean, n)``). Returns NaN below the guard or when
     the HAC variance is non-positive.
+
+    FAZ-4 hardening adds a near-zero-variance FLOOR beyond the d211/d213
+    precedent: a numerically-constant input (inexact float -> ~1e-32 FP
+    dispersion) has a tiny-but-positive HAC variance that slips past the
+    ``s <= 0`` guard and produces an EXPLOSIVE spurious t. ``s <= eps*mean^2``
+    (eps = ``config.NW_VAR_FLOOR_EPS``) returns NaN there. Identical to the
+    precedent on every non-degenerate input (the equivalence test + the C12
+    golden never trip the floor); it diverges ONLY where the precedent would
+    emit a spurious explosive t.
     """
     arr = np.asarray(x, dtype=float)
     a = arr[np.isfinite(arr)]
@@ -94,6 +103,6 @@ def nw_tstat(x: npt.ArrayLike, *, lag: int) -> float:
     for lag_k in range(1, lag + 1):
         w = 1.0 - lag_k / (lag + 1.0)
         s += 2.0 * w * float(e[lag_k:] @ e[:-lag_k]) / n
-    if s <= 0.0:
-        return float("nan")
+    if s <= 0.0 or s <= config.NW_VAR_FLOOR_EPS * m * m:
+        return float("nan")  # non-positive, or near-zero-var floor (FAZ-4: kills explosive spurious t)
     return float(m / np.sqrt(s / n))

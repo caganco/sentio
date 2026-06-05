@@ -106,3 +106,22 @@ class TestDiscrimination:
         null = run_modb(panel, _NullSignal(panel), _spec(), DialConfig())
         assert sig["pooled_oos_ic_t"] > null["pooled_oos_ic_t"]
         assert sig["pbo"] < null["pbo"]
+
+
+class TestTrialDeflation:
+    """FAZ-4 (b): the honest tried-config count N deflates the DSR (Bailey-LdP)."""
+
+    def test_default_is_single_trial_no_deflation(self):
+        panel = _panel()
+        res = run_modb(panel, _NullSignal(panel), _spec(), DialConfig())
+        assert res["dsr_n_trials"] == 1
+        assert res["dsr_deflation_benchmark_sr"] == 0.0  # N=1 -> no deflation
+
+    def test_n_trials_deflates_dsr(self):
+        panel = _panel()
+        sig = _NullSignal(panel)  # same scorer twice -> only the benchmark differs
+        base = run_modb(panel, sig, _spec(), DialConfig())
+        deflated = run_modb(panel, sig, _spec(), DialConfig(), n_trials=100)
+        assert deflated["dsr_n_trials"] == 100
+        assert deflated["dsr_deflation_benchmark_sr"] > 0.0
+        assert deflated["dsr"] < base["dsr"]  # deflation can only lower the DSR
