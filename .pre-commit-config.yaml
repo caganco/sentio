@@ -21,3 +21,17 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-commit]
+
+      - id: public-hygiene
+        name: "Public Hygiene - leak guard (staged diff)"
+        entry: python scripts/check_public_hygiene.py
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: public-hygiene-commit-msg
+        name: "Public Hygiene - commit message (AI attribution)"
+        entry: python scripts/check_public_hygiene.py --commit-msg
+        language: system
+        pass_filenames: true
+        stages: [commit-msg]

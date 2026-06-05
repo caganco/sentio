@@ -99,3 +99,7 @@ data/snapshots/*.meta.json
 /CLAUDE.md
 .agent-local/
 .junction-map.md
+
+# Public-hygiene guard: local-only pattern supplement (project-internal terms;
+# loaded by scripts/check_public_hygiene.py, never published).
+/.hygiene-local-patterns.txt
