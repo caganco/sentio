@@ -22,5 +22,5 @@ playwright-stealth>=2.0.3  # D-116 bot-detection bypass (playwright ile birlikte
 hmmlearn>=0.3.0       # D-123 HMM regime-conditional weights
 scikit-learn>=1.9.0   # D-123 StandardScaler (hmmlearn dependency, explicit for clarity)
 pdfplumber>=0.11.0    # D-132 Is Yatirim aciga satis PDF parser
-openpyxl>=3.1.0       # D-203 degoran fundamentals .xlsx parser (pd.read_excel engine)
+openpyxl>=3.1.5       # D-203 degoran fundamentals .xlsx parser (pd.read_excel engine)
 import-linter>=2.11    # D-138 architecture/layering contracts (CI-enforced)
