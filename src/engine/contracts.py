@@ -201,6 +201,7 @@ class EngineOutput:
     pbo: float | None = None
     deflated_oos_t: float | None = None
     dsr: float | None = None
+    dsr_n_trials: int | None = None  # honest tried-config count fed to the DSR deflation (FAZ-4 (b))
     nw_t: float | None = None
     # conjugate agreement + residual corr (bullet 6; Section 4.1/4.2 -- kept SEPARATE)
     agreement_pass: bool | None = None

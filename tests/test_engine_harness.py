@@ -17,6 +17,8 @@ agreement verdict here is the same one the moda fixtures already froze.
 """
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -203,3 +205,49 @@ class TestHonestyAndRobustness:
         assert o.n_obs == 0
         assert len(o.guard_messages) >= 1
         assert o.gross_active_ann is None or np.isnan(o.gross_active_ann)
+
+
+# --------------------------------------------------------------------------- #
+# FAZ-4 (b): Stage-0 tried-config count threads into the DSR deflation          #
+# --------------------------------------------------------------------------- #
+def _stage0_doc(n_trials: int) -> dict:
+    """Minimal valid Stage-0 freeze (mirrors test_engine_stage0._valid_doc)."""
+    return {
+        "prototip_id": "RR-Y1-005-faz4-toy",
+        "hipotez": "toy",
+        "tutunma_noktasi": "cross_sectional",
+        "split_modu": "A",
+        "psi": "rank_ic",
+        "faktor_notrleme": ["market"],
+        "embargo_h": "construction_window",
+        "split_arm_floor": 1e7,
+        "sort_depth": "tercile",
+        "hedef_rejim": "agnostic",
+        "frekans": "daily",
+        "getiri_tabani": "total_return",
+        "keep_bar": {"pbo_max": 0.5, "dsr_min": 0.95},
+        "denenen_konfig_sayisi": n_trials,
+        "frozen_before_results": True,
+        "date_frozen": "2026-06-05",
+        "snapshots_content_hash_sha256_prefix": "",
+        "strangler_constraints": "committed-motorlar-dokunulmaz",
+    }
+
+
+class TestStage0TrialBinding:
+    def test_stage0_n_trials_surfaces_on_dsr_field(self, tmp_path):
+        p = tmp_path / "stage0.json"
+        p.write_text(json.dumps(_stage0_doc(25)), encoding="utf-8")
+        panel, sig, names = _panel("factor")
+        o = harness(
+            panel, _VecSignal(sig, names, "factor"),
+            _spec(SplitMode.TEMPORAL), DialConfig(), stage0_path=p,
+        )
+        assert o.dsr_n_trials == 25       # honest count is visible/auditable
+        assert o.dsr is not None
+        assert any("N=25" in n for n in o.notes)  # DSR-layer-not-bucket-PBO note
+
+    def test_no_stage0_defaults_to_single_trial(self):
+        panel, sig, names = _panel("factor")
+        o = harness(panel, _VecSignal(sig, names, "factor"), _spec(SplitMode.TEMPORAL), DialConfig())
+        assert o.dsr_n_trials == 1        # default -> no deflation
