@@ -70,6 +70,12 @@ class Stage0:
     # records a single-shot consumed-marker. Absent fields -> fully backward compatible.
     lockbox_spec: dict[str, Any] | None = None
     lockbox_content_hash: str | None = None
+    # Mod-C intra-regime time-holdout pre-registration (RR-Y1-010) -- OPTIONAL, informational
+    # (like hedef_rejim). The operative boundary is SplitSpec.holdout_start; these are the
+    # committed pre-registration record. Absent fields -> fully backward compatible.
+    eval_window_start: str | None = None
+    eval_window_end: str | None = None
+    holdout_start: str | None = None
 
 
 def hash16(path: str | Path) -> str:
@@ -157,6 +163,9 @@ def validate_stage0(doc: dict[str, Any]) -> Stage0:
         lockbox_content_hash=(
             str(doc["lockbox_content_hash"]) if doc.get("lockbox_content_hash") else None
         ),
+        eval_window_start=(str(doc["eval_window_start"]) if doc.get("eval_window_start") else None),
+        eval_window_end=(str(doc["eval_window_end"]) if doc.get("eval_window_end") else None),
+        holdout_start=(str(doc["holdout_start"]) if doc.get("holdout_start") else None),
     )
 
 

@@ -40,6 +40,7 @@ from .contracts import (
     AgreementConfidence,
     DialConfig,
     EngineOutput,
+    HoldoutConfidence,
     Panel,
     SortDepth,
     SplitMode,
@@ -49,6 +50,7 @@ from .data_adapter import forward_return
 from .lockbox import assert_lockbox, consume_lockbox, marker_path_for
 from .moda import run_moda
 from .modb import run_modb
+from .modc import run_modc
 from .signal_protocol import Signal, assert_pm1_compliant
 from .stage0_validator import require_stage0
 from .stats import nw_tstat
@@ -294,6 +296,7 @@ def harness(
     # fields None so the rest of the Section-7 vector still populates.
     moda_res: dict[str, object] | None = None
     modb_res: dict[str, object] | None = None
+    modc_res: dict[str, object] | None = None
     if mode in (SplitMode.NAME, SplitMode.PANEL):
         try:
             moda_res = run_moda(panel, signal, split_spec, dial_config)
@@ -304,6 +307,13 @@ def harness(
             modb_res = run_modb(panel, signal, split_spec, dial_config, n_trials=n_trials)
         except Exception as exc:  # noqa: BLE001 -- legs are isolated by contract
             guards.append(f"Mod-B leg did not complete ({type(exc).__name__}: {exc})")
+    # Mod-C is a STANDALONE leg (TIME_HOLDOUT only) -- deliberately NOT folded into
+    # PANEL so the A+B semantics stay byte-unchanged (RR-Y1-010, additive).
+    if mode is SplitMode.TIME_HOLDOUT:
+        try:
+            modc_res = run_modc(panel, signal, split_spec, dial_config)
+        except Exception as exc:  # noqa: BLE001 -- legs are isolated by contract
+            guards.append(f"Mod-C leg did not complete ({type(exc).__name__}: {exc})")
 
     # --- tradeable returns/cost sub-vector (always attempted; headline tilt) ---
     rc = _returns_cost(panel, signal, split_spec, dial_config)
@@ -367,6 +377,22 @@ def harness(
                 "pbo is the Mod-B simplified proxy P(OOS Sharpe < 0), NOT the real "
                 "CSCV median-rank (no Mod-A leg in this run)"
             )
+
+    # --- Mod-C intra-regime forward time-holdout persistence (standalone leg) ---
+    if modc_res is not None:
+        out.holdout_persistence_pass = cast("bool | None", modc_res["holdout_persistence_pass"])
+        out.holdout_ic_t = cast("float", modc_res["holdout_ic_t"])
+        out.holdout_ic_mean = cast("float", modc_res["holdout_ic_mean"])
+        out.train_ic_t = cast("float", modc_res["train_ic_t"])
+        out.train_ic_mean = cast("float", modc_res["train_ic_mean"])
+        out.holdout_sign_consistent = cast("bool | None", modc_res["holdout_sign_consistent"])
+        out.n_holdout_obs = cast("int", modc_res["n_holdout_obs"])
+        out.n_train_obs = cast("int", modc_res["n_train_obs"])
+        out.holdout_confidence = cast("HoldoutConfidence", modc_res["holdout_confidence"])
+        out.holdout_confidence_reasons = cast(
+            "tuple[str, ...]", modc_res["holdout_confidence_reasons"]
+        )
+        guards.extend(cast("tuple[str, ...]", modc_res.get("guard_messages", ())))
 
     # --- honest partials: fields the Faz-2 legs do not produce ---
     notes.append(

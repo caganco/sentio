@@ -155,3 +155,29 @@ class TestLockboxFields:
         d = _valid_doc()
         d["lockbox_content_hash"] = ""  # empty string -> guard disabled (None)
         assert validate_stage0(d).lockbox_content_hash is None
+
+
+class TestHoldoutFields:
+    """RR-Y1-010 optional Mod-C pre-registration fields: present -> round-trip;
+    absent -> default None (REQUIRED_FIELDS unchanged, committed JSONs still valid)."""
+
+    def test_absent_holdout_fields_default_to_none(self):
+        s = validate_stage0(_valid_doc())  # no holdout keys -> backward compatible
+        assert s.eval_window_start is None
+        assert s.eval_window_end is None
+        assert s.holdout_start is None
+
+    def test_present_holdout_fields_round_trip(self):
+        d = _valid_doc()
+        d["eval_window_start"] = "2023-01-02"
+        d["eval_window_end"] = "2025-12-31"
+        d["holdout_start"] = "2024-09-01"
+        s = validate_stage0(d)
+        assert s.eval_window_start == "2023-01-02"
+        assert s.eval_window_end == "2025-12-31"
+        assert s.holdout_start == "2024-09-01"
+
+    def test_empty_holdout_start_normalizes_to_none(self):
+        d = _valid_doc()
+        d["holdout_start"] = ""
+        assert validate_stage0(d).holdout_start is None

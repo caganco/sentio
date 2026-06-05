@@ -27,6 +27,7 @@ from src.engine.contracts import (
     AgreementConfidence,
     DialConfig,
     Frequency,
+    HoldoutConfidence,
     Panel,
     SplitMode,
     SplitSpec,
@@ -191,6 +192,41 @@ class TestLegDispatch:
         assert o.split_mode == "A+B"
         assert o.agreement_pass is not None   # Mod-A
         assert o.dsr is not None              # Mod-B
+
+
+# --------------------------------------------------------------------------- #
+# Mod-C standalone leg (RR-Y1-010): holdout_* thread onto EngineOutput;        #
+# A/B fields stay None on a TIME_HOLDOUT run and holdout_* stay None elsewhere  #
+# --------------------------------------------------------------------------- #
+class TestModCDispatch:
+    def _modc_spec(self, boundary: pd.Timestamp) -> SplitSpec:
+        return SplitSpec(
+            split_mode=SplitMode.TIME_HOLDOUT, frequency=Frequency.DAILY, seed=0,
+            holdout_start=boundary.strftime("%Y-%m-%d"),
+        )
+
+    def test_holdout_fields_thread_and_ab_stay_none(self):
+        panel, sig, names = _panel("factor")
+        boundary = panel.dates[200]
+        o = harness(panel, _VecSignal(sig, names, "factor"), self._modc_spec(boundary), DialConfig())
+        assert o.split_mode == "C"
+        # Mod-C fields populated ...
+        assert o.holdout_persistence_pass is not None
+        assert np.isfinite(o.holdout_ic_t) and np.isfinite(o.train_ic_t)
+        assert o.n_holdout_obs is not None and o.n_holdout_obs > 0
+        assert isinstance(o.holdout_confidence, HoldoutConfidence)
+        assert isinstance(o.holdout_confidence_reasons, tuple)
+        # ... and the A/B legs never ran on a standalone Mod-C dispatch.
+        assert o.agreement_pass is None
+        assert o.dsr is None
+
+    def test_holdout_fields_none_on_name_mode(self, factor_out):
+        o = factor_out  # a Mod-A (NAME) run
+        assert o.holdout_persistence_pass is None
+        assert o.holdout_ic_t is None
+        assert o.holdout_confidence is None
+        assert o.holdout_confidence_reasons == ()
+        assert o.n_holdout_obs is None
 
 
 # --------------------------------------------------------------------------- #
