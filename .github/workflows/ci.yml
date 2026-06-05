@@ -119,3 +119,21 @@ jobs:
       - name: Type Check
         run: mypy src/ --config-file pyproject.toml --ignore-missing-imports
         continue-on-error: true   # teknik borç — şimdilik bloklamaz
+
+  hygiene:
+    name: "Public Hygiene - leak guard"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Leak guard (PR diff)
+        run: python scripts/check_public_hygiene.py --ci-range "origin/${{ github.base_ref }}...HEAD"
+        continue-on-error: true   # warn-only: aktif builder isini bitirip tek-seferlik gecmis temizligi bitene kadar bloklamaz; sonra continue-on-error kaldirilir
+      - name: AI-attribution guard (PR commit messages)
+        run: git log --format=%B "origin/${{ github.base_ref }}..HEAD" | python scripts/check_public_hygiene.py --commit-msg -
+        continue-on-error: true   # warn-only (yukaridaki ile ayni gerekce)
