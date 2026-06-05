@@ -1,0 +1,28 @@
+{
+  "source": "C12 walk-forward conjugate-OOS, ALL universe (lab-demo-clone1, frozen 2026-06-04)",
+  "ohlcv_snapshot": "trend_v1_ohlcv_2019-01-01_2026-04-30.parquet",
+  "ohlcv_sha256_prefix": "3135ef2b272ab083",
+  "nw_lag": 10,
+  "n_pooled_days": 1375,
+  "n_folds": 11,
+  "gross_nw_t": 6.928414115449226,
+  "net_nw_t": -6.274774171595921,
+  "gross_active_mean": 0.0008995062467185144,
+  "net_active_mean": -0.0008745947151292144,
+  "gross_active_ann": 0.22667557417306564,
+  "net_active_ann": -0.22039786821256205,
+  "regime_split_net": {
+    "pre_2022": -0.00121601514202126,
+    "post_2022": -0.0007884622394925146
+  },
+  "regime_split_gross": {
+    "pre_2022": 0.0006204670497190923,
+    "post_2022": 0.0009699013811163649
+  },
+  "mean_rt_bps": 46.77595554973686,
+  "fallback_rt_bps": 13.84,
+  "winner_frequency": {
+    "cc_cont": 11
+  },
+  "note": "Portfolio-level active-return vectors only (tilt minus EW, per conjugate day). Determinism anchor / Section-8 anti-silent-error gate -- one of three correctness layers, NOT the proof the engine is methodologically correct. Gross daily dependency EXISTS (+nw_t); D-207 cost FLIPS net negative (cost-killed)."
+}

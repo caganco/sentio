@@ -79,3 +79,21 @@ DSR_MIN = 0.95
 
 # benchmark floor (Section 7): real return must beat max(TUFE, TLREF); TLREF from 2022-07
 BENCHMARK_TLREF_FROM = "2022-07"
+
+# --- C12 golden hard-gate (Faz-3, Section 8.1) ---
+# Frozen reference the real-data determinism anchor reproduces: the C12 ALL-universe
+# walk-forward conjugate-OOS pooled daily active-return series (committed as the ASCII
+# fixture tests/fixtures/c12_golden_active.csv). The NW-t values are the c9._nw_t
+# headline numbers (lab results JSON, frozen 2026-06-04); the engine's nw_tstat shares
+# c9's population-variance convention, so it reproduces them on the same pooled series.
+# This is ONE of three correctness layers (the anti-silent-error / off-by-one-purge-leak
+# determinism anchor) -- NOT the proof the engine is methodologically correct (that stays
+# on the 3 synthetic Mod-A fixtures + the synthetic-null). C12 is gross-only/cost-killed.
+C12_GOLDEN_NW_LAG = 10  # HAC bandwidth for the daily pooled series (c12 NW_LAG)
+C12_GOLDEN_GROSS_NWT = 6.928414  # nw_tstat(pooled gross active, lag=10) -- the daily dependency EXISTS
+C12_GOLDEN_NET_NWT = -6.274774  # nw_tstat(pooled net active, lag=10) -- D-207 cost FLIPS it negative
+C12_GOLDEN_N_POOLED = 1375  # pooled conjugate-validation days (ALL universe)
+C12_GOLDEN_TRADING_DAYS_YR = 252.0  # annualization factor (c12 TRADING_DAYS_YR)
+C12_GOLDEN_REGIME_CUT = "2022-01-01"  # pre/post regime mask on the pooled return-dates (c12 REGIME_CUT)
+C12_GOLDEN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "c12_golden_active.csv"
+C12_GOLDEN_META = REPO_ROOT / "tests" / "fixtures" / "c12_golden_meta.json"
