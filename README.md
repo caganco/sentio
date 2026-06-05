@@ -323,8 +323,8 @@ The engine and test suite run fully offline; API keys are only needed for live d
 pulls and the optional LLM narrative.
 
 Full usage documentation — how to attach a prototype signal, configure a Stage-0
-pre-registration, and read the output vector — is in `docs/engine/OPERATOR_GUIDE.md`
-(forthcoming).
+pre-registration, and read the output vector — is in
+[`docs/engine/OPERATOR_GUIDE.md`](docs/engine/OPERATOR_GUIDE.md).
 
 <!-- TODO: original skeleton referenced [RR-Y1-007](docs/research/) here but
      RR-Y1-006 and RR-Y1-007 do not exist in docs/research/. Replace with
@@ -408,8 +408,6 @@ pre-registration, and read the output vector — is in `docs/engine/OPERATOR_GUI
 
 ## Roadmap
 
-- **Operator guide** (`docs/engine/OPERATOR_GUIDE.md`): step-by-step signal attachment,
-  Stage-0 protocol, output-vector interpretation.
 - **2026–2027 disinflation OOS:** the ongoing Turkish disinflation cycle provides
   a genuine second regime for prospective out-of-sample evaluation. The engine is ready.
 - **Within-regime time-holdout (Mod-C):** complete (PR #208) — landed as
