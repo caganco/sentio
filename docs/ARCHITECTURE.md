@@ -1,8 +1,8 @@
 # ARCHITECTURE — BIST OS Mimari Sözleşmesi v3.0
 ## Tek-kaynak-gerçek. Önceki v2.0 (trend/swing paradigması) GEÇERSİZ.
 
-**Tarih:** 1 Haziran 2026 — Session #11
-**Statü:** Yön kararı (the project). Detay-SPEC ayrı (SPEC_YOL2).
+**Tarih:** 1 Haziran 2026
+**Statü:** Yön kararı. Detay-SPEC ayrı (SPEC_YOL2).
 
 > ÜÇ EVRİM: (1) 5-katman composite → tarama-öncelikli quantamental (v1.x);
 > (2) cross-sectional faktör → trend/swing (v2.0); (3) trend/swing ÇÜRÜDÜ →
@@ -52,10 +52,10 @@ DEĞİL (kanıt: imkansıza yakın). Gerçekçi piyasa-üstü: yılda birkaç-pu
 ### Katman 3 — BIST-NİŞ (sınırlı pay, ampirik-test sonrası)
 - İllikidite primi: KÜÇÜK-SERMAYE AVANTAJI (devler giremez; t=3.46). Slippage yer.
 - Contrarian (kaybedenleri-al): BIST'in en-belgelenmiş anomalisi, ama decay-testi gerekli
-- Bunlar Yol 1 lab'da test-edilip Yol 2'ye terfi-eder (varsayılmaz)
+- Bunlar araştırma kapsamında test edilip Yol 2'ye terfi-eder (varsayılmaz)
 
 ### Katman 4 — İNSAN-YARGISI (test edilecek, varsayılmaz)
-- Saf-endeks vs aday-daraltma+insan-seçim: HANGİSİ daha iyi → TEST (the maintainer "testle doğrula")
+- Saf-endeks vs aday-daraltma+insan-seçim: HANGİSİ daha iyi → TEST ("testle doğrula" prensibi)
 - İnsan-seçim-katmanı değer-katıyor-mu, dürüst-benchmark'a karşı ölçülür (D-187 mantığı)
 - İleri-dönük test (gerçek seçimler kaydedilir, endeksle karşılaştırılır)
 
@@ -76,7 +76,7 @@ Mimari sözleşme. Her spec saygı gösterir:
 - adil-null zorunlu (giriş-seçimi mi çıkış-mekaniği mi)
 - look-ahead: sinyal-t / aksiyon-t+1
 - Stage-0 ön-kayıt; post-hoc gevşetme YASAK
-(Tam liste: Builder repo'daki docs/ARCHITECTURE invariant bölümünü doğrulasın —
+(Tam liste `tests/test_architecture.py`'de CI-enforced olarak tutulur;
 v3.0 bunları DEĞİŞTİRMEZ, sadece Katman-A paradigmasını günceller)
 
 ---
@@ -85,18 +85,12 @@ v3.0 bunları DEĞİŞTİRMEZ, sadece Katman-A paradigmasını günceller)
 Eski mimari + Faz 0 + trend kodları SİLİNMEZ. v3.0 üstüne kurulur. Yeni modüller
 mevcut yapının YANINA (src/screening/, src/execution/ vb.). Reusable parçalar
 (snapshot/IC/look-ahead-guard, fair_random_null, reel-deflate, XU100-relative,
-forward-return, HAC-t, Holm) yeniden-kullanılır. Builder envanteri reusable-haritası çıkarır.
-
----
-
-## DESKTOP ≠ REPO
-Orchestrator repo'yu canlı göremez. Bu dosya STRATEJİ-seviyesi sözleşme; kod-gerçeği
-(modül-envanteri, reusable-map) Builder'ca doğrulanır+tamamlanır (ilk iş).
+forward-return, HAC-t, Holm) yeniden-kullanılır.
 
 ---
 
 ## YÖNETİŞİM — ÜÇ-KATEGORİ
-Kritik-agent bulguları: Bloke(1, durdur) / İyileştirme(2, backlog) / Nüans(3, kaydet).
+Bulgular üç kategoride değerlendirilir: Bloke(1, durdur) / İyileştirme(2, backlog) / Nüans(3, kaydet).
 Sadece Kategori-1 sistemi yeniden-açar. Sistem kusursuz değil, kanıt-temelli+bloke-hatasız
 kurulur, iyileştirilerek olgunlaşır.
 

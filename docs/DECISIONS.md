@@ -6,7 +6,7 @@
 **Total Decisions:** 21 karar (DEC-001..DEC-013, DEC-015..DEC-017, DEC-022..DEC-023, DEC-030..DEC-032, DEC-034, DEC-046)  
 **Purpose:** Centralized machine-readable log of all architectural decisions
 
-> **For Claude Code users:** Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
+> Query decisions by `area`, `status`, or `affected_files` to understand context for code changes.
 
 ---
 
@@ -50,7 +50,7 @@ Confluence "edge tasiyor" ANCAK: (1) NULL-1 (olay-kosullu rastgele-teknik) >=%95
 sonrasi), VE (4) Holm-Bonferroni (olay-tipi-basina AYRI) anlamli. Ornek < `MIN_EVENTS_PER_TYPE`
 (30) -> `undetermined` (pass/fail degil). Post-hoc gevsetme YASAK. Sonuc-oncesi donduruldu
 (`docs/event_test/STAGE0_event_confluence_preregistration.json`). DEC-039 geregi program
-OLCER + onerir; Yol-1 lab'a terfi the project karari.
+OLCER + onerir; Yol 2'ye terfi araştırma kararına bağlıdır.
 
 ## DECISION CATEGORIES
 
@@ -146,7 +146,7 @@ grep -l "status: pending" docs/decisions/DEC-*.md
 
 ---
 
-## FOR CLAUDE CODE AGENTS
+## USING THIS LOG
 
 When modifying code, check for related decisions:
 
@@ -175,10 +175,8 @@ Tests: +N passing"
 
 ## RELATED DOCUMENTATION
 
-- `docs/BOOT_ARCHITECT.md` – Architecture overview
-- `docs/BOOT_BUILDER.md` – Builder development guidelines
-- `CLAUDE.md` – Project instructions & bootstrap protocol
-- `memory/MEMORY.md` – Session state & context
+- `docs/ARCHITECTURE.md` – System architecture (v3.0)
+- `docs/RESEARCH_REGISTRY.md` – Research report index
 
 ---
 
@@ -227,17 +225,16 @@ WeightCalibrator (Faz 3) L6'yı güncelleme kapsamı dışında tutar.
 WeightCalibrator (Faz 3, D-135) otomatik ağırlık önerileri üretecektir.
 Bu öneriler doğrudan üretime geçmez; aşağıdaki 4 adımlı protokol zorunludur:
 
-1. **Orchestrator değerlendirir:** WeightCalibrator çıktısı
-   `data/analytics/weight_history.parquet`'e yazılır. Orchestrator
-   önerilen değişimi IC metrikleri, regime koşulları ve CB geçmişiyle
-   karşılaştırarak değerlendirir.
-2. **the maintainer onaylar:** Orchestrator değerlendirmesini the maintainer inceler ve
-   açık onay verir. Sessiz kalma onay sayılmaz.
+1. **Sistem değerlendirir:** WeightCalibrator çıktısı
+   `data/analytics/weight_history.parquet`'e yazılır. Önerilen değişim
+   IC metrikleri, regime koşulları ve karar geçmişiyle karşılaştırılarak değerlendirilir.
+2. **Açık onay zorunludur:** Önerilen değişim incelenir ve açık onay verilir.
+   Sessiz kalma onay sayılmaz.
 3. **Ayrı spec ile thresholds.py güncellenir:** Onaylanan değerler
    ayrı bir spec (D-XXX) kapsamında `MASTER_WEIGHTS` bloğuna yazılır.
-   Hiçbir Builder `MASTER_WEIGHTS`'i kendi inisiyatifiyle değiştiremez.
-4. **PR → CI → merge:** Standart branch workflow (CLAUDE.md) uygulanır.
-   Green CI + the maintainer merge onayı olmadan üretim değişmez.
+   `MASTER_WEIGHTS` kendi inisiyatifiyle değiştirilemez; onay ve spec zorunludur.
+4. **PR → CI → merge:** Standart branch workflow uygulanır.
+   Green CI + bakımcı merge onayı olmadan üretim değişmez.
 
 **Kapsam dışı (statik):** L6 (DEC-022 gereği), τ=0 fazı (60 işlem günü dolmadan
 herhangi bir otomatik kalibrasyon başlamaz — IC_BAYESIAN_TAU_MIN_DAYS=60).
@@ -339,7 +336,7 @@ Bu tasarım LLM'i salt raporcu konuma indirgiyordu; gerçek değer üretme kapas
 | BUY kararı | LLM etkileyemez | LLM agreement ile değişebilir — kasıtlı hibrit |
 
 **Korunan İlkeler:**
-- the maintainer nihai override yetkisi korunur
+- Araştırmacının nihai override yetkisi korunur
 - Hard veto yasak: LLM sistemi tek başına durduramayz, sadece ölçeklendirir
 - Soft veto (conf < 0.30): güvensiz analiz sessizce atlanır, hata üretmez
 - `llm_agreement_scalar` ∈ [0.5, 1.2]: floor 0.5 (en kötü yarıya indirger),
