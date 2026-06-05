@@ -24,6 +24,7 @@ import pandas as pd
 import pytest
 
 from src.engine.contracts import (
+    AgreementConfidence,
     DialConfig,
     Frequency,
     Panel,
@@ -31,6 +32,8 @@ from src.engine.contracts import (
     SplitSpec,
 )
 from src.engine.harness import harness
+from src.engine.lockbox import lockbox_fingerprint, marker_path_for
+from src.engine.stage0_validator import Stage0Error
 from src.screening import d203_config as _costcfg
 
 _EXPECTED_TAX_ANN = float(_costcfg.D203_DIV_WITHHOLDING * _costcfg.D203_ASSUMED_ANNUAL_DIV_YIELD)
@@ -162,6 +165,12 @@ class TestLegDispatch:
         assert o.residual_corr_flag is False
         assert o.dsr is None  # Mod-A-only: DSR is the Mod-B measure
 
+    def test_confidence_qualifier_threads_onto_output(self, factor_out):
+        # RR-Y1-009 additive passthrough: the qualifier reaches EngineOutput.
+        o = factor_out
+        assert o.agreement_confidence is AgreementConfidence.HIGH  # multi-regime, arm~60, R=50
+        assert o.agreement_confidence_reasons == ()
+
     def test_noise_does_not_pass(self):
         panel, sig, names = _panel("noise")
         o = harness(panel, _VecSignal(sig, names, "noise"), _spec(), DialConfig())
@@ -251,3 +260,48 @@ class TestStage0TrialBinding:
         panel, sig, names = _panel("factor")
         o = harness(panel, _VecSignal(sig, names, "factor"), _spec(SplitMode.TEMPORAL), DialConfig())
         assert o.dsr_n_trials == 1        # default -> no deflation
+
+
+# --------------------------------------------------------------------------- #
+# RR-Y1-009: iteration lockbox single-shot, enforced end-to-end by the harness  #
+# --------------------------------------------------------------------------- #
+def _stage0_doc_with_lockbox(lockbox_hash: str) -> dict:
+    d = _stage0_doc(7)
+    d["prototip_id"] = "RR-Y1-009-harness"
+    d["lockbox_spec"] = {"names": None, "date_start": None, "date_end": None}
+    d["lockbox_content_hash"] = lockbox_hash
+    return d
+
+
+class TestLockboxEndToEnd:
+    def test_first_run_proceeds_and_writes_marker(self, tmp_path):
+        panel, sig, names = _panel("factor")
+        p = tmp_path / "stage0.json"
+        p.write_text(json.dumps(_stage0_doc_with_lockbox(lockbox_fingerprint(panel))), encoding="utf-8")
+        o = harness(panel, _VecSignal(sig, names, "factor"), _spec(), DialConfig(), stage0_path=p)
+        assert o.agreement_pass is not None         # the run completed
+        assert marker_path_for(p).exists()          # consumption recorded as final action
+
+    def test_second_run_against_same_lockbox_refused(self, tmp_path):
+        panel, sig, names = _panel("factor")
+        p = tmp_path / "stage0.json"
+        p.write_text(json.dumps(_stage0_doc_with_lockbox(lockbox_fingerprint(panel))), encoding="utf-8")
+        sigobj = _VecSignal(sig, names, "factor")
+        harness(panel, sigobj, _spec(), DialConfig(), stage0_path=p)        # consumes
+        with pytest.raises(Stage0Error, match="already consumed"):
+            harness(panel, sigobj, _spec(), DialConfig(), stage0_path=p)    # single-shot
+
+    def test_wrong_panel_refused(self, tmp_path):
+        sealed, _, _ = _panel("factor", seed=0)
+        other, sig, names = _panel("factor", seed=1)  # different values -> different hash
+        p = tmp_path / "stage0.json"
+        p.write_text(json.dumps(_stage0_doc_with_lockbox(lockbox_fingerprint(sealed))), encoding="utf-8")
+        with pytest.raises(Stage0Error, match="lockbox-hash"):
+            harness(other, _VecSignal(sig, names, "factor"), _spec(), DialConfig(), stage0_path=p)
+
+    def test_no_lockbox_writes_no_marker(self, tmp_path):
+        panel, sig, names = _panel("factor")
+        p = tmp_path / "stage0.json"
+        p.write_text(json.dumps(_stage0_doc(7)), encoding="utf-8")  # no lockbox fields
+        harness(panel, _VecSignal(sig, names, "factor"), _spec(), DialConfig(), stage0_path=p)
+        assert not marker_path_for(p).exists()  # backward compatible: no file written
