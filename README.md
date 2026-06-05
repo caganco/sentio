@@ -50,11 +50,11 @@ The system is organized around two parallel tracks:
 
 **Track 1 — Smart-passive anchor (deployed).** A systematic, low-cost strategy that
 captures market risk premium while preventing the behavioral and transaction-cost leakage
-that dominates retail performance drag. Validated in production: delivered positive
-real returns above the deposit rate benchmark (D-197). Implemented in the companion
-repository [ballast-bist](https://github.com/caganco/ballast-bist).
-
-<!-- TODO: confirm ballast-bist URL (private lab repo — may not be public) and D-197 reference (no file found in repo) -->
+that dominates retail performance drag. Over a 2019–2026 backtest (D-197) the anchor
+delivered positive real (CPI-deflated) returns and beat the TL deposit-rate benchmark,
+which lost value in real terms over the same period. The strategy, its backtest, and the
+round-trip cost model live in the companion repository
+[ballast-bist](https://github.com/caganco/ballast-bist).
 
 **Track 2 — Alpha research lab.** A disciplined infrastructure for testing whether
 systematic exploitable edge exists above the passive anchor. The conjugate validation
@@ -245,7 +245,7 @@ forward sample collection in progress. Verdict deferred pending sufficient sampl
 
 | Metric | Value |
 |--------|-------|
-| Total tests | **2,015** across 127 test files |
+| Total tests | **2,088** across 138 test files |
 | Engine-specific tests | **~254** (14 `test_engine_*.py` files) |
 | Regression baseline | Zero regressions enforced; CI blocks merge on any failure |
 | Type checking | mypy strict configured; CI tracking (non-blocking in current phase) |
@@ -277,7 +277,7 @@ bist-trading-system/
 │   ├── nlp/                         — FinBERT / VADER sentiment analyzers
 │   ├── analysis/                    — Technical analysis primitives
 │   └── utils/                       — Logger, weight validator, OS state manager, failure notifier
-├── tests/                           — 2,015 tests: unit · integration · architecture invariants · hygiene
+├── tests/                           — 2,088 tests: unit · integration · architecture invariants · hygiene
 ├── examples/
 │   └── rry1008/                     — RR-Y1-008 red-team scripts: graveyard-factor + adversarial overfit probe
 ├── docs/
@@ -308,7 +308,7 @@ cp .env.example .env
 
 # Run the full test suite
 python -m pytest tests/ -q --tb=short
-# Expected: 2,015 passed, 4 skipped (C12 golden gate — requires local data snapshot)
+# Expected: 2,088 passed, 4 skipped (C12 golden gate — requires local data snapshot)
 
 # Run the red-team engine example (no external data required)
 python examples/rry1008/run_part1_known_answer.py
@@ -326,10 +326,6 @@ Full usage documentation — how to attach a prototype signal, configure a Stage
 pre-registration, and read the output vector — is in
 [`docs/engine/OPERATOR_GUIDE.md`](docs/engine/OPERATOR_GUIDE.md).
 
-<!-- TODO: original skeleton referenced [RR-Y1-007](docs/research/) here but
-     RR-Y1-006 and RR-Y1-007 do not exist in docs/research/. Replace with
-     correct link when the operator guide or a design doc for it is created. -->
-
 ---
 
 ## Research registry
@@ -337,58 +333,58 @@ pre-registration, and read the output vector — is in
 > Full index: [`docs/RESEARCH_REGISTRY.md`](docs/RESEARCH_REGISTRY.md).
 > Status: ✅ Applied · ⏳ Pending · 🔬 In progress · ⚠️ Inconclusive
 
-| ID | Başlık | Tarih | Bağlı CB/SPEC | Status |
-|----|--------|-------|---------------|--------|
-| [RR-001](docs/research/RR-001-fintables-takas-scraper.md) | Fintables takas scraper fizibilite | 21 May 2026 | D-116 | ✅ Applied |
-| [RR-002](docs/research/RR-002-akd-terminalleri-python.md) | AKD terminalleri Python entegrasyonu | 21 May 2026 | D-116 (Matriks reddedildi) | ✅ Applied |
-| [RR-003](docs/research/RR-003-composite-mimari-alternatifleri.md) | Composite mimari alternatifleri | 21 May 2026 | CB-002, CB-010 | ⏳ Aşama 1 SPEC bekliyor |
-| [RR-005](docs/research/RR-005-fetcher-map.md) | BIST fetcher haritası (robots/auth/format/rate-limit/ToS) | 22 May 2026 | — | ⏳ Uygulanmadı |
-| [RR-008](docs/research/RR-008-evds-migration.md) | TCMB EVDS API migration: evds2→evds3, yeni base URL | 22 May 2026 | — | ⏳ Uygulanmadı |
-| [RR-010](docs/research/RR-010-bist-ic-measurement.md) | IC ölçüm metodolojisi — Spearman IC, ICIR, Bayesian shrinkage weight kalibrasyonu | 23 May 2026 | CB-010 | ✅ Applied (D-139/D-140) |
-| [RR-011](docs/research/RR-011-NLP-YAMA.md) | FinBERT-TR fizibilite — Yol 3 confirmed | 24 May 2026 | — | ⏳ Uygulanmadı |
-| [RR-012](docs/research/RR-012-EM-Spesifik-Faktor-Literaturu-Derinlestirmesi.md) | 14 EM/BIST-spesifik faktör literatür derinleştirmesi | 24 May 2026 | — | ⏳ Uygulanmadı |
-| [RR-013](docs/research/RR-013_NAV_ISKONTO.md) | BIST holding NAV iskontosu ve mean reversion alpha stratejisi | 24 May 2026 | RR-012 §B8 | ⏳ Uygulanmadı |
-| [RR-014](docs/research/RR-014-SLIPPAGE.md) | BIST slippage ve market impact modellemesi | 24 May 2026 | — | ⏳ Uygulanmadı |
-| [RR-015](docs/research/RR-015-TRANSACTION-COST.md) | Transaction cost modellemesi — broker tier karşılaştırması | 24 May 2026 | RR-014 §devam | ⏳ Uygulanmadı |
-| [RR-016](docs/research/RR-016-DRAWDOWN-AND-VOLATILITY-TARGETING.md) | Drawdown & volatility targeting | 24 May 2026 | RR-012, RR-013, RR-014, RR-015 | ⏳ Uygulanmadı |
-| [RR-017](docs/research/RR-017-HMM.md) | HMM Regime Detection — BIST kalibrasyon ve aktivasyon roadmap | 25 May 2026 | RR-003 §Aşama 1 | ⏳ Uygulanmadı |
-| [RR-018](docs/research/RR-018-VERY-IMPORTANT.md) | López de Prado tabanlı backtesting framework | 25 May 2026 | RR-014, RR-015, RR-016, RR-017 | ⏳ Uygulanmadı |
-| [RR-019](docs/research/RR-019-MULTI-LLM.md) | Multi-LLM Orchestration — BIST OS için AI jüri sistemi | 24 May 2026 | RR-010/011/012 | ⏳ Uygulanmadı |
-| [RR-020](docs/research/RR-020-BIST-VERISI-MAP.md) | BIST veri kaynakları atlas (Rosetta Stone) | 24 May 2026 | RR-005 §derinleştirme | ⏳ Uygulanmadı |
-| [RR-021](docs/research/RR-021-TCMB.md) | TCMB EVDS3 API operasyonel referans | 25 May 2026 | RR-008 §devam | ⏳ Uygulanmadı |
-| [RR-022](docs/research/CRITIC-2605-STRATEJIK-MIMARI-DEGERLENDIRME.md) | Stratejik Mimari Değerlendirme | 26 May 2026 | RR-003, RR-017, CB-002 | ⏳ Pending review |
-| [RR-031](docs/research/RR-031-KAP-NEXTJS-MIGRATION.md) | KAP Next.js Migration — scraping infeasibility | 28 May 2026 | D-170 | ✅ Applied |
-| [RR-032](docs/research/RR-032-FIZIBILITE.md) | Faz 0b value faktörü için BIST fundamental veri envanteri | 25 May 2026 | NRR-002, D-170/172/175 | ⏳ Karar bekliyor |
-| [RR-033](docs/research/RR-033-isyatirim-tms29-uyum-testi.md) | İş Yatırım TMS 29 uyum testi | 25–30 May 2026 | RR-032 §6, NRR-002 | ⚠️ v2 Belirsiz |
-| [RR-034](docs/research/RR-034-isyatirim-usd-feasibility.md) | İş Yatırım USD-bazlı value fizibilite kontrolü | 30 May 2026 | RR-033, RR-032 §6 | ⚠️ Kontrol tamam — YEŞİL DEĞİL |
-| [RR-035](docs/research/RR-035-malitablo-cross-sectional-consistency.md) | MaliTablo cross-sectional tutarlılık testi | 30 May 2026 | RR-033 v2, NRR-002 | ✅ YEŞİL + 3. kaynak teyitli |
-| [RR-036](docs/research/RR-036-tms29-uygulama-tarihi.md) | TMS 29 BIST ilk uygulama tarihi | 30 May 2026 | RR-035, NRR-002 | ✅ Net — Faz 0b penceresi ~2024-09 başlangıç |
-| [RR-037](docs/research/RR-037-smartmoney-veri-erisim.md) | Smart money 4-kanal veri-erişim + kalite doğrulama | 30 May 2026 | RR-032-V3, RR-001/002 | ⏳ Karar bekliyor |
-| [RR-038](docs/research/RR-038-MODERN-BIST.md) | Modern BIST (2019–2026) davranış rejimi kanıt-haritası | 31 May 2026 | RR-001/002/020, D-185/D-186/D-187 | 🔬 D-187: aktif-zamanlama GEÇMEZ |
-| [RR-039](docs/research/RR-039-RULEBASED-TA.md) | Kural-tabanlı TA: görsel sezgiyi makine-hesaplanabilir kurala çevirme | 31 May 2026 | RR-038, RR-039, D-185/D-186 | 🔬 D-186 KESİN: GEÇMEZ |
-| [RR-040](docs/research/RR-040-SWING.md) | BIST algoritmik swing-trading — üç hipotez temel araştırması | 31 May 2026 | RR-038, RR-039, D-188 | 🔬 D-188 verdict deferred |
-| [RR-041](docs/research/RR-041-SINYAL.md) | Giriş-sinyali kalitesini çıkıştan-arınmış ölçme metodolojisi | 31 May 2026 | RR-040, RR-038/039, D-188 | 🔬 D-188 veri/token bekliyor |
-| [RR-042](docs/research/RR-042-corp-action-veri-kaynagi.md) | Corp-action veri-kaynağı araştırması | 2 Haz 2026 | D-200, RR-020 | ✅ Applied → D-202 dört-katman hibrit |
-| [RR-Y1](docs/research/RR-Y1.md) | Value faktörü Faz-0 ↔ D-191 çelişkisinin çözümü + rejim-istikrarsızlığı | 2 Haz 2026 | D-183, D-191 | ✅ Applied → D-Y1-001 |
-| [D-203](docs/research/D-203-rapor.md) | KESİN-TEST: value + EDGE-2 + 52wk-high, D-202 temiz-evren | 2 Haz 2026 | D-202, RR-038/Y1 | ✅ Applied |
-| [D-204](docs/research/D-204-rapor.md) | hi52 stres-test: gerçekçi-maliyet + OOS + likidite-paradoksu | 3 Haz 2026 | D-203, RR-015 | ✅ Applied → TRADEABLE-DEĞİL |
-| [D-205](docs/research/D-205-rapor.md) | hi52 likit-önce (son ölçüm, N≤3) | 3 Haz 2026 | D-204, NRR-005/006 | ✅ Applied → TRADEABLE-DEĞİL |
-| [NRR-008](docs/research/NRR-008-rapor.md) | Value rejim-kolu (3. ve son tur, N≤3) | 3 Haz 2026 | D-203, D-Y1-001, RR-Y1 | ✅ Applied → ELENDİ |
-| [NRR-007](docs/research/NRR-007-rapor.md) | lowvol63 izole (EDGE-2 gizli bileşeni) | 3 Haz 2026 | D-203, D-205 | ✅ Applied → ELENDİ |
-| [D-206](docs/research/D-206-rapor.md) | NAV-iskonto-Z mean-reversion — yeni paradigma (time-series) | 3 Haz 2026 | RR-044, D-205/NRR-007/NRR-008 | ✅ Applied → SERAP |
-| [RR-045](docs/research/RR-045-fund-nav-veri.md) | FON-NAV-ARB veri-edinim fizibilite | 3 Haz 2026 | D-206, Pontiff 1995 | ✅ Applied → NRR-009 tetiklendi |
-| [RR-046](docs/research/RR-046-veri-fizibilite.md) | PEAD + makro-event veri-edinim fizibilite | 3 Haz 2026 | RR-040, D-206/RR-045 | ⏳ Asama-2a tamam |
-| [D-207](docs/research/D-207-rapor.md) | realistic_cost re-kalibrasyon — şişik model düzeltme | 3 Haz 2026 | NRR-010, D-204/D-205 | ✅ Applied → ŞİŞİK-MODEL DÜZELTİLDİ |
-| [D-208](docs/research/D-208-rapor.md) | hi52 likit re-test — D-205 revisited, düzeltilmiş maliyet | 4 Haz 2026 | D-205, D-207 | ✅ Applied → TRADEABLE-DEĞİL (anlamlılık) |
-| [D-209](docs/research/D-209-rapor.md) | H2b temettü-runup re-test — düzeltilmiş maliyet | 4 Haz 2026 | D-207 | ✅ Applied → TRADEABLE-DEĞİL |
-| [D-213](docs/research/D-213-rapor.md) | RR-Y1-003: ex-ante reel-faiz → forward XU100 TL-reel getiri | 4 Haz 2026 | D-212/RR-Y1-003, D-211 | ✅ Applied → TRADEABLE-DEĞİL |
-| [D-211](docs/research/D-211-rapor.md) | RR-Y1-002: yabancı-akım → forward BIST-endeks TL-reel getiri | 4 Haz 2026 | D-210/RR-Y1-002, RR-038 | ✅ Applied → TRADEABLE-DEĞİL |
-| [RR-Y1-005](docs/research/RR-Y1-005-TEST-MOTORU-TASARIM-v-0-2.md) | Doğrulama-motoru TASARIM v0.2 — DONMUŞ | 4 Haz 2026 | DEC-045, RR-Y1 | 🔬 Faz-0..4 Applied (PR #195–#204) |
-| [RR-Y1-005B](docs/research/RR-Y1-005B-MATEMATIKSEL-SPEC.md) | MATEMATİKSEL-SPEC v1.1 — DONMUŞ | 4 Haz 2026 | RR-Y1-005, López de Prado | ✅ Faz-1..4 Applied |
-| [RR-Y1-008](docs/research/RR-Y1-008-VALIDATOR-REDTEAM.md) | Validator-validation / red-team — motorun ilk gerçek-veri sınavı | 5 Haz 2026 | RR-Y1-005 §7, RR-Y1-005B | ✅ Applied → MOTOR-ÇALIŞIYOR |
-| [RR-Y1-009](docs/research/RR-Y1-009-VERDICT-CONFIDENCE-LOCKBOX.md) | Verdict-confidence qualifier + iteration lockbox | 5 Haz 2026 | RR-Y1-008 §1/§2, DEC-049/050 | ✅ Applied → MOTOR-SERTLEŞTİ |
-| [RR-Y1-010](docs/research/RR-Y1-010-TASK-intra-regime-time-holdout.md) | Intra-regime time-holdout — Mod-C (`SplitMode.TIME_HOLDOUT`) | 5 Haz 2026 | RR-Y1-005 §3/§4.8, RR-Y1-009, DEC-046 | ✅ Applied → MOTOR-MOD-C-EKLENDİ (PR #208) |
-| [RR-Y1-005-FAZ4](docs/research/RR-Y1-005-FAZ4-HARDENING.md) | FAZ-4 hardening — NW floor-guard + DSR trial-count binding | 5 Haz 2026 | RR-Y1-005 (Faz-3 backlog), RR-Y1-005B §5 | ✅ Applied → KISMİ ÇİFT-SAYIM ölçüldü |
+| ID | Title | Date | Linked CB/SPEC | Status |
+|----|-------|------|----------------|--------|
+| [RR-001](docs/research/RR-001-fintables-takas-scraper.md) | Fintables settlement-data scraper feasibility | 21 May 2026 | D-116 | ✅ Applied |
+| [RR-002](docs/research/RR-002-akd-terminalleri-python.md) | AKD terminal Python integration | 21 May 2026 | D-116 (Matriks rejected) | ✅ Applied |
+| [RR-003](docs/research/RR-003-composite-mimari-alternatifleri.md) | Composite architecture alternatives | 21 May 2026 | CB-002, CB-010 | ⏳ Awaiting Phase 1 SPEC |
+| [RR-005](docs/research/RR-005-fetcher-map.md) | BIST fetcher map (robots/auth/format/rate-limit/ToS) | 22 May 2026 | — | ⏳ Pending |
+| [RR-008](docs/research/RR-008-evds-migration.md) | TCMB EVDS API migration: evds2→evds3, new base URL | 22 May 2026 | D-135/D-136 | ✅ Applied |
+| [RR-010](docs/research/RR-010-bist-ic-measurement.md) | IC measurement methodology — Spearman IC, ICIR, Bayesian-shrinkage weight calibration | 23 May 2026 | CB-010 | ✅ Applied (D-139/D-140) |
+| [RR-011](docs/research/RR-011-NLP-YAMA.md) | FinBERT-TR feasibility — Path 3 confirmed | 24 May 2026 | — | ⏳ Pending |
+| [RR-012](docs/research/RR-012-EM-Spesifik-Faktor-Literaturu-Derinlestirmesi.md) | 14 EM/BIST-specific factor literature deep-dive | 24 May 2026 | — | ⏳ Pending |
+| [RR-013](docs/research/RR-013_NAV_ISKONTO.md) | BIST holding NAV-discount and mean-reversion alpha strategy | 24 May 2026 | RR-012 §B8 | ✅ Tested → D-206 (mirage) |
+| [RR-014](docs/research/RR-014-SLIPPAGE.md) | BIST slippage and market-impact modeling | 24 May 2026 | — | ✅ Applied → cost model (D-204/D-207) |
+| [RR-015](docs/research/RR-015-TRANSACTION-COST.md) | Transaction-cost modeling — broker-tier comparison | 24 May 2026 | RR-014 §cont. | ✅ Applied → cost model (D-204/D-207) |
+| [RR-016](docs/research/RR-016-DRAWDOWN-AND-VOLATILITY-TARGETING.md) | Drawdown & volatility targeting | 24 May 2026 | RR-012, RR-013, RR-014, RR-015 | ⏳ Pending |
+| [RR-017](docs/research/RR-017-HMM.md) | HMM regime detection — BIST calibration and activation roadmap | 25 May 2026 | RR-003 §Phase 1 | ⏳ Pending (HMM weights disabled) |
+| [RR-018](docs/research/RR-018-VERY-IMPORTANT.md) | López de Prado-based backtesting framework | 25 May 2026 | RR-014, RR-015, RR-016, RR-017 | ✅ Applied → validation engine (PBO/DSR) |
+| [RR-019](docs/research/RR-019-MULTI-LLM.md) | Multi-LLM orchestration — AI-jury system for the BIST OS | 24 May 2026 | RR-010/011/012 | ⏳ Pending (Phase 6+) |
+| [RR-020](docs/research/RR-020-BIST-VERISI-MAP.md) | BIST data-source atlas (Rosetta Stone) | 24 May 2026 | RR-005 §deep-dive | ⏳ Pending |
+| [RR-021](docs/research/RR-021-TCMB.md) | TCMB EVDS3 API operational reference | 25 May 2026 | RR-008 §cont. | ✅ Applied (EVDS client) |
+| [RR-022](docs/research/CRITIC-2605-STRATEJIK-MIMARI-DEGERLENDIRME.md) | Strategic architecture assessment | 26 May 2026 | RR-003, RR-017, CB-002 | ⏳ Pending review |
+| [RR-031](docs/research/RR-031-KAP-NEXTJS-MIGRATION.md) | KAP Next.js migration — scraping infeasibility | 28 May 2026 | D-170 | ✅ Applied |
+| [RR-032](docs/research/RR-032-FIZIBILITE.md) | BIST fundamental-data inventory for the Phase 0b value factor | 25 May 2026 | NRR-002, D-170/172/175 | ⏳ Decision pending |
+| [RR-033](docs/research/RR-033-isyatirim-tms29-uyum-testi.md) | İş Yatırım TMS 29 compliance test | 25–30 May 2026 | RR-032 §6, NRR-002 | ⚠️ v2 inconclusive |
+| [RR-034](docs/research/RR-034-isyatirim-usd-feasibility.md) | İş Yatırım USD-based value feasibility check | 30 May 2026 | RR-033, RR-032 §6 | ⚠️ Check done — not green |
+| [RR-035](docs/research/RR-035-malitablo-cross-sectional-consistency.md) | MaliTablo cross-sectional consistency test | 30 May 2026 | RR-033 v2, NRR-002 | ✅ Green + 3rd-source confirmed |
+| [RR-036](docs/research/RR-036-tms29-uygulama-tarihi.md) | TMS 29 BIST first-application date | 30 May 2026 | RR-035, NRR-002 | ✅ Clear — Phase 0b window starts ~2024-09 |
+| [RR-037](docs/research/RR-037-smartmoney-veri-erisim.md) | Smart-money 4-channel data-access + quality validation | 30 May 2026 | RR-032-V3, RR-001/002 | ⏳ Decision pending |
+| [RR-038](docs/research/RR-038-MODERN-BIST.md) | Modern BIST (2019–2026) behavioral-regime evidence map | 31 May 2026 | RR-001/002/020, D-185/D-186/D-187 | 🔬 D-187: active-timing fails |
+| [RR-039](docs/research/RR-039-RULEBASED-TA.md) | Rule-based TA: turning visual intuition into machine-computable rules | 31 May 2026 | RR-038, RR-039, D-185/D-186 | 🔬 D-186 definitive: fails |
+| [RR-040](docs/research/RR-040-SWING.md) | BIST algorithmic swing-trading — three-hypothesis base research | 31 May 2026 | RR-038, RR-039, D-188 | 🔬 D-188 verdict deferred |
+| [RR-041](docs/research/RR-041-SINYAL.md) | Measuring entry-signal quality, exit-stripped | 31 May 2026 | RR-040, RR-038/039, D-188 | 🔬 D-188 awaiting data/token |
+| [RR-042](docs/research/RR-042-corp-action-veri-kaynagi.md) | Corp-action data-source research | 2 Jun 2026 | D-200, RR-020 | ✅ Applied → D-202 four-layer hybrid |
+| [RR-Y1](docs/research/RR-Y1.md) | Resolving the value-factor Phase-0 ↔ D-191 contradiction + regime instability | 2 Jun 2026 | D-183, D-191 | ✅ Applied → D-Y1-001 |
+| [D-203](docs/research/D-203-rapor.md) | Definitive test: value + EDGE-2 + 52wk-high on the D-202 clean universe | 2 Jun 2026 | D-202, RR-038/Y1 | ✅ Applied |
+| [D-204](docs/research/D-204-rapor.md) | hi52 stress-test: realistic cost + OOS + liquidity paradox | 3 Jun 2026 | D-203, RR-015 | ✅ Applied → not tradeable |
+| [D-205](docs/research/D-205-rapor.md) | hi52 liquid-first (final measurement, N≤3) | 3 Jun 2026 | D-204, NRR-005/006 | ✅ Applied → not tradeable |
+| [NRR-008](docs/research/NRR-008-rapor.md) | Value regime-arm (3rd and final round, N≤3) | 3 Jun 2026 | D-203, D-Y1-001, RR-Y1 | ✅ Applied → eliminated |
+| [NRR-007](docs/research/NRR-007-rapor.md) | lowvol63 isolated (hidden EDGE-2 component) | 3 Jun 2026 | D-203, D-205 | ✅ Applied → eliminated |
+| [D-206](docs/research/D-206-rapor.md) | NAV-discount-Z mean-reversion — new paradigm (time-series) | 3 Jun 2026 | RR-044, D-205/NRR-007/NRR-008 | ✅ Applied → mirage |
+| [RR-045](docs/research/RR-045-fund-nav-veri.md) | Fund-NAV-arb data-acquisition feasibility | 3 Jun 2026 | D-206, Pontiff 1995 | ✅ Applied → triggered NRR-009 |
+| [RR-046](docs/research/RR-046-veri-fizibilite.md) | PEAD + macro-event data-acquisition feasibility | 3 Jun 2026 | RR-040, D-206/RR-045 | ⏳ Phase-2a done |
+| [D-207](docs/research/D-207-rapor.md) | realistic_cost re-calibration — inflated-model fix | 3 Jun 2026 | NRR-010, D-204/D-205 | ✅ Applied → inflated model corrected |
+| [D-208](docs/research/D-208-rapor.md) | hi52 liquid re-test — D-205 revisited, corrected cost | 4 Jun 2026 | D-205, D-207 | ✅ Applied → not tradeable (significance) |
+| [D-209](docs/research/D-209-rapor.md) | H2b dividend-runup re-test — corrected cost | 4 Jun 2026 | D-207 | ✅ Applied → not tradeable |
+| [D-213](docs/research/D-213-rapor.md) | RR-Y1-003: ex-ante real-rate → forward XU100 TL-real return | 4 Jun 2026 | D-212/RR-Y1-003, D-211 | ✅ Applied → not tradeable |
+| [D-211](docs/research/D-211-rapor.md) | RR-Y1-002: foreign-flow → forward BIST-index TL-real return | 4 Jun 2026 | D-210/RR-Y1-002, RR-038 | ✅ Applied → not tradeable |
+| [RR-Y1-005](docs/research/RR-Y1-005-TEST-MOTORU-TASARIM-v-0-2.md) | Validation-engine DESIGN v0.2 — FROZEN | 4 Jun 2026 | DEC-045, RR-Y1 | ✅ Phase 0–4 applied (PR #195–#204) |
+| [RR-Y1-005B](docs/research/RR-Y1-005B-MATEMATIKSEL-SPEC.md) | Mathematical spec v1.1 — FROZEN | 4 Jun 2026 | RR-Y1-005, López de Prado | ✅ Phase 1–4 applied |
+| [RR-Y1-008](docs/research/RR-Y1-008-VALIDATOR-REDTEAM.md) | Validator-validation / red-team — engine's first real-data exam | 5 Jun 2026 | RR-Y1-005 §7, RR-Y1-005B | ✅ Applied → engine works |
+| [RR-Y1-009](docs/research/RR-Y1-009-VERDICT-CONFIDENCE-LOCKBOX.md) | Verdict-confidence qualifier + iteration lockbox | 5 Jun 2026 | RR-Y1-008 §1/§2, DEC-049/050 | ✅ Applied → engine hardened |
+| [RR-Y1-010](docs/research/RR-Y1-010-TASK-intra-regime-time-holdout.md) | Intra-regime time-holdout — Mode-C (`SplitMode.TIME_HOLDOUT`) | 5 Jun 2026 | RR-Y1-005 §3/§4.8, RR-Y1-009, DEC-046 | ✅ Applied → engine Mode-C added (PR #208) |
+| [RR-Y1-005-FAZ4](docs/research/RR-Y1-005-FAZ4-HARDENING.md) | Phase-4 hardening — NW floor-guard + DSR trial-count binding | 5 Jun 2026 | RR-Y1-005 (Phase-3 backlog), RR-Y1-005B §5 | ✅ Applied → partial double-counting measured |
 
 ---
 
@@ -417,7 +413,3 @@ pre-registration, and read the output vector — is in
 
 *Built and maintained as a solo research project. All research findings — including null results —
 are documented in full.*
-
-<!-- TODO: when EDGE-EPISTEMOLOGY-AND-NEGATIVE-KNOWLEDGE-SYNTHESIS.md is created, add:
-     The negative-knowledge synthesis is available in
-     [docs/research/EDGE-EPISTEMOLOGY-AND-NEGATIVE-KNOWLEDGE-SYNTHESIS.md](docs/research/EDGE-EPISTEMOLOGY-AND-NEGATIVE-KNOWLEDGE-SYNTHESIS.md). -->
