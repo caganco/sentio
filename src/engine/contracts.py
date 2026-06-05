@@ -42,6 +42,14 @@ class SortDepth(StrEnum):
     DECILE = "decile"
 
 
+class NameSplitMethod(StrEnum):
+    """How Mod-A partitions the universe into arms (Section 3.2). Alphabetical/
+    ordered assignment is FORBIDDEN -- both options below are balance-preserving."""
+
+    LIQUIDITY = "liquidity"  # default: ADV-stratified pair-randomization (equal liquidity/arm)
+    RANDOM = "random"  # plain seed-fixed random halves
+
+
 class RegimeTarget(StrEnum):
     REGIME_R = "regime_R"
     AGNOSTIC = "agnostic"
@@ -99,6 +107,7 @@ class SplitSpec:
     split_arm_floor_tl: float = config.LIQUID_ADV_MIN_TL
     sort_depth: SortDepth = SortDepth.TERCILE
     min_names_per_arm: int = config.MIN_NAMES_PER_ARM
+    name_split_method: NameSplitMethod = NameSplitMethod.LIQUIDITY  # Mod-A only (Section 3.2)
 
     def __post_init__(self) -> None:
         if self.embargo_h < 1:
