@@ -3,11 +3,11 @@
 
 **Statü:** FORMEL-SPEC — DONMUŞ. Tasarım v0.2'nin üç-boşluğunu (a/b/c) kapatır; Faz-2 build bunu girdi-alır.
 **Sürüm:** v1.1 — 4 Haziran 2026 (v1.0→v1.1: Çatal-1 — Mod-A çekirdeği gerçek-CSCV-PBO; mevcut compute_pbo proxy, Mod-B-only).
-**Çelişki-önceliği:** TASARIM v0.2 > bu-spec > build-speci > Builder.
+**Çelişki-önceliği:** TASARIM v0.2 > bu-spec > build-speci.
 **İlke:** her formül yerleşik-literatüre dayanır (sezgi-değil). Kaynaklar §9.
-**Builder-notu:** "düz-uygula (yerleşik)" ve "DONMUŞ-default (bizim-kararımız)" ayrımı her bölümde işaretli. DONMUŞ-default'lar Stage-0'da pinlenir; sonuca-bakıp-değiştirme guard-RAISE.
+**Not:** "düz-uygula (yerleşik)" ve "DONMUŞ-default (proje-kararı)" ayrımı her bölümde işaretli. DONMUŞ-default'lar Stage-0'da pinlenir; sonuca-bakıp-değiştirme guard-RAISE.
 
-> Her bölüm: **(plain)** = the maintainer-için-ne-yapıyor · **(formel)** = Builder-için-tanım · **(donmuş)** = pinli-parametreler.
+> Her bölüm: **(plain)** = kavramsal açıklama · **(formel)** = matematiksel tanım · **(donmuş)** = pinli-parametreler.
 
 ---
 
@@ -65,7 +65,7 @@ Panel: gün `t`, isim `i ∈ N_t`. Look-ahead-safe getiri (total-return, `tr_ind
 
 ## 4. BOŞLUK (b) — Konjuge-uyum istatistiği (motorun ÇEKİRDEĞİ)
 
-**(plain)** "X_1'de iyi-çalışan sinyal, X_2'de de iyi-çalışıyor mu?" sorusunu sayıya çeviriyoruz. Builder haklı-uyardı: burada **iki ayrı ve TERS-yönlü** büyüklük var, karıştırmak sessiz-hata olur. Birincisi (uyum) yüksek-olsun-isteriz; ikincisi (kalıntı-korelasyon) düşük-olsun-isteriz. İkisini ayrı-formülize ediyoruz.
+**(plain)** "X_1'de iyi-çalışan sinyal, X_2'de de iyi-çalışıyor mu?" sorusunu sayıya çeviriyoruz. Dikkat: burada **iki ayrı ve TERS-yönlü** büyüklük var, karıştırmak sessiz-hata olur. Birincisi (uyum) yüksek-olsun-isteriz; ikincisi (kalıntı-korelasyon) düşük-olsun-isteriz. İkisini ayrı-formülize ediyoruz.
 
 ### 4.1 UYUM — asset-space out-of-sample (istenir: GÜÇLÜ)
 **(formel)** Yerleşik-yöntem: faktörü bir-arm'da seç/sırala, **diğer-arm'da değerlendir** (Roussanov; higher-order-factors OOS-in-asset-space). Simetrik:
@@ -84,14 +84,14 @@ Panel: gün `t`, isim `i ∈ N_t`. Look-ahead-safe getiri (total-return, `tr_ind
 **(formel)** İki-arm'ın **nötrleme-sonrası** aktif-getiri zaman-serileri arasındaki korelasyon `ρ_arms = corr( a^{X1}_t , a^{X2}_t )`. Yüksekse: uyum gerçek-idiyosenkratik-edge-değil, ortak-artık-faktör (nötrleme-eksik) demek.
 - **Eşik keyfi-değil, NULL'dan:** permütasyon-null — isimleri rastgele-yeniden-böl, R_null kez `ρ_arms` dağılımı; gözlenen-ρ null-%95'in üstündeyse kırmızı-bayrak (adil-null dersi). Sabit-0.3-gibi-keyfi-eşik YASAK.
 
-### 4.3 KARIŞTIRMA-YASAĞI (Builder-flag, sessiz-hata-önleme)
+### 4.3 KARIŞTIRMA-YASAĞI (sessiz-hata-önleme)
 Uyum (4.1) **cross-arm-tahmin-performansıyla** ölçülür; kalıntı-korelasyon (4.2) **arm-getiri-eş-hareketiyle**. İkisi ayrı-fonksiyon, ayrı-rapor-alanı. Uyumu-korelasyonla-ölçmek (veya tersi) = SESSİZ-HATA → kod-incelemesinde ayrı-test.
 
 ---
 
 ## 5. MEVCUT-KODLA UZLAŞTIRMA (recon §3 — sıfırdan-yazma-YOK)
 
-Repo'da hazır (Builder-buldu): `src/backtest/statistical_validation.py` (`compute_dsr`, `compute_pbo`, `sharpe_newey_west`, `min_btl_days`) + `src/backtest/cross_validation.py` (`PurgedKFold`, `CombinatorialPurgedCV`) + `c9._nw_t`, `c9._exact_binom_one_sided`.
+Repo'da hazır: `src/backtest/statistical_validation.py` (`compute_dsr`, `compute_pbo`, `sharpe_newey_west`, `min_btl_days`) + `src/backtest/cross_validation.py` (`PurgedKFold`, `CombinatorialPurgedCV`) + `c9._nw_t`, `c9._exact_binom_one_sided`.
 - **PBO/DSR/NW-t/CPCV:** yeniden-kullan, yeniden-yazma — AMA bir-istisna (Builder-bulgusu, S#14): mevcut `compute_pbo` aslında basit `P(OOS Sharpe<0)` proxy'sidir, gerçek-CSCV-DEĞİL. Konjuge-uyum (§4.1) motorun merkez-iddiası → **Mod-A çekirdeği için gerçek CSCV median-rank PBO kur** (best-IS'in OOS-medyan-altı-oranı, Bailey–López de Prado); basit `compute_pbo`'yu yalnız **Mod-B convenience-bacağında, etiketli** kullan. Bu "yeniden-yazma-yasağı"nı çiğnemez — proxy'yi-CSCV-diye-etiketlememe (sessiz-mis-attribution-önleme) gereğidir. Gerçek-CSCV-PBO'yu §7 fixture'ları doğrular (saf-gürültü→yüksek-PBO, gömülü-gerçek-faktör→düşük-PBO) → yeni-kod silent-error-riski kapanır.
 - **Default-uzlaştırma (DONMUŞ):** mevcut CPCV `N=6,k=2,purge=10,embargo=5` → tasarım-hedefi `N=10` (günlük, ~184g/blok), `k=2` (45-path), `purge=h`, **`embargo = sinyal-construction-window`** (boşluk-c, S4). Aylık: temporal-CPCV-YASAK (güç-fakiri, S6) → Mod-A.
 - DSR `denenen_konfig_sayisi` Stage-0'dan-beslenir (dürüst-sayım).

@@ -3,8 +3,8 @@
 > Stage-0 on-kayit (EDGE-BLIND kalibrasyon): `docs/yol1/D207_CALIBRATION.json` (config_version
 > d207-v1, FIDELITY-kontrolunden ONCE donduruldu; her D207_* sabiti GOZLENEN-gercege capali --
 > EOD-kote-spread + clean_universe ADV-dagilimi -- HICBIR edge-ciktiya DEGIL). Edge-blind tier
-> turetme: `demo-pa/d207/derive_d207_tiers.py` -> `demo-pa/d207/d207_derivation.json`. FIDELITY +
-> microcap-kontrol: `demo-pa/d207/d207_fidelity.py` -> `demo-pa/d207/d207_fidelity.json`. Duzeltilen
+> turetme: yerel kalibrasyon betiği. FIDELITY +
+> microcap-kontrol: yerel fidelity-doğrulama betiği. Duzeltilen
 > kod: `src/screening/realistic_cost.py` (FIX-1 + FIX-3), yeni `src/screening/quoted_spread.py`
 > (kote-spread loader), `src/screening/d204_hi52_stress.py::per_stock_cost_panel` (FIX-2 enjeksiyon).
 > Karar esikleri: `src/signals/thresholds.py` (D207_* blok, tek-kaynak). D204_* blok TARIHSEL-kayit
@@ -78,7 +78,7 @@ oynatmaz; yalniz no-data-microcap-anlatisini sekillendirir.
 
 ## 3. FIDELITY + MICROCAP-KONTROL (kalibrasyonun-gercege-capali-kaldiginin kaniti)
 
-`demo-pa/d207/d207_fidelity.py` DUZELTILMIS fonksiyonu (`round_trip_cost`, kote-enjekte) gercek
+Fidelity-doğrulama betiği DUZELTILMIS fonksiyonu (`round_trip_cost`, kote-enjekte) gercek
 clean_universe fiyatlari uzerinde kosar (re-turetme DEGIL).
 
 **FIDELITY = GECTI (8/8 mega bantta).** Adi-likit-megalarda duzeltilmis round-trip [7,35]bp banda
