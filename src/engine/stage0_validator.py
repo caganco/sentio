@@ -65,6 +65,11 @@ class Stage0:
     date_frozen: str
     snapshots_content_hash_sha256_prefix: str
     strangler_constraints: str
+    # held-out iteration lockbox (RR-Y1-009) -- OPTIONAL. When declared, the harness
+    # refuses to score against the sealed subset unless its content-hash matches, and
+    # records a single-shot consumed-marker. Absent fields -> fully backward compatible.
+    lockbox_spec: dict[str, Any] | None = None
+    lockbox_content_hash: str | None = None
 
 
 def hash16(path: str | Path) -> str:
@@ -148,6 +153,10 @@ def validate_stage0(doc: dict[str, Any]) -> Stage0:
         date_frozen=str(doc["date_frozen"]),
         snapshots_content_hash_sha256_prefix=str(doc["snapshots_content_hash_sha256_prefix"]),
         strangler_constraints=str(doc["strangler_constraints"]),
+        lockbox_spec=(dict(doc["lockbox_spec"]) if doc.get("lockbox_spec") is not None else None),
+        lockbox_content_hash=(
+            str(doc["lockbox_content_hash"]) if doc.get("lockbox_content_hash") else None
+        ),
     )
 
 

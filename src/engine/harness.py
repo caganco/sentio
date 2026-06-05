@@ -36,8 +36,17 @@ from src.screening.d204_hi52_stress import per_stock_cost_panel
 
 from . import config
 from .benchmark import benchmark_floor
-from .contracts import DialConfig, EngineOutput, Panel, SortDepth, SplitMode, SplitSpec
+from .contracts import (
+    AgreementConfidence,
+    DialConfig,
+    EngineOutput,
+    Panel,
+    SortDepth,
+    SplitMode,
+    SplitSpec,
+)
 from .data_adapter import forward_return
+from .lockbox import assert_lockbox, consume_lockbox, marker_path_for
 from .moda import run_moda
 from .modb import run_modb
 from .signal_protocol import Signal, assert_pm1_compliant
@@ -266,6 +275,11 @@ def harness(
     frozen Stage-0 file; real pre-registered runs pass the path.
     """
     stage0 = require_stage0(stage0_path) if stage0_path is not None else None
+    # RR-Y1-009 lockbox: when a sealed held-out subset is declared, refuse to score
+    # against it unless the presented panel matches the registered hash and it has not
+    # already been consumed (single-shot). No-op when no lockbox is declared.
+    if stage0 is not None and stage0_path is not None and stage0.lockbox_content_hash:
+        assert_lockbox(stage0, panel, marker_path_for(stage0_path))
     n_trials = (
         stage0.denenen_konfig_sayisi if stage0 is not None else config.DSR_DEFAULT_N_TRIALS
     )
@@ -330,6 +344,10 @@ def harness(
         out.sign_consistency = cast("float", moda_res["sign_consistency"])
         out.residual_cross_sectional_corr = cast("float", moda_res["residual_cross_sectional_corr"])
         out.residual_corr_flag = cast("bool", moda_res["residual_corr_flag"])
+        out.agreement_confidence = cast("AgreementConfidence", moda_res["agreement_confidence"])
+        out.agreement_confidence_reasons = cast(
+            "tuple[str, ...]", moda_res["agreement_confidence_reasons"]
+        )
         out.pbo = cast("float", moda_res["pbo"])
         guards.extend(cast("tuple[str, ...]", moda_res.get("guard_messages", ())))
 
@@ -366,4 +384,10 @@ def harness(
 
     out.guard_messages = tuple(guards)
     out.notes = tuple(notes)
+
+    # RR-Y1-009 lockbox single-shot: record consumption as the FINAL action before
+    # returning -- a crash mid-run does NOT burn the lockbox, yet the caller cannot
+    # see-then-abort. No-op when no lockbox is declared.
+    if stage0 is not None and stage0_path is not None and stage0.lockbox_content_hash:
+        consume_lockbox(stage0, marker_path_for(stage0_path))
     return out

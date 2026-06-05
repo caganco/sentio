@@ -34,6 +34,7 @@ import numpy.typing as npt
 import pandas as pd
 
 from . import config
+from .confidence import assess_agreement_confidence
 from .contracts import DialConfig, NameSplitMethod, Panel, SortDepth, SplitSpec
 from .data_adapter import continuous_basket, forward_return
 from .neutralizer import market_neutral_forward
@@ -490,12 +491,28 @@ def run_moda(
     )
 
     arm_sizes = [len(x1) for x1, _ in splits] + [len(x2) for _, x2 in splits]
+    min_arm = int(min(arm_sizes)) if arm_sizes else 0
+    # RR-Y1-009 verdict-confidence: data-driven single-regime detection (eval window
+    # entirely on one side of the frozen REGIME_SPLIT boundary). Gameable-proof -- it
+    # would have flagged RR-Y1-008's 2024+ window even though its hedef_rejim said "all".
+    regime_split = pd.Timestamp(config.REGIME_SPLIT)
+    single_regime = bool(d1 < regime_split or d0 >= regime_split)
+    confidence, confidence_reasons = assess_agreement_confidence(
+        min_arm_size=min_arm,
+        n_splits=len(splits),
+        residual_corr_flag=bool(resid_flag),
+        single_regime=single_regime,
+        arm_floor=config.AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE,
+        r_floor=config.AGREEMENT_MIN_R_FOR_HIGH_CONFIDENCE,
+    )
     return {
         **agreement,
         "residual_cross_sectional_corr": resid_corr,
         "residual_corr_flag": resid_flag,
+        "agreement_confidence": confidence,
+        "agreement_confidence_reasons": confidence_reasons,
         "n_splits": len(splits),
-        "min_arm_size": int(min(arm_sizes)) if arm_sizes else 0,
+        "min_arm_size": min_arm,
         "n_eligible": len(eligible),
         "n_eval_dates": int(eval_dates.size),
         "split_method": str(spec.name_split_method),
@@ -506,10 +523,22 @@ def run_moda(
 
 def _guard_result(guards: list[str]) -> dict[str, object]:
     """Uniform degenerate-universe result: every verdict False/NaN + the reasons."""
+    # A degenerate universe never formed valid arms -> the same helper, fed the
+    # zero-breadth inputs, naturally grades it 'low' (arm=0/R=0). No special-casing.
+    confidence, confidence_reasons = assess_agreement_confidence(
+        min_arm_size=0,
+        n_splits=0,
+        residual_corr_flag=False,
+        single_regime=False,
+        arm_floor=config.AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE,
+        r_floor=config.AGREEMENT_MIN_R_FOR_HIGH_CONFIDENCE,
+    )
     return {
         **_agreement_guard(),
         "residual_cross_sectional_corr": float("nan"),
         "residual_corr_flag": False,
+        "agreement_confidence": confidence,
+        "agreement_confidence_reasons": confidence_reasons,
         "n_splits": 0,
         "min_arm_size": 0,
         "guard_messages": tuple(guards),

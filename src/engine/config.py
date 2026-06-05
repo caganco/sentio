@@ -73,6 +73,13 @@ PBO_N_BUCKETS = 10
 MIN_NAMES_PER_BUCKET = 3  # degenerate-bucket guard: a bucket below this -> NaN (bucket-analog of
 #                           the NW near-zero-variance guard; stops a thin bucket faking a winner)
 
+# verdict-confidence qualifier (RR-Y1-009) -- additive trustworthiness annotation on the
+# conjugate verdict; orthogonal to the keep-bars above (DEC-049 untouched). Frozen BEFORE any
+# demonstration run (coverage-criterion, not verdict-criterion).
+AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE = 50  # = unrelaxed MIN_NAMES_PER_ARM. RR-Y1-008 ran with the
+#   floor relaxed to 30 and an arm of ~37; such an underpowered PASS must surface as 'low', never clean.
+AGREEMENT_MIN_R_FOR_HIGH_CONFIDENCE = 50  # = SPLIT_R_MIN. Effective name-splits below this -> 'low'.
+
 # residual cross-sectional correlation (Section 4.2) -- SEPARATE from agreement (4.3 mixing-ban)
 RESIDUAL_CORR_NULL_PCTILE = 95
 RESIDUAL_NULL_RESAMPLES = 200  # random re-splits that build the permutation rho_arms null

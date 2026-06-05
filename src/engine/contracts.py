@@ -66,6 +66,19 @@ class CutPolicy(StrEnum):
     EXPANDING = "expanding"
 
 
+class AgreementConfidence(StrEnum):
+    """Trustworthiness qualifier on the Mod-A conjugate verdict (RR-Y1-009).
+
+    Additive ONLY: orthogonal to ``agreement_pass`` and the three keep-bar
+    conditions (DEC-049 untouched). It annotates whether the preconditions for a
+    trustworthy conjugate measurement held -- never makes a factor pass/fail.
+    """
+
+    HIGH = "high"  # adequate breadth + adequate R + no confounded trigger
+    LOW = "low"  # underpowered: per-arm names or effective R below a frozen floor
+    CONFOUNDED = "confounded"  # shared-factor flag OR single-regime eval window
+
+
 @dataclass(frozen=True, eq=False)
 class Panel:
     """Loaded data panel. All frames are wide: index=date, columns=symbol.
@@ -209,6 +222,9 @@ class EngineOutput:
     sign_consistency: float | None = None
     residual_cross_sectional_corr: float | None = None
     residual_corr_flag: bool | None = None  # red flag if > null pctile
+    # verdict-confidence qualifier (RR-Y1-009; additive, orthogonal to agreement_pass)
+    agreement_confidence: AgreementConfidence | None = None
+    agreement_confidence_reasons: tuple[str, ...] = ()
     # per-regime breakdown (bullet 7; manual label)
     per_regime: dict[str, dict[str, float]] = field(default_factory=dict)
     # parameter plateau / sensitivity (bullet 8)

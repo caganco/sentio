@@ -133,3 +133,25 @@ class TestRequire:
         p.write_text(json.dumps(d), encoding="utf-8")
         s = require_stage0(p, snap)
         assert s.split_modu == "A"
+
+
+class TestLockboxFields:
+    """RR-Y1-009 optional lockbox fields: present -> round-trip; absent -> default None."""
+
+    def test_absent_lockbox_defaults_to_none(self):
+        s = validate_stage0(_valid_doc())  # no lockbox keys -> backward compatible
+        assert s.lockbox_spec is None
+        assert s.lockbox_content_hash is None
+
+    def test_present_lockbox_round_trips(self):
+        d = _valid_doc()
+        d["lockbox_spec"] = {"names": ["AKBNK", "GARAN"], "date_start": "2024-01-01", "date_end": None}
+        d["lockbox_content_hash"] = "0123456789abcdef"
+        s = validate_stage0(d)
+        assert s.lockbox_spec == {"names": ["AKBNK", "GARAN"], "date_start": "2024-01-01", "date_end": None}
+        assert s.lockbox_content_hash == "0123456789abcdef"
+
+    def test_empty_hash_normalizes_to_none(self):
+        d = _valid_doc()
+        d["lockbox_content_hash"] = ""  # empty string -> guard disabled (None)
+        assert validate_stage0(d).lockbox_content_hash is None

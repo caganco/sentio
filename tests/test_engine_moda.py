@@ -18,6 +18,7 @@ import pytest
 
 from src.engine import config
 from src.engine.contracts import (
+    AgreementConfidence,
     DialConfig,
     Frequency,
     NameSplitMethod,
@@ -49,7 +50,7 @@ class _VecSignal:
 
 
 def _panel(
-    kind: str, *, n_names: int = 120, n_dates: int = 300, seed: int = 0
+    kind: str, *, n_names: int = 120, n_dates: int = 300, seed: int = 0, start: str = "2021-01-04"
 ) -> tuple[Panel, np.ndarray, list[str]]:
     """Synthetic panel + the signal vector for one of the three fixtures.
 
@@ -58,9 +59,13 @@ def _panel(
                  (daily = beta*mkt + g*f + idio); the signal is f.
     ``market`` : returns ride the market only (daily = beta*mkt + idio); the
                  signal is beta, which Section-3 neutralization strips away.
+
+    ``start`` shifts the calendar: the default 2021-01-04 window STRADDLES the
+    frozen REGIME_SPLIT (2022-01-01) -> multi-regime; a post-2022 start yields a
+    single-regime window (the RR-Y1-009 confounded trigger).
     """
     rng = np.random.default_rng(seed)
-    dates = pd.bdate_range("2021-01-04", periods=n_dates)
+    dates = pd.bdate_range(start, periods=n_dates)
     names = [f"S{i:03d}" for i in range(n_names)]
     mkt_ret = rng.normal(0.0, 0.01, size=n_dates)
     market = pd.Series(100.0 * np.cumprod(1.0 + mkt_ret), index=dates)
@@ -93,9 +98,16 @@ def _panel(
     return panel, sig, names
 
 
-def _spec(method: NameSplitMethod = NameSplitMethod.LIQUIDITY, seed: int = 0) -> SplitSpec:
+def _spec(
+    method: NameSplitMethod = NameSplitMethod.LIQUIDITY,
+    seed: int = 0,
+    *,
+    min_names_per_arm: int | None = None,
+) -> SplitSpec:
+    kw = {} if min_names_per_arm is None else {"min_names_per_arm": min_names_per_arm}
     return SplitSpec(
-        split_mode=SplitMode.NAME, frequency=Frequency.DAILY, seed=seed, name_split_method=method
+        split_mode=SplitMode.NAME, frequency=Frequency.DAILY, seed=seed,
+        name_split_method=method, **kw,
     )
 
 
@@ -249,3 +261,48 @@ class TestSeparation:
         )
         assert out["median_t_x1"] == pytest.approx(ref_t1, abs=1e-9)
         assert out["median_t_x2"] == pytest.approx(ref_t2, abs=1e-9)
+
+
+# --------------------------------------------------------------------------- #
+# 4. verdict-confidence qualifier (RR-Y1-009) -- ADDITIVE ONLY                 #
+# --------------------------------------------------------------------------- #
+class TestConfidenceAdditiveOnly:
+    """The qualifier must NOT move agreement_pass on the three frozen fixtures."""
+
+    def test_agreement_pass_unchanged(self, noise_result, factor_result, market_result):
+        assert noise_result["agreement_pass"] is False
+        assert factor_result["agreement_pass"] is True
+        assert market_result["agreement_pass"] is False
+
+    def test_confidence_fields_present_on_every_result(
+        self, noise_result, factor_result, market_result
+    ):
+        for r in (noise_result, factor_result, market_result):
+            assert isinstance(r["agreement_confidence"], AgreementConfidence)
+            assert isinstance(r["agreement_confidence_reasons"], tuple)
+
+
+class TestConfidenceGrades:
+    def test_factor_is_high(self, factor_result):
+        # arm~60, R=50, multi-regime span (2021-2022), residual_corr_flag False.
+        assert factor_result["agreement_confidence"] is AgreementConfidence.HIGH
+        assert factor_result["agreement_confidence_reasons"] == ()
+
+    def test_single_regime_is_confounded(self):
+        # a post-2022 factor panel: real edge, but the eval window lies entirely on
+        # one side of REGIME_SPLIT -> within-regime common-factor risk (RR-Y1-008).
+        panel, sig, names = _panel("factor", start="2024-01-02")
+        r = run_moda(panel, _VecSignal(sig, names, "factor-2024"), _spec(), DialConfig())
+        assert r["agreement_confidence"] is AgreementConfidence.CONFOUNDED
+        assert any("single-regime" in m for m in r["agreement_confidence_reasons"])
+
+    def test_small_arm_is_low(self):
+        # 80 names, arm-floor relaxed to 30 so arms form -> each arm ~40 < 50 floor.
+        panel, sig, names = _panel("factor", n_names=80)
+        r = run_moda(
+            panel, _VecSignal(sig, names, "factor-thin"),
+            _spec(min_names_per_arm=30), DialConfig(),
+        )
+        assert r["min_arm_size"] < config.AGREEMENT_MIN_ARM_FOR_HIGH_CONFIDENCE
+        assert r["agreement_confidence"] is AgreementConfidence.LOW
+        assert any("arm=" in m for m in r["agreement_confidence_reasons"])
