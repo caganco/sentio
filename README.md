@@ -204,6 +204,8 @@ class EngineOutput:
 The following table summarizes completed research directives.
 Full reports are in `docs/research/`.
 
+*SERAP = illusory edge: signal appears significant in aggregate but collapses when the universe is restricted to the deployable (liquid) subset. Gates defined in the engine's 5-gate framework.*
+
 | Report | Verdict |
 |--------|---------|
 | **D-203** — Value + EDGE-2 + hi52 (681 symbols, D-202 clean universe) | VALUE = SERAP (gate-2 fail, illiquid-biased). EDGE-2 = genuine edge, post-2022 narrowing. hi52 = strongest / most regime-resilient. |
@@ -225,13 +227,17 @@ Full reports are in `docs/research/`.
 
 **Summary finding.** No deployable persistent edge was identified across the three
 tested axes. Cross-sectional factors face a cost wall (~42 bp realistic round-trip)
-and regime instability. Timing signals were tradeable-negative across four independent
-measurement attempts. Event-driven tilts failed the sign test (p ≈ 0.91).
+and regime instability. Timing signals failed to clear the significance bar across
+four independent measurement attempts. Event-driven tilts: forward measurement
+infrastructure deployed; verdict pending (sample collection in progress since 2026-06-01).
 
 The engine's first real-data exam (RR-Y1-008) additionally revealed a structural
 BIST constraint: the survivorship-honest liquid universe (~38 names at 10M TRY ADV
 floor) is too small for the name-split conjugate test at full history. This is a
 documented property of the market, not a limitation of the methodology.
+
+*Event-driven tilts (D-188): infrastructure and forward recorder live since 2026-06-01;
+forward sample collection in progress. Verdict deferred pending sufficient sample.*
 
 ---
 
@@ -350,7 +356,7 @@ pre-registration, and read the output vector — is in `docs/engine/OPERATOR_GUI
 | [RR-019](docs/research/RR-019-MULTI-LLM.md) | Multi-LLM Orchestration — BIST OS için AI jüri sistemi | 24 May 2026 | RR-010/011/012 | ⏳ Uygulanmadı |
 | [RR-020](docs/research/RR-020-BIST-VERISI-MAP.md) | BIST veri kaynakları atlas (Rosetta Stone) | 24 May 2026 | RR-005 §derinleştirme | ⏳ Uygulanmadı |
 | [RR-021](docs/research/RR-021-TCMB.md) | TCMB EVDS3 API operasyonel referans | 25 May 2026 | RR-008 §devam | ⏳ Uygulanmadı |
-| [RR-022](docs/research/CRITIC-2605-STRATEJIK-MIMARI-DEGERLENDIRME.md) | Stratejik Mimari Değerlendirme | 26 May 2026 | RR-003, RR-017, CB-002 | ⏳ Orchestrator incelemesinde |
+| [RR-022](docs/research/CRITIC-2605-STRATEJIK-MIMARI-DEGERLENDIRME.md) | Stratejik Mimari Değerlendirme | 26 May 2026 | RR-003, RR-017, CB-002 | ⏳ Pending review |
 | [RR-031](docs/research/RR-031-KAP-NEXTJS-MIGRATION.md) | KAP Next.js Migration — scraping infeasibility | 28 May 2026 | D-170 | ✅ Applied |
 | [RR-032](docs/research/RR-032-FIZIBILITE.md) | Faz 0b value faktörü için BIST fundamental veri envanteri | 25 May 2026 | NRR-002, D-170/172/175 | ⏳ Karar bekliyor |
 | [RR-033](docs/research/RR-033-isyatirim-tms29-uyum-testi.md) | İş Yatırım TMS 29 uyum testi | 25–30 May 2026 | RR-032 §6, NRR-002 | ⚠️ v2 Belirsiz |
@@ -374,7 +380,7 @@ pre-registration, and read the output vector — is in `docs/engine/OPERATOR_GUI
 | [RR-046](docs/research/RR-046-veri-fizibilite.md) | PEAD + makro-event veri-edinim fizibilite | 3 Haz 2026 | RR-040, D-206/RR-045 | ⏳ Asama-2a tamam |
 | [D-207](docs/research/D-207-rapor.md) | realistic_cost re-kalibrasyon — şişik model düzeltme | 3 Haz 2026 | NRR-010, D-204/D-205 | ✅ Applied → ŞİŞİK-MODEL DÜZELTİLDİ |
 | [D-208](docs/research/D-208-rapor.md) | hi52 likit re-test — D-205 revisited, düzeltilmiş maliyet | 4 Haz 2026 | D-205, D-207 | ✅ Applied → TRADEABLE-DEĞİL (anlamlılık) |
-| [D-209](docs/research/D-209-rapor.md) | H2b temettü-runup re-test — düzeltilmiş maliyet | 4 Haz 2026 | demo-goal H2/H2b, D-207 | ✅ Applied → TRADEABLE-DEĞİL |
+| [D-209](docs/research/D-209-rapor.md) | H2b temettü-runup re-test — düzeltilmiş maliyet | 4 Haz 2026 | D-207 | ✅ Applied → TRADEABLE-DEĞİL |
 | [D-213](docs/research/D-213-rapor.md) | RR-Y1-003: ex-ante reel-faiz → forward XU100 TL-reel getiri | 4 Haz 2026 | D-212/RR-Y1-003, D-211 | ✅ Applied → TRADEABLE-DEĞİL |
 | [D-211](docs/research/D-211-rapor.md) | RR-Y1-002: yabancı-akım → forward BIST-endeks TL-reel getiri | 4 Haz 2026 | D-210/RR-Y1-002, RR-038 | ✅ Applied → TRADEABLE-DEĞİL |
 | [RR-Y1-005](docs/research/RR-Y1-005-TEST-MOTORU-TASARIM-v-0-2.md) | Doğrulama-motoru TASARIM v0.2 — DONMUŞ | 4 Haz 2026 | DEC-045, RR-Y1 | 🔬 Faz-0..4 Applied (PR #195–#204) |
