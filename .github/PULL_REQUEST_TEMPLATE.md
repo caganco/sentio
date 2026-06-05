@@ -1,11 +1,22 @@
-## Spec
-D-XXX — [açıklama]
+## Summary
 
-## Etkilenen dosyalar
+<!-- What does this PR change, and why? 1–3 bullet points. -->
 -
 
-## Test sonucu
-pytest X passed, 0 failed
+## Affected files
 
-## Conflict kontrolü
-- [ ] master ile conflict yok
+<!-- List the key files modified. -->
+-
+
+## Test result
+
+```
+pytest: X passed, 0 failed
+```
+
+## Checklist
+
+- [ ] No merge conflict with master
+- [ ] CI tiers passing (architecture → integration → lint → regression)
+- [ ] No hardcoded thresholds — all constants in `src/signals/thresholds.py`
+- [ ] No look-ahead violations — signals at `t`, actions at `t+1`

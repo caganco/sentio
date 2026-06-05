@@ -6,7 +6,7 @@
 > Karar esikleri: `src/signals/thresholds.py` (D203_* blok, tek-kaynak).
 >
 > **Bu bir OLCUMDUR, optimizasyon DEGILDIR.** N<=3 aday; agirlik/fraksiyon taramasi YOK.
-> Verdict bir overlay ADAYI'dir en fazla; deployment karari ayri (the project).
+> Verdict bir overlay ADAYI'dir en fazla; deployment karari araştırma kapsamı dışındadır.
 
 ## 1. Cozulen celiski
 
@@ -36,14 +36,14 @@ uc adayi da DUZELTILMIS D-202 temiz-evrende (681 sembol x 1848 gun, fiyat hash
 - **Getiri:** TL-real (TUFE-deflate), gunluk +/-10% clip, ay-ici buy-and-hold bilesik.
 - **Maliyet:** flat 20bp VE 100bp / turnover (ilk giris tam round-trip).
 
-### Pencere farki (the maintainer duzeltme-2 -- aciklikla belirtiliyor)
+### Pencere farki
 - **PRIMER ortak pencere 2019-07-01..2026-04-30** (degoran+TUFE ortak kapsam): UC adayin
   da apples-to-apples kiyaslandigi pencere. ADAY-A VALUE fundamentals'a bagli oldugu icin
   SADECE bu pencerede raporlanir.
 - **EXTENDED pencere 2019-01-01..2026-04-30** (fiyat-only): ADAY-B ve ADAY-C EK olarak bu
   daha uzun pencerede de raporlanir. Iki pencere arasinda verdict DEGISMEDI (asagida).
 
-### Rejim-split (the maintainer duzeltme-1 -- ikisi de raporlaniyor)
+### Rejim-split
 - **PRIMER 2022-01-01** (Gate-3'u KARARLASTIRIR): takvim-yili siniri, spec dili
   "2019-21 vs 2022-26" ile eslesir; TR enflasyon rejimi 2021 sonu->2022'de hizlandi (keyfi degil).
 - **SEKONDER 2022-07-01** (robustness, raporlanir): demo-edge/demo_smart_money surekliligi +
@@ -135,7 +135,7 @@ SEYRELTIYOR. Bu, "kompozit en guclu" sezgisinin aksidir.
    rakam LIKIT-TERCIL excess'idir: edge2 ~+0.54%/ay, hi52 ~+1.35%/ay. Bunlar hala pozitif
    ama EW_FULL-relatiften cok daha kucuk.
 2. **Sadece olcum, deployment degil.** GERCEK-EDGE verdict'i bile bir overlay ADAYI'dir;
-   canliya alma ayri bir the project karari.
+   canliya alma araştırma kapsamı dışındadır.
 3. **Maliyet modeli flat 20/100bp** -- broker-tier degil. Gercek BIST mikroyapi-maliyeti
    ve slippage (RR-014/015) ayrica modellenmeli.
 4. **Optimizasyon yapilmadi.** Sabit top-15, esit-agirlik. Fraksiyon/agirlik taramasi edge'i

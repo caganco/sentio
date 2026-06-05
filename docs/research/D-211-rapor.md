@@ -5,7 +5,7 @@
 > `src/screening/d211_config.py` (geometri). Karar esikleri: `src/signals/thresholds.py` D211_* blok
 > (ADDITIVE) + reuse D207_TIER_MEGA_HALF_SPREAD / D204_COMMISSION_PCT (READ-ONLY). Veri-dayanak:
 > D-210 / `docs/yol1/RR-Y1-002-asama0-veri.md` (envanter). FF parser geometrisi
-> `demo_smart_money/lab/ff_data.py`'den PORT (read-only). NW-mean-t demo-goal'den PORT.
+> önceki implementasyondan PORT edildi (read-only). NW-mean-t önceki implementasyondan PORT edildi.
 >
 > **Bu bir OLCUMDUR, optimizasyon DEGILDIR.** Cerceve-B surekli zaman-serisi tahmin (tek-varlik
 > timing; hisse-secimi DEGIL). Tum esik/tanim/keep-bar Stage-0'da donduruldu ve **sonuclardan ONCE
@@ -40,7 +40,7 @@ ihtimali: tekil-isim testlerinin kacirdigi agrega-timing icerigi; cikarsa duz ra
   XU100-total-return yerel YOK -> fiyat-getiri spec-izinli fallback). Aylik nominal
   `r_nom(t) = idx(t-sonu)/idx(t-1-sonu) - 1`; TL-reel = `r_nom(t) - infl(t)` (TUFE MoM cikarmasi,
   spec-literal; deflasyon ZORUNLU).
-- **Pencere (LOCK, Orchestrator-onayli Option-1, 2026-06-04):** PRIMARY 2019-01..2026-04 (87 forward-ay).
+- **Pencere (LOCK, 2026-06-04):** PRIMARY 2019-01..2026-04 (87 forward-ay).
   Spec 2010-01..2026-04 PRIMARY demisti; DATA-FACT (D-210): tek temiz LOKAL XU100 (exposure_d187_xu100)
   yalniz 2019+ kapsiyor (prices_official BIST100-index sutunu tumden NULL; clean_universe adj-fiyat
   da 2019-baslar) -> kurumsal-aksiyon-temiz pre-2019 endeks yerel kurulabilir DEGIL. 2017-04 FF-bosluk
@@ -167,7 +167,7 @@ rejim-B (2022-08+) uzerinde (yerel TLREF reel-veri 2022-07-baslar); pre-2022 nak
 snapshot'ta yok. Burada moot: lag-2 primary tum-orneklemde zaten anlamli-alti.
 
 **post-hoc gevsetme YOK:** hicbir esik/tanim/pencere/lag/maliyet/keep-bar gevsetilmedi. Stage-0
-sonuclardan ONCE commit'lendi (anti-post-hoc guard). Deployment ayri bir the project kararidir; bu
+sonuclardan ONCE commit'lendi (anti-post-hoc guard). Deployment araştırma kapsamı dışındadır; bu
 harness OLCER + ONERIR, asla otomatik-deploy ETMEZ -- ve burada onerilecek bir aday yok.
 
 **KARAR: agrega yabanci-akim -> forward TL-reel endeks timing'i temiz-arsiv (N<=3, count=1).**
@@ -178,8 +178,8 @@ Kutlama YOK -- beklenen sonuc, fiyat-ortogonal eksende OLCULDU ve duz kaydedildi
 - **Strangler:** committed d203/d204/d205/d209 + realistic_cost + thresholds mevcut bloklar
   SIFIR-dokunus; yalniz YENI `d211_foreign_flow.py` + `d211_config.py` + D211_* esik-blogu (ADDITIVE)
   eklendi. Maliyet legi D207_TIER_MEGA_HALF_SPREAD + D204_COMMISSION_PCT'yi READ-ONLY reuse eder.
-  FF parser geometrisi demo_smart_money/lab/ff_data.py'den PORT (kopya-okuma, mutlak-yol commit'lenmez);
-  NW-mean-t demo-goal'den PORT. Snapshot icerik-hash'leri yukleme-aninda assert edilir (drift -> RAISE).
+  FF parser geometrisi PORT edildi (read-only, mutlak-yol commit'lenmez);
+  NW-mean-t PORT edildi. Snapshot icerik-hash'leri yukleme-aninda assert edilir (drift -> RAISE).
 - **Disiplin:** Stage-0 (`STAGE0_d211.json`) sonuclardan ONCE donduruldu + COMMIT'lendi (motor,
   dosya yoksa calismayi REDDEDER); durust-beklenti (prior-dusuk, TRADEABLE-DEGIL) onceden-ilan-edildi
   ve OLCUMLE dogrulandi; kutlama YOK; N<=3 ilk-resmi-olcum (count=1). Olcum yerel + arsiv-destekli;

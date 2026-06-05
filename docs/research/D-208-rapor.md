@@ -1,8 +1,7 @@
 # D-208 hi52 LIKIT RE-TEST -- D-205-REVISITED: duzeltilmis-maliyetle hi52-likit (ADIM-1)
 
 > Stage-0 on-kayit: `docs/yol1/STAGE0_d208.json` (sonuclardan ONCE donduruldu). Ham sonuc:
-> `docs/yol1/d208_results.json`. Surucu: `demo-pa/d208/d208_revisited.py` (yerel, arsiv-destekli,
-> CI-disi -- kote panel ENJEKTE edilir). Motor: `src/screening/d205_hi52_liquid.py` (D-205 ile
+> `docs/yol1/d208_results.json`. Surucu: yerel betik (arsiv-destekli, CI-disi -- kote panel ENJEKTE edilir). Motor: `src/screening/d205_hi52_liquid.py` (D-205 ile
 > AYNI; tek ekleme `quoted_panel` parametresi -- geriye-uyumlu pass-through). Duzeltilmis maliyet:
 > `src/screening/realistic_cost.py` + `d204_hi52_stress.per_stock_cost_panel` + `quoted_spread.py`
 > (D-207'den OLDUGU-GIBI reuse). Karar esikleri: `src/signals/thresholds.py` (D205_* + D207_* blok).
@@ -107,7 +106,7 @@ duzeltilmis maliyet onu 1.70 -> 1.17'ye biraz indirdi, fakat duvar maliyet DEGIL
 | gate5 maliyet-sonrasi relatif > 0 | **PASS** | +%0.54 |
 
 **gate3/gate4/gate5** D-205'te (sisik-maliyetle) FAIL idi; duzeltilmis-maliyetle **PASS** --
-cunku maliyet-sonrasi seri pozitife dondu. **gate4 / the maintainer-notu (orneklem-boyutu):** her iki
+cunku maliyet-sonrasi seri pozitife dondu. **gate4 — orneklem-boyutu notu:** her iki
 ADV-yarisi da **tam basket-boyutu 15** (basket_size_min=15, medyan=15) ile calisti -- gate4-PASS
 **kucuk-orneklem artefakti DEGIL.** Tek kalan FAIL **gate2: anlamlilik** (t=1.17).
 
