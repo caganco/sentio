@@ -357,7 +357,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 - Hafta 1: Consensus veri kaynağı entegrasyonu (3 gün), SUE hesabı modülü (2 gün)
 - Hafta 2: Cross-sectional rank entegrasyonu (3 gün), backtest + test (2 gün)
 
-**Builder speci taslağı:**
+**arastirma katmani speci taslağı:**
 > "BIST OS'a B14 Earnings Revision Momentum faktörünü ekle. Chan-Jegadeesh-Lakonishok 1996 metodolojisini Türk verisine uyarla (literatür: SUE 6-ay spread %7.5, revision spread %7.7, IBES 1977–1993). KAP earnings release tarihinden 3 gün önce/sonra consensus EPS revizyon yüzdesini hesapla. Aylık cross-sectional rank ile top decile (5 hisse) long, bottom decile short (yasak nedeniyle short = cash). Aylık rebalance. L3 KAP layer'a entegre et. Backtest 2018–2024, Sharpe ve IR raporla."
 
 ### 4.2 A5 — Sovereign CDS Conditional Gate (Mini-Spec)
@@ -382,7 +382,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 - Hafta 1: CDS veri scraper + tarihsel veri toplama (2 gün), gate logic modülü (3 gün)
 - Hafta 2: Backtest harness (2 gün), threshold kalibrasyon (2 gün), entegrasyon testi (1 gün)
 
-**Builder speci taslağı:**
+**arastirma katmani speci taslağı:**
 > "BIST OS'a A5 Sovereign CDS Conditional Gate ekle. Türkiye 5Y CDS spread'ini günlük çek (investing.com / tradingeconomics / MacroMicro). CDS > eşik (kalibrasyon için 300/350 bps) olduğunda L6 Risk Kelly multiplier'ı 0.5×; CDS > 450 bps olduğunda 0× (cash bias). L2 Macro veya regime_detector modülüne entegre et. Longstaff-Pan-Pedersen-Singleton 2011 literatür quotelu olarak dökümante et: 'A single principal component accounts for 64 percent of the variation in sovereign credit spreads.'"
 
 ### 4.3 B7 — USDTRY Pass-Through Beta (Mini-Spec)
@@ -406,7 +406,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 - Hafta 1: TCMB EVDS USDTRY entegrasyon (1 gün), rolling beta hesabı (3 gün), validation (1 gün)
 - Hafta 2: Sektör/firm tilt logic (3 gün), backtest + raporlama (2 gün)
 
-**Builder speci taslağı:**
+**arastirma katmani speci taslağı:**
 > "BIST OS'a B7 USDTRY Pass-Through Beta faktörü ekle. Her BIST100 hissesi için 60-gün rolling regresyon: R_i = α + β_i ΔlnUSDTRY + ε. Beta'ya göre ranking yap. USDTRY trend yukarı yönlüyse top-beta (exporter) long; aşağı yönlüyse top-negative-beta (importer) long. Aylık rebalance. L1 Technical + L2 Macro entegrasyonu. RIETI (2022) 'Impact of Exchange Rates on Turkish Economy' ve Doğan et al. (2022) literatür referansları."
 
 ---

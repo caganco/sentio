@@ -324,7 +324,7 @@ def daily_update():
 | BistForeignClient | `fetch_and_store()` | **SPEC'd** – EVDS API weekly foreign exchange |
 | daily_update.py | Caller integration | **SPEC'd** – pre-market macro fetch, graceful error handling |
 
-**Next Step:** Builder implements all 3 clients + integration following this SPEC. No code deviation; all edge cases covered above.
+**Next Step:** arastirma katmani implements all 3 clients + integration following this SPEC. No code deviation; all edge cases covered above.
 
 ---
 

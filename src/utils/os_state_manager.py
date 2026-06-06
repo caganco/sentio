@@ -70,7 +70,7 @@ class OSStateManager:
     def update_metadata(self) -> None:
         """Update the timestamp in OS_STATE.md.
 
-        OS_STATE.md is a hand-maintained Markdown document (Orchestrator-owned).
+        OS_STATE.md is a hand-maintained Markdown document (maintainer-owned).
         When it has no structured ```yaml ``` metadata block, the full-template
         ``_save()`` would clobber that content, so we instead do a surgical
         in-place replace of the ``**Last Updated:**`` line and leave every other

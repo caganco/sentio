@@ -32,13 +32,13 @@ subscription-price, bedelsiz oran, nakit temettü) ŞART. DataStore corp-action 
 - **FAZ-2 KIRILMASI — "03 ≠ bedelli":** KAP'ta KOZAL kesin çözüldü → `subProcessName=BDLSZ`,
   `internalResourcesBonusPercentage=2000` (20× **bedelsiz**), `preemtiveRightsPercentage` BOŞ.
   Price-implied factor **birebir** (525→~25 vs 3196 ham 26.48). Yani col-14=`03`'lerin önemli
-  kısmı aslında **bedelsiz** → price-implied factor zaten kesin → KAP'a gerek YOK. Builder'ın
+  kısmı aslında **bedelsiz** → price-implied factor zaten kesin → KAP'a gerek YOK. arastirma katmani'ın
   "03 ⇒ bedelli ⇒ DROP" varsayımı **fazla agresif**.
 
-**Karar (DEC-039 sınıfı, the project):** Hibrit — fiyat/PIT-üyelik/survivorship/otoriter-ex-date
+**Karar (DEC-039 sınıfı, maintainer):** Hibrit — fiyat/PIT-üyelik/survivorship/otoriter-ex-date
 **3196'dan** (zaten elde), corp-action factor + temettü **yfinance'ten** (survivor'lar),
 delisted-`03` 7 sembol için **önce price-implied (ücretsiz, self-validate ≤%2)**; price-implied
-tolerans-DIŞI kalan gerçek-bedelli için **KAP/MKK_VYK structured CA formu** (bütçeli, the maintainer-onaylı).
+tolerans-DIŞI kalan gerçek-bedelli için **KAP/MKK_VYK structured CA formu** (bütçeli, maintainer-onaylı).
 
 ---
 
@@ -81,7 +81,7 @@ KOZAA.IS   : HTTP 404 "possibly delisted"                                       
   `subProcessName` (BDLSZ/BDL), `preemtiveRightsPercentage`+`...Amount` (**bedelli**),
   `internalResourcesBonusPercentage`+`...Amount` (**bedelsiz**),
   `bonusIssueFromDividendPercentage`. NLP gerekmez (Faz-2'de KOZAL formunda doğrulandı).
-- `MKK_VYK_BASE_URL` (apigwdev→Basic auth) + `MKK_VYK_TOKEN` env gerekir (builder'da yok → the maintainer-env).
+- `MKK_VYK_BASE_URL` (apigwdev→Basic auth) + `MKK_VYK_TOKEN` env gerekir (builder'da yok → maintainer-env).
 - **ASIL MALİYET — arama:** `get_disclosures` **tarih/event-type filtresi YOK**; `start_index`'ten
   artan ~9-kayıtlık sayfalar döner ve index **doğrusal-OLMAYAN** büyür (dönem hacmine göre).
   Belirli bir tarihsel CA bildirimini bulmak = kör pagination. (Probe: idx 1138619 → Nis-2023,
@@ -105,7 +105,7 @@ KOZAA.IS   : HTTP 404 "possibly delisted"                                       
 - BIST resmi: index-rebalance/IPO duyuruları; corp-action structured veri = **DataStore 100471
   (Temettü)** → akademik $0 / ticari ücretli, **auth + payment-profile** (NRR-EXPLORE-01 §B: 401).
   Bu, NRR-004'ün başlangıç noktası olan KESİN-blokun ta kendisi.
-- **Sonuç:** sadece delisted-bedelli kalıntısı için the maintainer-manuel academic-erişim opsiyonu.
+- **Sonuç:** sadece delisted-bedelli kalıntısı için maintainer-manuel academic-erişim opsiyonu.
 
 ### KAYNAK-5: 3196'nın kendi 52 kolonu — ❌ oran YOK
 - 52 kolonun **tamamı** ham olarak tarandı (`PP_GUNSONUFIYATHACIM` header doğrulandı).
@@ -121,7 +121,7 @@ KOZAA.IS   : HTTP 404 "possibly delisted"                                       
 ## Faz-2 — KAP/MKK_VYK ile kalan 7 (delisted-`03`)
 
 **Amaç:** yfinance'in göremediği (404 delisted) 7 sembolü `MKK_VYK_TOKEN` ile çözmek.
-**Kısıt (the maintainer, verbatim):** "whitelist değil ip'miz — sınırlı sayıda istek." → kör pagination yasak.
+**Kısıt (maintainer, verbatim):** "whitelist değil ip'miz — sınırlı sayıda istek." → kör pagination yasak.
 
 ### Erişilebilirlik (KAP `members` haritası)
 | Durum | Semboller | Not |
@@ -134,16 +134,16 @@ KOZAA.IS   : HTTP 404 "possibly delisted"                                       
   `preemtiveRightsPercentage` BOŞ → **BEDELSİZ 20× (bonus)**, bedelli/rights DEĞİL.
   Subscription-price yok/gereksiz.
 - Doğrulama: price-implied factor 0.0476 × 525 ≈ 25.0 vs 3196 ham 26.48 → **temiz eşleşme**.
-- **Çıkarım:** col-14=`03` ≠ otomatik bedelli. Builder'ın blanket-drop kuralı yanlış pozitif üretiyor.
+- **Çıkarım:** col-14=`03` ≠ otomatik bedelli. arastirma katmani'ın blanket-drop kuralı yanlış pozitif üretiyor.
 
 ### Maliyet bulgusu (neden 4/4 bitirilmedi)
 - DAGHL/PEHOL/QNBFL için spesifik tarihsel CA bildirimini bulmak, tarih-filtresiz endpoint'te
-  kör ikili-arama gerektiriyor (yukarıda KAYNAK-1). ~30+ çağrı sonrası, the maintainer'ın "sınırlı istek"
+  kör ikili-arama gerektiriyor (yukarıda KAYNAK-1). ~30+ çağrı sonrası, maintainer'ın "sınırlı istek"
   kısıtını ihlal etmemek için durduruldu. Daha fazla harcama = açık bütçe + onay gerektirir.
 
 ### Faz-2 reframe (önemli)
 KOZAL bedelsiz çıkınca problem yeniden çerçevelendi: **eğer `03` kalıntılarının çoğu bedelsiz ise,
-3196'dan price-implied factor zaten kesin → KAP'a hiç gerek yok.** Builder yalnızca price-implied'in
+3196'dan price-implied factor zaten kesin → KAP'a hiç gerek yok.** arastirma katmani yalnızca price-implied'in
 3196 ham fiyat-sıçramasıyla ≤%2 eşleşmediği vakaları "gerçek-bedelli, TERP gerek" diye işaretlemeli.
 
 ---
@@ -156,7 +156,7 @@ KOZAL bedelsiz çıkınca problem yeniden çerçevelendi: **eğer `03` kalıntı
 | Otoriter corp-action ex-date + tür (01/03/06) | **3196 col-14 (elde)** | tüm 683 sembol |
 | Corp-action **factor** (bedelli+bedelsiz, TERP dahil) + nakit temettü | **yfinance** | 614 survivor |
 | Delisted-`03` factor (kalıntı, çoğu bedelsiz) | **price-implied (3196, ücretsiz, self-validate)** | 7 sembol |
-| Yalnız price-implied tolerans-dışı (gerçek-bedelli) | **KAP/MKK_VYK CA formu (bütçeli, the maintainer-onay)** | ≤birkaç sembol |
+| Yalnız price-implied tolerans-dışı (gerçek-bedelli) | **KAP/MKK_VYK CA formu (bütçeli, maintainer-onay)** | ≤birkaç sembol |
 
 İş akışı: 3196 col-14 olay tarihini (otoriter) yfinance `.splits`/`.dividends` factor'üyle
 ex-date üzerinden join et → survivor'lar **tam-doğru** back-adjust + total-return.
@@ -167,7 +167,7 @@ ve back-adjust pipeline'ına sahip; yalnız **kaynak besleme** (yfinance→ratio
 
 ---
 
-## the maintainer-manuel adımlar (engel-değil, paralel)
+## maintainer-manuel adımlar (engel-değil, paralel)
 1. **(Faz-2'de doğrulandı)** `MKK_VYK_TOKEN` env mevcut ve çalışıyor; structured CA formu erişilebilir.
    Gerek kalırsa yalnız **açık istek-bütçesi + onay** ile kullanılır (IP rate-limit).
 2. yfinance entegrasyonu için **manuel adım YOK** — auth-suz, doğrudan çalışır.
@@ -183,6 +183,6 @@ ve back-adjust pipeline'ına sahip; yalnız **kaynak besleme** (yfinance→ratio
   **0 KAP çağrısı.** Beklenen: residual exclusion 291 → ~0–3.
 - **D-20Y (Yol-2, opsiyonel, bütçeli):** sadece Yol-1'de "gerçek-bedelli" flag kalan + reachable
   (DAGHL/PEHOL/QNBFL) için sınırlı, disk-cache'li KAP CA-form fetcher; **≤N çağrı bütçesi
-  (örn. 40), the maintainer-onaylı tek koşu.** HALKS/IDEAS/ITTFH (2019, members'ta yok) erişilemez kalır →
+  (örn. 40), maintainer-onaylı tek koşu.** HALKS/IDEAS/ITTFH (2019, members'ta yok) erişilemez kalır →
   price-implied'e bırakılır.
 - Doğrulama testi: yfinance/price-implied factor vs 3196 ham fiyat-sıçraması ≤%2 sapma, tüm 03/01 olayları.

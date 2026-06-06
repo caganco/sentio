@@ -12,8 +12,8 @@
   faz0_config.py, factor_ic_d184_audit.py, isyatirim_malitablo_fetcher.py,
   PIVOT_ARCHITECTURE_AUDIT.md, ARCHITECTURE.md v2.0, ARCH_V2_PARADIGM_DECISION.md
 
-**Celiski onceligi:** ARCHITECTURE.md v2.0 > ARCH_V2_PARADIGM_DECISION > bu belge > Builder yorumu
-**DEC-039:** Bu belge OLCER/HARITALAR. Trend-test tasarimi + reusable secimi the project karari.
+**Celiski onceligi:** ARCHITECTURE.md v2.0 > ARCH_V2_PARADIGM_DECISION > bu belge > arastirma katmani yorumu
+**DEC-039:** Bu belge OLCER/HARITALAR. Trend-test tasarimi + reusable secimi maintainer karari.
 
 ---
 
@@ -105,9 +105,9 @@ Eski composite / engine / conviction mimarisine sifir dokunuş. ARCHITECTURE v2.
 
 ---
 
-### 1.3 src/screening/ KOVA Siniflandirmasi
+### 1.3 src/screening/ bucket Siniflandirmasi
 
-PIVOT_ARCHITECTURE_AUDIT.md KOVA 1/2/3'e ek olarak yeni sinif:
+PIVOT_ARCHITECTURE_AUDIT.md bucket 1/2/3'e ek olarak yeni sinif:
 
 ```
 YENI: FAZ 0 IC HARNESS (OLCUM — Strangler Pasif)
@@ -120,11 +120,11 @@ YENI: FAZ 0 IC HARNESS (OLCUM — Strangler Pasif)
 ```
 
 - Rol: Cross-sectional IC harness, measurement-only, on-paradigma dogrulama (D-177/178/183/184)
-- KOVA 1/2/3'ten bagimsiz: composite'e bagIi DEGIL, production signal uretmiyor (olcum)
+- bucket 1/2/3'ten bagimsiz: composite'e bagIi DEGIL, production signal uretmiyor (olcum)
 - ARCHITECTURE v2.0 karari: pasif kalir (silinmez), yeni trend-test altyapisi olarak kismen yeniden kullanilir
 - Test dosyalari: `tests/test_factor_ic_harness.py`, `tests/test_malitablo_fetcher.py`, `tests/test_factor_ic_d184.py`
 
-`src/data/isyatirim_malitablo_fetcher.py` → **KOVA 1'e eklenir** (veri kanali, signal/engine import YOK, kalite-suzgec fundamental veri kaynagidir)
+`src/data/isyatirim_malitablo_fetcher.py` → **bucket 1'e eklenir** (veri kanali, signal/engine import YOK, kalite-suzgec fundamental veri kaynagidir)
 
 ---
 
@@ -136,9 +136,9 @@ PIVOT_ARCHITECTURE_AUDIT.md tarihi: **2026-05-29** (D-177 → D-184 ONCESI).
 
 | Bolum | Durum | Not |
 |-------|-------|-----|
-| **KOVA 1/2/3 ana yapisi** | GECERLI | Faz 0 bu yapiya dokunmadi |
-| **Q1-Q5 cevaplari** | GECERLI | backtest/engine.py composite yuzey dar (~60-80 satir), KOVA 1 temiz ayriliyor, 0 dngusal bagimlilik |
-| **KOVA 3 blast radius** | GECERLI | Faz 0 composite'e dokunmadi, yayilim degismedi |
+| **bucket 1/2/3 ana yapisi** | GECERLI | Faz 0 bu yapiya dokunmadi |
+| **Q1-Q5 cevaplari** | GECERLI | backtest/engine.py composite yuzey dar (~60-80 satir), bucket 1 temiz ayriliyor, 0 dngusal bagimlilik |
+| **bucket 3 blast radius** | GECERLI | Faz 0 composite'e dokunmadi, yayilim degismedi |
 | **Sessiz kirIlma riski** (`conviction_score` default `0.0`/`"WATCH"`) | GECERLI | models.py:53-54,64-65 — refactor'da hala gecerli uyari |
 | **Strangler yol haritasi** | GECERLI | ARCHITECTURE v2.0 §8 ayni siralari korudu |
 | **§1.3 adjacency list** | KISMI (eksik) | src/screening/ ve isyatirim_malitablo_fetcher.py yok; digerleri hala dogru |
@@ -148,18 +148,18 @@ PIVOT_ARCHITECTURE_AUDIT.md tarihi: **2026-05-29** (D-177 → D-184 ONCESI).
 | Bolum | Sorun | Guncelleme |
 |-------|-------|-----------|
 | **§0 PIVOT BAGLAMI** | "Katman A = ardisik filtre veya rank" v1.x tanimi. v2.0 Katman A = trend/swing motoru (trend-basi + parabolik-kacinma + kalite-suzgec + rejim teyidi) | ARCHITECTURE.md v2.0 §3 referansi ile guncelle |
-| **§2.1 KOVA 1 tablosu** | `src/data/isyatirim_malitablo_fetcher.py` eksik (D-183 ile eklendi) | KOVA 1 tablosuna satir ekle |
+| **§2.1 bucket 1 tablosu** | `src/data/isyatirim_malitablo_fetcher.py` eksik (D-183 ile eklendi) | bucket 1 tablosuna satir ekle |
 | **§1.2 Dependency map mermaid** | FAZ 0 HARNESS subgraph yok; `isyatirim_malitablo_fetcher` yok | Yeni subgraph ekle: `screening/[factor_ic_harness, factors, snapshot, d184_audit]` → DATA baglanisi |
 | **§1.3 Adjacency list** | `src/screening/*` ve `isyatirim_malitablo_fetcher.py` listede yok | Ekle: `src.screening.factor_ic_harness → screening.faz0_config, screening.factors, screening.snapshot, analytics.ic_calculator, data.short_interest_normalizer`; composite import YOK |
 | **Test sayilari** | Audit: 1.467 test, 94 dosya. 3 yeni test dosyasi eklendi. Gunceli: `python -m pytest tests/ -q | tail -3` calistir | Yeni sayiyi yansitin |
 | **src/ dosya sayisi** | Audit: 130 Python dosyasi. +7 (src/screening/ 6 dosya + isyatirim_malitablo_fetcher.py). Gunceli: ~137 | Guncelle |
-| **§2.2 KOVA 2 tablosu** | ARCHITECTURE v2.0 §3.5 guncellemesini yansiitmiyor: `technical.detail[adx, momentum_score, ...]` artik "ANA MOTOR primitive" (icaret), `Snapshot/IC/look-ahead guard` artik "trend-test'te reusable". v2.0 status sutunu eksik. | v2.0 status sutunu ekle |
+| **§2.2 bucket 2 tablosu** | ARCHITECTURE v2.0 §3.5 guncellemesini yansiitmiyor: `technical.detail[adx, momentum_score, ...]` artik "ANA MOTOR primitive" (icaret), `Snapshot/IC/look-ahead guard` artik "trend-test'te reusable". v2.0 status sutunu eksik. | v2.0 status sutunu ekle |
 | **ARCHITECTURE referanslari** | Audit v1.x referanslari kullaniyor. Yeni: ARCHITECTURE.md v2.0 + ARCH_V2_PARADIGM_DECISION.md | Referanslari guncelle |
 
 ### 2.3 Onerilen Eylem
 
 PIVOT_ARCHITECTURE_AUDIT.md'yi **TAM YENIDEN YAZMAK GEREKMIYOR**. Minimum guncelleme:
-1. §2.1 KOVA 1'e satir ekle: `isyatirim_malitablo_fetcher.py`
+1. §2.1 bucket 1'e satir ekle: `isyatirim_malitablo_fetcher.py`
 2. Yeni §2.4 ekle: "FAZ 0 IC HARNESS" → `src/screening/` tam listesi + v2.0 pasif/reusable siniflandirmasi
 3. §0 Katman A motorunu v2.0'a (trend/swing) guncelle
 4. Test sayisini guncelle (`pytest --collect-only` yeniden calistir)
@@ -194,7 +194,7 @@ PIVOT_ARCHITECTURE_AUDIT.md'yi **TAM YENIDEN YAZMAK GEREKMIYOR**. Minimum guncel
 | **technical.detail[adx, momentum_score, ...]** | `src/signals/layers/technical_layer.py:196-204` | ADX + momentum_score + bollinger_position + ma_above vb. ham faktorler. ARCHITECTURE v2.0 §3.5: "ANA MOTOR primitive (yildiz)". Trend-basi tanimlama icin dogrudan reusable. |
 | **SmartMoneyNormalizer._rolling_percentile** | `src/signals/layers/smart_money_layer.py` | Rolling percentile. Rejim teyidi (yabanci/kurumsal akis) icin. ARCHITECTURE v2.0 §3.5: "rejim/akis icin". |
 | **ICCalculator** | `src/analytics/ic_calculator.py` | Authoritative Spearman IC/ICIR/t/p primitifi. factor_ic_harness equivalence assertion ile dogrulanmis. Event-study metrik katmani icin reusable. |
-| **Backtest infra** | `src/backtest/metrics.py`, `src/backtest/cross_validation.py` (Purged K-Fold), `src/backtest/statistical_validation.py` (CPCV/DSR/PBO/NW-Sharpe) | Sinyal-agnostik validation altyapisi. KOVA 1. Trend-test per-trade equity curve'u bu harness'tan gecer. |
+| **Backtest infra** | `src/backtest/metrics.py`, `src/backtest/cross_validation.py` (Purged K-Fold), `src/backtest/statistical_validation.py` (CPCV/DSR/PBO/NW-Sharpe) | Sinyal-agnostik validation altyapisi. bucket 1. Trend-test per-trade equity curve'u bu harness'tan gecer. |
 | **isyatirim_malitablo_fetcher.py** | `src/data/isyatirim_malitablo_fetcher.py:104-153` | Kalite-suzgec fundamental veri kanali (P/B, EV/EBITDA, borclanma, karlillik). Trend-test suzgeci icin ayni fetcher. |
 
 ---
@@ -210,23 +210,23 @@ PIVOT_ARCHITECTURE_AUDIT.md'yi **TAM YENIDEN YAZMAK GEREKMIYOR**. Minimum guncel
 | **daily_ic_series** | `src/screening/factor_ic_harness.py:63-86` | "Her gunde tum hisseler arasi cross-sectional Spearman IC" hesabi. Trend-test birincil kanit per-trade expectancy — cross-sectional IC DEGIL (ARCHITECTURE v2.0 §7.1). Istatistik fonksiyonlari (ic_stats / newey_west_se) reusable, bu fonksiyon degil. |
 | **run_faz0 / run_faz0b** | `src/screening/factor_ic_harness.py:388-640` | Faz 0 cross-sectional IC olcum pipeline'lari. Trend-test farkli paradigma; yeni `run_trend_test()` tipi orkestrator gerekecek. |
 | **rank_panel (sinyal amacli)** | `src/screening/factor_ic_harness.py:47-59` | Sinyal siralama araci olarak pasif. Ancak SUZGEC amacli kullanim (lowvol60 suzgec bileşeni) v2.0'da hala mesru. Iki rol ayrimi kritik. |
-| **Composite formula** | `src/signals/engine.py:_compute_weighted_sum()`, `src/signals/calculator.py:compute_composite_score():26-53` | KOVA 3. L1*0.25 + ... linear-additive composite. Trend-test bu formulü kullanmaz. ARCHITECTURE v2.0 §8 son adimda budanacak. |
-| **MASTER_WEIGHTS** | `src/signals/thresholds.py:22-29` | KOVA 3. Agirliklar composite ile birlikte oler. |
-| **compute_conviction** | `src/signals/conviction_validator.py:48-63` | KOVA 3. `(composite/100) × macro_mult`. Composite gidince anlamsiz. Yeni Katman C conviction uretimi gerekecek (ARCHITECTURE v2.0 §5). |
-| **kelly_win_prob(composite)** | `src/signals/calculator.py:83-92` | KOVA 3. Composite → win_prob → Kelly. Katman C'de EV/rank tabanli yeniden turetilmeli. |
+| **Composite formula** | `src/signals/engine.py:_compute_weighted_sum()`, `src/signals/calculator.py:compute_composite_score():26-53` | bucket 3. L1*0.25 + ... linear-additive composite. Trend-test bu formulü kullanmaz. ARCHITECTURE v2.0 §8 son adimda budanacak. |
+| **MASTER_WEIGHTS** | `src/signals/thresholds.py:22-29` | bucket 3. Agirliklar composite ile birlikte oler. |
+| **compute_conviction** | `src/signals/conviction_validator.py:48-63` | bucket 3. `(composite/100) × macro_mult`. Composite gidince anlamsiz. Yeni Katman C conviction uretimi gerekecek (ARCHITECTURE v2.0 §5). |
+| **kelly_win_prob(composite)** | `src/signals/calculator.py:83-92` | bucket 3. Composite → win_prob → Kelly. Katman C'de EV/rank tabanli yeniden turetilmeli. |
 | **D-184 run_d184_audit** | `src/screening/factor_ic_d184_audit.py:595-722` | CB-017 4-test audit cross-sectional faktor icin yazildi. Fonksiyon katmanlari (T1-T4 bileşen fonksiyonlari, NW-HAC) reusable, audit pipeline degil. |
 
 ---
 
 ### 3.3 Baglam Notu (DEC-039)
 
-Bu tablo OLCER/HARITALAR. "Reusable" isareti "kullanilabilir" demektir, "kullanilacak" anlamina gelmez — trend-test Stage 0 tasarimi the project karari.
+Bu tablo OLCER/HARITALAR. "Reusable" isareti "kullanilabilir" demektir, "kullanilacak" anlamina gelmez — trend-test Stage 0 tasarimi maintainer karari.
 
 Kritik ayrimlar:
 - `daily_ic_series` pasif; `ic_stats` / `newey_west_se` reusable. Trend-test istatistik katmani bunlari kullanabilir.
 - `rank_panel` suzgec rolunde mesru; sinyal siralama rolunde pasif.
 - `technical.detail[adx, ...]` ham faktor — trend-basi tanimi icin reusable; ama trend parametreleri on-kayitli ve minimal olmali (ARCHITECTURE §7.1: maks. N<=3 konfigurasyon, post-hoc secim yasak).
-- Backtest infra (KOVA 1) tamamen reusable — per-trade equity curve trend-test icin de bu harness'tan gecer.
+- Backtest infra (bucket 1) tamamen reusable — per-trade equity curve trend-test icin de bu harness'tan gecer.
 - `rs_vs_xu100` cross-sectional ranking icin pasif; zaman-serisi trend kuvveti (bir hissenin gecen N gune gore guclenip guclenmedigi) farkli bir hesap ve v2.0 ANA MOTOR'un parcasidir — `technical.detail[momentum_score]` bu icin zaten mevcuttur.
 
 ---
@@ -235,8 +235,7 @@ Kritik ayrimlar:
 
 | Dosya | Durum |
 |-------|-------|
-| `docs/ARCHITECTURE.md` | v2.0 — guncel (30 Mayis 2026, the maintainer tarafindan yazildi) |
-| `docs/ARCHITECTURE_ESKI_V1.2.md` | v1.2 — tarihsel referans olarak korunuyor (rename yapildi) |
+| `docs/ARCHITECTURE.md` | v2.0 — guncel (30 Mayis 2026, maintainer tarafindan yazildi) |
 | `docs/ARCH_V2_PARADIGM_DECISION.md` | Yun karari belgesi, untracked (commit edilmedi) |
 | `docs/PIVOT_ARCHITECTURE_AUDIT.md` | 2026-05-29, Faz 0 oncesi — kismi guncel (Soru 2 liste) |
 | `docs/factor_ic/` | Faz 0 Stage 0 kayitlari + sonuclar, kalici |

@@ -9,7 +9,7 @@
 > **Bu bir OLCUMDUR, optimizasyon DEGILDIR.** N=1 aday (hi52 IZOLE). lambda_kyle DONMUS;
 > kadans (1/2/3-ay) ve breakeven-grid raporlama VIEW'lari, "en iyi" SECILMEZ. D-203 donmus
 > paneli aynen REUSE (ayni hash). Verdict bir deploy-ADAYI degerlendirmesidir; deployment
-> karari ayri (the project).
+> karari ayri (maintainer).
 
 ## 1. Soru
 
@@ -83,7 +83,7 @@ Roll-maliyet-sonrasi relative seride walk-forward (split 2023-01-01): train(2019
 > yuksek-enflasyon rejimidir. Gercek enflasyon-normallesme OOS YOK -> rejim-degisim
 > dayanikligi KANITLANAMAZ. Walk-forward in-sample; disinflasyon 2024-26 YALNIZCA zayif-proxy.
 > pre-2019 acquisition reddedildi (corp-action-yok -> kirli, D-185-riski). Bu bir olcumdur;
-> deployment ayri the project karari.
+> deployment ayri maintainer karari.
 
 ### STRES-4 -- mekanizma
 

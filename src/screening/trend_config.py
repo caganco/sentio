@@ -11,7 +11,7 @@ cost model: BSMV on commission, round-trip >= 0.3-0.5%); ARCHITECTURE v2.0
 sec.3 (Katman A funnel) / sec.7.1 (per-trade expectancy gating).
 
 DEC-039: this config drives MEASUREMENT only. Which variant (if any) becomes
-the Katman A motor is an the project decision.
+the Katman A motor is an maintainer decision.
 
 N<=3 LOCK: exactly three variants. parabolic-filter on/off and regime slices
 are WITHIN-variant comparisons, NOT new rules (no N violation). Post-hoc
@@ -44,7 +44,7 @@ TREND_SNAPSHOT_START = "2019-01-01"
 TREND_SNAPSHOT_END = "2026-04-30"
 
 # Liquidity floor. ADV primitive = snapshot._compute_adv (median daily TL =
-# Close x Volume). NOTE (D-185 flagged substitution, the maintainer-approved): the
+# Close x Volume). NOTE (D-185 flagged substitution, maintainer-approved): the
 # directive named is_adv_eligible, but that needs a USD volume_3m_mn_usd shape
 # the OHLCV snapshot does not carry; _compute_adv (TL) is the fitting reuse.
 TREND_ADV_FLOOR_TL = FAZ0_ADV_FLOOR_TL      # 50M TL/day median
@@ -73,7 +73,7 @@ PARABOLIC_RSI_MAX = 75.0
 PARABOLIC_SWING_LOW_ATR_MULT = 5.0
 
 # ---------------------------------------------------------------------------
-# Variant A -- S/R-Flip Retest (the maintainer core intuition; tested FIRST)
+# Variant A -- S/R-Flip Retest (maintainer core intuition; tested FIRST)
 # ---------------------------------------------------------------------------
 A_SWING_LOOKBACK_DAYS = 252        # trailing window for swing peaks (~12 months)
 A_FIND_PEAKS_DISTANCE = 5          # min bars between peaks (scipy find_peaks)

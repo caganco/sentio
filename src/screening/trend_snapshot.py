@@ -152,7 +152,7 @@ def freeze_ohlcv_snapshot(
             "bias_direction": (
                 "Survivors-only INFLATES per-trade expectancy -> results are an UPPER BOUND. "
                 "If a variant cannot beat the random-entry benchmark post-cost here, it definitely "
-                "cannot in reality. No silent full-coverage claim (the maintainer condition)."
+                "cannot in reality. No silent full-coverage claim (maintainer condition)."
             ),
         },
     }

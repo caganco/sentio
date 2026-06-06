@@ -20,7 +20,7 @@ motor-dispatch yalniz value/edge2/hi52 idi -- **lowvol63 HIC-izole gecmedi**. hi
 bundle distinct bir faktoru gizleyebilir (hi52 EDGE-2'de gizliyken izole-olcumde GERCEK-EDGE
 cikmisti). **lowvol63 da izole-test hak-ediyor.**
 
-**Beklenti-kalibrasyonu (durust, ONCEDEN):** demo-3 S1/H4 lowvol63-izole zaten on-olctu:
+**Beklenti-kalibrasyonu (durust, ONCEDEN):** edge-arastirma S1/H4 lowvol63-izole zaten on-olctu:
 +%0.56/ay, t=0.94 (Gate-2 t>=2-esik-ALTI, ANLAMSIZ) -> **MUHTEMELEN-ELENIR**. Bu test
 KESIN-KAPATMA icin; ucuz oldugu-icin-deger (motor-hazir, tek-kosu). Ama on-gosterge maliyet-
 ONCESI + tum-evren idi; izole-tam-test (5-gate + gercekci-maliyet) farkli-cikabilir -> yine-de
@@ -45,7 +45,7 @@ hak-etti. Kutlama-beklentisi YOK; sonuc-ne-olursa durust raporlanir.
 
 ## 3. Sonuclar (primer: common pencere 2019-07..2026-04, aylik kadans, EW_FULL-relatif)
 
-### 3.1 Edge -- maliyet-oncesi pozitif-ama-ANLAMSIZ (demo-3 t=0.94 ile TUTARLI)
+### 3.1 Edge -- maliyet-oncesi pozitif-ama-ANLAMSIZ (edge-arastirma t=0.94 ile TUTARLI)
 
 | seri | ortalama/ay | NW t | CI sifiri-disliyor mu |
 |---|---|---|---|
@@ -54,7 +54,7 @@ hak-etti. Kutlama-beklentisi YOK; sonuc-ne-olursa durust raporlanir.
 | EW_FULL-relatif, **tier-maliyet-sonrasi** (capraz) | -%0.21 | -0.37 | hayir |
 | long-short, maliyet-oncesi | +%3.59 | -- | evet (pozitif) |
 
-**Onemli okuma:** cost-free NW t = **0.937** -- demo-3 on-gostergesinin **t=0.94'unu BIREBIR
+**Onemli okuma:** cost-free NW t = **0.937** -- edge-arastirma on-gostergesinin **t=0.94'unu BIREBIR
 dogruluyor**. on-gosterge != tam-test endisesi burada gerceklesmedi; izole-tam-test de ayni
 sonucu verdi. lowvol63 cross-section'da pozitif egilim gosteriyor (long-short +%3.59 CI>0) ama
 EW_FULL-relatif ust-fazla **istatistiksel-anlamsiz** (Gate-2 t>=2-esik-alti).
@@ -64,7 +64,7 @@ EW_FULL-relatif ust-fazla **istatistiksel-anlamsiz** (Gate-2 t>=2-esik-alti).
 | gate | sonuc | not |
 |---|---|---|
 | gate1 secim-null (cost-free real, ayni havuzdan random-15) | **FAIL** | strateji 0.0234 < null-p95 0.0253 (pctile %89.8 < %95) |
-| gate2 NW\|t\| >= 2 (cost-free) -- ASIL gate | **FAIL** | t = **0.94** (demo-3 ile birebir) |
+| gate2 NW\|t\| >= 2 (cost-free) -- ASIL gate | **FAIL** | t = **0.94** (edge-arastirma ile birebir) |
 | gate3 capraz-rejim (2022-01, cost-free) | **FAIL** | pre -%0.96 / post +%1.45 (yalniz-post-pozitif) |
 | gate4 likidite-tercil (cost-free) | **FAIL** | likit -%0.31 / illikit +%1.20 -> **liquidity_collapse** |
 | gate5 maliyet-sonrasi GERCEKCI (Roll+Kyle) | **FAIL** | -%0.82/ay |
@@ -99,7 +99,7 @@ pencere de maliyet-sonrasi NEGATIF. (Burada moot: cost-free zaten SERAP.)
 **Verdict: ELENDI** (cost-free verdict = **SERAP**). lowvol63 sinyali **maliyet-oncesi-bile**
 gate-gecmiyor: 0/5 cost-free gate PASS; tasiyici-neden gate4 **liquidity_collapse** (edge yalniz
 illikit) + gate2 NW t=0.94 (anlamsiz). gercekci-maliyet-sonrasi -%0.82/ay (ek-onay, ama gerek-yok
--- sinyal cost-free-bile gercek-degil). **demo-3 on-gostergesi (t=0.94) BIREBIR dogrulandi** ->
+-- sinyal cost-free-bile gercek-degil). **edge-arastirma on-gostergesi (t=0.94) BIREBIR dogrulandi** ->
 on-gosterge != tam-test endisesi bu kez gerceklesmedi.
 
 **Yorum:** EDGE-2-bundle'da lowvol63 gizliydi; izole-test, hi52'nin aksine, **distinct bir edge

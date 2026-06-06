@@ -232,7 +232,7 @@ def test_analyze_report_with_portfolio_positions(system_prompt_path):
 
 def test_system_prompt_file_loadable():
     prompt_path = (
-        Path(__file__).parent.parent / "agents" / "prompts" / "strategist_system_prompt.txt"
+        Path(__file__).parent.parent / "src" / "signals" / "strategist_system_prompt.txt"
     )
     assert prompt_path.exists(), f"System prompt not found: {prompt_path}"
     content = prompt_path.read_text(encoding="utf-8").strip()
@@ -306,7 +306,7 @@ def test_build_user_message_no_sentiment_no_section():
 
 def test_system_prompt_borsa_focus():
     prompt_path = (
-        Path(__file__).parent.parent / "agents" / "prompts" / "strategist_system_prompt.txt"
+        Path(__file__).parent.parent / "src" / "signals" / "strategist_system_prompt.txt"
     )
     content = prompt_path.read_text(encoding="utf-8").lower()
     assert any(kw in content for kw in ("bist", "turkish", "turkey", "türk")), (

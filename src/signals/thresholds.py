@@ -805,7 +805,7 @@ D204_TIER_LARGE_HALF_SPREAD: float = 0.0010   # ~0.10%
 D204_TIER_MID_HALF_SPREAD: float = 0.00275    # ~0.275%
 D204_TIER_MICRO_HALF_SPREAD: float = 0.0040   # ~0.40%
 
-# Deploy hurdle (EKLEME-B, the maintainer): NOT an arbitrary number. Project principle is
+# Deploy hurdle (EKLEME-B, maintainer): NOT an arbitrary number. Project principle is
 # "real > max(TUFE, TLREF)". hi52 returns are already TUFE-deflated (real), so the hurdle
 # is the mean monthly REAL TLREF carry (deposit/repo real return) -- "does liquid-tercile
 # hi52 after realistic cost beat holding a TLREF deposit?". DERIVED + FROZEN from the
@@ -827,11 +827,11 @@ D204_BREAKEVEN_SAFETY_MULT: float = 2.0
 # COST-RATE (microcap), not the turnover-LEVEL, and that the hi52 SIGNAL lives in liquid names
 # (liquid-pool rank-IC 0.048 ~ full-universe 0.047). D-205 attacks the cost-rate: restrict the
 # UNIVERSE to absolute-liquid names FIRST (signal UNCHANGED), then apply hi52. The threshold
-# below is FROZEN at Stage-0 on POOL-FEASIBILITY + the maintainer-deploy grounds (NRR-006 ADIM-1, EDGE
+# below is FROZEN at Stage-0 on POOL-FEASIBILITY + maintainer-deploy grounds (NRR-006 ADIM-1, EDGE
 # NOT seen) -- NOT tuned after seeing any edge result (post-hoc selection FORBIDDEN). D-205 is
 # the 3rd and FINAL hi52 measurement (N<=3). Cost MECHANICS reuse D204_* (realistic_cost.py).
 D205_LIQUID_ADV_MIN_TL: float = 1.0e7    # trailing-63d-median ADV floor for the liquid universe
-#   FROZEN (NRR-006 ADIM-1, edge-unseen). Rationale (3-criteria, edge-not-measured): (1) the maintainer
+#   FROZEN (NRR-006 ADIM-1, edge-unseen). Rationale (3-criteria, edge-not-measured): (1) maintainer
 #   deploy -- 20K-TL order = ADV %0.08 at the 24.9M median liquid ADV (impact-negligible);
 #   (2) N=15 feasibility -- pool min 44 / median 78, top-15 feasible 100% of rebalances, healthy
 #   >=30 100%; (3) real liquidity -- median liquid ADV 24.9M = ~15x the microcap 1.65M trap.
@@ -872,7 +872,7 @@ D206_FIDELITY_MIN_CORR: float = 0.95     # FIDELITY-GUARD: mktval-implied-TR vs 
 D206_FIDELITY_MAX_MAE: float = 0.03      # FIDELITY-GUARD: monthly-return mean-abs-error ceiling
 
 # --- D-207 realistic_cost RE-CALIBRATION constants (single source per "tek kaynak") ---
-# NRR-010 (demo-pa/NRR-010-maliyet-teshis.md) diagnosed the D-204/D-205 cost model as SISIK
+# NRR-010 (edge-arastirma/NRR-010-maliyet-teshis.md) diagnosed the D-204/D-205 cost model as SISIK
 # (inflated ~12-25x on liquid names): (1) a unit double-count (round_trip = 2*full_Roll_S,
 # but the round-trip spread cost is S itself), and (2) the 21-day Roll measures VOLATILITY not
 # spread (Monte-Carlo: roll21 ~ 0.47*sigma even at literally-zero true spread). D-207 corrects
@@ -900,7 +900,7 @@ D207_FALLBACK_ROLL_WINDOW: int = 252     # long Roll window for the FALLBACK leg
 # 6.5-40bp) was DOUBLY wrong: (a) the ADV boundaries were unreachable on BIST so EVERY name
 # misclassified as MID/MICRO, and (b) the half-spreads were ~4-6x inflated. D-207 re-derives the
 # ladder EDGE-BLIND from OBSERVED quoted spreads bucketed by the clean_universe ADV distribution
-# (demo-pa/d207/derive_d207_tiers.py; provenance frozen in docs/yol1/D207_CALIBRATION.json).
+# (edge-arastirma/d207/derive_d207_tiers.py; provenance frozen in docs/yol1/D207_CALIBRATION.json).
 # KEY OBSERVED FACT: the EOD quoted FULL spread is ~FLAT ~11bp across the whole BIST liquidity
 # spectrum (per-ADV-bucket medians MEGA 10.6 / LARGE 13.4 / MID 11.2 / MICRO 11.2 bp; n=439).
 # Microcaps are NOT wider on the QUOTED-spread dimension -- their extra cost is market IMPACT
@@ -914,7 +914,7 @@ D207_TIER_MEGA_ADV_TL: float = 50_000_000.0    # >= 50M TL trailing ADV (genuine
 D207_TIER_LARGE_ADV_TL: float = 20_000_000.0   # >= 20M TL
 D207_TIER_MID_ADV_TL: float = 5_000_000.0      # >= 5M TL ; below = micro
 # Half-spreads = observed bucket-median quoted FULL spread / 2, frozen VERBATIM from the
-# edge-blind derivation (demo-pa/d207/d207_derivation.json, tier_half_spread_frozen_monotone).
+# edge-blind derivation (edge-arastirma/d207/d207_derivation.json, tier_half_spread_frozen_monotone).
 # Raw bucket halves were 5.28 / 6.72 / 5.59 / 5.59 bp (LARGE's 13.4bp median is a noisy high vs
 # the ~11bp rest); strict-monotone enforcement ratchets MID/MICRO just above LARGE -> the 6.82 /
 # 6.92bp values below. The ratchet is a conservative (cost-up) tie-breaker, all within the
@@ -934,17 +934,17 @@ D207_FIDELITY_BAND_LO_BPS: float = 7.0
 D207_FIDELITY_BAND_HI_BPS: float = 35.0
 
 # --- D-209: H2b TEMETTU-RUNUP re-test under D-207 corrected cost (MEASUREMENT-only) ---
-# The H2b signal (dividend pre-ex run-up) was eliminated in the demo-goal lab under a FLAT
+# The H2b signal (dividend pre-ex run-up) was eliminated in the edge-arastirma lab under a FLAT
 # 20/100bp-per-side cost, but was NEVER measured with the D-207 corrected per-stock realistic
-# cost. D-209 re-runs the FROZEN demo-goal H2 signal (NO new definition) under the corrected
+# cost. D-209 re-runs the FROZEN edge-arastirma H2 signal (NO new definition) under the corrected
 # cost and decides: still tradeable, or a significance wall like hi52? These constants are the
-# FROZEN geometry of the two frozen demo-goal signal variants -- pre-registered in
+# FROZEN geometry of the two frozen edge-arastirma signal variants -- pre-registered in
 # docs/yol1/STAGE0_d209.json BEFORE any result. NO optimization, NO grid-sweep.
-# V1 (daily-churn basket, demo-goal h2b_runup_basket.py BIREBIR): a name is HELD on day t iff
+# V1 (daily-churn basket, edge-arastirma h2b_runup_basket.py BIREBIR): a name is HELD on day t iff
 # its dividend ex-date is 1..5 trading days ahead (window [-5,-1]); exit before ex -> no tax.
 D209_HOLD_LO: int = -5                    # V1 run-up window low (5 trading days before ex)
 D209_HOLD_HI: int = -1                    # V1 run-up window high (1 trading day before ex)
-# V2 (low-turnover discrete capture = demo-goal H2 "RUNUP_capture" leg, BIREBIR): per (symbol,
+# V2 (low-turnover discrete capture = edge-arastirma H2 "RUNUP_capture" leg, BIREBIR): per (symbol,
 # ex) event ONE round-trip, compound return over window [-10,-1] (10 trading days = "hold-10g"),
 # EW-combined per ex-month, exit before ex. add_div=False (no dividend captured -> no tax).
 D209_V2_HOLD_LO: int = -10                # V2 discrete-capture window low (10 trading days before ex)
@@ -998,7 +998,7 @@ IC_MIN_OBSERVATIONS: int = 10
 # Layer "investable" (active weight) gating
 IC_INVESTABLE_MEAN_MIN:   float = 0.03   # mean(IC) >= 0.03
 IC_INVESTABLE_TSTAT_MIN:  float = 2.0    # t-stat >= 2.0
-IC_INVESTABLE_MONTHS_MIN: int = 6        # D-139: was 24; the maintainer override (SPEC sec.6) -> 6 = ~126 trading days
+IC_INVESTABLE_MONTHS_MIN: int = 6        # D-139: was 24; maintainer override (SPEC sec.6) -> 6 = ~126 trading days
 
 # Layer watchlist / weight-halve / drop thresholds (Faz 2 reporting)
 IC_WATCHLIST_TSTAT_MAX:   float = 1.5    # t-stat < 1.5 last 6m -> watch

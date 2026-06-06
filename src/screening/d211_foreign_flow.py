@@ -20,7 +20,7 @@ foreign_flow archive does NOT enter CI; the real run is a local artifact.
 
 Dayanak: STAGE0_d211.json (frozen); D-210/RR-Y1-002-asama0-veri.md sec1-2/sec4 (data
 facts); realistic_cost.py (D-207 cost constants); ff parser geometry ported from
-demo_smart_money/lab/ff_data.py.
+edge-arastirma/lab/ff_data.py.
 """
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ def _assert_hash(name: str, expected: str):
 # Statistics (PORTED frozen, bit-for-bit) + NW-HAC OLS slope
 # ===========================================================================
 def nw_mean_tstat(x, lag: int = cfg.D211_NW_LAG):
-    """Newey-West HAC t-stat of the MEAN of series x (H0: mean=0). PORT (demo-goal)."""
+    """Newey-West HAC t-stat of the MEAN of series x (H0: mean=0). PORT (edge-arastirma)."""
     a = np.asarray([v for v in x if np.isfinite(v)], dtype=float)
     n = len(a)
     if n < lag + 3:
@@ -335,7 +335,7 @@ def run() -> dict:
         "verdict": verdict,
         "oos_gap_note": ("2019-2026 is one long high-inflation regime; a true "
                          "inflation-normalization OOS is ABSENT. Foreign participation "
-                         "at multi-year lows. Deployment is a separate the project decision."),
+                         "at multi-year lows. Deployment is a separate maintainer decision."),
     }
     return results
 

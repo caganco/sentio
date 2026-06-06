@@ -72,7 +72,7 @@ class TestICConstants:
         assert t.IC_BAYESIAN_TAU_FULL_DAYS == 730
         assert t.IC_FDR_ALPHA == 0.10
         assert t.IC_FDR_M_TESTS == 12
-        assert t.IC_INVESTABLE_MONTHS_MIN == 6   # the maintainer override (was 24)
+        assert t.IC_INVESTABLE_MONTHS_MIN == 6   # maintainer override (was 24)
 
     def test_decay_slope_ordering(self):
         from src.signals.thresholds import IC_DECAY_SLOPE_REVIEW, IC_DECAY_SLOPE_WARN

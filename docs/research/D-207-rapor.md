@@ -18,7 +18,7 @@
 
 ## 1. Soru / motivasyon
 
-NRR-010 (`demo-pa/NRR-010-maliyet-teshis.md`) paylasilan maliyet-modelini
+NRR-010 (`edge-arastirma/NRR-010-maliyet-teshis.md`) paylasilan maliyet-modelini
 (`src/screening/realistic_cost.py`) 6 bagimsiz kanitla **SISIK (likit-isimlerde ~12-25x sismis)**
 teshis etti. Iki kok-neden:
 

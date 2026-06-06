@@ -78,10 +78,6 @@ OLCER + onerir; Yol 2'ye terfi araştırma kararına bağlıdır.
 **Risk Management** (1 implemented)
 - [DEC-006](decisions/DEC-006.md) – Position sizing (Kelly Criterion, `src/risk/kelly.py`)
 
-**Security / Release** (1)
-- [DEC-012](decisions/DEC-012-git-history-scrub.md) – Git history scrub (personal portfolio data; public-release blocker, the maintainer manual)
-
-
 
 ### By Status
 

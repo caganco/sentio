@@ -1,5 +1,5 @@
 """NRR-008 value-REJIM-KOLU engine -- D-203-IDENTICAL value tilt gated ON/OFF by a
-look-ahead-safe trailing-12m YoY-TUFE 6-month DIRECTION rule (Aday-A, APPROVED the project
+look-ahead-safe trailing-12m YoY-TUFE 6-month DIRECTION rule (Aday-A, APPROVED maintainer
 2026-06-03, FROZEN in docs/yol1/STAGE0_nrr008.json before any edge was measured).
 
 value-static failed twice (D-203 SERAP NW |t|=0.76, illiquid-heavy; D-Y1-001 KIRILGAN). The
@@ -323,7 +323,7 @@ def nrr008_verdict(
         g5_realistic<=0 OR breakeven < safety_mult x cost
 
     OOS-gap attached in EVERY non-SERAP branch (inflation-normalization OOS absent; the regime
-    mask is fit-free but its EFFICACY is not OOS-proven). Deployment is a separate the project
+    mask is fit-free but its EFFICACY is not OOS-proven). Deployment is a separate maintainer
     decision, never auto-triggered."""
     cf = cost_free_verdict.get("verdict")
     be = float("inf") if breakeven_bps == "inf" else (
@@ -365,7 +365,7 @@ def nrr008_verdict(
                         f"breakeven >= {safety_mult}x gercekci-maliyet"],
             "deploy_note": ("ILK deploy-edilebilir value-temelli Yol-1 cross-sectional aday "
                             "(SURPRIZ; statik-value SERAP/kirilgan prior'unun aksine) -- overlay "
-                            "ADAY, deploy ayri the project karari, otomatik-DEGIL"),
+                            "ADAY, deploy ayri maintainer karari, otomatik-DEGIL"),
             "oos_gap": _OOS_GAP,
         }
 
@@ -386,7 +386,7 @@ def nrr008_verdict(
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _series_block(series: list[float]) -> dict:
     return {**eng._mean_ci(series), "nw_t": eng._r(eng._nw_t(series))}

@@ -336,5 +336,5 @@
     "lowvol60"
   ],
   "note": "Banks: F/DD only, EV/EBITDA NULL (D-182). Point-in-time annual, conservative +120d lag, latest-public restated (RR-036).",
-  "decision_owner": "the project (harness recommends only, DEC-039)"
+  "decision_owner": "maintainer (harness recommends only, DEC-039)"
 }

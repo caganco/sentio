@@ -3,7 +3,7 @@
 **Tarih:** 2026-06-05
 **Tür:** Validator-validation (alet-sınavı), **edge-avı DEĞİL** (C10-SAFE).
 **Dayanak:** RR-Y1-005 §7 (TASARIM v0.2) · RR-Y1-005B §4.1/§4.3/§5 (math-spec v1.1) · RR-Y1-005-FAZ4 (DSR-N-binding) · D-213 KAPSAM-GUARD (kapsam-koşullu pencere precedent) · D-208/D-209 (anlamlılık-duvarı deseni) · demo-clone1 C11/C12 (discover→freeze→OOS).
-**Çatışma-önceliği:** TASARIM v0.2 > math-spec v1.1 > spec > Builder.
+**Çatışma-önceliği:** TASARIM v0.2 > math-spec v1.1 > spec > arastirma katmani.
 **Strangler:** `src/engine` + committed-motorlar (`src/backtest`, `src/screening`, lab, clib) SIFIR-dokunuş; yalnız `examples/rry1008/` + `docs/` altında YENİ dosya.
 
 ---
@@ -101,11 +101,11 @@ mom180_cont_w0.05-0.95   X1 mean-IC = +0.04109
 | **2 — bucket-PBO** | pbo = **0.40** (< 0.50) | HAYIR |
 | **3 — DSR** | dsr = **1.0** (N=24) | HAYIR |
 
-**Yorum (C10-SAFE):** overfit **bağlayıcı-hüküm-katmanlarında yakalandı** — `agreement_pass=False` (motorun nihai-hükmü) VE single-split (the maintainer'ın asıl-fikrinin doğrudan-testi). PBO ve DSR bağımsız-olarak flag-etmedi; bu bir **alarm-değil** (diğer-katmanlar yakaladı) ama gerçek-bir-bulgudur (§5/§6). Re-run'da hiçbir-katman bir-edge keşfetmedi; PASS-çıksaydı bile C10/DISC-1 gereği flag-not-edge olurdu.
+**Yorum (C10-SAFE):** overfit **bağlayıcı-hüküm-katmanlarında yakalandı** — `agreement_pass=False` (motorun nihai-hükmü) VE single-split (maintainer'ın asıl-fikrinin doğrudan-testi). PBO ve DSR bağımsız-olarak flag-etmedi; bu bir **alarm-değil** (diğer-katmanlar yakaladı) ama gerçek-bir-bulgudur (§5/§6). Re-run'da hiçbir-katman bir-edge keşfetmedi; PASS-çıksaydı bile C10/DISC-1 gereği flag-not-edge olurdu.
 
-### 4.1 Layer-1 single-split = the maintainer'ın "optimize-et-X1, X2'ye-it" fikrinin doğrudan-cevabı
+### 4.1 Layer-1 single-split = maintainer'ın "optimize-et-X1, X2'ye-it" fikrinin doğrudan-cevabı
 
-the maintainer'ın önerdiği red-team tam-olarak işledi: X1'de cherry-pick'lenmiş kazanan (IC +0.04249), disjoint X2'de **IC +0.03188'e çöktü** (selection-tax +0.0106), NW-t **+1.992 < 2** → single-split FAIL. Seçim-vergisi gözlendi, kazanan OOS-anlamlılık-eşiğini geçemedi. **ÇALIŞTI.**
+maintainer'ın önerdiği red-team tam-olarak işledi: X1'de cherry-pick'lenmiş kazanan (IC +0.04249), disjoint X2'de **IC +0.03188'e çöktü** (selection-tax +0.0106), NW-t **+1.992 < 2** → single-split FAIL. Seçim-vergisi gözlendi, kazanan OOS-anlamlılık-eşiğini geçemedi. **ÇALIŞTI.**
 
 ---
 

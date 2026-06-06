@@ -1,7 +1,7 @@
 """RR-Y1-008 PART 2 -- ADVERSARIAL RED-TEAM (validator-validation).
 
 Deliberately manufacture a garden-of-forking-paths overfit and check the engine
-CATCHES it. The recipe (the maintainer's "optimize on X_1, push into X_2"):
+CATCHES it. The recipe (maintainer's "optimize on X_1, push into X_2"):
 
   (a) freeze a K=24 mom-variant family (lookback x sign x winsorize) BEFORE any
       measurement -- ``signals.mom_variant_family()``;

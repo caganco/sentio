@@ -11,7 +11,7 @@ Kalan: 50.0 neutral stub (intentional — Faz 2 D-150 kapsamı)
 
 ---
 
-## TL;DR (Orchestrator için)
+## TL;DR (maintainer için)
 
 `backtest/engine.py` kısmen iyileştirilmiş (MASTER_WEIGHTS importlandı, docstring "C-1 resolved, G-3" diyor) ama **divergence hâlâ kritik**:
 
@@ -235,7 +235,7 @@ Production `compute_signal()` ve backtest `_compute_composite()` aynı input iç
 | `backtest_output.log` | Ham backtest log | VADER sentiment, eski engine |
 | `reports/backtest_results.md` | Backtest sonuçları özet | Same |
 
-**RETRACT metodolojisi (Builder için):**
+**RETRACT metodolojisi (arastirma katmani için):**
 
 Rapor dosyalarına dokunulmaz — içerik değişmez. Her dosyanın başına YAML frontmatter veya Markdown header olarak şu blok eklenir:
 
@@ -248,7 +248,7 @@ Rapor dosyalarına dokunulmaz — içerik değişmez. Her dosyanın başına YAM
 > İşaretleyen: SPEC_BACKTEST_FRAMEWORK_1, Tarih: 2026-05-25
 ```
 
-**Python ile otomatik RETRACT (Builder için snippet):**
+**Python ile otomatik RETRACT (arastirma katmani için snippet):**
 
 ```python
 # scripts/retract_old_backtest_reports.py
@@ -490,7 +490,7 @@ class TestSignalCalculatorSharedModule:
 
 ---
 
-## BÖLÜM 4 — Builder Spec Taslakları (RR-018 §15 Faz 1 Sıralamasıyla)
+## BÖLÜM 4 — arastirma katmani Spec Taslakları (RR-018 §15 Faz 1 Sıralamasıyla)
 
 ### D-149a: Parity Test (RR-018 Faz 1a)
 
@@ -762,7 +762,7 @@ forbidden_modules = src.signals.engine
 
 **`tests/test_backtest.py`** mevcut (grep ile bulundu). D-149d backtest/engine.py'de sayısal değişiklik yapıyor (0.92 → 1-EXIT_STOP_LOSS) — ancak EXIT_STOP_LOSS = 0.08 olduğu için hesaplama aynı sonucu verecek. **Sayısal regresyon riski: düşük.**
 
-**Risk**: Eğer `tests/test_backtest.py` hardcoded `0.92` bekliyorsa → test güncellenmeli. Builder kontrol etmeli.
+**Risk**: Eğer `tests/test_backtest.py` hardcoded `0.92` bekliyorsa → test güncellenmeli. arastirma katmani kontrol etmeli.
 
 ### L3/L4/L5 Neutral Stub — Neden Faz 1'de Kaldırılmıyor?
 
@@ -812,5 +812,5 @@ Faz 1 (D-149a–e) tamamlandıktan sonra Faz 2 için gerekli:
 
 ---
 
-*SPEC tamamlandı. Orchestrator onayı bekleniyor. Builder specleri (D-149a → D-149e) SPEC onaylanmadan başlamaz.*
+*SPEC tamamlandı. maintainer onayı bekleniyor. arastirma katmani specleri (D-149a → D-149e) SPEC onaylanmadan başlamaz.*
 *Faz 1 tamamlanmadan Faz 2 (Purged K-Fold, DSR, CPCV) spec olarak verilmez.*

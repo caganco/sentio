@@ -13,7 +13,7 @@ GEOMETRY frozen at Stage-0; DECISION/COST constants live in src/signals/threshol
 (D205_* + reused D204_*/D203_*, single source). It REUSES the D-203 frozen panel verbatim
 (same content hashes) and the D-204 cost/stat geometry, so the hi52 factor + cost model are
 defined identically. The liquid-ADV threshold (D205_LIQUID_ADV_MIN_TL) was frozen on
-NRR-006 POOL-FEASIBILITY + the maintainer-deploy grounds, EDGE-unseen (post-hoc selection FORBIDDEN).
+NRR-006 POOL-FEASIBILITY + maintainer-deploy grounds, EDGE-unseen (post-hoc selection FORBIDDEN).
 
 D-205 is the 3rd and FINAL hi52 measurement (N<=3: D-203 + D-204 + D-205). No 4th round.
 """
@@ -42,7 +42,7 @@ D205_MIN_POOL_N = _d203.D203_MIN_POOL_N                # 30 (healthy-pool refere
 
 # ---------------------------------------------------------------------------
 # Liquid-universe definition (D-205 core). ADV floor FROZEN at Stage-0 on NRR-006
-# pool-feasibility + the maintainer-deploy grounds (edge-unseen). Threshold lives in thresholds.py.
+# pool-feasibility + maintainer-deploy grounds (edge-unseen). Threshold lives in thresholds.py.
 # ---------------------------------------------------------------------------
 D205_LIQUID_ADV_MIN_TL = _th.D205_LIQUID_ADV_MIN_TL            # 1.0e7 FROZEN
 D205_LIQUID_ADV_TRAILING_DAYS = _th.D205_LIQUID_ADV_TRAILING_DAYS  # 63

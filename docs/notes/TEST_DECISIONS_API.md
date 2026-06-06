@@ -87,7 +87,7 @@ if (SYSTEM_PROMPT.includes("TRADING DECISIONS")) {
 Bugün hangi aksiyonları almalıyım?
 ```
 
-**Expected response (Orchestrator cites decisions):**
+**Expected response (maintainer cites decisions):**
 ```
 Günlük kararlar:
 
@@ -161,7 +161,7 @@ After integration, your system has these endpoints:
      * `/masterplan` (strategy)
      * `/decisions` (today's decisions) ✨
    - Merges into SYSTEM_PROMPT
-   - Orchestrator agent ready
+   - maintainer agent ready
 
 4. **19:20 onwards - Chat**
    - Ask about today's decisions

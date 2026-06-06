@@ -1757,7 +1757,7 @@
         "TRALT"
       ],
       "note": "survivors-only OHLCV snapshot: delisted names not fetchable (yfinance 404), so excluded.",
-      "bias_direction": "Survivors-only INFLATES per-trade expectancy -> results are an UPPER BOUND. If a variant cannot beat the random-entry benchmark post-cost here, it definitely cannot in reality. No silent full-coverage claim (the maintainer condition)."
+      "bias_direction": "Survivors-only INFLATES per-trade expectancy -> results are an UPPER BOUND. If a variant cannot beat the random-entry benchmark post-cost here, it definitely cannot in reality. No silent full-coverage claim (maintainer condition)."
     }
   }
 }

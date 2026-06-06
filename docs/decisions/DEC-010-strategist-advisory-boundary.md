@@ -18,7 +18,7 @@ test_coverage: tests/test_strategist.py
 # DEC-010: Strategist Advisory Boundary — LLM Output is Read-Only Narrative
 
 **Decision Date:** 19 May 2026  
-**Decided By:** the maintainer (Strategist)  
+**Decided By:** maintainer (Strategist)  
 **Status:** ✅ DECIDED
 
 ---
@@ -26,7 +26,7 @@ test_coverage: tests/test_strategist.py
 ## CONTEXT
 
 The `StrategistAgent` (`src/signals/strategist.py`) wraps the Claude API to
-generate a daily equity market narrative (~300–500 words) from the Builder
+generate a daily equity market narrative (~300–500 words) from the arastirma katmani
 report dict. It receives macro data, signal scores, portfolio positions, and
 momentum rankings as compact encoded input, then returns free-form markdown
 text.
@@ -74,7 +74,7 @@ It has zero write-path access to any of the following:**
 This boundary is **not** negotiable without a superseding ADR. Any future
 feature that routes Strategist output into a decision path — structured
 recommendations, auto-generated orders, weight suggestions — requires a new
-decision record and explicit the maintainer approval.
+decision record and explicit maintainer approval.
 
 ---
 
@@ -176,7 +176,7 @@ and this ADR must be superseded.
 
 3. **No Strategist at all.** Rejected. The narrative layer serves a real
    function: it synthesizes macro + signal + portfolio state into human-
-   readable context that the Orchestrator and the maintainer review before session
+   readable context that maintainer and maintainer review before session
    decisions. It earns its API cost as an advisory tool.
 
 ---
@@ -209,6 +209,6 @@ Until those conditions are met, this boundary stands.
 ---
 
 **Status:** ✅ DECIDED (19 May 2026)  
-**Approved By:** the maintainer (Architect directive D-061 follow-up)  
+**Approved By:** maintainer (Architect directive D-061 follow-up)  
 **Implementation Owner:** N/A — no code change required; this ADR documents
-existing architecture. Future scope items require new Builder SPECs.
+existing architecture. Future scope items require new arastirma katmani SPECs.

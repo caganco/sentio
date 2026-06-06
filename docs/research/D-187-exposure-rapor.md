@@ -31,7 +31,7 @@
 
 **NET:** Baz-tahsis (varsayılan maruziyet) nakit/enflasyona göre değer katıyor AMA bu generic
 debasement-beta (altın daha iyi yaptı, üstelik disinflasyonda TLREF equity'yi ezdi); equity-spesifik
-prim KANITLANMADI. Aktif-zamanlama elendi. → premise/tasarım the project (DEC-039).
+prim KANITLANMADI. Aktif-zamanlama elendi. → premise/tasarım maintainer (DEC-039).
 
 ---
 
@@ -155,7 +155,7 @@ notlandı.
 
 ## 10. DEC-039 + Öneri
 
-Bu program ÖLÇTÜ + frozen DEC-045 verdict üretti. Karar the project. Builder önerisi:
+Bu program ÖLÇTÜ + frozen DEC-045 verdict üretti. Karar maintainer. arastirma katmani önerisi:
 
 - **Aktif-zamanlama (rejim switch) ana-sisteme KONULMAMALI** -- elendi (statik barbell + random'ı
   geçemiyor). Üçüncü "sistematik tahmin" başarısızlığı.
@@ -163,7 +163,7 @@ Bu program ÖLÇTÜ + frozen DEC-045 verdict üretti. Karar the project. Builder
   equity-only barbell DEĞİL, **sert-varlık sepeti** (equity + altın + nakit/TLREF) olarak
   düşünülmesi -- çünkü altın 2x equity yaptı ve disinflasyonda TLREF kraldı. Hangi statik karışım
   (ve altın dahil mi) ayrı bir tasarım kararı.
-- **Sonraki adım seçenekleri (the project):** (a) statik çok-varlık tahsis (equity+altın+TLREF) reel
+- **Sonraki adım seçenekleri (maintainer):** (a) statik çok-varlık tahsis (equity+altın+TLREF) reel
   optimizasyonu; (b) "ne zaman switch" yerine "hangi sabit karışım" sorusu; (c) sistemin kimliğini
   "tahmin/zamanlama" değil "disiplinli statik maruziyet + maliyet kontrolü" olarak sabitlemek
   (RR-038/doğrulama-agent tezi).

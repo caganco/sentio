@@ -16,19 +16,19 @@ predecessors: [RR-010, RR-011, RR-012, RR-013, RR-015, RR-016, RR-017, RR-018]
 
 ## 1. TL;DR
 
-**Hedef Okuyucu:** Şu anki the maintainer (Phase 5 sonu, RR-018 backtest framework var). Bu özetin amacı, "RR-019'u bugün uygulamam gerekir mi?" sorusuna net cevap vermek.
+**Hedef Okuyucu:** Şu anki maintainer (Phase 5 sonu, RR-018 backtest framework var). Bu özetin amacı, "RR-019'u bugün uygulamam gerekir mi?" sorusuna net cevap vermek.
 
 - **Konum:** Phase 6+ (Q1 2027+, uzak zaman). AUM 500K TL ve junior quant pozisyon eşiğine gelene kadar **incremental katkıdır**. Bugün uygulanmaz; bugün **sadece araştırma + tasarım** olarak rafa kaldırılır.
-- **Öneri:** "7-agent ideal ama 2-LLM pratiktir." TradingAgents (Xiao et al. 2024, arXiv:2412.20138) v7 mimarisi (7 specialist agent + Bull/Bear debate + Risk team) the maintainer bütçesini ($20/ay) aşar; pratik MVP **2-LLM jüri**: Claude Opus 4.7 (Bull advocate) + GPT-5.4 (Bear advocate), disagreement-aware position sizing ile.
+- **Öneri:** "7-agent ideal ama 2-LLM pratiktir." TradingAgents (Xiao et al. 2024, arXiv:2412.20138) v7 mimarisi (7 specialist agent + Bull/Bear debate + Risk team) hedef retail butceyi ($20/ay) asar; pratik MVP **2-LLM jüri**: Claude Opus 4.7 (Bull advocate) + GPT-5.4 (Bear advocate), disagreement-aware position sizing ile.
 - **Asıl alpha kaynağı değildir.** RR-010 (Smart Money), RR-012 (EM faktörler), RR-017 (HMM Regime) ana alpha taşıyıcılarıdır. RR-019 katkısı: **kalibrasyon iyileştirmesi + drawdown koruma**, çünkü iki LLM güçlü çelişkide pozisyon sıfırlanır (Du et al. 2023 multiagent debate: arXiv:2305.14325).
 - **Maliyet sınırı:** 2-LLM MVP ham fiyatla ~$3.60/ay; RR-011 L4 Sentiment (~$10/ay) ile birleşik ~$13.60/ay (cache'siz yüksek tarafta $20'yi zorlar) → **prompt caching + selective debate** ile $11–14/ay'a indirilir (Anthropic %90 cache read indirimi, doğrulanmış kaynak: platform.claude.com/docs).
-- **Şimdi yapılacak:** Sadece bu raporu referans olarak sakla. Türkçe finansal context test framework (Bölüm 4) Builder-deliverable seviyesinde hazır; AUM eşiği aşıldığında ilk iş test seti üretmek olur.
+- **Şimdi yapılacak:** Sadece bu raporu referans olarak sakla. Türkçe finansal context test framework (Bölüm 4) arastirma katmani-deliverable seviyesinde hazır; AUM eşiği aşıldığında ilk iş test seti üretmek olur.
 
 ---
 
 ## 2. Akademik Temel Özeti
 
-**Hedef Okuyucu:** Gelecekteki the maintainer / Builder. Bu bölüm Multi-LLM yaklaşımının niçin alpha ürettiğine dair literatürün özeti — implementation kararı vermeden önce okunması zorunlu.
+**Hedef Okuyucu:** Gelecekteki maintainer / arastirma katmani. Bu bölüm Multi-LLM yaklaşımının niçin alpha ürettiğine dair literatürün özeti — implementation kararı vermeden önce okunması zorunlu.
 
 ### 2.1 Multiagent Debate (MAD)
 
@@ -60,7 +60,7 @@ Xiao, Sun, Luo, Wang (2024/2025 v7) — **"TradingAgents: Multi-Agents LLM Finan
 
 ## 3. 2-LLM Setup Önerisi
 
-**Hedef Okuyucu:** Builder. Bu bölüm "hangi modeli niçin seçmeliyim ve roller nasıl tanımlanmalı" sorusunu yanıtlar.
+**Hedef Okuyucu:** arastirma katmani. Bu bölüm "hangi modeli niçin seçmeliyim ve roller nasıl tanımlanmalı" sorusunu yanıtlar.
 
 ### 3.1 Model Seçimi (Mayıs 2026 Snapshot)
 
@@ -150,7 +150,7 @@ PASS ✓ (skalarlar çarpımsal, drawdownda çelişki büyük caydırıcı)
 
 ## 4. Türkçe Finansal Context Test Framework (Deliverable)
 
-**Hedef Okuyucu:** Builder. Bu bölüm direkt başlanabilecek seviyede; AUM eşiği aşıldığında ilk iş bu test setini üretmek.
+**Hedef Okuyucu:** arastirma katmani. Bu bölüm direkt başlanabilecek seviyede; AUM eşiği aşıldığında ilk iş bu test setini üretmek.
 
 ### 4.1 Test Seti Yapısı
 
@@ -168,7 +168,7 @@ PASS ✓ (skalarlar çarpımsal, drawdownda çelişki büyük caydırıcı)
 
 ### 4.2 Manuel Ground Truth (Inter-rater Agreement)
 
-- **the maintainer + 1 finans uzmanı** (junior quant pozisyon ağı, mentorlar veya BÜMK alumni network) **bağımsız etiketleme** yapar. Etiket uzayı: `{BUY-STRONG, BUY-MEDIUM, HOLD, SELL-MEDIUM, SELL-STRONG, IRRELEVANT}`.
+- **maintainer + 1 finans uzmanı** (junior quant pozisyon ağı, mentorlar veya BÜMK alumni network) **bağımsız etiketleme** yapar. Etiket uzayı: `{BUY-STRONG, BUY-MEDIUM, HOLD, SELL-MEDIUM, SELL-STRONG, IRRELEVANT}`.
 - **Cohen's κ ≥ 0.7 koşulu**: iki etiketleyici Cohen's kappa ≥ 0.7 olmadıkça test seti onaylanmaz.
 - **Uyuşmazlık çözümü:** 3. rater (mentor) tie-breaker olarak karar verir.
 - Cohen's κ hesabı için `sklearn.metrics.cohen_kappa_score` yeterlidir.
@@ -203,12 +203,12 @@ Kritik tasarım kararları:
 
 ### 4.5 Literatür Proxy Beklentiler
 
-> **Önemli caveat:** Aşağıdaki sayılar **ABD/genel İngilizce data üzerinden Türkçeye proxy tahminidir**; gerçek BIST sonuçları Builder tarafından test edildikten sonra yazılır. Hipotez verme yasaktır — bunlar sadece "ne beklemek mantıklı" sezgisidir.
+> **Önemli caveat:** Aşağıdaki sayılar **ABD/genel İngilizce data üzerinden Türkçeye proxy tahminidir**; gerçek BIST sonuçları arastirma katmani tarafından test edildikten sonra yazılır. Hipotez verme yasaktır — bunlar sadece "ne beklemek mantıklı" sezgisidir.
 
 - Lopez-Lira & Tang (2025, JFE forthcoming): ABD'de GPT-4 haber başlıkları → günlük portföy hit rate **%93.3 (negatif örneklerde %88.8)**. Bu **portföy seviyesinde** ölçüm; tek-haber sentiment etiketi accuracy literatürde tipik %75–85 düzeyinde.
 - Lopez-Lira & Tang ayrıca: "Forecasting ability generally increases with model size" — Opus 4.7/GPT-5.5 muhtemelen GPT-4'ten daha iyi.
 - **Türkçe için tahmini -%5 ila -%10 düşüş**: çünkü pretraining İngilizce ağırlıklı; finansal terminoloji ABD merkezli. Türkçe için tahmin: **%65–80 accuracy**.
-- BERTurk/TabiBERT (Türker et al. 2025): Türkçe genel benchmark'ta TabiBERT %77.58 toplam ortalama, BERTurk'ten +1.62 puan. **Finansal alt-alanda muhtemelen %70–75**. LLM'nin bunu aşması beklenir ama doğrulama Builder testinden sonra.
+- BERTurk/TabiBERT (Türker et al. 2025): Türkçe genel benchmark'ta TabiBERT %77.58 toplam ortalama, BERTurk'ten +1.62 puan. **Finansal alt-alanda muhtemelen %70–75**. LLM'nin bunu aşması beklenir ama doğrulama arastirma katmani testinden sonra.
 - Boğaziçi / BOUN TABILAB modelleri encoder'dır — generative değil; doğrudan kıyas yapılamaz, sentiment scoring baseline'ı olarak kullanılabilir.
 
 ### 4.6 Çıktı Format
@@ -221,7 +221,7 @@ results/rr019_turkish_test_v1/
 │   ├── gpt_54.jsonl
 │   └── gemini_25_pro.jsonl
 ├── metrics_summary.md        # accuracy, kappa, calibration table
-├── heatmap.png               # Builder generate; 5 kategori × N model
+├── heatmap.png               # arastirma katmani generate; 5 kategori × N model
 └── final_ranking.md          # weighted_accuracy / cost_per_call
 ```
 
@@ -235,7 +235,7 @@ ranking = score / cost_per_1k_tokens
 
 ## 5. TradingAgents Framework Analiz
 
-**Hedef Okuyucu:** Phase 6+ the maintainer/Orchestrator. 7-agent'a "ne zaman geçilir" kararı için referans.
+**Hedef Okuyucu:** Phase 6+ maintainer. 7-agent'a "ne zaman geçilir" kararı için referans.
 
 ### 5.1 Framework Özellikleri
 
@@ -294,7 +294,7 @@ TradingAgents Sharpe 5.60–8.21 raporu **sadece 3 aylık** backtest üzerinden 
 
 ## 6. Architectural Entegrasyon
 
-**Hedef Okuyucu:** Builder. Mevcut `src/agents/strategist.py` dosyasını v2'ye yükseltirken backward-compat korunmalı.
+**Hedef Okuyucu:** arastirma katmani. Mevcut `src/agents/strategist.py` dosyasını v2'ye yükseltirken backward-compat korunmalı.
 
 ### 6.1 Mevcut Strategist (v1)
 
@@ -357,14 +357,14 @@ DEC-010: "LLM advisory only, never executive."
 RR-019 bu boundary'yi **GÜÇLENDİRİR**, kırmaz:
 - 2 LLM uyuşmazlık durumunda öneri **DAHA YUMUŞAK** olur (skip), daha agresif değil.
 - Hiçbir LLM doğrudan order üretmez; sadece position size suggestion verir.
-- Final karar the maintainer'da kalır; LLM jüri sadece sayısal `llm_agreement_scalar`'ı raporlar.
-- Skip durumunda the maintainer manuel override edebilir ("LLM'ler çelişti ama ben yine de alacağım" — DEC-010 izin verir).
+- Final karar maintainer'da kalır; LLM jüri sadece sayısal `llm_agreement_scalar`'ı raporlar.
+- Skip durumunda maintainer manuel override edebilir ("LLM'ler çelişti ama ben yine de alacağım" — DEC-010 izin verir).
 
 ---
 
 ## 7. Maliyet Analizi (Detaylı)
 
-**Hedef Okuyucu:** the maintainer. Bütçe kararı için.
+**Hedef Okuyucu:** maintainer. Bütçe kararı için.
 
 > **Snapshot:** Mayıs 2026. Anthropic, OpenAI, Google resmi fiyat sayfalarından. Yeni model çıkışı veya fiyat değişikliği ile geçersizleşir.
 
@@ -448,26 +448,26 @@ Toplam cached: ~$2.60/ay (Strategist v2)
 | 7-Agent (GPT-5.4) | $3.60 | $1.80 | $10 | **$11.80** |
 | 7-Agent (karma) | $4–5 | $2.50–3.50 | $10 | **$12.50–13.50** |
 
-**the maintainer bütçe ($20/ay) tüm senaryolarda karşılanabilir** — kritik nüans: cache'i agresif uygulamak ve büyük input context'i statik tutmak şart. Cache uygulanmazsa 2-LLM bile $15–20/ay seviyesine çıkar.
+**Hedef retail butce ($20/ay) tüm senaryolarda karşılanabilir** — kritik nüans: cache'i agresif uygulamak ve büyük input context'i statik tutmak şart. Cache uygulanmazsa 2-LLM bile $15–20/ay seviyesine çıkar.
 
 ---
 
 ## 8. RR-011 ile Sinerji — Birleşik Token Bütçesi
 
-**Hedef Okuyucu:** Builder/the maintainer. RR-011 ve RR-019 birlikte çalıştığında bütçeyi yönetmek.
+**Hedef Okuyucu:** arastirma katmani/maintainer. RR-011 ve RR-019 birlikte çalıştığında bütçeyi yönetmek.
 
 ### 8.1 Bileşenler
 
 **L4 Sentiment (RR-011 hibrit, D-124 aktif):**
 - Tier 1 lexicon: $0, her gün ~2.000 haber işliyor.
-- Tier 2 LLM (Claude Haiku 4.5): sadece "muğlak" haberler için. ~$10/ay baseline (the maintainer ölçümü).
+- Tier 2 LLM (Claude Haiku 4.5): sadece "muğlak" haberler için. ~$10/ay baseline (maintainer ölçümü).
 
 **Strategist v2 (RR-019 2-LLM):**
 - Aylık ~$3.60–$13 (Bölüm 7).
 
 ### 8.2 Birleşik Aylık Tahmini
 
-- Ham: $13.60–$23 (yüksek tarafta the maintainer $20 hedefini aşar)
+- Ham: $13.60–$23 (yüksek tarafta $20 hedefini aşar)
 - Cached: $11–$14 (rahat)
 
 ### 8.3 4 Optimizasyon Stratejisi
@@ -480,14 +480,14 @@ Toplam cached: ~$2.60/ay (Strategist v2)
 ### 8.4 Optimizasyon Sonrası Tahmini Bütçe
 
 - Mevcut v1 + RR-011 baseline: $15–20/ay
-- v2 (2-LLM) + RR-011 + optimizasyon: **$13–16/ay** → the maintainer hedefini karşılar ✓
+- v2 (2-LLM) + RR-011 + optimizasyon: **$13–16/ay** → maintainer hedefini karşılar ✓
 - 7-Agent + RR-011 + optimizasyon: $14–18/ay → marjinal, AUM artmadan riskli
 
 ---
 
 ## 9. Risk & Failure Modes
 
-**Hedef Okuyucu:** the maintainer. Operasyonel risk ve mitigasyon.
+**Hedef Okuyucu:** maintainer. Operasyonel risk ve mitigasyon.
 
 | Risk | Olasılık | Etki | Mitigasyon |
 |---|---|---|---|
@@ -497,13 +497,13 @@ Toplam cached: ~$2.60/ay (Strategist v2)
 | **Calibration drift (Opus 4.7 → 4.8/Mythos güncellemesi)** | Yüksek (her 3–6 ayda model güncellenir) | Orta | Türkçe test seti (Bölüm 4) **her major version güncellemesinde yeniden çalıştırılır**; Cohen's κ ≥ 0.6 koşulu, sağlanmazsa eski versiyona pin |
 | **Türkçe context degradation (yeni model İngilizce iyileştirmesine Türkçeyi feda eder)** | Düşük | Yüksek | Bölüm 4 test framework periyodik (çeyrekte 1) çalıştırılır; sonuç önceki version'dan -10pp düşerse alarm |
 | **Pricing change (provider zammı)** | Orta (1–2 yılda 1) | Orta | Mayıs 2026 snapshot referans; aylık `last_updated` tarihi check; bütçe overflow olursa Sonnet/Haiku/cached'e otomatik düş |
-| **LLM jüri overconfidence (her ikisi de yanlış ama agree)** | Orta | Yüksek | RR-019 alpha kaynağı **değil**; RR-010/012/017 ana sinyal, RR-019 sadece sizing modifier. LLM yüksek conviction ama L1/L2/L5 ile çelişiyorsa the maintainer diskresyoner override yapar |
+| **LLM jüri overconfidence (her ikisi de yanlış ama agree)** | Orta | Yüksek | RR-019 alpha kaynağı **değil**; RR-010/012/017 ana sinyal, RR-019 sadece sizing modifier. LLM yüksek conviction ama L1/L2/L5 ile çelişiyorsa maintainer diskresyoner override yapar |
 
 ---
 
 ## 10. BIST 2024–2026 Sektör Pratiği
 
-**Hedef Okuyucu:** the maintainer. Türkiye'de "AI-assisted trading" ne kadar yaygın, mevzuat ve maliyet farkındalığı.
+**Hedef Okuyucu:** maintainer. Türkiye'de "AI-assisted trading" ne kadar yaygın, mevzuat ve maliyet farkındalığı.
 
 > **Twitter login-wall caveat:** Türk fintwit ChatGPT/Claude kullanım gözlemleri Twitter/X login-wall arkasında kalıyor. Bu bölümdeki retail gözlemleri **resmi olarak doğrulanmamıştır**; sadece anekdotal seviyede.
 
@@ -538,17 +538,17 @@ SPK 2024 İdare Faaliyet Raporu (Temmuz 2025 yayını) ve III-37.1 Tebliğ deği
 - *"Algoritmik ve yüksek frekanslı işlem gerçekleştiren yatırım kuruluşlarına yönelik belirlemeler yapılması"* — hazırlık aşamasında.
 - Güncel yürürlük: III-37.1 Tebliğ (Resmî Gazete 11/7/2013, no. 28704); ilgili güncel SPK kararı i-SPK.37.7 (18.12.2025, 65/2354) profesyonel müşteri eşiklerini güncelledi (finansal varlık alt sınırı 1M TL → 10M TL).
 
-**BIST OS impact:** the maintainer **kişisel** trading sistemi, "yatırım kuruluşu" değil → düzenleme doğrudan bağlamaz. Yetki belgesi alıp başkalarına LLM-based tavsiye satarsa SPK çerçevesi devreye girer. DEC-010 "advisory only, never executive" boundary'sı bu çerçeveye uyumlu kalır.
+**BIST OS impact:** maintainer **kişisel** trading sistemi, "yatırım kuruluşu" değil → düzenleme doğrudan bağlamaz. Yetki belgesi alıp başkalarına LLM-based tavsiye satarsa SPK çerçevesi devreye girer. DEC-010 "advisory only, never executive" boundary'sı bu çerçeveye uyumlu kalır.
 
 ### 10.4 Maliyet Farkındalığı
 
-Türk retail için $20/ay (~700 TL/ay USD 35 TL kurla) ortalamanın belirgin üzerinde — the maintainer'ın junior quant ücret beklentisinin %1–2'si seviyesinde. Olası "Türk hisse senedi getirisine göre ROI" hesabı: **BIST 100 2024'ü 9,830.56 puanda kapattı; yıllık %31.6 TRY-bazlı yükseliş, dolar bazında +%9.6**" (kaynak: Türkiye Today / MKK-Borsa Istanbul verisi). 10.000 TL portföyde %31.6 = 3.160 TL/yıl TRY-bazlı getiri; $20/ay × 12 = $240/yıl × 35 TL = 8.400 TL/yıl LLM maliyeti → ROI **negatif** küçük portföyde. **AUM 100K+ TL** olmadan LLM jüri ekonomik değil. RR-019 priority "nice-to-have"in nedeni budur.
+Türk retail için $20/ay (~700 TL/ay USD 35 TL kurla) ortalamanın belirgin üzerinde — junior quant aylik ucretinin %1-2'si mertebesinde. Olası "Türk hisse senedi getirisine göre ROI" hesabı: **BIST 100 2024'ü 9,830.56 puanda kapattı; yıllık %31.6 TRY-bazlı yükseliş, dolar bazında +%9.6**" (kaynak: Türkiye Today / MKK-Borsa Istanbul verisi). 10.000 TL portföyde %31.6 = 3.160 TL/yıl TRY-bazlı getiri; $20/ay × 12 = $240/yıl × 35 TL = 8.400 TL/yıl LLM maliyeti → ROI **negatif** küçük portföyde. **AUM 100K+ TL** olmadan LLM jüri ekonomik değil. RR-019 priority "nice-to-have"in nedeni budur.
 
 ---
 
 ## 11. Crisis Period Uygunluk
 
-**Hedef Okuyucu:** the maintainer. "LLM jüri 2023 Mayıs seçim haftası faydalı olur muydu?" sorusunun cevabı.
+**Hedef Okuyucu:** maintainer. "LLM jüri 2023 Mayıs seçim haftası faydalı olur muydu?" sorusunun cevabı.
 
 ### 11.1 Mayıs 2023 Seçim Haftası
 
@@ -570,7 +570,7 @@ Türk retail için $20/ay (~700 TL/ay USD 35 TL kurla) ortalamanın belirgin üz
 **LLM training data cutoff problemi:**
 - Claude Opus 4.7 ve GPT-5.4 training data cutoff 2024 H2 veya 2025 başı; Haziran 2023 sonrası ortodoks pivot **biliniyor**.
 - ANCAK: Şubat–Mayıs 2023 dönemini canlı izleyen bir LLM yoktu (Mayıs 2023 mevcut modeller GPT-3.5 / Claude 2 idi).
-- the maintainer'ın 2026'da RR-019 implement ederken: model knowledge cutoff yeni rejimi (50% faiz) biliyor, **eski paradigmaya (%8.5 faiz) takılı kalmaz**.
+- maintainer'ın 2026'da RR-019 implement ederken: model knowledge cutoff yeni rejimi (50% faiz) biliyor, **eski paradigmaya (%8.5 faiz) takılı kalmaz**.
 
 **Rejim değişikliği LLM riski:** Bir sonraki rejim değişikliği (faiz tekrar inişe geçer; nitekim Aralık 2024'te TCMB %50 → %47.5 indirimle gevşemeye başladı, TCMB Press Release 2024-69; Ocak 2026'da %37'ye kadar indi) olursa LLM yeni rejimi training data'sında **bilmeyebilir**. RR-017 HMM regime detector LLM jüri için **upstream filter** rolü oynar: HMM "rejim değişti" sinyali verirse LLM çıktısına şüpheyle yaklaşılır, `llm_agreement_scalar`'a haircut uygulanır.
 
@@ -582,7 +582,7 @@ Hem 11.1 hem 11.2 **hindsight'tır**. Gerçek değer ancak RR-018 backtest frame
 
 ## 12. Implementation Roadmap (Kısa)
 
-**Hedef Okuyucu:** Phase 6+ the maintainer/Builder. "AUM 500K TL aşıldığında ne yapacağım."
+**Hedef Okuyucu:** Phase 6+ maintainer/arastirma katmani. "AUM 500K TL aşıldığında ne yapılacağı."
 
 > Bu rapor uzak-zaman (Q1 2027+) raporudur, roadmap kısa tutulmuştur. Her faz başlangıcında detay tasarım dokumanı yazılır.
 
@@ -602,11 +602,11 @@ Hem 11.1 hem 11.2 **hindsight'tır**. Gerçek değer ancak RR-018 backtest frame
 
 ---
 
-## 13. the maintainer Portföy Analizi
+## 13. Örnek Portföy Analizi
 
-**Hedef Okuyucu:** the maintainer. Mevcut 3 pozisyon (TTKOM, KCHOL, ENERY) örnek üzerinden LLM jüri ne öğretir.
+Örnek 3 hisse (TTKOM, KCHOL, ENERY) üzerinden LLM jüri ne öğretir.
 
-### 13.1 Mevcut Pozisyonlar (Q1 2026)
+### 13.1 Örnek Hisseler
 
 | Hisse | Sektör | Mevcut Conviction (RR-010 Smart Money + L1–L5) |
 |---|---|---|
@@ -624,31 +624,31 @@ Hem 11.1 hem 11.2 **hindsight'tır**. Gerçek değer ancak RR-018 backtest frame
 **Senaryo 2: KCHOL NAV iskontosu daralma**
 - Bull: "Iskonto %40 → %25, mean-reversion alfa cazip, BUY-STRONG."
 - Bear: "Holding rallisi sona yaklaşıyor, NAV iskontosu daha da daralırsa upside sınırlı, HOLD."
-- `llm_agreement_scalar ≈ 0.5` → yarım pozisyon. RR-013 alphası burada **doğrulanmaz** (LLM çelişiyor) → the maintainer diskresyoner: RR-013 ana sinyal, LLM modifier; pozisyon büyük tutulur ama LLM uyarı not edilir.
+- `llm_agreement_scalar ≈ 0.5` → yarım pozisyon. RR-013 alphası burada **doğrulanmaz** (LLM çelişiyor) → maintainer diskresyoner: RR-013 ana sinyal, LLM modifier; pozisyon büyük tutulur ama LLM uyarı not edilir.
 
 **Senaryo 3: ENERY tema momentum kırılması**
 - Bull: "Yenilenebilir enerji devlet teşvik haberi, BUY-STRONG."
 - Bear: "Hisse 3 ayda %40 yükseldi, technical aşırı alım, SELL-MEDIUM."
 - `llm_agreement_scalar ≈ 0.0` (çelişki) → **SKIP/REDUCE**. Long-only'da pozisyon yarıya indirilir veya yeni alım yapılmaz.
 
-### 13.3 "the maintainer'ın Diskresyoner Kararına" Katkı
+### 13.3 "maintainer'ın Diskresyoner Kararına" Katkı
 
 LLM jüri **OTOMATİK ORDER ÜRETMEZ** (DEC-010). Çıktı:
 1. Sayısal `llm_agreement_scalar` (position_sizer'a girer).
 2. ~800 token bullet-format advisory: "Bull diyor ki X; Bear diyor ki Y; uyuşmazlık skoru Z."
-3. the maintainer her sabah daily report'ta bunu okur, RR-010/012/017 sinyalleriyle çapraz kontrol eder, **final pozisyon kararını verir**.
+3. maintainer her sabah daily report'ta bunu okur, RR-010/012/017 sinyalleriyle çapraz kontrol eder, **final pozisyon kararını verir**.
 
-LLM jüri the maintainer'ın **mental tartışma partneri**dir, otomat değil. Hatasız kalibrasyon hedefi değildir — hedef "the maintainer'ın gözden kaçırdığı karşı argümanı görünür kılmak"tır.
+LLM jüri maintainer'ın **mental tartışma partneri**dir, otomat değil. Hatasız kalibrasyon hedefi değildir — hedef "maintainer'ın gözden kaçırdığı karşı argümanı görünür kılmak"tır.
 
 ---
 
 ## 14. Python Implementation Hintleri (Kavramsal)
 
-**Hedef Okuyucu:** Builder. **PRODUCTION-READY DEĞİL** — kavramsal signature + docstring + comment. Builder bunu skelet alıp gerçek implementation yazar.
+**Hedef Okuyucu:** arastirma katmani. **PRODUCTION-READY DEĞİL** — kavramsal signature + docstring + comment. arastirma katmani bunu skelet alıp gerçek implementation yazar.
 
 ```python
 # src/agents/strategist_v2.py
-# KAVRAMSAL — production değil. Builder skelet olarak kullanır.
+# KAVRAMSAL — production değil. arastirma katmani skelet olarak kullanır.
 
 from dataclasses import dataclass
 from typing import Literal, Optional
@@ -674,7 +674,7 @@ class StrategistV2Report:
     """2-LLM jüri sonrası birleşik output.
     
     llm_agreement_scalar position_sizer v4'e geçer; 0.0 = SKIP, 1.0 = full.
-    advisory_text the maintainer'ın okuduğu Markdown.
+    advisory_text maintainer'ın okuduğu Markdown.
     """
     bull_output: JuryOutput
     bear_output: JuryOutput
@@ -703,7 +703,7 @@ async def run_jury(
     DEC-010 boundary: output advisory only, executive değildir.
     Hiçbir trade order üretilmez; sadece advisory + scalar.
     
-    NOT: Bu signature kavramsaldır. Builder gerçek implementation'da:
+    NOT: Bu signature kavramsaldır. arastirma katmani gerçek implementation'da:
       - Anthropic AsyncClient + OpenAI AsyncClient kullanır
       - timeout 30s circuit breaker ekler  
       - max_tokens cap (1500 each)
@@ -719,7 +719,7 @@ async def run_jury(
     # 6. Map to llm_agreement_scalar (Bölüm 3.3 tablosu)
     # 7. Synthesize advisory_text Markdown
     # 8. Return StrategistV2Report
-    raise NotImplementedError("Builder fills this in; this is a sketch.")
+    raise NotImplementedError("arastirma katmani fills this in; this is a sketch.")
 
 
 def compute_agreement_scalar(bull: JuryOutput, bear: JuryOutput) -> float:
@@ -749,7 +749,7 @@ def compute_agreement_scalar(bull: JuryOutput, bear: JuryOutput) -> float:
 
 **Kritik notlar:**
 - Bu kod **derlemez** (NotImplementedError); skelet niteliğindedir.
-- Production'da Anthropic ve OpenAI client'ları farklı API conventions kullanır; Builder her ikisini de wrap eder.
+- Production'da Anthropic ve OpenAI client'ları farklı API conventions kullanır; arastirma katmani her ikisini de wrap eder.
 - `disagreement_score` ↔ `llm_agreement_scalar` ilişkisi: scalar = 1 − disagreement (lineer) yerine ordinal distance fonksiyonu öneriliyor (Bölüm 3.3).
 - Async parallel call: `asyncio.gather(bull_task, bear_task)`, total latency = `max(bull, bear)`.
 
@@ -757,7 +757,7 @@ def compute_agreement_scalar(bull: JuryOutput, bear: JuryOutput) -> float:
 
 ## 15. Akademik Kaynak Özeti
 
-**Hedef Okuyucu:** Builder/araştırmacı the maintainer. Her madde 2–3 cümle özet + DOI/arXiv URL.
+**Hedef Okuyucu:** arastirma katmani/araştırmacı maintainer. Her madde 2–3 cümle özet + DOI/arXiv URL.
 
 1. **Du Y., Li S., Torralba A., Tenenbaum J. B., Mordatch I.** (2023). "Improving Factuality and Reasoning in Language Models through Multiagent Debate." arXiv:2305.14325. ICML 2024. Birden fazla LLM tartıştığında matematik, strateji ve gerçeklik görevlerinde performans artar; aritmetik %81.8 vs tek-ajan %67.0; GSM8K %85.0 vs %77.0. Black-box; sadece API yeterli. RR-019 ana akademik temeli. https://arxiv.org/abs/2305.14325
 
@@ -793,17 +793,17 @@ def compute_agreement_scalar(bull: JuryOutput, bear: JuryOutput) -> float:
 
 ## 16. Kısıtlar & Caveat'lar
 
-**Hedef Okuyucu:** the maintainer. Bu raporun ne yapamadığı ve ne zaman geçersizleşeceği.
+**Hedef Okuyucu:** maintainer. Bu raporun ne yapamadığı ve ne zaman geçersizleşeceği.
 
 1. **LLM evolution hızı (3–6 ay model update).** Mayıs 2026 snapshot tablo Q3 2026'da büyük olasılıkla geçersiz olur. Mekanizma: `last_updated: 2026-05-24` header alanı; her major Anthropic/OpenAI model release sonrası 2 hafta içinde Bölüm 3.1 ve Bölüm 7 fiyat tabloları yeniden kontrol edilir. Eğer yeni model fiyatı %20+ farklı veya yeni Türkçe yetenek varsa **rapor revize edilir**.
 
-2. **Türkçe context ABD/EU'dan zayıf.** Lopez-Lira & Tang (2025) ABD GPT-4 %93.3 portföy hit rate; Türkçe için bilinen tek benchmark TabiBench (encoder, %77.58 SOTA). Generative LLM Türkçe finansal context'te kalibre edilmiş bağımsız değerlendirme **yoktur**. Bölüm 4 test framework Builder tarafından çalıştırılana kadar Türkçe accuracy beklentisi **proxy + sezgi** seviyesindedir.
+2. **Türkçe context ABD/EU'dan zayıf.** Lopez-Lira & Tang (2025) ABD GPT-4 %93.3 portföy hit rate; Türkçe için bilinen tek benchmark TabiBench (encoder, %77.58 SOTA). Generative LLM Türkçe finansal context'te kalibre edilmiş bağımsız değerlendirme **yoktur**. Bölüm 4 test framework arastirma katmani tarafından çalıştırılana kadar Türkçe accuracy beklentisi **proxy + sezgi** seviyesindedir.
 
 3. **Maliyet kontrolü ihtiyacı.** 2-LLM ve 7-agent senaryolarının tamamı **prompt caching aktif şart**. Cache uygulanmazsa aylık $25–35'a kolayca tırmanır. FinOps disiplini (usage alert $25, max_tokens cap, batch API where async OK) **zorunludur**.
 
 4. **Akademik literatür finansta sınırlı.** Multi-agent debate literatürü 2023–2025 arasında patladı ancak **finansta** uygulamaların sayısı azdır: TradingAgents (Xiao 2024), FinMem, FinAgent, TradingGroup (2025). Hiçbir çalışma **çoklu yıl out-of-sample backtest** sunmadı; Sharpe sonuçları kısa pencere artifactı şüphesi taşıyor. RR-019 alpha bekleyişleri **konservatif** tutulmalı.
 
-5. **AI black box / interpretability.** LLM'in nasıl "BUY-STRONG" dediği opak. Reasoning field açıklama sağlar ama post-hoc rationalization olabilir (LLM her zaman doğru sebep vermez). the maintainer ve Builder LLM çıktısına **asla sebep gösterilen veriyi doğrulamadan güvenmemelidir**.
+5. **AI black box / interpretability.** LLM'in nasıl "BUY-STRONG" dediği opak. Reasoning field açıklama sağlar ama post-hoc rationalization olabilir (LLM her zaman doğru sebep vermez). maintainer ve arastirma katmani LLM çıktısına **asla sebep gösterilen veriyi doğrulamadan güvenmemelidir**.
 
 6. **RR-018 entegrasyonu sonradan revize gereği.** Bu rapor RR-018 backtest framework'ünün "var" varsayımı altında yazıldı. RR-018 detayları (örn. trade execution model, slippage, transaction cost ayarları) RR-019'un disagreement_score → llm_agreement_scalar mappingini etkileyebilir. Faz 3'te (production entegrasyon) RR-019 mapping tablosu RR-018 ampirik çıktısına göre yeniden kalibre edilir.
 

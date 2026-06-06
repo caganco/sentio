@@ -2,7 +2,7 @@
 
 Re-measures three edge candidates (ADAY-A VALUE / ADAY-B EDGE-2 composite / ADAY-C
 52wk-high) on the SAME corrected D-202 681-symbol clean universe with the SAME 5-gate
-methodology, to resolve the demo-edge <-> demo_smart_money contradiction (the EDGE-6
+methodology, to resolve the edge-arastirma <-> edge-arastirma contradiction (the EDGE-6
 "+12.9pp above EW" claim ran on the BROKEN D-200 universe -> invalid here).
 
 MEASUREMENT-ONLY (optimization FORBIDDEN). Strangler: reuses k2_factor_tilt.to_real /
@@ -641,7 +641,7 @@ def d203_verdict(gate_block: dict) -> dict:
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _prepare_window(data: dict, start: str, end: str) -> dict:
     close = data["close"]

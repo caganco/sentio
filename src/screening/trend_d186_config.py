@@ -37,7 +37,7 @@ PRIMARY_COST_BPS = PRIMARY_COST_BPS
 # ---------------------------------------------------------------------------
 # FIX 1 -- real portfolio drawdown (replaces the broken full-capital cumprod)
 # ---------------------------------------------------------------------------
-# Concurrency-capped, equal-weight, daily mark-to-market portfolio. the maintainer-approved:
+# Concurrency-capped, equal-weight, daily mark-to-market portfolio. maintainer-approved:
 # max K simultaneous open positions; each slot = 1/K of current equity; daily MTM on
 # open positions' close -> a REAL equity curve -> real max-drawdown (bounded 0..1).
 PORTFOLIO_MAX_CONCURRENT = 10

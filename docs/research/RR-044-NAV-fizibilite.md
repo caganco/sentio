@@ -49,7 +49,7 @@ Bu turda zip'ler açılıp kolonları **fiilen okundu** — aşağıdaki hüküm
   `degoran_M_YYYYMM.zip` 2019-07→2026-04). + yıllık 1995-2008. Toplam 229 dosya.
 - **İki format:** eski `.xls` (15-kolon, ORAN başlıklı, indeks-agregaları üstte, ticker sütun-0, mcap sütun-3 *Bin TL*);
   yeni `.xlsx`/`.xls` (13-kolon, çift-dilli başlık, ticker sütun-1 `.E`-ekli, MARKET VALUE sütun-6 *TL*). Toleranslı
-  parser gerek (çalışan referans: `demo_smart_money/lab/ff_data.py`; geçiş-ayı 2022-06 gibi tek-tük format-varyantı var).
+  parser gerek (çalışan referans: `edge-arastirma/lab/ff_data.py`; geçiş-ayı 2022-06 gibi tek-tük format-varyantı var).
 - **Kolonlar (yeni şema):** DATE, EQUITY CODE, SECURITY NAME, MARKET, SECTOR, **SUB SECTOR**, **PIYASA DEGERI
   (market value)**, NET KAR (4Ç), **OZSERMAYE (equity/book)**, NAKIT NET TEMETTU, F/K, PD/DD, TV%.
 - **Doğrulama (KCHOL + iştirak market-cap, mlr TL):**

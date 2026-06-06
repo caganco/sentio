@@ -2,7 +2,7 @@
 
 **VERDICT (DEC-K2): GECMEZ** -- K2 modest-factor tilt Yol 2'ye GIRMEZ; saf-zemin (K0+K1) kalir.
 
-**Tarih:** 1 Haziran 2026 | **Branch:** feat/k2-factor-tilt-backtest | **Karar sahibi:** the project (DEC-039)
+**Tarih:** 1 Haziran 2026 | **Branch:** feat/k2-factor-tilt-backtest | **Karar sahibi:** maintainer (DEC-039)
 **Dayanak:** SPEC_YOL2 v3.0 sec.1 KATMAN 2 + sec.4; ARCHITECTURE v3.0; RR-OMEGA (kanit-boslugu); D-177/D-178/D-183; D-185/D-186 (armored-backtest dersleri)
 
 ---
@@ -77,18 +77,18 @@
 
 - **Survivorship:** iyimser ust-sinir. Edge bu iyimser olcumde bile yok -> gercek (delisted-dahil) evrende daha zayif -> GECMEZ guclenir. Adil-null AYNI havuzdan cektigi icin strateji-vs-null karsilastirmasi adil; sadece mutlak seviye sisik.
 - **USD-reel:** US-CPI dondurulmus seri saglanmadi -> USD-NOMINAL raporlandi (etiketli). USD-reel TL-reel'den daha kotu olur (TRY reel deger kaybi). Karar TL-reel BIRINCIL kapidan verildi.
-- **Ince in/out (R4, the maintainer bilincli-kabul):** ~6-7 donem/dilim -> genis CI. Veri-siniri (faktor fundamental-gerektirir, temiz pre-2018 veri yok) -- plan-kusuru degil. Tek-dilim over-interpret edilmedi; in/out kontrasti yine de bilgilendirici.
+- **Ince in/out (R4, maintainer bilincli-kabul):** ~6-7 donem/dilim -> genis CI. Veri-siniri (faktor fundamental-gerektirir, temiz pre-2018 veri yok) -- plan-kusuru degil. Tek-dilim over-interpret edilmedi; in/out kontrasti yine de bilgilendirici.
 - **Temettu-vergi:** auto_adjust temettuyu fiyata gomdugu icin %15 stopaj dondurulmus drag (varsayim %3 yillik getiri) ile yaklasildi. Mutlak seviyeyi ~%0.45/yil etkiler; karar-yonunu degistirmez.
 - **Fair-null fix (metodoloji-duzeltmesi, esik-gevsetme DEGIL):** ilk run'da bos ilk-donem (lowvol-252 tanimsiz) null havuz-kontrolunu abort ediyordu (n=0). Strateji ile ayni sekilde bos donemi dusurecek sekilde duzeltildi (DEC-K2/esikler degismedi). Duzeltme sonrasi verdict yine GECMEZ.
 
 ---
 
-## 8. Oneri (karar the project -- DEC-039)
+## 8. Oneri (karar maintainer -- DEC-039)
 
 1. **K2 (value+quality+lowvol composite) Yol 2'ye GIRMEZ.** Saf-zemin K0 (maliyet/vergi) + K1 (risk-primi statik maruziyet) kalir.
 2. **Value-only tilt ayri incelenmeyi hak ediyor** (tek faktor null %99.6, CI>0) -- AMA bu yeni bir hipotez (yeni Stage-0 + kendi out-of-sample testi); bu raporun verdict'i degil. Composite-seyrelme bulgusu ona da uyari.
 3. **Profitability BIST-net-reel'de desteklenmedi** -- RR-OMEGA kanit-boslugu bu yonde KAPANDI (negatif).
-4. Tum testler (D-191 + sonrakiler) bitince the project tam-sistemi kurar (Secenek-2: once-tum-testler).
+4. Tum testler (D-191 + sonrakiler) bitince maintainer tam-sistemi kurar (Secenek-2: once-tum-testler).
 
 ---
 

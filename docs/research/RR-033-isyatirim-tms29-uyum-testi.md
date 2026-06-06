@@ -1,9 +1,9 @@
 # RR-033 — İş Yatırım Screener TMS 29 Uyum Testi (Veri Kalitesi Doğrulama)
 
 **Tarih:** 25 Mayıs 2026
-**Yazar:** Claude Code (Builder) — research plan
-**Status:** ⏳ Bekleyen Builder execution (DEC-039 kategori-a, veriyle test)
-**Bağlı:** [RR-032 §6 Yol A önkoşulu](RR-032-FIZIBILITE.md#§6-öneri-karar-değil--orchestrator--the maintainer-dec-039-pattern); NRR-002 ([SPEC_PIVOT_ARCHITECTURE_1.md:133](../SPECS/SPEC_PIVOT_ARCHITECTURE_1.md#L133)); D-170/172
+**Yazar:** Arastirma katmani — research plan
+**Status:** ⏳ Bekleyen arastirma katmani execution (DEC-039 kategori-a, veriyle test)
+**Bağlı:** [RR-032 §6 Yol A önkoşulu](RR-032-FIZIBILITE.md); NRR-002 metodoloji notu (sec.133); D-170/172
 
 ---
 
@@ -111,7 +111,7 @@ Test sonucu hangi hipotezi destekliyor: rapor edilir.
 
 ## Sonraki Adım
 
-Bu RR-033 bir Builder execution specine dönüştürülür (örn. D-XXX-rr033-tms29-test). Builder:
+Bu RR-033 bir arastirma katmani execution specine dönüştürülür (örn. D-XXX-rr033-tms29-test). arastirma katmani:
 1. 4 ticker için İş Yatırım screener probe scripti yazar (throwaway, `scripts/_probe_*.py`)
 2. 4 ticker için 2023 yıllık KAP UFRS-TMS 29 finansallarını parse eder
 3. Karşılaştırma tablosunu doldurur
@@ -277,7 +277,7 @@ MaliTablo `financialGroup=XI_29` = borsapy'de "sanayi/konsolide" etiketli; KAP r
 - ❌ "Tümü nominal → KIRMIZI" — net kanıtlanamadı (yön/çarpan TMS 29 mekaniğiyle çelişiyor; saf nominal de değil)
 - ✅ **"BELİRSİZ → alan-bazlı incele + uzman doğrulaması"** — bu dala düştük
 
-### Öneri (DEC-039: ÖLÇER, seçmez — karar the project)
+### Öneri (DEC-039: ÖLÇER, seçmez — karar maintainer)
 1. **MaliTablo'yu Faz 0b value IC'ye OLDUĞU GİBİ bağlama.** TMS 29 fidelity doğrulanmadı; ~%44 uniform sapma + parasal-satır yokluğu çözülmeden NRR-002 çıtası karşılanmıyor.
 2. **Muhasebe-uzmanı / full-statement doğrulaması:** TUPRS + THYAO 2023 KAP-filed TAM konsolide finansal tablo (dipnotlar dahil) ile MaliTablo satır-bazında karşılaştır. ~1.44 çarpanın kaynağını belirle (CPI restatement faktörü mü, sunum farkı mı, İş Yatırım normalizasyonu mu).
 3. **Pragmatik fallback testi:** Cross-sectional rank-IC için baz'ın saf-TMS29 olması şart değil — AMA tüm şirketlerde **aynı baz** uygulanmalı (yoksa farklı varlık-yaşı/enflasyon-maruziyeti olan şirketlerin rank'i bozulur — NRR-002'nin nominal-yasağının özü). MaliTablo'nun baz'ı uniform mu (tüm sektörlerde) ayrıca test edilmeli.

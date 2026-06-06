@@ -5,7 +5,7 @@
 GÖREV-1 of the post-motor task package. These are *mechanical / diagnostic* hardenings
 of an already-complete engine (`src/engine/`) — **not** an edge hunt.
 
-**Conflict priority:** TASARIM v0.2 > math-spec v1.1 (RR-Y1-005B) > task-package > Builder.
+**Conflict priority:** TASARIM v0.2 > math-spec v1.1 (RR-Y1-005B) > task-package > arastirma katmani.
 **Strangler invariants honored:** committed motors (`src/backtest/*`, lab, clib) UNCHANGED;
 `src/engine` additive only; `compute_dsr` is *called* (with `benchmark_sr`), never rewritten;
 `tests/test_engine_no_lab_import.py` AST-covers the new `src/engine/dsr.py`; C12 golden
@@ -177,7 +177,7 @@ sign-agreement count — which is why it stays independent.
 stricter, so the bar remains conservative. But its evidentiary weight is overstated by
 ~one condition — passing "three independent checks" is really passing ~two.
 
-### Deferred proposal (NOT applied — the project decision)
+### Deferred proposal (NOT applied — maintainer decision)
 
 Because double-count IS found, a condition-independence refinement is *proposed* — explicitly
 **NOT** a keep-bar loosening, explicitly **deferred**:
@@ -196,7 +196,7 @@ Because double-count IS found, a condition-independence refinement is *proposed*
 The cond2↔cond3 mechanical link is structural (so the *direction* of the finding should
 transfer), but its *magnitude* on real, richer signals is unmeasured. **Recommendation: do
 NOT change the keep-bar on this diagnostic alone.** The choice among Options 1/2/3 belongs to
-the project.
+maintainer.
 
 ---
 

@@ -323,7 +323,7 @@
 2. **Write SPEC:** Use template from BOOT_ARCHITECT.md
 3. **Update this INDEX:** Add row to table above
 4. **Validate:** Ensure no contradictions with existing SPECs
-5. **Submit to Orchestrator:** For review and directive
+5. **Submit to maintainer:** For review and directive
 
 ---
 
@@ -366,9 +366,9 @@
    - Integration: Data provider APIs + signal engine (Layer 5)
    - Tests: 20+ (flow detection, bull trap recognition)
 
-2. Orchestrator reviews and approves
+2. maintainer reviews and approves
 
-3. Builder implements per SPEC
+3. arastirma katmani implements per SPEC
    - Code in src/signals/layers/smartmoney_layer.py
    - Tests in tests/test_smartmoney_*.py
    - Integration in signal_engine.py (5th layer)

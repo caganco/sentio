@@ -1,8 +1,8 @@
 # NRR-008 ASAMA-1 -- VALUE-REJIM-KOLU: rejim-degiskeni GEREKCELI-onerisi (edge-OLCULMEDI)
 
-> **Bu dosya ASAMA-1 ciktisidir.** Builder 3-aday rejim-degiskenini EKONOMIK/LITERATUR
+> **Bu dosya ASAMA-1 ciktisidir.** arastirma katmani 3-aday rejim-degiskenini EKONOMIK/LITERATUR
 > gerekceyle onerir. **EDGE HIC-OLCULMEDI** (bu asamada hicbir geri-getiri/t-istat/gate
-> hesaplanmadi). Amac: the project'nun TEK-degisken + esik onaylamasi -> sonra Stage-0 DONAR ->
+> hesaplanmadi). Amac: maintainer'nun TEK-degisken + esik onaylamasi -> sonra Stage-0 DONAR ->
 > ASAMA-2 tam-test. Grid-supurme (3-degisken-deneyip-en-iyiyi-secmek) = p-hacking = YASAK;
 > bu yuzden secim edge-GORMEDEN, yalniz gerekce-temelinde yapilir.
 >
@@ -47,7 +47,7 @@ kurallardir (yayin-lag >= 1 ay, `value_factor_panel`'in lag-deseniyle ayni).
 |---|---|
 | **Ekonomik gerekce** | En-dogrudan BIST-ozel-kanit: D-Y1 value pre_surge+%26 / high_infl+%18 / **disinflasyon-cokus**; RR-Y1 enflasyon-rejim-tezi. Hipotez: value-tilt yuksek/yukselen-enflasyonda ACIK, disinflasyonda KAPALI. |
 | **Look-ahead-safe tanim** | Rebal-ayi t'de, yalniz **t-1-ay-veya-oncesi** TUFE ile trailing-12ay YoY-enflasyon (yayin-lag >= 1 ay). Rejim "uygun" = YoY-enflasyon esik-USTU; "uygun-degil" = esik-ALTI (disinflasyon). |
-| **Esik (gerekce-temelli)** | TCMB-hedef-bandi / yapisal-seviye gerekcesiyle YoY ~ **%25-35** araligi. Kesin-sayi bu-asamada DONMAZ -- the project-onayinda donar. Sonuc-temelli-secim YASAK. |
+| **Esik (gerekce-temelli)** | TCMB-hedef-bandi / yapisal-seviye gerekcesiyle YoY ~ **%25-35** araligi. Kesin-sayi bu-asamada DONMAZ -- maintainer-onayinda donar. Sonuc-temelli-secim YASAK. |
 | **Veri** | `data/snapshots/exposure_d187_tufe.parquet` (TAM 2019-2026, gunluk TUFE index; TP.FG.J0). |
 | **Ornek yeterligi** | **YETERLI** -- gate-3 cross-regime icin her-iki-alt-donem (uygun/uygun-degil) dolu; rejim-degisimi ornek-icinde gerceklesiyor. |
 | **Look-ahead** | Gercekten-safe: trailing-TUFE canli-hesaplanabilir; takvim-sinirina bagli-degil. |
@@ -72,7 +72,7 @@ kurallardir (yayin-lag >= 1 ay, `value_factor_panel`'in lag-deseniyle ayni).
 | **Veri** | `data/snapshots/k2_fx_usdtry.parquet` (veya `faz0b_fx_usdtry.parquet`); TAM 2019-2026. |
 | **Not** | Dolayli: global-USD-hareketi de vol-yaratir; value-baglantisi risk-primi-uzerinden, fundamental-degil. Tam-ornek avantaji var. |
 
-## 4. Builder-onerisi: **Aday-A (enflasyon-yonu)**
+## 4. arastirma katmani-onerisi: **Aday-A (enflasyon-yonu)**
 
 Gerekce (hepsi EKONOMIK/VERI-temelli, edge-temelli DEGIL):
 1. **En-dogrudan BIST-ozel-prior:** D-Y1'in disinflasyon-cokus bulgusu + RR-Y1 enflasyon-rejim-tezi
@@ -82,17 +82,17 @@ Gerekce (hepsi EKONOMIK/VERI-temelli, edge-temelli DEGIL):
    versiyonu.
 4. **Tek-temiz-esik** ex-ante-ekonomik-gerekceyle (TCMB-hedef / yapisal-enflasyon-seviyesi).
 
-**Aday-B** ornek-uzunlugundan ELENIR (durustce flag'lendi). **Aday-C** the maintainer FX-stres-cercevesi
+**Aday-B** ornek-uzunlugundan ELENIR (durustce flag'lendi). **Aday-C** maintainer FX-stres-cercevesi
 tercih-ederse alternatif (tam-ornek ama dolayli).
 
 > **KRITIK disiplin-notu:** Bu oneri edge-OLCULMEDEN, yalniz gerekce-temelinde yapildi.
-> Adaylar-arasinda edge'e-gore-secim = p-hacking = YASAK. the project TEK-degisken + esik onaylayinca
+> Adaylar-arasinda edge'e-gore-secim = p-hacking = YASAK. maintainer TEK-degisken + esik onaylayinca
 > Stage-0 DONAR ve ASAMA-2 tam-test (value-tanim D-203-BIREBIR, rejim-maskeli, 5-gate
 > `run_gates_on_score` replica MATCH=True, gate5-gercekci, 3-yollu+maliyet-eki verdict) baslar.
 
-## 5. ONAYLANDI (the project, 2026-06-03) -- Aday-A, YON-tanimi
+## 5. ONAYLANDI (maintainer, 2026-06-03) -- Aday-A, YON-tanimi
 
-the project **Aday-A'yi YON-tanimiyla** onayladi (seviye-esigi DEGIL):
+maintainer **Aday-A'yi YON-tanimiyla** onayladi (seviye-esigi DEGIL):
 
 - **Rejim-sinyali:** trailing-12ay-YoY-TUFE'nin **6-ay-onceye gore yonu**, **t-1-lag** (look-ahead-safe).
 - **KAPALI (disinflasyon/dusus):** `YoY(M-1) < YoY(M-7)` -> value-tilt KAPALI -> EW_FULL-notr

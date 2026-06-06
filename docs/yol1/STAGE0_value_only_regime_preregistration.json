@@ -4,7 +4,7 @@
   "preregistered_date": "2026-06-02",
   "config_module": "src/screening/value_only_regime_config.py",
   "config_version": "vor-v1",
-  "decision_owner": "the project (DEC-039). Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a PASS does not touch the main system -- Yol-2 OVERLAY candidate at most (<=10-20%), separate the project decision.",
+  "decision_owner": "maintainer (DEC-039). Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a PASS does not touch the main system -- Yol-2 OVERLAY candidate at most (<=10-20%), separate maintainer decision.",
 
   "discipline_note": "Committed BEFORE any backtest is run and BEFORE any D-Y1-001 result is seen. The NET DECISION RULE (DEC-Y1, 4 gates) is FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no horizon/window widening, no factor post-hoc adjustment, no regime-boundary tuning). Single-factor VALUE only -- composite FORBIDDEN (value isolated). Snapshot content hashes are recorded below before this pre-results commit. Reproducibility: the run reads these frozen offline snapshots; their content hashes must match.",
 
@@ -128,7 +128,7 @@
     "gate2_beats_fair_null": "beats the fair random-selection null at >= 95th percentile (TL-real)",
     "gate3_regime_resilient": "PRIMARY 3-way INFLATION_REGIMES: >=2 of 3 regimes consistent-positive (single-subperiod t>2 INSUFFICIENT). 2-way robustness alignment READ alongside.",
     "gate4_decile_profile_explainable": "cheap-minus-expensive net TL-real spread > 0 AND premium concentrated at the cheap end (Spearman(decile_idx_cheap_high, return) > 0)",
-    "PASS": "ALL 4 gates -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; separate the project decision)",
+    "PASS": "ALL 4 gates -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; separate maintainer decision)",
     "PARTIAL": "Gate-1 & Gate-2 & Gate-4 pass but Gate-3 FAILS -> 'value REGIME-DEPENDENT, not a stable premium' (conflict explained but not resilient; consistent with D-191 in/out collapse) -> do NOT allocate",
     "FAIL": "otherwise -> value-only ELIMINATED ('tried-and-refuted' archive)",
     "reported_not_gates": "USD-real + XU100-relative ALWAYS reported but NEVER decide.",

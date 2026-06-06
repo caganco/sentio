@@ -1,6 +1,10 @@
 # Coalesce author/committer identities into one canonical GitHub identity.
 # Display-only (git shortlog/log/blame + GitHub contributor view); does NOT
 # rewrite history. dependabot[bot] is intentionally left untouched.
-the maintainer <89398864+caganco@users.noreply.github.com> <89398864+caganco@users.noreply.github.com>
-the maintainer <89398864+caganco@users.noreply.github.com> <89398864+raypun78@users.noreply.github.com>
-the maintainer <89398864+caganco@users.noreply.github.com> <<redacted-email>>
+# The trailing-email mappings are load-bearing: they fold older commit-author
+# addresses into the canonical no-reply identity in the contributor view.
+# Removing them would surface those raw addresses on historical commits, so they
+# stay until a (separate) history rewrite normalizes author metadata at the source.
+Cagan Cebeci <89398864+caganco@users.noreply.github.com> <89398864+caganco@users.noreply.github.com>
+Cagan Cebeci <89398864+caganco@users.noreply.github.com> <89398864+raypun78@users.noreply.github.com>
+Cagan Cebeci <89398864+caganco@users.noreply.github.com> <<redacted-email>>

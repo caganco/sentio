@@ -41,8 +41,8 @@
   "tms29_uniform_basis": {
     "window_start": "2024-09-01",
     "rationale": "RR-036: SPK 2023/81 -> TMS 29 first mandatory FY2023 year-end; FY2023 restated public ~mid-2024 + SPK +10wk extension. 2024-01 start invalid (mixed nominal+restated basis + look-ahead). 2024-09 = first uniform-restated point.",
-    "ebitda_basis": "latest-public restated ANNUAL operating profit + D&A (uniform single-basis; NOT mixed-base TTM). the maintainer.",
-    "point_in_time": "conservative deterministic lag: annual pub_date = period_end + 120 days; valuation date t uses latest annual with pub_date <= t. Look-ahead-safe (errs late, never early). the maintainer."
+    "ebitda_basis": "latest-public restated ANNUAL operating profit + D&A (uniform single-basis; NOT mixed-base TTM). maintainer.",
+    "point_in_time": "conservative deterministic lag: annual pub_date = period_end + 120 days; valuation date t uses latest annual with pub_date <= t. Look-ahead-safe (errs late, never early). maintainer."
   },
 
   "usd_note_D180": "F/DD and EV/EBITDA are dimensionless and FX(t) is common across all tickers on date t -> USD conversion does NOT change cross-sectional rank. IC is computed on TL ratios; USD (EVDS TP.DK.USD.A, frozen) is for NRR-002 compliance + level + the TL-rank==USD-rank sanity (rho==1.0 by construction).",
@@ -96,5 +96,5 @@
   },
 
   "config_budget": "N=3 of <=3 (LAST). After this: no further Faz 0 IC measurement.",
-  "decision_owner": "the project (DEC-039). Harness MEASURES and RECOMMENDS the final Faz 1 factor set (lowvol60 from D-178 + value keepers); does not finalize."
+  "decision_owner": "maintainer (DEC-039). Harness MEASURES and RECOMMENDS the final Faz 1 factor set (lowvol60 from D-178 + value keepers); does not finalize."
 }

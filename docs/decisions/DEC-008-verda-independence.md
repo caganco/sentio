@@ -17,7 +17,7 @@ test_coverage: tests/test_architecture.py::TestL5VerdaIndependence::test_l5_no_v
 # DEC-008: VERDA Independence — L5 Core Decoupled from VERDA Vendor
 
 **Decision Date:** 18 May 2026
-**Decided By:** Strategist (the maintainer)
+**Decided By:** Strategist (maintainer)
 **Status:** ✅ DECIDED
 
 ---
@@ -80,5 +80,5 @@ cut.
 ---
 
 **Status:** ✅ DECIDED (18 May 2026)
-**Approved By:** the maintainer (Strategist)
-**Implementation Owner:** Builder (D-059 cut, D-052 documents)
+**Approved By:** maintainer (Strategist)
+**Implementation Owner:** arastirma katmani (D-059 cut, D-052 documents)

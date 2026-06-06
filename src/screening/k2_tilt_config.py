@@ -11,7 +11,7 @@ Tests SPEC_YOL2 sec.1 KATMAN 2 (modest factor tilt) hypothesis:
 
 Dayanak: SPEC_YOL2 sec.1 K2 + sec.4 (degismez test-dersleri); ARCHITECTURE v3.0;
 RR-OMEGA (value+quality+lowvol ~%55-65 prior, BIST-net-USD-real alpha untested).
-Decision owner: the project (DEC-039); harness MEASURES + RECOMMENDS.
+Decision owner: maintainer (DEC-039); harness MEASURES + RECOMMENDS.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from src.screening import faz0_config as _f0
 K2_CONFIG_VERSION = "k2-tilt-v1"
 
 # ---------------------------------------------------------------------------
-# Window + rebalance (the maintainer decision: 2019-2026 semi-annual -> ~14 rebalances,
+# Window + rebalance (maintainer decision: 2019-2026 semi-annual -> ~14 rebalances,
 # credible in/out split; fundamental coverage back to ~2018 is the binding
 # constraint -> thin in/out is a DATA limit, reported, not over-interpreted).
 # ---------------------------------------------------------------------------

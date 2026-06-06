@@ -1,7 +1,7 @@
 # RR-046 — PEAD + MAKRO-EVENT Veri-Edinim FİZİBİLİTE (Yön-A, AŞAMA-1)
 
 **Tür:** VERİ-FİZİBİLİTE-PROB (edge-test-DEĞİL, ölçüm-DEĞİL, Stage-0-gerekmez).
-**Tarih:** 3 Haziran 2026. **Builder/the maintainer.**
+**Tarih:** 3 Haziran 2026. **arastirma katmani/maintainer.**
 **Bağlam:** Yol-1 offline-paradigma-havuzu (cross-sectional hi52/lowvol63/value-regime + event
 dividend/bonus + NAV-holding D-206 + NAV-fund RR-045/NRR-009) HEPSİ-SERAP. Yeni-yön: **olay-güdümlü**
 anomali = PEAD (Post-Earnings-Announcement-Drift) — kesitsel-duvardan kaçar (event-driven). İkincil:
@@ -32,7 +32,7 @@ sınırlı-bütçe KAP-tam-gün rafinasyonu (2019+ alt-küme).**
 **HÜKÜM = ÇEKİLEBİLİR.** PEAD-tarihi iki-katman: (1) **BEDAVA degoran-ay-proxy 2009+** (geniş panel,
 ay-çözünürlük, doğrulandı); (2) **KAP-tam-gün 2019+** (gün-çözünürlük, look-ahead-safe, ama
 sınırlı-bütçe-çekim — RR-042 kör-pagination-tuzağı). SUE lokal-hesaplanır (de-kümüle-şart). Makro
-takvim public/ucuz. **AŞAMA-2-onayı the project'a kalır (aşağıdaki PAUSE).**
+takvim public/ucuz. **AŞAMA-2-onayı maintainer'a kalır (aşağıdaki PAUSE).**
 
 ---
 
@@ -84,7 +84,7 @@ prob-kapsamı-dışı.)
 > **★ MALİYET-TUZAĞI (RR-042 dersi):** MKK-VYK'da tarih/event-type FİLTRESİ YOK; kör-pagination
 > pahalı (IP-rate-limit, non-lineer-index). Tam-panel tam-gün için: her-firma × her-çeyrek bir
 > detay-çağrı + liste-pagination. ~150-firma × ~28-çeyrek (2019-2026) ≈ **bin-mertebe çağrı @ 1/sn**
-> = saatler-mertebesi, sınırlı/cache'lenebilir AMA hızlı-prob-DEĞİL. Bütçeli-koşu (the project-onay).
+> = saatler-mertebesi, sınırlı/cache'lenebilir AMA hızlı-prob-DEĞİL. Bütçeli-koşu (maintainer-onay).
 
 **Cevap: ÇEKİLEBİLİR (tam-gün, look-ahead-safe, 2019+) AMA BÜTÇELİ — kör-pagination RR-042-tuzağı.**
 
@@ -139,9 +139,9 @@ global-güçlü (en-replike-edilen anomali). BIST'te **henüz-test-edilmedi** (b
 
 ---
 
-## Sonraki adım — AŞAMA-2 (PAUSE, the project-onay-bekler)
+## Sonraki adım — AŞAMA-2 (PAUSE, maintainer-onay-bekler)
 
-> **DURDU. Aşağısı ÖNERİ; çekim YAPILMADI.** directive: "olumluysa AŞAMA-2-çekim (the project-onay)".
+> **DURDU. Aşağısı ÖNERİ; çekim YAPILMADI.** directive: "olumluysa AŞAMA-2-çekim (maintainer-onay)".
 
 **Önerilen AŞAMA-2 (iki-katman, veri-edinim-only, motor-dokunma):**
 

@@ -1,7 +1,7 @@
 # RR-Y1-003: D-213 YAPISAL-FIX (total-return XU100) -- VERI-FIZIBILITE BULGUSU
 
 **Tur:** ARASTIRMA / FIZIBILITE (olcum-DEGIL, edge-test-DEGIL, henuz Stage-0 yok)
-**Tarih:** 4 Haziran 2026 | **Hazirlayan:** Builder (Yol-1-lab, thread RR-Y1-003)
+**Tarih:** 4 Haziran 2026 | **Hazirlayan:** arastirma katmani (Yol-1-lab, thread RR-Y1-003)
 **Baglam:** D-213 ilk-resmi-olcum TRADEABLE-DEGIL cikti (tek fail eden kistas: keep-bar[1]
 NW|t|=1.82 < 2.0). Onerilen yapisal-fix = bagimli-tarafin fiyat-only XU100 handikapini
 (temettu-drag ~%2-4/yil) gidermek, prediktoru (LEVEL ex-ante reel-faiz) AYNEN birakarak.
@@ -105,7 +105,7 @@ keep-bar[1]'i 1.82'den >2.0'a itseydi, kendimizi kandirmis olurduk. Bu yol REDDE
   zorlastirir). "Bizi kayirmama" ilkesiyle en tutarli.
 - **2.0%/yil alt-uc:** en az equity-kredisi.
 
-Builder tavsiyesi: **(A) + 4.0%/yil bize-karsi-muhafazakar** -- en yanltmayan kombinasyon;
+arastirma katmani tavsiyesi: **(A) + 4.0%/yil bize-karsi-muhafazakar** -- en yanltmayan kombinasyon;
 ama karar Orch'ta. Hangisi secilirse STAGE0'a (sonuc-oncesi) dondurulur.
 
 ---

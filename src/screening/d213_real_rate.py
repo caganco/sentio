@@ -300,7 +300,7 @@ def run() -> dict:
         "oos_gap_note": ("2019-2026 is one long high-inflation regime; a true "
                          "inflation-normalization OOS is ABSENT. Real rates swung from "
                          "deeply negative (2021-23 repression) to positive (2024+). "
-                         "Deployment is a separate the project decision."),
+                         "Deployment is a separate maintainer decision."),
     }
     return results
 

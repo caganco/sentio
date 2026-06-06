@@ -37,11 +37,11 @@ on/off × 3 maliyet senaryosu = **18 hucre**. On-kayitli gate'e gore:
    otokorelasyonu yakaliyor; kesitsel ayni-gun kumelenmesini DEGIL -> t %20-40 abartili
    (efektif t ~3.8-4.8, hala >2). IID bootstrap BOOTSTRAP_BLOCK=21 config'ini yok sayiyor.
 
-**Survivorship:** survivors-only -> expectancy UST-SINIR. (the maintainer cercevelemesi: random'i
+**Survivorship:** survivors-only -> expectancy UST-SINIR. (maintainer cercevelemesi: random'i
 maliyet-sonrasi gecemese kesin elenir; gectigi icin "kesin red" YOK -- ama UST-SINIR oldugu
 icin "kesin kabul" de YOK.)
 
-**KARAR (DEC-039, the project):** Edge sinyali umut verici ve look-ahead-temiz, AMA (i) risk/DD
+**KARAR (DEC-039, maintainer):** Edge sinyali umut verici ve look-ahead-temiz, AMA (i) risk/DD
 boyutu olculemedi (bozuk metrik), (ii) getiri nominal-kontamine + rejim-yogun, (iii) edge
 entry-timing'e temiz atfedilemedi. **Bu uc duzeltme yapilmadan Katman A motoru ilan
 EDILMEMELI.** Oneri: yeni Stage 0 ile **D-186 duzeltme turu** (asagida §7).
@@ -161,7 +161,7 @@ yeniden dusunulur.
 
 ---
 
-## 8. Survivorship UST-SINIR cercevesi (the maintainer kosulu)
+## 8. Survivorship UST-SINIR cercevesi (maintainer kosulu)
 
 Tum sayilar survivors-only (88/113; delisted yfinance 404). Survivors-only expectancy'yi
 SISIRIR -> her sonuc UST-SINIR. Denetci tahmini: delisted'lar sifir-edge olsa headline ~%3-5
@@ -186,5 +186,5 @@ oldugu icin gercek (alt-sinir) edge daha kucuk. §7'deki reel/adil-null testi al
 ## 10. DEC-039
 
 Bu program OLCTU + adversarial dogruladi + ONERIYOR. Hangi varyantin Katman A motoru olacagi,
-D-186 duzeltmelerinin yapilip yapilmayacagi, premise'in korunup korunmayacagi the project karari.
-Builder oneri sunar, karar vermez.
+D-186 duzeltmelerinin yapilip yapilmayacagi, premise'in korunup korunmayacagi maintainer karari.
+arastirma katmani oneri sunar, karar vermez.

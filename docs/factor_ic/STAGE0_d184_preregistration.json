@@ -14,7 +14,7 @@
     "2_tests_fail": "Faz 1 with lowvol60 as primary factor is not rational",
     "3_tests_fail": "Architectural premise re-think: regime-conditional MV-BIST + liquidity gates is more parsimonious than quantamental ranking",
     "rule_source": "CB-017 CRITIC_BACKLOG.md (pre-registered BEFORE running tests; no post-hoc adjustment)",
-    "decision_owner": "the project (DEC-039). Module MEASURES + RECOMMENDS."
+    "decision_owner": "maintainer (DEC-039). Module MEASURES + RECOMMENDS."
   },
 
   "tests": {

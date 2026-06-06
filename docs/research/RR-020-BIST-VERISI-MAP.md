@@ -1,6 +1,6 @@
 # RR-020: BIST OS Veri Kaynakları Haritalama / BIST Data Source Atlas
 
-**Doküman tipi:** Reference / "Rosetta Stone" — Builder/Architect için tablo ağırlıklı atlas
+**Doküman tipi:** Reference / "Rosetta Stone" — arastirma katmani için tablo ağırlıklı atlas
 **Tarih:** 24 Mayıs 2026
 **Hedef sistem:** BIST OS (Borsa İstanbul Algoritmik Analiz Sistemi)
 **Dil:** Türkçe açıklama + İngilizce teknik terim (rate limit, WebSocket, endpoint, delisted, survivorship bias, API key)
@@ -234,7 +234,7 @@ Akademik referans: Oner & Oner (2022, *Quarterly Journal of Econometrics Researc
 ```python
 """
 BIST OS — Cross-Validation Script for Data Sources
-RR-020 Section 5. the maintainer: bu scripti olduğu gibi çalıştır.
+RR-020 Section 5. maintainer: bu scripti olduğu gibi çalıştır.
 
 Karşılaştırılan kaynaklar:
   1) yfinance        : .IS suffix

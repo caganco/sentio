@@ -4,17 +4,17 @@
   "preregistered_date": "2026-06-02",
   "config_module": "src/screening/d203_config.py",
   "config_version": "d203-v1",
-  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE verdict is an overlay CANDIDATE at most (separate the project decision).",
+  "decision_owner": "maintainer. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE verdict is an overlay CANDIDATE at most (separate maintainer decision).",
 
   "discipline_note": "Committed BEFORE any D-203 gate result is computed and BEFORE any result is seen. The engine (src/screening/d203_clean_universe_test.py) REFUSES to run unless this file exists. The 5-gate rule + the 3-way verdict are FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no window/lookback widening, no factor redefinition, no regime-boundary tuning). N<=3 candidates; MEASUREMENT-ONLY, composite-weight optimization FORBIDDEN (equal-weight rank average only). Snapshot content-hashes recorded below; the run reads these frozen offline snapshots and asserts the hashes match.",
 
-  "motivation": "Two junction-shared exploration labs (local build-homed, NOT committed) reached OPPOSITE conclusions. demo-edge (88 survivors, 30 tests): VALUE is a survivorship/small-cap MIRAGE; no factor beats a random basket; the only signal passing all tradeability gates is 52wk-high momentum, but it is a 2022-26 REGIME-TILT, not regime-invariant alpha. demo_smart_money: an EDGE-2 COMPOSITE (mom120 + hi52 + lowvol63, monthly top-15 EW) is the STRONGEST edge and (EDGE-6) 'widens to +12.9pp above EW on the full universe, survivorship-confirmed'. CRITICAL: EDGE-6 used the BROKEN D-200 universe (392 names, 291 complex-corp-action names wrongly excluded, rights/TERP unadjusted, daily returns clipped at +/-50%) -> its claim is INVALID. D-203 re-measures all three candidates on the CORRECTED D-202 681-symbol universe with ONE shared 5-gate methodology to resolve the contradiction.",
+  "motivation": "Two junction-shared exploration labs (local build-homed, NOT committed) reached OPPOSITE conclusions. edge-arastirma (88 survivors, 30 tests): VALUE is a survivorship/small-cap MIRAGE; no factor beats a random basket; the only signal passing all tradeability gates is 52wk-high momentum, but it is a 2022-26 REGIME-TILT, not regime-invariant alpha. edge-arastirma: an EDGE-2 COMPOSITE (mom120 + hi52 + lowvol63, monthly top-15 EW) is the STRONGEST edge and (EDGE-6) 'widens to +12.9pp above EW on the full universe, survivorship-confirmed'. CRITICAL: EDGE-6 used the BROKEN D-200 universe (392 names, 291 complex-corp-action names wrongly excluded, rights/TERP unadjusted, daily returns clipped at +/-50%) -> its claim is INVALID. D-203 re-measures all three candidates on the CORRECTED D-202 681-symbol universe with ONE shared 5-gate methodology to resolve the contradiction.",
 
-  "honest_expectation": "demo-edge is the more careful lab; we EXPECT VALUE -> SERAP and 52wk-high -> REGIME-TILT to replicate on the clean universe, and we expect the EDGE-2 +12.9pp claim to SHRINK or collapse once the D-200 artifacts (wrong universe, +/-50% clip) are removed. A SERAP/REGIME-TILT verdict is a clean 'tried-and-refuted' archive result, not a failure.",
+  "honest_expectation": "edge-arastirma is the more careful lab; we EXPECT VALUE -> SERAP and 52wk-high -> REGIME-TILT to replicate on the clean universe, and we expect the EDGE-2 +12.9pp claim to SHRINK or collapse once the D-200 artifacts (wrong universe, +/-50% clip) are removed. A SERAP/REGIME-TILT verdict is a clean 'tried-and-refuted' archive result, not a failure.",
 
   "basis": [
-    "demo-edge FINDINGS.md sec.7/sec.11 (VALUE = survivorship/small-cap mirage), sec.5 (selection-null), sec.27-28 (52wk-high regime tilt)",
-    "demo_smart_money REPORT_SMART.md EDGE-2 composite + EDGE-6 full-universe +12.9pp claim (D-200-broken; README_JUNCTION.md caveat)",
+    "edge-arastirma FINDINGS.md sec.7/sec.11 (VALUE = survivorship/small-cap mirage), sec.5 (selection-null), sec.27-28 (52wk-high regime tilt)",
+    "edge-arastirma REPORT_SMART.md EDGE-2 composite + EDGE-6 full-universe +12.9pp claim (D-200-broken; README_JUNCTION.md caveat)",
     "D-202 DATA_STORE_LAYOUT.md (681 symbols x 1848 days, price content-hash fd207550..., mode yol-3-hybrid)",
     "D-203 FAZ-0 universal fundamentals freeze (degoran archive, content-hash d72a6977..., 677/681 covered)",
     "D-191 k2_factor_tilt armored-backtest infra (to_real, block_bootstrap_ci, fair null) reused READ-ONLY",
@@ -42,13 +42,13 @@
 
   "windows": {
     "primary_common": {"start": "2019-07-01", "end": "2026-04-30",
-      "rationale": "degoran fundamentals + TUFE overlap; all THREE candidates compared apples-to-apples (the maintainer correction-2)."},
+      "rationale": "degoran fundamentals + TUFE overlap; all THREE candidates compared apples-to-apples (maintainer correction-2)."},
     "extended": {"start": "2019-01-01", "end": "2026-04-30",
       "applies_to": ["edge2", "hi52"],
       "rationale": "price-only candidates ALSO reported on the longer window; the window difference is stated explicitly in the verdict."}
   },
 
-  "rebalance": "monthly (last trading day of each calendar month) -> matches the demo_smart_money EDGE-2 monthly top-15 cadence (~82 month-ends on the common window).",
+  "rebalance": "monthly (last trading day of each calendar month) -> matches the edge-arastirma EDGE-2 monthly top-15 cadence (~82 month-ends on the common window).",
 
   "factor_geometry_FROZEN": {
     "mom120": {"lookback": 120, "skip": 21, "def": "close[d-21]/close[d-120]-1"},
@@ -71,7 +71,7 @@
   "regime_splits_FROZEN": {
     "primary": "2022-01-01 (DECIDES Gate-3)",
     "secondary": "2022-07-01 (robustness, reported)",
-    "rationale": "PRIMARY 2022-01-01 is a calendar-year boundary matching the directive language '2019-21 vs 2022-26'; TR inflation regime accelerated end-2021 into 2022 (NOT arbitrary). SECONDARY 2022-07-01 matches the demo-edge/demo_smart_money continuity and the TLREF-carry data start (the maintainer correction-1). A period is assigned to a side by its START date. Both splits + this rationale are written into the results JSON.",
+    "rationale": "PRIMARY 2022-01-01 is a calendar-year boundary matching the directive language '2019-21 vs 2022-26'; TR inflation regime accelerated end-2021 into 2022 (NOT arbitrary). SECONDARY 2022-07-01 matches the edge-arastirma/edge-arastirma continuity and the TLREF-carry data start (maintainer correction-1). A period is assigned to a side by its START date. Both splits + this rationale are written into the results JSON.",
     "assignment": "period assigned by START date"
   },
 

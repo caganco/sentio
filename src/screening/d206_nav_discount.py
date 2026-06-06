@@ -598,7 +598,7 @@ def d206_verdict(g1_sign_ok: bool, gate2: dict, gate3: dict, gate4: dict,
     elif tradeable:
         headline = "GERCEK-SINYAL"
         note = ("Cost-free signal real AND retail-tradeable after realistic cost; a deploy "
-                "CANDIDATE for the FULL RR-013 architecture (SEPARATE the project decision, NOT "
+                "CANDIDATE for the FULL RR-013 architecture (SEPARATE maintainer decision, NOT "
                 "auto-deployed). SURPRISE vs the UNCERTAIN prior.")
     else:
         headline = "GERCEK-ama-tradeable-DEGIL"
@@ -613,7 +613,7 @@ def d206_verdict(g1_sign_ok: bool, gate2: dict, gate3: dict, gate4: dict,
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def run_d206(stage0_path: Path | str = _STAGE0_DEFAULT, require_stage0: bool = True) -> dict:
     """Full D-206 measurement. RAISES without Stage-0 (pre-registration) and RAISES if the

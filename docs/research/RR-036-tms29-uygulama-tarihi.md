@@ -1,7 +1,7 @@
 # RR-036 — TMS 29 BIST İlk Uygulama Tarihi + Öncesi Çeyrek Disiplini (D-183a)
 
 **Tarih:** 30 Mayıs 2026
-**Yazar:** Claude Code (Builder) — KGK/SPK duyuru + denetim-bülteni incelemesi
+**Yazar:** Arastirma katmani — KGK/SPK duyuru + denetim-bülteni incelemesi
 **Status:** ✅ Net — Faz 0b value pencere başlangıç önerisi ile.
 **Bağlı:** RR-035 (MaliTablo value kaynağı), RR-033 v2 (parasal-pozisyon bulgusu), NRR-002; Faz 0b TTM hesabı.
 

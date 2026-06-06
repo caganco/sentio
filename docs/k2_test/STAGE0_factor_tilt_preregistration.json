@@ -4,7 +4,7 @@
   "preregistered_date": "2026-06-01",
   "config_module": "src/screening/k2_tilt_config.py",
   "config_version": "k2-tilt-v1",
-  "decision_owner": "the project (DEC-039). Harness MEASURES + RECOMMENDS; does not finalize K2 deployment.",
+  "decision_owner": "maintainer (DEC-039). Harness MEASURES + RECOMMENDS; does not finalize K2 deployment.",
 
   "discipline_note": "Committed BEFORE any backtest is run and BEFORE any D-191 result is seen. The NET DECISION RULE (DEC-K2) is FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no horizon/window widening, no factor-set post-hoc adjustment). MaliTablo profit itemCodes are frozen via a result-independent LIVE DISCOVERY (Faz B) before this file is committed; snapshot content hashes are backfilled below before the pre-results commit. composite-optimize FORBIDDEN (invariant 4): equal-weight rank average only.",
 
@@ -39,7 +39,7 @@
     "mode": "survivors-only",
     "excluded_delisted": ["KOZAA", "KOZAL", "IPEKE", "TRALT"],
     "reason": "delisted names not fetchable from yfinance (404)",
-    "bias_direction": "OPTIMISTIC upper-bound: excluding (mostly poor-outcome) delisted names inflates the absolute level. The FAIR NULL draws from the SAME survivors pool, so the strategy-vs-null comparison stays fair; only the absolute level is inflated. Reported in Stage-0 + results + report (the maintainer condition)."
+    "bias_direction": "OPTIMISTIC upper-bound: excluding (mostly poor-outcome) delisted names inflates the absolute level. The FAIR NULL draws from the SAME survivors pool, so the strategy-vs-null comparison stays fair; only the absolute level is inflated. Reported in Stage-0 + results + report (maintainer condition)."
   },
 
   "factors": {

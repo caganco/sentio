@@ -34,7 +34,7 @@ Olcumden once 3 EVDS serisi + bagimli-panel + deploy-nakit-bacak GERCEK-temiz-ba
 **TUZAK BULUNDU (TLREF):** TLREF snapshot'inda tarihler 2019-01'den ~31/ay mevcut AMA value-sutunu
 2022-07-01'e kadar NaN (ilk-non-null ay-sonu = 2022-07). Gercek-temiz-baslangic 2022-07, 2019-DEGIL.
 
-**COZUM-LOCK (the maintainer, sonuc-oncesi tasarim-secimi -- post-hoc DEGIL):** nakit-bacak TLREF DEGIL;
+**COZUM-LOCK (maintainer, sonuc-oncesi tasarim-secimi -- post-hoc DEGIL):** nakit-bacak TLREF DEGIL;
 nakit-bacak = APIFON4-turevli reel-carry (`cash_nom(t)=(1+APIFON4(t)/100)^(1/12)-1`, T+0-knowable
 ay-ici-tahakkuk; `cash_real(t)=cash_nom(t)-infl_MoM(t)`). APIFON4 2019-01-temiz VE TLREF'i
 yakindan-izler (ikisi-de TR gecelik/kisa referans-maliyeti). **EFEKTIF-PENCERE = 2019-01..2026-04**
@@ -215,7 +215,7 @@ persistan-regressor -> kucuk-orneklem t-yanliligi yukari; gercek-anlamlilik rapo
 **post-hoc gevsetme YOK:** hicbir esik/tanim/pencere/lag/maliyet/keep-bar gevsetilmedi. Stage-0
 sonuclardan ONCE commit'lendi (anti-post-hoc guard; motor dosya-yoksa REDDEDER). Nakit-bacak APIFON4-
 secimi sonuc-ONCESI kapsam-guard'da (bolum-0) gerekceli-donduruldu, post-hoc-DEGIL. Deployment ayri
-bir the project kararidir; bu harness OLCER + ONERIR, asla otomatik-deploy ETMEZ -- ve burada onerilecek
+bir maintainer kararidir; bu harness OLCER + ONERIR, asla otomatik-deploy ETMEZ -- ve burada onerilecek
 aday yok.
 
 **KARAR: ex-ante reel-faiz -> forward XU100 TL-reel endeks timing'i temiz-arsiv (N<=3, count=1).**

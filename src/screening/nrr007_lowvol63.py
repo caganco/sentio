@@ -6,7 +6,7 @@ hi52). hi52 lesson: a bundle can HIDE a distinct factor -> it deserves an isolat
 NRR-007 runs the IDENTICAL lowvol63 signal (eng.lowvol_panel, D-203/EDGE-2-BIREBIR) through
 the D-203 5-gate methodology, swapping ONLY gate-5 to realistic Roll+Kyle cost (D-204 reuse).
 
-HONEST EXPECTATION (BEFORE results): demo-3 S1/H4 pre-measured lowvol63-isolated +0.56%/mo,
+HONEST EXPECTATION (BEFORE results): edge-arastirma S1/H4 pre-measured lowvol63-isolated +0.56%/mo,
 t=0.94 (below the Gate-2 t>=2 bar) -> PROBABLY ELIMINATED. This is a DEFINITIVE-CLOSURE run,
 no celebration expected; elimination is a clean, valuable result.
 
@@ -193,7 +193,7 @@ def nrr007_verdict(
     """Combine the canonical D-203 cost-free 3-way verdict (SERAP / GERCEK-EDGE / REJIM-TILT)
     with a realistic-cost addendum into a single headline:
 
-      SERAP                        -> ELENDI (expected; consistent with demo-3 t=0.94)
+      SERAP                        -> ELENDI (expected; consistent with edge-arastirma t=0.94)
       GERCEK-EDGE/REJIM-TILT, and  -> GERCEK-EDGE (deploy-aday; surprise, first non-hi52)
         g5_realistic AND breakeven >= safety_mult x realistic cost
       GERCEK-EDGE/REJIM-TILT, but  -> GERCEK-ama-tradeable-DEGIL (signal real, cost eats it)
@@ -225,7 +225,7 @@ def nrr007_verdict(
             "cost_free_verdict": cost_free_verdict,
             "realistic": realistic,
             "reasons": ["cost-free verdict SERAP -- lowvol63 sinyali maliyet-oncesi bile "
-                        "gate-gecmiyor (rel<=0 / long-short<0 / gate-FAIL); demo-3 t=0.94 "
+                        "gate-gecmiyor (rel<=0 / long-short<0 / gate-FAIL); edge-arastirma t=0.94 "
                         "on-gostergesi ile TUTARLI"],
             "close_note": ("lowvol63 izole-olcumde ELENDI (N<=3): EDGE-2-bundle'da gizliydi, "
                            "izole-test maliyet-oncesi bile gate-gecmedigini gosterdi; temiz-arsiv"),
@@ -240,8 +240,8 @@ def nrr007_verdict(
             "reasons": [f"cost-free {cf} AND maliyet-sonrasi EW_FULL-relatif > 0 AND "
                         f"breakeven >= {safety_mult}x gercekci-maliyet"],
             "deploy_note": ("hi52-disi ILK deploy-edilebilir Yol-1 cross-sectional aday "
-                            "(SURPRIZ; demo-3 on-gostergesinin aksine) -- deploy ayri "
-                            "the project karari, otomatik-DEGIL"),
+                            "(SURPRIZ; edge-arastirma on-gostergesinin aksine) -- deploy ayri "
+                            "maintainer karari, otomatik-DEGIL"),
             "oos_gap": _OOS_GAP,
         }
 
@@ -262,7 +262,7 @@ def nrr007_verdict(
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _series_block(series: list[float]) -> dict:
     return {**eng._mean_ci(series), "nw_t": eng._r(eng._nw_t(series))}

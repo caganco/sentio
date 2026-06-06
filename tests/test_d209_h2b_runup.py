@@ -96,7 +96,7 @@ def _toy_v1_inputs():
 
 
 def _flat_v1_net_rel_mean(events, daily, ew, idx, bp_per_side):
-    """Reference: the frozen demo-goal run_book FLAT net relative mean (per-side bp)."""
+    """Reference: the frozen edge-arastirma run_book FLAT net relative mean (per-side bp)."""
     col_of = {c: i for i, c in enumerate(daily.columns)}
     events_cols = [(col_of[s], d) for (s, d, _y) in events if s in col_of]
     daily_vals = daily.values

@@ -424,7 +424,7 @@ _OOS_GAP = (
     "OOS-BOSLUK: ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi. Gercek enflasyon-"
     "normallesme OOS YOK -> rejim-degisim dayanikligi KANITLANAMAZ. Walk-forward in-sample; "
     "disinflasyon 2024-26 YALNIZCA zayif-proxy. pre-2019 acquisition reddedildi (corp-action-"
-    "yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri the project karari."
+    "yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri maintainer karari."
 )
 
 
@@ -468,7 +468,7 @@ def d204_verdict(
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _series_block(series: list[float]) -> dict:
     return {**eng._mean_ci(series), "nw_t": eng._r(eng._nw_t(series))}

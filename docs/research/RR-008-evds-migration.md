@@ -1,7 +1,7 @@
 # RR-008 — TCMB EVDS API Migration: evds2 → evds3
 
 **Tarih:** 22 Mayıs 2026  
-**Araştıran:** Claude Code (Builder)  
+**Araştıran:** Arastirma katmani  
 **Durum:** ⏳ SPEC bekliyor — etkilenen dosyalar tespit edildi  
 **Bağlı CB/SPEC:** — (EVDS endpoint güncelleme SPEC'i bekliyor)
 

@@ -9,7 +9,7 @@
 
 ## 1. TL;DR (Yönetici Özeti)
 
-- **KCHOL pozisyonu (81 lot @ 188.83 TL, son 191.00 TL, P&L +%1.15):** Gedik Yatırım 27 Mart 2025 raporuna göre KCHOL'un look-through (tüm iştirakler dahil) NAV iskontosu ~%33, halka açık iştirakler bazında ~%26 seviyesinde; 15 yıllık tarihsel ortalama ~%13'tür. HSBC'nin (PA Turkey üzerinden yayımlanan) 2025 başı notu mevcut iskontoyu "~%30" ve fair-value iskonto varsayımını %10 olarak veriyor; TP 240 TL, AL. Bu rakamlar, **the maintainer'ın pozisyonu için mevcut iskontoyu istatistiksel olarak ucuz (z-skoru pozitif, yani BUY-leaning) zona koyar** — bu bölgede strateji önerisi **HOLD/ADD** yönündedir; TRİM sinyali değildir.
+- **KCHOL pilot vakası (cari ~191 TL):** Gedik Yatırım 27 Mart 2025 raporuna göre KCHOL'un look-through (tüm iştirakler dahil) NAV iskontosu ~%33, halka açık iştirakler bazında ~%26 seviyesinde; 15 yıllık tarihsel ortalama ~%13'tür. HSBC'nin (PA Turkey üzerinden yayımlanan) 2025 başı notu mevcut iskontoyu "~%30" ve fair-value iskonto varsayımını %10 olarak veriyor; TP 240 TL, AL. Bu rakamlar, **mevcut iskontoyu istatistiksel olarak ucuz (z-skoru pozitif, yani BUY-leaning) zona koyar** — bu bölgede strateji önerisi **HOLD/ADD** yönündedir; TRİM sinyali değildir.
 - **Pilot için seçilen 3 holding:** KCHOL (likidite, şeffaflık, broker kapsama derinliği), SAHOL (banka + enerji çekirdeği, 11 listelenmiş iştirak), AGHOL (içecek/perakende defansif portföy, İş Yatırım 28 Haziran 2024 raporunda 1-yıllık ort. iskonto %38 / 3-yıllık ort. %32 ile en temiz tarihsel veri).
 - **Implementation timeline:** 2 hafta pilot (KCHOL Tier-1 NAV + 1 yıl z-skor) → 2 hafta genişletme (SAHOL + AGHOL + holdings.yaml) → 2 hafta Tier-2 SoTP detaylandırma ve signal engine entegrasyonu. **Beklenen alpha (literatür-bazlı):** Pontiff (1995, JFE 37(3), 341-370) ABD bulgusu: *"Funds with 20% discounts have expected twelve-month returns that are 6% greater than nondiscounted funds. This correlation is attributed to premium mean-reversion, not to anticipated future portfolio performance."* — yani %20 iskontolu fonlar 12 ayda %6 ek getiri sağlar. Türkiye'de örneklem küçük (3 hisse) ve mikro yapı farklı; bu nedenle Pontiff bulgusunu **üst sınır referans değer** olarak kullanıyoruz, sayısal alfa hedefi koymuyoruz.
 
@@ -96,7 +96,7 @@
 - **Erken 2025 (HSBC, PA Turkey üzerinden):** *"Koc's NAV discount had narrowed to mid-teen levels in mid-2024 but has widened in a volatile course since then to c30% today... we continue to assume a fair value discount of 10%, which used to be the average discount level when CDS rates were previously at current levels... Cut TP to TRY240; retain Buy."* Fair-value iskonto **%10**, TP 240 TL.
 - **27 Mart 2025 (Gedik):** %33 look-through / %26 listed-only; TP 252.74 TL.
 
-**Likidite metrikleri:** Mynet Finans'a göre KCHOL günlük işlem hacmi **TL 5.0 bn** seviyesinde, günlük ~54.6 mn lot. the maintainer'ın 81 lot pozisyonu için slippage tamamen ihmal edilebilir. Halka açıklık oranı %42.81 (mynet); ana ortak Family Danışmanlık (sermaye %43.75, oy %55.62).
+**Likidite metrikleri:** Mynet Finans'a göre KCHOL günlük işlem hacmi **TL 5.0 bn** seviyesinde, günlük ~54.6 mn lot. Retail-ölçek bir pozisyon için slippage tamamen ihmal edilebilir. Halka açıklık oranı %42.81 (mynet); ana ortak Family Danışmanlık (sermaye %43.75, oy %55.62).
 
 **Broker coverage:** Investing.com (21 Mayıs 2026): *"The average 12-month price target for Koc Holding is 295.69 TRY, with a high estimate of 333 TRY and a low estimate of 272.6 TRY. 11 analysts recommend buying the stock, while 0 suggest selling, leading to an overall rating of Strong Buy."* — 11 alış, 0 satış tavsiyesi, ortalama TP 295.69 TL.
 
@@ -276,7 +276,7 @@ Akademik literatür (Pontiff 1995, Lee-Shleifer-Thaler 1991) sıklıkla **long-s
 - SQLite tablo: `holdings`, `holding_nav_history`
 - Manuel kontrol: 27 Mart 2025 tarihinde modelin ürettiği iskonto Gedik'in %33 (look-through) ile ±%3 hata payında uyuşmalı
 
-**Builder spec taslağı (kavramsal):**
+**arastirma katmani spec taslağı (kavramsal):**
 > "Create `holding_nav_calculator` layer reading `holdings.yaml` (KCHOL only). For each subsidiary in config, fetch yfinance market cap, multiply by stake, sum. Add KCHOL solo net cash from `kchol_solo_cash.csv` (manual quarterly update). Compute NAV per share by dividing by KCHOL share count. Compare to KCHOL spot price → discount %. Persist daily to `holding_nav_history` SQLite table. Compute 252-day rolling mean, std, z-score. Output: signal {BUY, HOLD, TRIM, AVOID} per threshold table."
 
 ### Faz 2 — Hafta 2-3: 3 Holding Genişleme
@@ -345,8 +345,8 @@ Akademik literatür (Pontiff 1995, Lee-Shleifer-Thaler 1991) sıklıkla **long-s
 
 ### 9.1 Şu Anki Durum (24 Mayıs 2026)
 
-- **KCHOL son fiyat:** 191.00 TL (the maintainer'ın pozisyonu için referans)
-- **the maintainer'ın pozisyonu:** 81 lot, ortalama maliyet 188.83 TL, P&L: +%1.15
+- **KCHOL son fiyat:** 191.00 TL (pilot vaka referans fiyatı)
+- **Pilot referans giriş:** ~188.83 TL seviyesi (illüstratif maliyet senaryosu; cari ~191 TL ≈ +%0.9 nominal)
 
 ### 9.2 Mevcut NAV Hesabı (Broker Veri Üzerinden Türetilmiş)
 
@@ -354,7 +354,7 @@ Gedik Yatırım 27 Mart 2025 raporundaki SoTP tablosunu **24 Mayıs 2026 fiyatla
 
 - Gedik 27 Mart 2025'te KCHOL fiyatı 165.50 TL iken NAV per share = 246.89 TL → iskonto **%33** (look-through)
 - HSBC erken 2025: iskonto **~%30**, fair-value %10, TP 240 TL
-- the maintainer'ın referans aldığı 191 TL fiyatı, Gedik'in NAV 246.89 TL'sine göre **%22.7 iskonto** demek olur — yani **iskonto Mart 2025'ten Mayıs 2026'ya daralmış** olabilir; bu daralma KCHOL'un Gedik fair-value-NAV 252.74 TL'ye yaklaşması anlamında pozitif bir performans işaretidir.
+- Pilot referans 191 TL fiyatı, Gedik'in NAV 246.89 TL'sine göre **%22.7 iskonto** demek olur — yani **iskonto Mart 2025'ten Mayıs 2026'ya daralmış** olabilir; bu daralma KCHOL'un Gedik fair-value-NAV 252.74 TL'ye yaklaşması anlamında pozitif bir performans işaretidir.
 - Investing.com (21 Mayıs 2026): 11 analist ortalama TP **295.69 TL** (range 272.6-333), Strong Buy konsensüs.
 
 **ÖNEMLİ CAVEAT:** Bu hesap **stale broker NAV'ı kullanmaktadır**; gerçek NAV 24 Mayıs 2026 itibarıyla iştirak fiyatlarındaki değişimle (özellikle TUPRS, FROTO, ARCLK, YKBNK) farklı olabilir. Pilot'un Faz 1 çıktısı bu hesabı **canlı yapacak** ve KCHOL discount'unu güncel veriden üretecek.
@@ -375,7 +375,7 @@ Gedik Yatırım 27 Mart 2025 raporundaki SoTP tablosunu **24 Mayıs 2026 fiyatla
 
 **Z-skor tahmini (Mayıs 2026, kaba hesap):** mevcut iskonto ~%23, 15-yıl ortalama %13, std proxy ~%12-15 → **z ≈ +0.7 ile +0.8 arası** → **HOLD zonunda**, BUY-leaning değil. Yani **iskonto fırsat penceresinin önemli kısmı kapanmış**.
 
-### 9.4 Strateji Önerisi — KCHOL Pozisyonu
+### 9.4 Strateji Önerisi — KCHOL Pilot Vakası
 
 Şart-aralıklı framework (raporun specindeki):
 - **Eğer discount %35 ortalamada → HOLD:** Şu an %23 olduğu için artık bu zonda değiliz.
@@ -383,7 +383,7 @@ Gedik Yatırım 27 Mart 2025 raporundaki SoTP tablosunu **24 Mayıs 2026 fiyatla
 - **Eğer discount < %25 → TRIM:** **TETIKLENME NOKTASI YAKLAŞIK** — mevcut tahminimiz %23, yani **marjinal TRIM sinyali** verir. Ancak:
   - HSBC'nin fair-value %10 hedefi göz önüne alındığında, %23 hâlâ tarihsel orta-bant değil; HSBC TP 240 TL hedefi 191 TL fiyat üzerine %25.6 upside ima eder.
   - 11 analist consensus TP 295.69 TL (Strong Buy) — %54.8 upside ima eder.
-  - the maintainer'ın pozisyonu sadece +%1.15 P&L (henüz açıkça karlı değil); TRIM sinyalini tetiklemek için **daha güçlü kanıt** (z < −1 veya iskontonun %15 altına düşmesi) gerekli.
+  - pilot vaka sadece ~+%0.9 nominal (henüz açıkça karlı değil); TRIM sinyalini tetiklemek için **daha güçlü kanıt** (z < −1 veya iskontonun %15 altına düşmesi) gerekli.
 
 **Net öneri: HOLD.** Pozisyon korunsun; ancak şu kapatma triggerleri pre-set edilsin:
 - Eğer KCHOL iskontosu %15'in altına inerse → kademeli %20 TRIM
@@ -443,7 +443,7 @@ Sinyal "per-stock" değil "yapısal" — sadece 3 hisse için tanımlı, kalan 2
 
 ## 11. Sonuç ve Net Aksiyon Listesi
 
-1. **KCHOL the maintainer Pozisyonu (81 lot @ 188.83):** **HOLD**. Mevcut iskonto %23 civarı tahminimiz, 15-yıl ortalama %13'ün üzerinde ama 2025 başındaki %33'e kıyasla yarısı kapanmış. Strong BUY zone (>%35 iskonto) tetiklenmedi; TRIM zone (<%15 iskonto) marjinal yaklaşıyor ama henüz orada değil. 11-analist konsensüs TP 295.69 TL hâlâ %54.8 upside ima ediyor — pozisyonu kapatma için gerekçe yok.
+1. **KCHOL (pilot vaka):** **HOLD**. Mevcut iskonto %23 civarı tahminimiz, 15-yıl ortalama %13'ün üzerinde ama 2025 başındaki %33'e kıyasla yarısı kapanmış. Strong BUY zone (>%35 iskonto) tetiklenmedi; TRIM zone (<%15 iskonto) marjinal yaklaşıyor ama henüz orada değil. 11-analist konsensüs TP 295.69 TL hâlâ %54.8 upside ima ediyor — pozisyonu kapatma için gerekçe yok.
 
 2. **Pilot İçin Onaylanan 3 Holding:** KCHOL, SAHOL, AGHOL. KOZAL (single-asset altın madeni) ve DOHOL (likidite/relevance) **strateji-dışı bırakıldı**.
 
@@ -622,10 +622,10 @@ Stake oranları (Sabancı Holding KAP):
 
 **Yorum (RR-013 akademik tezi ile çelişki?):** Akademik literatür (Bae-Kang-Kim 2002 + Pontiff 1996) "discount widens at extremes, mean reverts on average" çerçevesi öneriyor. Türk kurumsal pratisyenler 4Ç25 - 2Ç26 sürecinde mean reversion'a inanmıyor; tersine, iştirakleri tercih ediyorlar. Bu **akademik tezin tersine bir pratisyen sezgisi** — Bölüm 6'da Kritik Bulgu Uyarısı olarak işaretlenmiştir.
 
-#### 3.5. KCHOL Portföyde (the maintainer) — Sentez
+#### 3.5. KCHOL Pilot Vakası — Sentez
 
 - Cari fiyat: ~191 TL (24 Mayıs 2026; bu yamanın tarihi).
-- the maintainer portföy: 81 lot × 188,83 TL maliyet = ~15.295 TL maliyet, mevcut değer ~15.471 TL → **+%0,9 nominal getiri** (reel TL erozyonuyla ~-%10 düşük tek hane reel kayıp olabilir).
+- İllüstratif maliyet senaryosu: ~188,83 TL giriş → cari ~191 TL ≈ **+%0,9 nominal getiri** (reel TL erozyonuyla düşük tek hane reel kayıp olabilir).
 - Hesaplanan cari NAV iskontosu: **%41 (±%4)** — 1Y/3Y ortalamaların (sırasıyla ~%24 / ~%21) belirgin üzerinde.
 - Mean reversion sinyali (RR-013 metodolojisi): **BUY** sinyali — iskonto >1σ üstünde.
 - Broker konsensus: **Strong Buy** (11 analist), ortalama TP 295,69 TL (cari fiyata göre +%55 potansiyel).
@@ -700,7 +700,7 @@ RR-012 yamasındaki "MAC fonu pazarlama vs davranış" örneği benzeri burada *
 
 **Pilot sıra değişmiyor.**  
 **"Akademik öneri pratik araştırmayla doğrulandı"** notu düşülmüştür.  
-- **Pilot 1:** KCHOL (mevcut the maintainer portföyü; teyit edildi)
+- **Pilot 1:** KCHOL (pilot referans vakası; teyit edildi)
 - **Pilot 2:** SAHOL (Faz 2; broker coverage yüksekliği nedeniyle pratikte de güçlü)
 - **Pilot 3:** AGHOL (Faz 2 sonu; HSBC initiation Haziran 2025 ile broker coverage genişledi ama forum likiditesi düşük)
 - **Strateji-dışı kalanlar:** KOZAL (broker SoTP yok, holding-tipi değil; altın madencisi olarak normal şirket valuation), DOHOL (Doğan Holding pratisyen ilgisi var ama İş Yatırım'ın 4 Mart 2026 raporuna göre "Doğan Holding hisselerinin halihazırda cari Net Aktif Değerine (NAD) göre yüzde 52 iskonto ile işlem gördüğü… Hissenin son 1 yıllık ortalama NAD iskontosu ise yüzde 50 seviyesinde" — yani tarihsel ortalaması bizatihi %50 civarında, **yapısal iskontoya en yakın** Türk holding'i, bizim "iskonto daralır" tezimizle uyumsuz, https://paratic.com/dogan-holding-icin-hedef-yukseltildi-yuzde-52-iskontolu/).
@@ -743,9 +743,9 @@ DOHOL %52 iskontoda ve 1Y ortalama %50 (İş Yatırım 4 Mart 2026 raporu) — y
 
 ---
 
-### 8. Sonuç — the maintainer Portföyü Pratik Tavsiye
+### 8. Sonuç — KCHOL Pilot Vakası Pratik Tavsiye
 
-24 Mayıs 2026 itibariyle 81 lot KCHOL pozisyonu (ortalama maliyet 188,83 TL, mevcut fiyat ~191 TL):
+24 Mayıs 2026 itibariyle KCHOL pilot vakası (illüstratif giriş ~188,83 TL, mevcut fiyat ~191 TL):
 
 1. **HOLD korunur.** RR-013 ana raporundaki tetikleyiciler (iskonto <%30 → kademe-1 kapatma; iskonto >%45 → kademe-2 alım düşün) **değişiklik gerektirmez**.
 2. **İzleme uyarısı:** Mevcut iskonto %41 (±%4) — kademe-2 alım tetikleyicisine (~%45) yakın bant. Önümüzdeki 4 hafta haftalık NAV hesabı pratiğine başlanmalı; iskonto %43-45 bandına genişlerse RR-013 manuel onay kapısı açılır.

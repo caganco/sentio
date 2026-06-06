@@ -1,7 +1,7 @@
 # RR-031 — KAP Next.js Migration: Scraping Infeasibility
 
 **Tarih:** 28 Mayıs 2026
-**Araştıran:** Claude Code (Builder)
+**Araştıran:** Arastirma katmani
 **Durum:** ✅ Applied → `kap_scraper.py` Google RSS fallback teyit edildi
 **Bağlı CB/SPEC:** — (D-170 MKK VYK API kanalı önerisi)
 

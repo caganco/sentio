@@ -3,7 +3,7 @@
 **Tarih:** 2026-06-05
 **Tür:** Validator-reliability hardening (alet-sertleştirme), **edge-avı DEĞİL** (C10-SAFE).
 **Dayanak:** RR-Y1-005 §7 (TASARIM v0.2) · RR-Y1-005B §4.1/§4.2/§4.3 (math-spec v1.1) · RR-Y1-005-FAZ4 (DSR-N-binding) · RR-Y1-008 §1/§2 (ilk gerçek-veri sınavı: silent-confounded-PASS + lockbox-boşluğu) · D-213 (snapshot content-hash precedent).
-**Çatışma-önceliği:** TASARIM v0.2 > math-spec v1.1 > bu görev > Builder.
+**Çatışma-önceliği:** TASARIM v0.2 > math-spec v1.1 > bu görev > arastirma katmani.
 **Spec-soyağacı:** DEC-046/049/050.
 **Strangler:** committed-motorlar (`src/backtest`, `src/screening`, lab, clib) SIFIR-dokunuş; `src/engine` içinde YALNIZ additive alan/sabit + iki YENİ saf-modül (`confidence.py`, `lockbox.py`). Mevcut hiçbir verdict/keep-bar değişmedi.
 

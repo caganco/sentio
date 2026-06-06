@@ -76,7 +76,7 @@ python src/reporting/ic_dashboard.py
 
 | Yasak | Neden |
 |-------|-------|
-| `IC_INVESTABLE_MONTHS_MIN`'i artırma | 6 ay the maintainer kararı (DEC-024) |
+| `IC_INVESTABLE_MONTHS_MIN`'i artırma | 6 ay maintainer kararı (DEC-024) |
 | `analytics/*.py`'den engine import | K-08 ihlali — `test_analytics_not_importing_engine` yakalar |
 | `ic_history.parquet`'i silme | 21 May'den biriken OOS veri — geri getirilmez |
-| Weight'leri manuel güncelleme | DEC-023: WeightCalibrator → Orchestrator onay → ayrı spec |
+| Weight'leri manuel güncelleme | DEC-023: WeightCalibrator → maintainer onay → ayrı spec |

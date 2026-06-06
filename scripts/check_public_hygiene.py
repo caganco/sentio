@@ -37,8 +37,10 @@ from pathlib import Path
 
 ALLOW_MARK = "hygiene-allow"
 
-# Files where the personal name is legitimate (copyright holder).
-NAME_ALLOW_FILES = {"LICENSE", "LICENSE.md", "LICENSE.txt"}
+# Files where the personal name is legitimate: the copyright holder (LICENSE) and
+# the identity map (.mailmap), whose explicit purpose is to declare the canonical
+# author name for the contributor view.
+NAME_ALLOW_FILES = {"LICENSE", "LICENSE.md", "LICENSE.txt", ".mailmap"}
 
 # This guard would otherwise be scanned like any other file; skip it.
 SELF_FILES = {"scripts/check_public_hygiene.py"}
@@ -66,7 +68,7 @@ SKIP_EXT = {
 CONTENT_RULES = [
     (re.compile(r"<local-path>", re.IGNORECASE), "machine-specific home path (<local-path>)", False),
     (re.compile(r"/home/[A-Za-z0-9._-]+/"), "machine-specific home path (/home/<user>/)", False),
-    # Personal-provider email (the project should use no-reply/service addresses).
+    # Personal-provider email (maintainer should use no-reply/service addresses).
     # Generic on purpose: avoids embedding a real address in this public file.
     (re.compile(r"[A-Za-z0-9._%+-]+@(?:gmail|hotmail|yahoo|outlook|icloud|protonmail|proton)\.(?:com|net|me)",
      re.IGNORECASE), "personal email address (use a no-reply/service address)", False),

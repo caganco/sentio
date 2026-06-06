@@ -85,7 +85,7 @@ python scripts/retract_old_backtest_reports.py
 
 ## Sıradaki Adım: Faz 2 (D-150)
 
-**Bloklanıyor:** CB-014 (Purged K-Fold) — Architect SPEC şart, Builder'a direkt verme.
+**Bloklanıyor:** CB-014 (Purged K-Fold) — Architect SPEC şart, arastirma katmani'a direkt verme.
 
 Faz 2 kapsamı:
 1. KAP tarihsel veri backfill (point-in-time membership)

@@ -5,7 +5,7 @@
   "preregistered_date": "2026-06-04",
   "config_module": "src/screening/d213_config.py",
   "config_version": "d213-v1",
-  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; never auto-deploys. Even a TRADEABLE verdict is a CANDIDATE only (separate the project decision).",
+  "decision_owner": "maintainer. Harness MEASURES + RECOMMENDS; never auto-deploys. Even a TRADEABLE verdict is a CANDIDATE only (separate maintainer decision).",
 
   "discipline_note": "Committed BEFORE any D-213 result is computed and BEFORE any result is seen. The engine (src/screening/d213_real_rate.py) REFUSES to run unless this file exists. ALL thresholds/definitions/keep-bar/effective-window below are FROZEN and will NOT be relaxed post-hoc (no predictor redefinition, no window widening, no lag re-pick, no cost re-calibration, no keep-bar loosening). Post-hoc relaxation = guard-RAISE. MEASUREMENT-ONLY; optimization FORBIDDEN. N=1 candidate (ex-ante real-rate market-timing). This is a MEASUREMENT, NOT an optimization.",
 

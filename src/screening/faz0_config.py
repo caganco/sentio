@@ -5,7 +5,7 @@ These are FAZ-0 MEASUREMENT parameters, intentionally NOT in thresholds.py
 thresholds). Frozen at Stage 0 via dated commit; must not change after results
 are seen (pre-registration discipline, SPEC sec.2).
 
-Dayanak: SPEC_PIVOT_ARCHITECTURE_1 sec.4 Faz 0; ARCHITECTURE v1.2 sec.3.1 / 7.1.
+Dayanak: ic metodoloji notu sec.4 Faz 0; ARCHITECTURE v1.2 sec.3.1 / 7.1.
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ BENCHMARK_REF = "max(TUFE TP.FG.J0, TLREF TP.BISTTLREF.KAPANIS)"
 
 # Known delisted/halted names for survivorship-gap reporting (invariant 9).
 # Not fetchable from yfinance (404) -> snapshot excludes them; the gap and its
-# bias DIRECTION are reported explicitly (the maintainer condition).
+# bias DIRECTION are reported explicitly (maintainer condition).
 KNOWN_DELISTED = ("KOZAA", "KOZAL", "IPEKE", "TRALT")
 
 # Factor keep/drop gate (decision rests on standalone rank-IC, NOT on TEST 2).
@@ -135,7 +135,7 @@ FAZ0B_WINDOW_END = "2026-04-30"
 # (NW lag=h) + non-overlap ICIR + min-n eligibility -- same machinery as D-178.
 FAZ0B_HORIZONS = (21, 63, 126)
 
-# Point-in-time, look-ahead-safe (the maintainer): conservative deterministic lag. An
+# Point-in-time, look-ahead-safe (maintainer): conservative deterministic lag. An
 # annual report for fiscal year-end Y is treated as PUBLIC only after
 # period_end + this many days (covers the SPK +10wk extension). A valuation
 # date t uses the latest annual whose (period_end + lag) <= t. Erring late is
@@ -143,7 +143,7 @@ FAZ0B_HORIZONS = (21, 63, 126)
 FAZ0B_ANNUAL_LAG_DAYS = 120
 
 # shares = IssuedCapital(point-in-time annual) / par. BIST standard nominal = 1.0 TL.
-# par!=1 GUARD (the maintainer): a ticker whose latest-date computed P/B deviates
+# par!=1 GUARD (maintainer): a ticker whose latest-date computed P/B deviates
 # materially from Is Yatirim "Cari PD/DD" (tanimid 30) is flagged par!=1 / data
 # issue -> value set NULL + reported in coverage (no wrong market_cap into IC).
 FAZ0B_PAR_VALUE = 1.0

@@ -3,7 +3,7 @@
 > **Scope:** the `src/engine/` package — a general-purpose, tunable, post-hoc-auditable
 > strategy-validation harness.
 > **Design:** RR-Y1-005-TEST-MOTORU-TASARIM v0.2 (what/why) · **Math:** RR-Y1-005B-MATEMATIKSEL-SPEC v1.1 (formal core)
-> **Version:** `src.engine.__version__` · **Author:** Cagan
+> **Version:** `src.engine.__version__` · **Author:** Cagan <!-- hygiene-allow -->
 
 ---
 

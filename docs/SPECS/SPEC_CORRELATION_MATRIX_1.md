@@ -672,7 +672,7 @@ Week 3 (June 23-27):
 | Risk mitigations | ✅ YES | 4 risks with mitigations documented |
 | **READY FOR BUILDER?** | **YES** | **Proceed after L4 (Phase 4.3, mid-June)** |
 
-**Handoff Checklist for Builder:**
+**Handoff Checklist for arastirma katmani:**
 
 ```
 BEFORE starting:

@@ -15,7 +15,7 @@ blocks) are NOT modified. The foreign_flow archive does NOT enter CI; the real r
 local artifact (d211_results.json). HTTP-free, offline.
 
 Dayanak: STAGE0_d211.json (frozen 2026-06-04); D-210/RR-Y1-002-asama0-veri.md (data facts);
-realistic_cost.py D-207 cost mechanics; ff parser geometry from demo_smart_money/lab/ff_data.py.
+realistic_cost.py D-207 cost mechanics; ff parser geometry from edge-arastirma/lab/ff_data.py.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from src.signals import thresholds as _th
 D211_CONFIG_VERSION = "d211-v1"
 
 # ---------------------------------------------------------------------------
-# Window (Orchestrator-approved Option-1, 2026-06-04). Directive named 2010-2026 but
+# Window (maintainer-approved Option-1, 2026-06-04). Directive named 2010-2026 but
 # the only clean LOCAL XU100 (exposure_d187_xu100, price-only) covers 2019+ ONLY; a
 # corporate-action-clean index pre-2019 is NOT locally constructible (prices_official
 # BIST100-index column is NULL). So PRIMARY = 2019-01..2026-04, NO new pull.

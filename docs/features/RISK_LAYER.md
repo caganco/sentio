@@ -41,7 +41,7 @@ net_expected_value_check(ticker, expected_return, decision)  ← D-146: maliyet 
 
 `net_ev = gross_ev - round_trip_cost; gir sadece net_ev ≥ 0.005`
 
-**Broker:** `BROKER_TIER = "A"` (Garanti BBVA, %1.05 round-trip) — **the maintainer kararı (DEC-025)**
+**Broker:** `BROKER_TIER = "A"` (Garanti BBVA, %1.05 round-trip) — **maintainer kararı (DEC-025)**
 
 | Ticker | Cost | Neden |
 |--------|------|-------|

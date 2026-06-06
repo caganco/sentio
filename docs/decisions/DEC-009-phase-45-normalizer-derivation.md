@@ -18,7 +18,7 @@ test_coverage: tests/test_architecture.py::TestWeightSumValid, tests/test_convic
 # DEC-009: Phase 4.5 Normalizer — Emergent 0.78 Floor, Not a Hardcoded Divisor
 
 **Decision Date:** 18 May 2026
-**Decided By:** Strategist (the maintainer)
+**Decided By:** Strategist (maintainer)
 **Status:** ✅ DECIDED
 
 ---
@@ -96,5 +96,5 @@ degradation when layers go missing.
 ---
 
 **Status:** ✅ DECIDED (18 May 2026)
-**Approved By:** the maintainer (Strategist)
-**Implementation Owner:** Builder (D-052)
+**Approved By:** maintainer (Strategist)
+**Implementation Owner:** arastirma katmani (D-052)

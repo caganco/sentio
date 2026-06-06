@@ -3,7 +3,7 @@
 **Tür:** doğrulama-motoru yetenek-genişletmesi (additive mod). Plan → onay → build → bu rapor.
 **Konum:** `src/engine/` (committed-motor SIFIR-dokunuş; strangler).
 **İlişkili:** committed task-spec [`RR-Y1-010-TASK-intra-regime-time-holdout.md`](RR-Y1-010-TASK-intra-regime-time-holdout.md) (PR #207). Bu dosya **tasarım + hüküm** belgesidir; task-spec'i tekrar-etmez, onu uygular.
-**Çelişki-önceliği:** TASARIM v0.2 > math-spec v1.1 > task-spec > Builder.
+**Çelişki-önceliği:** TASARIM v0.2 > math-spec v1.1 > task-spec > arastirma katmani.
 
 ---
 
