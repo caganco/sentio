@@ -2411,6 +2411,6 @@
       "likit-tercil maliyet-sonrasi reel net <= 0",
       "breakeven < gercekci-maliyet"
     ],
-    "oos_gap": "OOS-BOSLUK: ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi. Gercek enflasyon-normallesme OOS YOK -> rejim-degisim dayanikligi KANITLANAMAZ. Walk-forward in-sample; disinflasyon 2024-26 YALNIZCA zayif-proxy. pre-2019 acquisition reddedildi (corp-action-yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri the project karari."
+    "oos_gap": "OOS-BOSLUK: ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi. Gercek enflasyon-normallesme OOS YOK -> rejim-degisim dayanikligi KANITLANAMAZ. Walk-forward in-sample; disinflasyon 2024-26 YALNIZCA zayif-proxy. pre-2019 acquisition reddedildi (corp-action-yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri maintainer karari."
   }
 }

@@ -1,7 +1,7 @@
 """D-203 KESIN-TEST -- frozen Stage-0 MEASUREMENT geometry. FAZ-1.
 
-Resolves the two-lab contradiction (demo-edge VALUE=mirage / 52wk-high=regime-tilt
-vs demo_smart_money EDGE-2 composite "strongest, +12.9pp above EW") by re-measuring
+Resolves the two-lab contradiction (edge-arastirma VALUE=mirage / 52wk-high=regime-tilt
+vs edge-arastirma EDGE-2 composite "strongest, +12.9pp above EW") by re-measuring
 THREE candidates on the SAME corrected D-202 clean universe (681 symbols x 1848 days,
 price content-hash fd207550..., mode yol-3-hybrid) with the SAME 5-gate methodology.
 The EDGE-6 +12.9pp claim used the BROKEN D-200 universe (392 names, 291 wrongly
@@ -19,11 +19,11 @@ Three candidates (N<=3 lock):
   ADAY-B  EDGE-2 COMP  : equal-weight rank-avg of mom120 + hi52 + lowvol63 (the core claim).
   ADAY-C  52WK-HIGH    : George-Hwang proximity-to-252d-high, ISOLATED.
 
-Two regime splits (the maintainer correction-1): PRIMARY 2022-01-01 (calendar-year boundary;
-inflation regime accelerated 2021->2022), SECONDARY 2022-07-01 (demo-edge/smart_money
+Two regime splits (maintainer correction-1): PRIMARY 2022-01-01 (calendar-year boundary;
+inflation regime accelerated 2021->2022), SECONDARY 2022-07-01 (edge-arastirma/smart_money
 continuity; TLREF-carry data start). Gate-3 decided on PRIMARY; SECONDARY reported.
 
-Two windows (the maintainer correction-2): PRIMARY common 2019-07..2026-04 (degoran+TUFE overlap;
+Two windows (maintainer correction-2): PRIMARY common 2019-07..2026-04 (degoran+TUFE overlap;
 all three apples-to-apples); B/C also reported EXTENDED 2019-01..2026-04 (price-only).
 """
 from __future__ import annotations
@@ -44,7 +44,7 @@ D203_EXTENDED_WINDOW_START = "2019-01-01"   # B/C price-only extended start
 D203_EXTENDED_WINDOW_END = "2026-04-30"
 
 # ---------------------------------------------------------------------------
-# Rebalance: MONTHLY (last trading day of each month). demo_smart_money EDGE-2 is a
+# Rebalance: MONTHLY (last trading day of each month). edge-arastirma EDGE-2 is a
 # monthly top-15 EW rotation -> we match its cadence (NOT the k2 semi-annual calendar).
 # ---------------------------------------------------------------------------
 D203_REBALANCE = "monthly_last_trading_day"
@@ -75,7 +75,7 @@ D203_EDGE2_FACTORS = ("mom120", "hi52", "lowvol63")
 D203_REQUIRE_ALL_FACTORS = True
 
 # ---------------------------------------------------------------------------
-# Regime splits (the maintainer correction-1). PRIMARY decides Gate-3; SECONDARY reported for
+# Regime splits (maintainer correction-1). PRIMARY decides Gate-3; SECONDARY reported for
 # robustness. A period is assigned to a side by its START date.
 # ---------------------------------------------------------------------------
 D203_REGIME_SPLITS = ("2022-01-01", "2022-07-01")
@@ -84,7 +84,7 @@ D203_REGIME_SECONDARY = "2022-07-01"
 D203_REGIME_RATIONALE = (
     "PRIMARY 2022-01-01: calendar-year boundary matching the directive language "
     "'2019-21 vs 2022-26'; TR inflation regime accelerated end-2021 into 2022 (not "
-    "arbitrary). SECONDARY 2022-07-01: demo-edge/demo_smart_money continuity + the "
+    "arbitrary). SECONDARY 2022-07-01: edge-arastirma/edge-arastirma continuity + the "
     "date TLREF-carry data begins. Gate-3 decided on PRIMARY; SECONDARY robustness-only."
 )
 

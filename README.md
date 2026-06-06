@@ -341,12 +341,9 @@ pre-registration, and read the output vector — is in
 | [RR-005](docs/research/RR-005-fetcher-map.md) | BIST fetcher map (robots/auth/format/rate-limit/ToS) | 22 May 2026 | — | ⏳ Pending |
 | [RR-008](docs/research/RR-008-evds-migration.md) | TCMB EVDS API migration: evds2→evds3, new base URL | 22 May 2026 | D-135/D-136 | ✅ Applied |
 | [RR-010](docs/research/RR-010-bist-ic-measurement.md) | IC measurement methodology — Spearman IC, ICIR, Bayesian-shrinkage weight calibration | 23 May 2026 | CB-010 | ✅ Applied (D-139/D-140) |
-| [RR-011](docs/research/RR-011-NLP-YAMA.md) | FinBERT-TR feasibility — Path 3 confirmed | 24 May 2026 | — | ⏳ Pending |
 | [RR-012](docs/research/RR-012-EM-Spesifik-Faktor-Literaturu-Derinlestirmesi.md) | 14 EM/BIST-specific factor literature deep-dive | 24 May 2026 | — | ⏳ Pending |
 | [RR-013](docs/research/RR-013_NAV_ISKONTO.md) | BIST holding NAV-discount and mean-reversion alpha strategy | 24 May 2026 | RR-012 §B8 | ✅ Tested → D-206 (mirage) |
 | [RR-014](docs/research/RR-014-SLIPPAGE.md) | BIST slippage and market-impact modeling | 24 May 2026 | — | ✅ Applied → cost model (D-204/D-207) |
-| [RR-015](docs/research/RR-015-TRANSACTION-COST.md) | Transaction-cost modeling — broker-tier comparison | 24 May 2026 | RR-014 §cont. | ✅ Applied → cost model (D-204/D-207) |
-| [RR-016](docs/research/RR-016-DRAWDOWN-AND-VOLATILITY-TARGETING.md) | Drawdown & volatility targeting | 24 May 2026 | RR-012, RR-013, RR-014, RR-015 | ⏳ Pending |
 | [RR-017](docs/research/RR-017-HMM.md) | HMM regime detection — BIST calibration and activation roadmap | 25 May 2026 | RR-003 §Phase 1 | ⏳ Pending (HMM weights disabled) |
 | [RR-018](docs/research/RR-018-VERY-IMPORTANT.md) | López de Prado-based backtesting framework | 25 May 2026 | RR-014, RR-015, RR-016, RR-017 | ✅ Applied → validation engine (PBO/DSR) |
 | [RR-019](docs/research/RR-019-MULTI-LLM.md) | Multi-LLM orchestration — AI-jury system for the BIST OS | 24 May 2026 | RR-010/011/012 | ⏳ Pending (Phase 6+) |

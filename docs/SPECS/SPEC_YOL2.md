@@ -1,7 +1,7 @@
 # SPEC — YOL 2 ANA SİSTEM (v3.0 paradigması)
-## Strateji-seviyesi spec. Detay-build adımları Builder plan-mode'da netleşir.
+## Strateji-seviyesi spec. Detay-build adımları arastirma katmani plan-mode'da netleşir.
 
-**Tarih:** 1 Haziran 2026 — Session #11
+**Tarih:** 1 Haziran 2026 — calisma oturumu
 **Dayanak:** ARCHITECTURE v3.0 + RR-OMEGA öncelik-sıralaması + 4 test dersleri
 **Statü:** Taslak → bağımsız-göz (Kategori-1 bloke-kontrolü) → inşa
 
@@ -24,13 +24,13 @@ max(TÜFE, para-piyasası); gerçekçi piyasa-üstü yılda birkaç-puan USD-ree
 - Vergi-katmanı: yerli-hisse %0 kazanç-stopajı, temettü %15, beyan-eşiği izleme
 - Devir-hızı monitörü: aşırı-işlem uyarısı (Barber-Odean dersi)
 Çıktı: her strateji-kararının NET (maliyet+vergi-sonrası) etkisi görünür.
-Test: yok (bu disiplin-katmanı, ölçüm değil; doğruluğu Builder-unit-test).
+Test: yok (bu disiplin-katmanı, ölçüm değil; doğruluğu arastirma katmani-unit-test).
 
 ### KATMAN 1 — Risk-Primi Zemini (statik maruziyet)
 İşlevler:
 - Geniş-BIST maruziyeti (endeks/temsili-sepet) — piyasa risk-primi al-tut
 - Maruziyet-oranı: statik/kural-temelli (D-187: aktif-zamanlama elendi). Sabit
-  karışım + periyodik rebalance. Oran-seçimi the maintainer-kararı (risk-iştahı).
+  karışım + periyodik rebalance. Oran-seçimi maintainer-kararı (risk-iştahı).
 - reel + XU100-relative + USD-reel raporlama (nominal-drift tuzağı)
 Test: D-187 zaten ölçtü (baz-tahsis generic-değerli). Yeni-test gerekmez; uygula.
 
@@ -52,7 +52,7 @@ Bunlar Yol 1'de test-edilip kanıtlanınca Yol 2'ye girer (varsayılmaz).
 
 ### KATMAN 4 — İnsan-Yargısı (TEST EDİLECEK, varsayılmaz)
 - Saf-endeks vs aday-daraltma+insan-seçim: hangisi daha iyi?
-- İleri-dönük test: the maintainer gerçek-seçimlerini kaydeder, endeksle karşılaştırılır
+- İleri-dönük test: maintainer gerçek-seçimlerini kaydeder, endeksle karşılaştırılır
   (D-188 forward-recorder mantığı; look-ahead/overfit yapısal-imkansız)
 - İnsan-katmanı dürüst-benchmark'ı geçerse aktifleşir; geçmezse saf-sistem kalır
 
@@ -85,8 +85,8 @@ composite-YASAK · Stage-0 ön-kayıt · post-hoc-YASAK · maliyet+slippage · k
 
 ---
 
-## 5. İNŞA SIRASI (öneri — Builder plan-mode netleştirir)
-1. Builder repo-envanteri + reusable-map + outdated-arşiv (İLK İŞ — kod-gerçeği)
+## 5. İNŞA SIRASI (öneri — arastirma katmani plan-mode netleştirir)
+1. arastirma katmani repo-envanteri + reusable-map + outdated-arşiv (İLK İŞ — kod-gerçeği)
 2. Katman 0 (maliyet/vergi) — en kesin, ölçüm-değil
 3. Katman 1 (risk-primi zemini) — D-187 zaten ölçtü, uygula
 4. D-190: Katman 2 hipotez-testi (değer+kalite+düşük-vol net-alfa)
@@ -97,7 +97,7 @@ PARALEL: Yol 1 lab (D-188 forward veri-topluyor + niş-testler)
 
 ## 6. DESKTOP ≠ REPO
 Bu SPEC strateji-seviyesi. Modül-envanteri, reusable-map, hangi-katman-zaten-var
-→ Builder doğrular (ilk iş). Orchestrator "repo'da X var" diye kesin-konuşmaz.
+→ arastirma katmani doğrular (ilk iş). maintainer "repo'da X var" diye kesin-konuşmaz.
 
 ---
 
@@ -115,4 +115,4 @@ Bunlar TEST-EDİLİP elendi/imkansız — kapsam-daraltma değil, kanıt-temelli
 
 *SPEC_YOL2 v3.0 — 1 Haziran 2026. Katmanlı (maliyet/vergi → risk-primi → faktör-tilt
 → BIST-niş → insan-test), RR-OMEGA öncelikli, ampirik-test-hipotezli, üç-kategori-
-yönetişimli. Detay-build Builder plan-mode. Bağımsız-göz Kategori-1 kontrolü sonra inşa.*
+yönetişimli. Detay-build arastirma katmani plan-mode. Bağımsız-göz Kategori-1 kontrolü sonra inşa.*

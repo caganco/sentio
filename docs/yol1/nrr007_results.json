@@ -494,7 +494,7 @@
       "safety_mult": 2.0
     },
     "reasons": [
-      "cost-free verdict SERAP -- lowvol63 sinyali maliyet-oncesi bile gate-gecmiyor (rel<=0 / long-short<0 / gate-FAIL); demo-3 t=0.94 on-gostergesi ile TUTARLI"
+      "cost-free verdict SERAP -- lowvol63 sinyali maliyet-oncesi bile gate-gecmiyor (rel<=0 / long-short<0 / gate-FAIL); edge-arastirma t=0.94 on-gostergesi ile TUTARLI"
     ],
     "close_note": "lowvol63 izole-olcumde ELENDI (N<=3): EDGE-2-bundle'da gizliydi, izole-test maliyet-oncesi bile gate-gecmedigini gosterdi; temiz-arsiv",
     "oos_gap": null

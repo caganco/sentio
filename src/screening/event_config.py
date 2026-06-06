@@ -28,7 +28,7 @@ a few-points-of-XU100-relative edge, NOT a multiplier (Bessembinder: pre-selecti
 top names ex-ante is statistically very hard). "No edge" is also a valid, valuable result.
 
 DEC-039: this config drives MEASUREMENT only. Whether event-confluence is promoted into
-the Yol-1 lab (and how) is an the project decision. the analysis recommends; deployment is decided separately.
+the Yol-1 lab (and how) is an maintainer decision. the analysis recommends; deployment is decided separately.
 """
 from __future__ import annotations
 
@@ -88,7 +88,7 @@ EVENT_TYPE_STATUS: dict[str, dict] = {
 # drift. Real YoY (net_income primary, revenue corroborating, both TUFE-deflated)
 # captures the true surprise. Justification for real-vs-nominal framing: NRR-001-SCREENING
 # sec.3 (RS relative-to-index, not absolute nominal). NOTE: NRR-001-SCREENING.md is
-# currently UNTRACKED in this clone -- a separate commit decision (the maintainer/Orchestrator).
+# currently UNTRACKED in this clone -- a separate commit decision (maintainer).
 SURPRISE_METRIC = "real_yoy"
 SURPRISE_PRIMARY_FIELD = "net_income"
 SURPRISE_CORROBORATING_FIELD = "revenue"

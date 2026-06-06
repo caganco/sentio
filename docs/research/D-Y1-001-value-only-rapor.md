@@ -1,8 +1,8 @@
 # D-Y1-001 -- Value-only Tilt REJIM-DAYANIKLILIK Testi Raporu (Yol-1 Asama-1)
 
-**VERDICT (DEC-Y1): KIRILGAN / REJIM-BAGIMLI.** Frozen 4-kapili kural birincil metrik (P/B = defter/piyasa) uzerinde mekanik olarak GECER (4/4 kapi), ANCAK robustluk-metrigi (E/P) GECMEZ (gate-1 + gate-4 duser, 2-yol rejim-hizalamasi AYRISIK=KIRILGAN) ve birincil metrigin kendisi out-of-sample cokuyor. Toplam kanit: prim **2019-2022 yuksek-enflasyon surgesine yogunlasmis, kararli-rejim-bagimsiz bir prim DEGIL**. Yol-2 overlay'ine hizli-gecis ONERILMEZ; nihai karar the project (DEC-039).
+**VERDICT (DEC-Y1): KIRILGAN / REJIM-BAGIMLI.** Frozen 4-kapili kural birincil metrik (P/B = defter/piyasa) uzerinde mekanik olarak GECER (4/4 kapi), ANCAK robustluk-metrigi (E/P) GECMEZ (gate-1 + gate-4 duser, 2-yol rejim-hizalamasi AYRISIK=KIRILGAN) ve birincil metrigin kendisi out-of-sample cokuyor. Toplam kanit: prim **2019-2022 yuksek-enflasyon surgesine yogunlasmis, kararli-rejim-bagimsiz bir prim DEGIL**. Yol-2 overlay'ine hizli-gecis ONERILMEZ; nihai karar maintainer (DEC-039).
 
-**Tarih:** 2 Haziran 2026 | **Branch:** feature/d-y1-001-value-only-regime | **Karar sahibi:** the project (DEC-039); harness OLCER + ONERIR
+**Tarih:** 2 Haziran 2026 | **Branch:** feature/d-y1-001-value-only-regime | **Karar sahibi:** maintainer (DEC-039); harness OLCER + ONERIR
 **Dayanak:** RR-Y1.md sec.SORU-1 (celiski cozumu) + Recommendations Soru-1 #1 (ayni-orneklem rank-IC + decile MR) / #3 (tek alt-donem t>2 YETERSIZ; >=2 bagimsiz alt-donem gerekir). D-191 K2 altyapisi (k2_*) salt-okunur reuse; D-183 Faz-0 rank-IC metodu; D-186 INFLATION_REGIMES.
 
 ---
@@ -136,7 +136,7 @@ Bu tablo, RR-Y1'in "BIST value rejim-istikrarsiz; tek alt-donem t>2 yetersiz" te
 
 ---
 
-## 8. Oneri (karar the project, DEC-039)
+## 8. Oneri (karar maintainer, DEC-039)
 
 1. **Value-only'yi Yol-2 overlay'ine HIZLI-GECIS yapma.** Mekanik PASS rejim-bagimli; kararli prim kaniti yok.
 2. Eger O+C yine de degerlendirirse: agir rejim-kapisi sart (yalniz pre_surge/high_inflation benzeri ortamda; disinflasyonda devre-disi) ve <=%10 overlay tavani, P/B-tek-metrik degil iki-metrik-onayli giris.

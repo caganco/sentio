@@ -217,7 +217,7 @@ def test_nw_reproduces_c9_golden():
 @pytest.mark.skipif(
     not _LOCAL_E2E_AVAILABLE,
     reason="C12 end-to-end reconstruction needs the gitignored lab harness + OHLCV snapshot "
-    "(absent in CI and on non-lab clones). CI-skips by design (note N1: the Builder runs it "
+    "(absent in CI and on non-lab clones). CI-skips by design (note N1: the arastirma katmani runs it "
     "locally >=1 before merge and records the pass in the PR).",
 )
 def test_c12_golden_end_to_end_from_snapshot():  # pragma: no cover - local-only (CI skips)

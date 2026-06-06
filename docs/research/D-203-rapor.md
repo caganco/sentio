@@ -13,10 +13,10 @@
 Iki kesif labi (her ikisi de junction'li, commit'siz; local build-homed) AYNI uc adayda
 ZIT sonuca varmisti:
 
-- **demo-edge** (88 survivor, 30 test): VALUE bir survivorship/small-cap SERAP'i;
+- **edge-arastirma** (88 survivor, 30 test): VALUE bir survivorship/small-cap SERAP'i;
   hicbir faktor random-null'i gecmiyor; tradeability gate'lerini gecen TEK sinyal
   52wk-high momentum AMA o da 2022-26 REJIM-TILT'i, regime-invariant alpha degil.
-- **demo_smart_money**: EDGE-2 COMPOSITE (mom120+hi52+lowvol63, aylik top-15 EW) EN GUCLU
+- **edge-arastirma**: EDGE-2 COMPOSITE (mom120+hi52+lowvol63, aylik top-15 EW) EN GUCLU
   edge; EDGE-6 "full evrende EW ustu +12.9pp'ye GENISLIYOR, survivorship-teyitli" iddiasi.
 
 **KRITIK:** EDGE-6 BOZUK D-200 evrenini kullandi (392 isim, 291 yanlis dislanmis,
@@ -31,7 +31,7 @@ uc adayi da DUZELTILMIS D-202 temiz-evrende (681 sembol x 1848 gun, fiyat hash
   `d72a6977...`, 677/681 kapsam). TUFE: D-187 donmus gunluk endeks.
 - **Benchmark:** EW_FULL = tum uygun evrenin aylik esit-agirlik getirisi, delisted-dahil
   (durust bar; lab'larin survivor-only snapshot'larindan farkli).
-- **Rebalance:** aylik (her ayin son islem gunu) -> demo_smart_money EDGE-2 kadansiyla esles.
+- **Rebalance:** aylik (her ayin son islem gunu) -> edge-arastirma EDGE-2 kadansiyla esles.
 - **Secim:** sabit top-15 EW (fraksiyon taramasi YOK); long-short = top15 - bottom15.
 - **Getiri:** TL-real (TUFE-deflate), gunluk +/-10% clip, ay-ici buy-and-hold bilesik.
 - **Maliyet:** flat 20bp VE 100bp / turnover (ilk giris tam round-trip).
@@ -46,7 +46,7 @@ uc adayi da DUZELTILMIS D-202 temiz-evrende (681 sembol x 1848 gun, fiyat hash
 ### Rejim-split
 - **PRIMER 2022-01-01** (Gate-3'u KARARLASTIRIR): takvim-yili siniri, spec dili
   "2019-21 vs 2022-26" ile eslesir; TR enflasyon rejimi 2021 sonu->2022'de hizlandi (keyfi degil).
-- **SEKONDER 2022-07-01** (robustness, raporlanir): demo-edge/demo_smart_money surekliligi +
+- **SEKONDER 2022-07-01** (robustness, raporlanir): edge-arastirma/edge-arastirma surekliligi +
   TLREF-carry verisinin basladigi tarih. Periyot START tarihine gore bir tarafa atanir.
 
 ## 3. Aday bazinda verdict
@@ -70,7 +70,7 @@ uc adayi da DUZELTILMIS D-202 temiz-evrende (681 sembol x 1848 gun, fiyat hash
 **Yorum:** VALUE nominal pozitif AMA istatistiksel olarak ANLAMSIZ (HAC |t| << 2) ve edge
 neredeyse tamamen ILLIKIT tercilde yogunlasmis (likit-relatif ~0). Bu, "tradeable bir
 deger primi" degil; kucuk/illikit isimlerde yasayan bir gurultu. Long-short spread'i de
-sifiri iciyor -> kesitsel ucu-uca ayristirma yok. **demo-edge'i DOGRULAR:** VALUE bir
+sifiri iciyor -> kesitsel ucu-uca ayristirma yok. **edge-arastirma'i DOGRULAR:** VALUE bir
 survivorship/small-cap serabidir, regime-invariant alpha degil.
 
 ### ADAY-B EDGE-2 COMPOSITE (mom120+hi52+lowvol63, esit-agirlik rank-avg) -> **GERCEK-EDGE**
@@ -90,7 +90,7 @@ survivorship/small-cap serabidir, regime-invariant alpha degil.
 
 **Yorum:** 5 gate'in HEPSI gecti, iki rejim de pozitif -> GERCEK-EDGE. AMA edge post-2022'de
 GUCLENMIYOR, ZAYIFLIYOR (primer: +1.71% -> +1.07%; sekonder: +2.00% -> +0.75%).
-**demo_smart_money'nin EDGE-6 "+12.9pp'ye genisliyor" iddiasi DOGRULANMADI** -- o buyukluk
+**edge-arastirma'nin EDGE-6 "+12.9pp'ye genisliyor" iddiasi DOGRULANMADI** -- o buyukluk
 bozuk D-200 artefaktiydi (yanlis evren + +/-50% clip). Temiz evrende edge gercek ve
 rejim-dayanikli, fakat genisleyen degil daralan bir egilimde.
 
@@ -111,7 +111,7 @@ rejim-dayanikli, fakat genisleyen degil daralan bir egilimde.
 
 **Yorum:** Uc adayin EN GUCLUSU (en yuksek |t|, en yuksek long-short, en YAKIN likit/illikit
 orani = en tradeable). Primer split'te post-2022 pre-2022'den DAHA GUCLU (+2.67% > +2.39%)
--> rejim-tilt DEGIL, rejim-dayanikli. **demo-edge'in "52wk-high yalnizca 2022-26 rejim-tilti"
+-> rejim-tilt DEGIL, rejim-dayanikli. **edge-arastirma'in "52wk-high yalnizca 2022-26 rejim-tilti"
 sonucu temiz evrende CURUDU.** Lab'in bu yanlis sonucu muhtemelen survivor-only 88-isim
 snapshot'inin daralmasindan (kucuk orneklem + survivorship) kaynaklandi.
 
@@ -119,10 +119,10 @@ snapshot'inin daralmasindan (kucuk orneklem + survivorship) kaynaklandi.
 
 | Lab iddiasi | D-203 temiz-evren hukmu |
 |-------------|-------------------------|
-| demo-edge: VALUE = serap | **DOGRU** (Gate-2 fail, illikit-yogun, long-short ~0) |
-| demo-edge: 52wk-high = rejim-tilt | **YANLIS** (rejim-dayanikli, post>=pre, en guclu aday) |
-| demo_smart_money: EDGE-2 gercek/en guclu | **KISMEN** (gercek+dayanikli AMA en guclu C, B degil) |
-| demo_smart_money: EDGE-6 +12.9pp genisliyor | **YANLIS** (D-200 artefakti; edge post-2022 DARALIYOR) |
+| edge-arastirma: VALUE = serap | **DOGRU** (Gate-2 fail, illikit-yogun, long-short ~0) |
+| edge-arastirma: 52wk-high = rejim-tilt | **YANLIS** (rejim-dayanikli, post>=pre, en guclu aday) |
+| edge-arastirma: EDGE-2 gercek/en guclu | **KISMEN** (gercek+dayanikli AMA en guclu C, B degil) |
+| edge-arastirma: EDGE-6 +12.9pp genisliyor | **YANLIS** (D-200 artefakti; edge post-2022 DARALIYOR) |
 
 **hi52 ~ kompoziti tek basina karsiliyor/asiyor** (long-short 5.15% vs 3.08%; |t| 3.19 vs
 2.29) -> EDGE-2 kompozitinin BASKIN bileseni 52wk-high'dir; mom120+lowvol63 eklenmesi edge'i

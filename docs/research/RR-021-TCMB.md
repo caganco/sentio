@@ -7,8 +7,8 @@
 ## 1. TL;DR
 
 - **EVDS3 endpoint çalışıyor.** Base URL `https://evds3.tcmb.gov.tr/igmevdsms-dis/`. Eski `evds2.tcmb.gov.tr/service/evds/` tamamen kapalı; community raporuna göre 302 → SPA HTML dönüyor (kaynak: saidsurucu/borsapy README — *"eski evds2.tcmb.gov.tr/service/evds/?key=... URL'leri tamamen kapandı (302 → SPA HTML). PyPI'daki eski evds/evdsAPI paketleri kırıldı"*).
-- **Aktif seriler (D-136 sonrası):** Politika faizi (TP.APIFON4), TLREF (TP.BISTTLREF.*), USD/EUR alış-satış (TP.DK.USD.A/S, TP.DK.EUR.A), TÜFE (TP.FE.OKTG01 veya TP.FG.J0), Yİ-ÜFE (TP.FG01 türevleri), BIST net işlemler (TP.MKNETHAR.*). Hepsi için "son canlı veri tarihi: **Builder API key ile teyit etmeli**".
-- **Kritik uyarı — Auth header çatışması:** Brief'te `x-auth-token` header'ı geçiyor (D-136 fix). Ancak tüm güncel community wrapper'ları (borsapy, kaymal/tcmb, fatihmete/evds v0.4, lobehub skill) `key` header'ı kullanıyor — 05.04.2024 TCMB değişikliği sonrası kural. **Builder ilk testte her iki header'ı denemeli.**
+- **Aktif seriler (D-136 sonrası):** Politika faizi (TP.APIFON4), TLREF (TP.BISTTLREF.*), USD/EUR alış-satış (TP.DK.USD.A/S, TP.DK.EUR.A), TÜFE (TP.FE.OKTG01 veya TP.FG.J0), Yİ-ÜFE (TP.FG01 türevleri), BIST net işlemler (TP.MKNETHAR.*). Hepsi için "son canlı veri tarihi: **arastirma katmani API key ile teyit etmeli**".
+- **Kritik uyarı — Auth header çatışması:** Brief'te `x-auth-token` header'ı geçiyor (D-136 fix). Ancak tüm güncel community wrapper'ları (borsapy, kaymal/tcmb, fatihmete/evds v0.4, lobehub skill) `key` header'ı kullanıyor — 05.04.2024 TCMB değişikliği sonrası kural. **arastirma katmani ilk testte her iki header'ı denemeli.**
 - **Resmi rate limit BULUNAMADI.** Community: çağrı başına maks **1000 gözlem** + **400 seri**; bu limit aşılırsa TCMB sessizce keser (borsapy README: *"TCMB doğrudan çağrılırsa son 1000 gözlemi sessizce kesip getirir"*). EVDS3 hâlâ **beta** — 26 Ocak 2026 lansman (TCMB Basın Duyurusu, AA muhabiri Mahmut Çil 26.01.2026 haberi: *"Ocak 2026 itibarıyla ise EVDS, teknik altyapı, içerik ve tasarım olarak tekrar yenilenerek EVDS 3 beta sürüm olarak devreye alınmıştır"*).
 - **30 dakikada başlatma:** (1) evds3.tcmb.gov.tr'den hesap + API key, (2) curl ping, (3) USD seri testi, (4) hata ayıklama. Detay §8.
 
@@ -57,7 +57,7 @@ https://evds3.tcmb.gov.tr/igmevdsms-dis/{ACTION}/{PARAMS}
 | fatihmete/evds v0.4 (EVDS3 uyum changelog'lu, PyPI'da yayım tarihi CAPTCHA nedeniyle teyit edilemedi) | `key` |
 | TCMB Kullanım Şartları (docId=18) | Header adı spesifiye edilmemiş |
 
-**Karar:** Builder ilk test çağrısında `key` header'ını dene; 401 dönerse `x-auth-token` ile tekrarla. Mevcut BIST OS kodu D-136 sonrası çalışıyorsa header'ı doğrula — muhtemelen `key` ile geçildi ve brief notu güncel değil.
+**Karar:** arastirma katmani ilk test çağrısında `key` header'ını dene; 401 dönerse `x-auth-token` ile tekrarla. Mevcut BIST OS kodu D-136 sonrası çalışıyorsa header'ı doğrula — muhtemelen `key` ile geçildi ve brief notu güncel değil.
 
 ### 2.5 Request Örnekleri
 
@@ -100,7 +100,7 @@ Türk quant community'sinde EVDS, Python tarafında üç paket etrafında konsol
 
 ## 3. Aktif Seri Envanteri
 
-> Her seri için "Son canlı veri tarihi: **Builder API key ile teyit etmeli**" notu zorunlu. Lag tahminleri community kaynaklı (TCMB resmi SLA yok).
+> Her seri için "Son canlı veri tarihi: **arastirma katmani API key ile teyit etmeli**" notu zorunlu. Lag tahminleri community kaynaklı (TCMB resmi SLA yok).
 
 > **Canlı Doğrulama:** Bu envanter `scripts/test_evds3_connection.py` 
 > ile 25-05-2026 tarihinde API'ye karşı test edildi.  
@@ -111,36 +111,36 @@ Türk quant community'sinde EVDS, Python tarafında üç paket etrafında konsol
 
 | Seri Kodu | Açıklama | Frekans | Lag | Durum | Son Canlı Veri |
 |---|---|---|---|---|---|
-| `TP.APIFON4` | TCMB Ağırlıklı Ortalama Fonlama Maliyeti (AOFM) | Günlük | 0–1 gün | ✅ | Builder API key ile teyit etmeli |
-| `TP.API.REP.ORT.G1` | Repo ortalama oranı (gecelik) | Günlük | 0–1 gün | ⚠️ Builder ile aktiflik teyit edilmeli | Builder API key ile teyit etmeli |
-| `TP.BISTTLREF.ORAN` / `TP.BISTTLREF.KAPANIS` | TLREF (Türk Lirası Gecelik Referans Faiz) | Günlük | 0–1 gün | ✅ (community'de `KAPANIS` variant) | Builder API key ile teyit etmeli |
+| `TP.APIFON4` | TCMB Ağırlıklı Ortalama Fonlama Maliyeti (AOFM) | Günlük | 0–1 gün | ✅ | arastirma katmani API key ile teyit etmeli |
+| `TP.API.REP.ORT.G1` | Repo ortalama oranı (gecelik) | Günlük | 0–1 gün | ⚠️ arastirma katmani ile aktiflik teyit edilmeli | arastirma katmani API key ile teyit etmeli |
+| `TP.BISTTLREF.ORAN` / `TP.BISTTLREF.KAPANIS` | TLREF (Türk Lirası Gecelik Referans Faiz) | Günlük | 0–1 gün | ✅ (community'de `KAPANIS` variant) | arastirma katmani API key ile teyit etmeli |
 | `TP.FAIZ.PYUVDL` | Eski TLREF kodu | — | — | ❌ DEAD (HTTP 400, doğrulandı)
 
 ### 3.2 Döviz Kurları
 
 | Seri Kodu | Açıklama | Frekans | Lag | Durum | Son Canlı Veri |
 |---|---|---|---|---|---|
-| `TP.DK.USD.A` | USD/TRY Alış (Gösterge) | Günlük (işgünü) | 0–1 gün | ✅ | Builder API key ile teyit etmeli |
-| `TP.DK.USD.S` | USD/TRY Satış | Günlük | 0–1 gün | ✅ | Builder API key ile teyit etmeli |
-| `TP.DK.EUR.A` | EUR/TRY Alış | Günlük | 0–1 gün | ✅ | Builder API key ile teyit etmeli |
-| `TP.DK.EUR.S` | EUR/TRY Satış | Günlük | 0–1 gün | ✅ | Builder API key ile teyit etmeli |
-| `TP.DK.USD.A.YTL` | USD alış — eski .YTL suffix variant | Günlük | 0–1 gün | ⚠️ Community'de hâlâ kullanımda | Builder API key ile teyit etmeli |
+| `TP.DK.USD.A` | USD/TRY Alış (Gösterge) | Günlük (işgünü) | 0–1 gün | ✅ | arastirma katmani API key ile teyit etmeli |
+| `TP.DK.USD.S` | USD/TRY Satış | Günlük | 0–1 gün | ✅ | arastirma katmani API key ile teyit etmeli |
+| `TP.DK.EUR.A` | EUR/TRY Alış | Günlük | 0–1 gün | ✅ | arastirma katmani API key ile teyit etmeli |
+| `TP.DK.EUR.S` | EUR/TRY Satış | Günlük | 0–1 gün | ✅ | arastirma katmani API key ile teyit etmeli |
+| `TP.DK.USD.A.YTL` | USD alış — eski .YTL suffix variant | Günlük | 0–1 gün | ⚠️ Community'de hâlâ kullanımda | arastirma katmani API key ile teyit etmeli |
 
 ### 3.3 Enflasyon
 
 | Seri Kodu | Açıklama | Frekans | Lag | Durum | Son Canlı Veri |
 |---|---|---|---|---|---|
 | `TP.FE.OKTG01` | TÜFE Genel (2003=100, TÜİK Yeni Seri) | Aylık | ~3 gün (her ayın 3'ünde TÜİK yayını) | ⚠️ STALE (son veri 2025-9, ~8 ay eski)
-| `TP.FG.J0` | TÜFE alternatif kodu (borsapy/evdspy örneklerinde) | Aylık | ~3 gün | ⚠️ Tek koda sabitle — `OKTG01` daha yaygın | Builder API key ile teyit etmeli |
+| `TP.FG.J0` | TÜFE alternatif kodu (borsapy/evdspy örneklerinde) | Aylık | ~3 gün | ⚠️ Tek koda sabitle — `OKTG01` daha yaygın | arastirma katmani API key ile teyit etmeli |
 | `TP.FG01` | Yİ-ÜFE | Aylık | ~3 gün | ❌ DEAD (HTTP 400, beklenmedik)
-| `TP.ENFBEK.PKA12ENF` | 12-ay ileri enflasyon beklentisi (piyasa katılımcıları) | Aylık | ~10 gün | Nice-to-have | Builder API key ile teyit etmeli |
+| `TP.ENFBEK.PKA12ENF` | 12-ay ileri enflasyon beklentisi (piyasa katılımcıları) | Aylık | ~10 gün | Nice-to-have | arastirma katmani API key ile teyit etmeli |
 
 ### 3.4 Borsa / Yatırımcı Davranışı
 
 | Seri Kodu | Açıklama | Frekans | Lag | Durum | Son Canlı Veri |
 |---|---|---|---|---|---|
-| `TP.MKNETHAR.M7` | BIST net işlem (genel) — Veri grubu `bie_mknethar` | Haftalık | ~3–5 gün | ⚠️ Tam tanım için datagroups çağrısı ile doğrula | Builder API key ile teyit etmeli |
-| `TP.MKNETHAR.M1` | Yabancı net işlem | Haftalık | ~3–5 gün | ⚠️ Aynı | Builder API key ile teyit etmeli |
+| `TP.MKNETHAR.M7` | BIST net işlem (genel) — Veri grubu `bie_mknethar` | Haftalık | ~3–5 gün | ⚠️ Tam tanım için datagroups çağrısı ile doğrula | arastirma katmani API key ile teyit etmeli |
+| `TP.MKNETHAR.M1` | Yabancı net işlem | Haftalık | ~3–5 gün | ⚠️ Aynı | arastirma katmani API key ile teyit etmeli |
 
 ### 3.5 Reel Sektör (Bekleyen Kontrol)
 
@@ -171,7 +171,7 @@ Geçerlilik süresi resmi olarak BULUNAMADI; community'de "süresiz" varsayımı
 key: <API_KEY>
 ```
 
-Brief'teki `x-auth-token` ile community'deki `key` çatışması için §2.4'e bakın. **Builder ilk testte 401 dönerse header adını değiştirip tekrar dene.**
+Brief'teki `x-auth-token` ile community'deki `key` çatışması için §2.4'e bakın. **arastirma katmani ilk testte 401 dönerse header adını değiştirip tekrar dene.**
 
 ### 4.3 Rate Limit
 
@@ -317,7 +317,7 @@ Daily check öneri: `daily_update.py` başında 30 saniyelik smoke test. Migrati
 
 ---
 
-## 8. 30 Dakikada EVDS (Yeni Builder)
+## 8. 30 Dakikada EVDS (Yeni arastirma katmani)
 
 ### 8.1 4 Adım × 5 Dakika
 
@@ -370,11 +370,11 @@ def test_evds3_connection(api_key: str) -> dict:
 
 - **Snapshot Mayıs 2026.** EVDS3 hâlâ **beta** — TCMB Basın Duyurusu DUY2026-03 (26.01.2026) açıkça "EVDS 3 beta sürüm" diyor. EVDS2 paralel açık; kesin kapanış tarihi resmi belgede yok.
 - **TCMB resmi Swagger/OpenAPI spec'i BULUNAMADI.** `https://evds3.tcmb.gov.tr/dokumanlar` SPA olarak yükleniyor; ham scraping çalışmıyor. Tüm endpoint bilgileri community wrapper'lardan tersine mühendislik (borsapy README, kaymal/tcmb-py v0.5.0 — 20 Şubat 2026 PyPI yayını, fatihmete/evds v0.4).
-- **Auth header çelişkisi.** Brief `x-auth-token` diyor, community `key` diyor. Mevcut BIST OS kodu çalışıyorsa header'ı kontrol et — muhtemelen kod yorumu güncel değil. İlk Builder testi her iki header'ı denemeli.
+- **Auth header çelişkisi.** Brief `x-auth-token` diyor, community `key` diyor. Mevcut BIST OS kodu çalışıyorsa header'ı kontrol et — muhtemelen kod yorumu güncel değil. İlk arastirma katmani testi her iki header'ı denemeli.
 - **Rate limit resmi BULUNAMADI.** Çağrı başına ~1000 gözlem + ~400 seri community-sourced (borsapy: *"Max gözlem/çağrı: 1000 — TCMB doğrudan çağrılırsa son 1000 gözlemi sessizce kesip getirir"*). 429 davranışı raporlanmamış.
 - **Lag tahminleri ampirik değil.** Tablolardaki "0–1 gün", "~3 gün", "~45–60 gün" değerleri community kullanım gözleminden; TCMB resmi SLA yok.
-- **Son canlı veri tarihleri.** Her seri için "Builder API key ile teyit etmeli" notu — bu raporu yazan ajan API key'e erişmediği için canlı doğrulama yapamadı. İlk Builder seansında §8.3 test script ile envantere geç.
-- **API key her Builder için ayrı alınmalı.** TCMB Kullanım Şartları docId=18 paylaşımı yasaklamıyor ama loglanabilir/denetlenebilir: *"Kullanıcılar, uygulama üzerinde gerçekleştirdikleri işlemlerin kaydedilebileceğini, kendilerine ait bilgilere erişilebileceğini ve gerektiğinde yetkili makamlara iletilebileceğini göz önünde bulundurmalıdırlar."*
+- **Son canlı veri tarihleri.** Her seri için "arastirma katmani API key ile teyit etmeli" notu — bu raporu yazan ajan API key'e erişmediği için canlı doğrulama yapamadı. İlk arastirma katmani seansında §8.3 test script ile envantere geç.
+- **API key her arastirma katmani için ayrı alınmalı.** TCMB Kullanım Şartları docId=18 paylaşımı yasaklamıyor ama loglanabilir/denetlenebilir: *"Kullanıcılar, uygulama üzerinde gerçekleştirdikleri işlemlerin kaydedilebileceğini, kendilerine ait bilgilere erişilebileceğini ve gerektiğinde yetkili makamlara iletilebileceğini göz önünde bulundurmalıdırlar."*
 - **EVDS4 timing belirsiz.** EVDS3 beta sürecinde olduğu için "stabil" sayılamaz; daily health check (§7.3) öneriliyor.
 - **Brent/WTI/altın EVDS'de yok veya zor.** Bu emtiaları yfinance veya canlidoviz/TradingView üzerinden ayrı kaynaklardan çek.
 

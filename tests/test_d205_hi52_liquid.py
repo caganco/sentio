@@ -4,7 +4,7 @@ Verifies: the liquid universe (ADV >= floor filter + HONEST narrow-pool size ser
 the liquid-EW benchmark (only liquid names averaged), liquid-first selection (every pick
 is in the liquid pool), the after-cost wiring (net < cost-free via the reused D-204 series),
 the within-liquid sub-tier gate (both-half structure + lower-half SAMPLE SIZE reported per
-the the maintainer note), the frozen 2-way verdict (TRADEABLE-EDGE / YINE-TRADEABLE-DEGIL, with the
+the maintainer note), the frozen 2-way verdict (TRADEABLE-EDGE / YINE-TRADEABLE-DEGIL, with the
 OOS gap ALWAYS attached), and the Stage-0 pre-registration guard.
 """
 from __future__ import annotations
@@ -89,7 +89,7 @@ def test_after_cost_net_below_costfree():
 
 
 # ---------------------------------------------------------------------------
-# gate-4 -- within-liquid sub-tier consistency + lower-half SAMPLE SIZE (the maintainer note)
+# gate-4 -- within-liquid sub-tier consistency + lower-half SAMPLE SIZE (maintainer note)
 # ---------------------------------------------------------------------------
 def test_subtier_consistency_structure_and_reports_lower_half_size():
     rebal = [pd.Timestamp("2020-01-31"), pd.Timestamp("2020-02-29")]

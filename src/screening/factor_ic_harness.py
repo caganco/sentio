@@ -1,9 +1,9 @@
-"""Faz 0 Factor IC Validation Harness. D-177 / SPEC_PIVOT_ARCHITECTURE_1 sec.4.
+"""Faz 0 Factor IC Validation Harness. D-177 (ic metodoloji notu sec.4).
 
 MEASUREMENT only -- validates candidate factors (RS-vs-XU100, low-vol) by
 standalone cross-sectional Spearman rank-IC BEFORE they enter any composite.
 Does not produce signals, open trades, or finalize the factor set (DEC-039:
-decision is the project's; the harness RECOMMENDS).
+decision is maintainer's; the harness RECOMMENDS).
 
 Reuses (green-field NOT allowed, ARCHITECTURE sec.3.5):
 - ic_calculator.ICCalculator.compute_ic  -> authoritative Spearman rank-IC/ICIR/t/p
@@ -382,7 +382,7 @@ def run_test2(close: pd.DataFrame) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Orchestrator
+# maintainer
 # ---------------------------------------------------------------------------
 
 def run_faz0(
@@ -518,7 +518,7 @@ def run_faz0(
         "keep_drop_decision": keep_drop,
         "rs_decision_rule": rs_recos,
         "faz1_recommended_factor_set": faz1_set,
-        "decision_owner": "the project (harness recommends only, DEC-039)",
+        "decision_owner": "maintainer (harness recommends only, DEC-039)",
     }
 
     out_dir = Path(out_dir)
@@ -554,7 +554,7 @@ def run_faz0b(
     end = pd.Timestamp(cfg.FAZ0B_WINDOW_END)
     dates = close.index[(close.index >= start) & (close.index <= end)]
     pb, ev = factors.value_ratios(funds, close, dates, par=cfg.FAZ0B_PAR_VALUE)
-    for tkr in null_set:                          # par-guard NULL (the maintainer)
+    for tkr in null_set:                          # par-guard NULL (maintainer)
         if tkr in pb.columns:
             pb[tkr] = float("nan")
         if tkr in ev.columns:
@@ -629,7 +629,7 @@ def run_faz0b(
         "faz1_recommended_factor_set": faz1_set,
         "note": "Banks: F/DD only, EV/EBITDA NULL (D-182). Point-in-time annual, "
                 "conservative +120d lag, latest-public restated (RR-036).",
-        "decision_owner": "the project (harness recommends only, DEC-039)",
+        "decision_owner": "maintainer (harness recommends only, DEC-039)",
     }
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

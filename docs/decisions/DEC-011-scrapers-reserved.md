@@ -18,7 +18,7 @@ test_coverage: tests/test_kap_scraper.py
 # DEC-011: src/scrapers/ — Financial-Statement Parser Intentionally Preserved
 
 **Decision Date:** 19 May 2026
-**Decided By:** the maintainer (Orchestrator, D-066 Sprint 3 follow-up)
+**Decided By:** maintainer (maintainer, D-066 Sprint 3 follow-up)
 **Status:** ✅ DECIDED
 
 ---
@@ -90,6 +90,6 @@ integration**. It is not dead code and must not be removed as "unused":
 ---
 
 **Status:** ✅ DECIDED (19 May 2026)
-**Approved By:** the maintainer (Orchestrator)
+**Approved By:** maintainer (maintainer)
 **Implementation Owner:** N/A — no code change; future L3 integration
-requires a new Builder SPEC.
+requires a new arastirma katmani SPEC.

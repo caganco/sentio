@@ -16,7 +16,7 @@ INJECT it into the cost harness (d204_hi52_stress.per_stock_cost_panel quoted_pa
 tests inject synthetic panels (or None). This module is therefore never imported by a
 CI test that lacks the archive. The built panel is cached to a gitignored parquet.
 
-Promotes the working parser from the NRR-010 diagnostic (demo-pa/nrr010/nrr010_diag.py)
+Promotes the working parser from the NRR-010 diagnostic (edge-arastirma/nrr010/nrr010_diag.py)
 into a reusable loader. HTTP-free.
 """
 from __future__ import annotations

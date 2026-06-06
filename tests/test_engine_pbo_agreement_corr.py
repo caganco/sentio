@@ -15,7 +15,7 @@ This is a MEASUREMENT, not a gate: the asserts pin only that the sweep runs,
 spans weak->strong, and reproduces deterministically. The measured matrices are
 printed (run with -s) and transcribed into docs/research/RR-Y1-005-FAZ4-HARDENING.md,
 where the verdict + any condition-independence PROPOSAL live -- explicitly NOT a
-keep-bar change, explicitly deferred to the project.
+keep-bar change, explicitly deferred to maintainer.
 """
 from __future__ import annotations
 

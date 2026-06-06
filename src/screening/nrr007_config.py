@@ -1,16 +1,16 @@
 """NRR-007 lowvol63-IZOLE -- frozen Stage-0 MEASUREMENT geometry. FAZ-1.
 
 hi52 CLOSED (D-205, N<=3 final: real signal but not retail-tradeable even liquid-first).
-Decision (the project): measure the remaining cross-sectional Yol-1 candidates ONE BY ONE.
+Decision (maintainer): measure the remaining cross-sectional Yol-1 candidates ONE BY ONE.
 lowvol63 FIRST -- it lived INSIDE the EDGE-2 composite (mom120 + hi52 + lowvol63, equal-weight
 rank-avg) but was NEVER tested in ISOLATION through the 5 gates (the D-203 engine only
 dispatched value/edge2/hi52). The hi52 lesson: a bundle can HIDE a distinct factor -> it
 deserves an isolated test.
 
-HONEST EXPECTATION (calibrated BEFORE results): demo-3 S1/H4 pre-measured lowvol63-isolated
+HONEST EXPECTATION (calibrated BEFORE results): edge-arastirma S1/H4 pre-measured lowvol63-isolated
 = +0.56%/mo, t=0.94 (BELOW the Gate-2 t>=2 bar, insignificant) -> PROBABLY ELIMINATED. This
 test is for DEFINITIVE CLOSURE (no celebration expected); it is cheap (engine ready, one run).
-But the demo-3 pre-indicator was pre-cost + full-universe; the isolated full test (5 gates +
+But the edge-arastirma pre-indicator was pre-cost + full-universe; the isolated full test (5 gates +
 realistic cost) MAY differ -> it still deserves the run (hi52 lesson: pre-indicator != full test).
 
 MEASUREMENT-ONLY (optimization FORBIDDEN). Like d205_config, this holds pre-registered

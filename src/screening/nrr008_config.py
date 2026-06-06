@@ -15,7 +15,7 @@ round (N<=3 lock -- no 4th).
 
 TWO-STAGE DISCIPLINE (post-hoc protection): the regime variable was chosen edge-UNSEEN at
 Stage-1 (docs/yol1/NRR-008-rejim-onerisi.md, 3 candidates with economic/literature justification
-only) and APPROVED by the project on 2026-06-03 in DIRECTION form (Aday-A inflation-direction).
+only) and APPROVED by maintainer on 2026-06-03 in DIRECTION form (Aday-A inflation-direction).
 Selecting among candidates by edge = p-hacking = FORBIDDEN. The frozen rule is in
 docs/yol1/STAGE0_nrr008.json (the engine REFUSES to run without it).
 
@@ -59,7 +59,7 @@ NRR008_TOP_N = _d203.D203_TOP_N                       # 15
 NRR008_MIN_POOL_N = _d203.D203_MIN_POOL_N             # 30 (healthy-pool reference)
 
 # ---------------------------------------------------------------------------
-# Regime-direction signal (Aday-A, APPROVED the project 2026-06-03; DIRECTION-not-LEVEL).
+# Regime-direction signal (Aday-A, APPROVED maintainer 2026-06-03; DIRECTION-not-LEVEL).
 # At a monthly rebalance in month M: regime_recent = infl_yoy(M-1), regime_prior = infl_yoy(M-7).
 # ON (value-tilt ACTIVE = D-203 value top-15)  if regime_recent >= regime_prior (flat/rising).
 # OFF (value-tilt CLOSED = EW_FULL-neutral)     if regime_recent <  regime_prior (disinflation).

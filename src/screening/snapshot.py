@@ -7,7 +7,7 @@ Faz 0 (RS / realized-vol / forward-returns all use Close; ADV/volume is Faz 1).
 
 Survivorship (invariant 9): delisted names (KOZAA/KOZAL/IPEKE/TRALT) are not
 fetchable from yfinance (404). The snapshot is built from available constituents
-and EXPLICITLY records the gap plus its bias DIRECTION (the maintainer condition):
+and EXPLICITLY records the gap plus its bias DIRECTION (maintainer condition):
 survivors-only -> IC may read optimistic; high-vol falsely-good in TEST 2.
 
 fetch_fn / macro_fn are injectable so tests run without network.
@@ -381,7 +381,7 @@ def freeze_par_guard(
     shares_fn: Callable | None = None,
     tag: str = "faz0b",
 ) -> dict:
-    """Freeze the par!=1 / stale-shares NULL set (the maintainer guard). D-183.
+    """Freeze the par!=1 / stale-shares NULL set (maintainer guard). D-183.
 
     Compares SHARES (price-independent): my_shares = issued_capital(latest) / par
     vs an independent current share count (yfinance .info sharesOutstanding).

@@ -28,8 +28,8 @@ Citations:
     substitutes for here).
   Kyle, A.S. (1985). "Continuous Auctions and Insider Trading." Econometrica, 53(6),
     1315-1335; Almgren et al. (2005) Risk 18(7) (square-root impact).
-  RR-015 (docs/research/RR-015-TRANSACTION-COST.md) sec.3.1 -- empirical BIST
-    liquidity-tier half-spreads (mega/large/mid/micro) used as the tier cross-check.
+  Internal cost-research note sec.3.1 -- empirical BIST liquidity-tier
+    half-spreads (mega/large/mid/micro) used as the tier cross-check.
 
 All decision/tier constants live in src/signals/thresholds.py (D204_* historical +
 D207_* live re-calibrated block, single source per CLAUDE.md). This module holds only

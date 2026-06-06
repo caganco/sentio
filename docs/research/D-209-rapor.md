@@ -1,16 +1,16 @@
 # D-209 H2b TEMETTU-RUNUP RE-TEST -- duzeltilmis-maliyetle ilk-resmi-olcum (N<=3: 1)
 
 > Stage-0 on-kayit: `docs/yol1/STAGE0_d209.json` (sonuclardan ONCE donduruldu). Ham sonuc:
-> `docs/yol1/d209_results.json`. Motor: `src/screening/d209_h2b_runup.py` (YENI; donmus demo-goal
+> `docs/yol1/d209_results.json`. Motor: `src/screening/d209_h2b_runup.py` (YENI; donmus edge-arastirma
 > H2 detection + V1/V2 defteri BIREBIR PORT -- yeni-tanim YOK). Maliyet: `src/screening/realistic_cost.py`
 > + `d204_hi52_stress.per_stock_cost_panel` + `quoted_spread.py` (D-207'den OLDUGU-GIBI reuse, kote
 > panel ENJEKTE). Frozen panel: D-203 `adjusted_prices_2019_2026.parquet` (tr_index_gross +
 > adjusted_close tasiyor -> ex-tarih detection LOKAL reproduke). Karar esikleri:
 > `src/signals/thresholds.py` (D209_* blok + reuse D205_*/D204_*/D203_*).
 >
-> **Bu bir OLCUMDUR, optimizasyon DEGILDIR.** D-209, donmus demo-goal H2/H2b sinyalini AYNEN
+> **Bu bir OLCUMDUR, optimizasyon DEGILDIR.** D-209, donmus edge-arastirma H2/H2b sinyalini AYNEN
 > tekrarlar (detection + defter BIREBIR PORT, yeni-esik-secimi YOK) ve **YALNIZ maliyet girdisini**
-> degistirir: demo-goal'in FLAT 20/100bp/side maliyeti (H2b'yi eleyen) yerine D-207-duzeltilmis
+> degistirir: edge-arastirma'in FLAT 20/100bp/side maliyeti (H2b'yi eleyen) yerine D-207-duzeltilmis
 > per-isim realistic_cost (Roll+Kyle, kote-birincil). Sinyal/pencere/benchmark/keep-bar/verdict-kurali
 > degismedi. Hicbir esik, sinyal, pencere ya da evren gevsetilmedi.
 >
@@ -18,7 +18,7 @@
 > bloklar) SIFIR-dokunus -- D-209 yalniz YENI d209_* dosyalari + D209_* esik-blogu + registry + doc
 > ekledi. Demo-goal H2 lab kayitlari OKUNDU, kopyalanmadi (mutlak-yol commit'lenmez).
 >
-> **N<=3 notu:** demo-goal FLAT-maliyetli eleme bir LAB sonucuydu, resmi Yol-1 turu DEGIL. D-209,
+> **N<=3 notu:** edge-arastirma FLAT-maliyetli eleme bir LAB sonucuydu, resmi Yol-1 turu DEGIL. D-209,
 > H2b'nin committed-motorda **ilk RESMI olcumudur** (count=1/N<=3). YINE-TRADEABLE-DEGIL cikarsa
 > H2b temiz-arsivlenir; 4. tur YOK.
 
@@ -32,25 +32,25 @@ isimlerde ~12-25x sisik teshis edip duzeltti -> H2b, hi52'nin D-208'de aldigi ad
 re-testini hak ediyor.
 
 **D-209 sorusu:** duzeltilmis (gercekci) maliyetle H2b hala tradeable mi, yoksa hi52-gibi
-**anlamlilik-duvarina** mi carpiyor? Bu, demo-goal FLAT-elemesini gevsetmez; tek-degisken
+**anlamlilik-duvarina** mi carpiyor? Bu, edge-arastirma FLAT-elemesini gevsetmez; tek-degisken
 (maliyet) duzeltilince sonucun ne oldugunu OLCER.
 
-**Onceden-ilan-edilmis durust beklenti (kutlama YOK):** demo-goal `h2b_runup_basket.json` 20bp/side
+**Onceden-ilan-edilmis durust beklenti (kutlama YOK):** edge-arastirma `h2b_runup_basket.json` 20bp/side
 sutununda ZATEN gunluk-relatif NW-t = 0.86 (ALL) / 1.16 (likit-tercile). 20bp/side ~= 40bp
 round-trip ~= D-207-duzeltilmis (~42bp, D-208). -> H2b'nin ZATEN insignifikan oldugu sutunun
 komsulugu. **Olasi hukum: YINE-TRADEABLE-DEGIL, ANLAMLILIK-duvari (hi52-ikizi), maliyet-duvari
 DEGIL.** Bir varyant beklenmedik sekilde NW|t|>=2'yi gecerse, bu gercek bir surpriz olarak acikca
 raporlanir. Hangi sonuc cikarsa kaydedilir.
 
-## 2. Olcum cercevesi (Stage-0'da donmus -- demo-goal H2 ile birebir)
+## 2. Olcum cercevesi (Stage-0'da donmus -- edge-arastirma H2 ile birebir)
 
 - **Detection (PORT, donmus):** ex-tarih nerede `tr_index_gross.pct - adjusted_close.pct > 0.005`,
   sembol-basi. est_div_yield = bu gap. Demo-goal H2 lab figuru: **~1108 olay / 265 sembol** --
   motor bandin (900-1300 olay / 220-300 sembol) disina cikarsa RAISE eder (drift-guard).
-- **V1 daily-churn [-5,-1]** (demo-goal `h2b_runup_basket.py` BIREBIR): gunluk-rebalance EW;
+- **V1 daily-churn [-5,-1]** (edge-arastirma `h2b_runup_basket.py` BIREBIR): gunluk-rebalance EW;
   isim gun-t'de TUTULUR <=> ex-tarihi [t+1, t+5] icinde; ex-ONCESI cikis. PRIMARY = yatirimli-gun
   (strat_net - EW_FULL) aritmetik relatif seri (carry-immune). NW HAC t, lag=5.
-- **V2 discrete-capture [-10,-1]** (demo-goal H2 lab `RUNUP_capture` legi BIREBIR): her (sembol,ex)
+- **V2 discrete-capture [-10,-1]** (edge-arastirma H2 lab `RUNUP_capture` legi BIREBIR): her (sembol,ex)
   olayi = TEK round-trip, [-10,-1] (10 islem-gunu = "hold-10g") bilesik getiri, ex-ay-basi
   EW-birlestir, ex-ONCESI cikis (add_div=False -> temettu YOK -> stopaj YOK). Anlamlilik = aylik
   kohort serisi uzerinde basit-t (donmus metrik; gunluk NW-lag5 aylik-kohorta uygulanmaz).
@@ -59,7 +59,7 @@ raporlanir. Hangi sonuc cikarsa kaydedilir.
 - **Likit-evren (D-205-esik, donmus reuse):** ex-tarihte trailing-63g-medyan-ADV >= **1e7 TL**
   (MUTLAK esik, tercile-DEGIL; D205_LIQUID_ADV_MIN_TL). V1 + V2 icin ALL ve LIQUID kitaplari
   ayri raporlanir; likit-hayatta-kalma keep-bar'in retail-tradeability legidir.
-- **TEK FARK -- maliyet girdisi:** demo-goal FLAT (per-side bp; round-trip = 2*bp/1e4) yerine
+- **TEK FARK -- maliyet girdisi:** edge-arastirma FLAT (per-side bp; round-trip = 2*bp/1e4) yerine
   D-207 per-isim round-trip rt[sym] (kote-birincil EOD-spread -> 252g-Roll geri-dusus -> re-olcekli
   tier). V1: her giris/cikis 0.5*rt[sym] yukler, /n_held; V2: olay-basi rt[sym]. **INDIRGEME
   GARANTISI:** rt uniform == 2*bp/1e4 oldugunda per-isim drag FLAT-drag'e BIREBIR esit
@@ -83,7 +83,7 @@ raporlanir. Hangi sonuc cikarsa kaydedilir.
 | breakeven round-trip | ~60 bps | ~32.5 bps | ~115 bps | ~0 bps |
 | rejim sign-stable (2022-01) | evet (--) | hayir (-+) | hayir (-+) | hayir (-+) |
 
-**Kilit bulgu -- demo-goal NW-t=2.57 bir ALL-evren (illikit-suruklu) istatistigidir.** Maliyet-ONCESI
+**Kilit bulgu -- edge-arastirma NW-t=2.57 bir ALL-evren (illikit-suruklu) istatistigidir.** Maliyet-ONCESI
 V1 gunluk-relatif NW-t **2.565** olarak BIREBIR reproduke oldu (port-fidelite kaniti). AMA bu
 anlamlilik, **deploy-edilebilir likit-evrene** restrikte edildiginde KAYBOLUYOR: V1 LIQUID
 maliyet-ONCESI NW-t = **0.61** (CI sifiri iceriyor); V2 LIQUID cost-free t = **-0.34** (negatif).
@@ -135,7 +135,7 @@ likit-hayatta-kalir) gecmiyor.
 geciyor. Onceden-ilan-edilen durust beklenti (anlamlilik-duvari, hi52-ikizi) **OLCUMLE dogrulandi.**
 
 **Duvar tipi (Stage-0 sorusu) -- deploy-edilebilir likit-evrende ANLAMLILIK, maliyet DEGIL:**
-H2b'nin unlu demo-goal NW-t=2.57'si bir **ALL-evren** (illikit-suruklu) istatistigidir. Deploy-
+H2b'nin unlu edge-arastirma NW-t=2.57'si bir **ALL-evren** (illikit-suruklu) istatistigidir. Deploy-
 edilebilir likit-evrene (>=1e7 ADV) restrikte edilince edge **cost-free bile** istatistiksel-sifir
 (V1 likit NW-t=0.61; V2 likit cost-free t=-0.34 negatif). Likit-evrendeki gercekci maliyet
 (~28bp) breakeven'in (32.5bp) ALTINDA -- yani **maliyet bahanesi de kalkti**; geriye kalan tek
@@ -143,10 +143,10 @@ duvar **anlamlilik**. (ALL-evrende ek olarak bir maliyet-duvari var: 117bp >> 60
 ALL anlamli-negatife doner; ama o illikit ve deploy-edilemez.) -> **hi52'nin ikizi: maliyet degil,
 ANLAMLILIK olduruyor -- bu kez varsayimla degil, OLCUMLE.**
 
-**Yorum (demo-goal FLAT-elemesini CURUTMEZ, dogrular):** demo-goal H2b'yi FLAT-maliyetle elemisti;
+**Yorum (edge-arastirma FLAT-elemesini CURUTMEZ, dogrular):** edge-arastirma H2b'yi FLAT-maliyetle elemisti;
 D-209 gosteriyor ki maliyet duzeltilse bile -- ve likit-evrende maliyet GERCEKTEN ucuz olsa bile --
 sinyal deploy-edilebilir evrende istatistiksel-tradeable degil. BOTTOM-LINE (tradeable-DEGIL)
-korunur; netlesen: demo-goal'in tek-t>=2-adayinin o anlamliligi likit-deploy-evrende yok.
+korunur; netlesen: edge-arastirma'in tek-t>=2-adayinin o anlamliligi likit-deploy-evrende yok.
 
 **OOS-bosluk (her durumda ZORUNLU):** ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi; gercek
 enflasyon-normallesme OOS YOK; rejim-degisim dayanikligi KANITLANAMAZ. (Burada moot: edge likit-
@@ -156,11 +156,11 @@ evrende cost-free bile anlamli-alti.)
 TEK degisiklik FLAT-maliyetin D-207-duzeltilmis per-isim maliyetle degistirilmesidir.
 
 **KARAR: H2b temiz-arsiv** (N<=3 SON, 4. tur YOK). Mezarliktaki son t>=2-aday da adil-zeminde
-kapandi; demo-goal H2/H2b graveyard-boslugu kapatildi. Kutlama YOK -- beklenen sonuc, olculdu.
+kapandi; edge-arastirma H2/H2b graveyard-boslugu kapatildi. Kutlama YOK -- beklenen sonuc, olculdu.
 
 ## 5. Reuse / disiplin
 
-- **Strangler:** donmus demo-goal H2 detection + V1/V2 defteri BIREBIR PORT edildi (drift-guard:
+- **Strangler:** donmus edge-arastirma H2 detection + V1/V2 defteri BIREBIR PORT edildi (drift-guard:
   motor ~1108/265 bandi disinda RAISE eder). D-207-duzeltilmis maliyet (`realistic_cost` +
   `per_stock_cost_panel` + `quoted_spread`) OLDUGU-GIBI reuse; D-203 frozen panel reuse. Committed
   d203/d204/d205 motorlari + thresholds mevcut bloklar SIFIR-dokunus (yalniz YENI d209_* + D209_*

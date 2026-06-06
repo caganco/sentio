@@ -64,7 +64,7 @@ Alanlar (her ticker satiri, 8 sutun):
 
 Satir yapisi: basliktan once 6 ust-satir (baslik + segment etiketleri).
 Segment alt-basliklari satirlar arasina serpistirilmis -> filtre:
-ticker col0 ~ `^[A-Z0-9]{2,6}\.E$`. (Calisan parser: `demo_smart_money/lab/ff_data.py`.)
+ticker col0 ~ `^[A-Z0-9]{2,6}\.E$`. (Calisan parser: `edge-arastirma/lab/ff_data.py`.)
 
 ### BOSLUKLAR / GAPLER
 - **1 ay eksik: 2017-04 (`yabanci201704.zip` YOK).** Beklenen 352, mevcut 351.
@@ -81,14 +81,14 @@ ticker col0 ~ `^[A-Z0-9]{2,6}\.E$`. (Calisan parser: `demo_smart_money/lab/ff_da
 - Onceki bulgu (reference arsiv notu): yayin-gecikmesi **~6 hafta** (Ocak dosyasi
   ~14 Subat'ta yayinlanir). => ay-m sinyali ancak getiri-ay m+2'ye baglanmali.
   Bu KAYIT-ALTINA-ALINAN bir veri-gercegidir; bu probda yeniden olculmedi
-  (toplu-cekim mtime'i bozdu), onceki demo_smart_money olcumune dayaniyor.
+  (toplu-cekim mtime'i bozdu), onceki edge-arastirma olcumune dayaniyor.
 
 ---
 
 ## 3. PULL-SPEC (eger GUNLUK 3153 gerekiyorsa)
 
 Lokal AYLIK yeterliyse pull GEREKMEZ. RR-Y1-002 ipligi GUNLUK yabanci-akim
-isterse, the maintainer'in sonraki manuel Datastore session'i (CAPTCHA, ~30g) icin:
+isterse, maintainer'in sonraki manuel Datastore session'i (CAPTCHA, ~30g) icin:
 
 - **Urun-kodu:** 3153 (Yabanci Islemler) -- katalogdan GUNLUK varyanti secilir.
 - **Tarih araligi:** max-mevcut-gunluk -> 2026 (gunluk seri lokal sifir oldugu

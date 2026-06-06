@@ -26,7 +26,7 @@ factor_ic_harness (rank_panel, daily_ic_series, ic_stats, block_bootstrap_ci),
 trend_config (INFLATION_REGIMES) read-only. Does NOT touch them. No composite/
 conviction/MASTER_WEIGHTS or signal/backtest engine imports (architecture invariant).
 
-Decision owner: the project (DEC-039). Harness MEASURES + RECOMMENDS.
+Decision owner: maintainer (DEC-039). Harness MEASURES + RECOMMENDS.
 """
 from __future__ import annotations
 
@@ -371,7 +371,7 @@ def value_only_verdict(tilt_real_ci: dict, fair_null: dict, regime: dict, decile
 
     passes = bool(cpi_ok and g1 and g2 and g3 and g4)
     if passes:
-        classification = "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; the project karari)"
+        classification = "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; maintainer karari)"
     elif g1 and g2 and g4 and not g3:
         classification = ("PARTIAL -> value REGIME-DEPENDENT: conflict explained (tilt+null+decile) "
                           "but NOT regime-resilient. Consistent with D-191 in/out collapse. "
@@ -404,7 +404,7 @@ def value_only_verdict(tilt_real_ci: dict, fair_null: dict, regime: dict, decile
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _value_block(close_ff, funds, rebal, dates, win_dates, cpi, xu100, fx, us_cpi, kind, null_resamples):
     """All three legs + verdict for one value metric (kind in {'pb','ep'})."""
@@ -468,7 +468,7 @@ def run_value_only_regime(
         "n_rebalances": len(rebal),
         "value_primary": cfg.VOR_VALUE_PRIMARY,
         "value_robust": cfg.VOR_VALUE_ROBUST,
-        "decision_owner": "the project (DEC-039)",
+        "decision_owner": "maintainer (DEC-039)",
         "survivorship_bias": cfg.VOR_SURVIVORSHIP_BIAS,
         "tl_real_available": cpi is not None,
         "usd_real_available": (fx is not None and us_cpi is not None),

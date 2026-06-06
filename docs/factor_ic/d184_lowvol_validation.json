@@ -729,5 +729,5 @@
   "pass_count": 2,
   "borderline_count": 1,
   "recommendation": "CONDITIONAL: 1 test fail -> proceed with explicit caveat noted.",
-  "decision_owner": "the project (DEC-039). This module MEASURES + RECOMMENDS."
+  "decision_owner": "maintainer (DEC-039). This module MEASURES + RECOMMENDS."
 }

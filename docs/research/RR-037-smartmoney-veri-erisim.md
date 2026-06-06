@@ -1,7 +1,7 @@
 # RR-037 — Smart Money Veri-Erisim + Kalite Dogrulama (Faz 0c On-kosulu)
 
 **Tarih:** 30 Mayis 2026
-**Yazar:** Claude Code (Builder) — canli probe + kod-okuma
+**Yazar:** Arastirma katmani — canli probe + kod-okuma
 **Status:** 4-kanal IC-hazirlik matrisi tamamlandi. Faz 0c baslatma onerileri net.
 **Bagli:** RR-032-V3 §B (smart money kanallari); RR-001 (Fintables takas); RR-002 (AKD);
 RR-020 (BIST veri haritasi); DEC-014 (VIOP weight=0 karari).
@@ -227,7 +227,7 @@ Fintables aboneligi (L79/ay temel) NE saglar?
 
 ---
 
-## §7 Oneri (DEC-039: onerir, secmez — karar the project)
+## §7 Oneri (DEC-039: onerir, secmez — karar maintainer)
 
 ### Faz 0c Baslangic: VIOP Onceligi
 
@@ -244,7 +244,7 @@ Fintables aboneligi (L79/ay temel) NE saglar?
 
 3. **Takas/AKD:** Yakin vadede ertele.
 
-### the maintainer Maliyet Karari: L79/ay Takas?
+### maintainer Maliyet Karari: L79/ay Takas?
 
 "Gereksever odeyiz" icin degerlendir:
 - L79/ay Fintables = web arayuzu (programatik kanit yok) + Playwright gelistirme ~3-5 gun

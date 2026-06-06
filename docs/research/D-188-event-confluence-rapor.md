@@ -45,7 +45,7 @@
 - **`EventReturnFiller`** — t+5/+20/+60 olgunlaşınca forward + XU100-relative HESAPLAR + AYRI returns dosyasına ekler ((natural_key,horizon)-idempotent). Sinyal log değişmez.
 - **`run_manual`** — auth-suz KAP feed'iyle (`kap_scraper.fetch_kap_news`, **token YOK**) günlük olayları yakalar; **manuel-tetikli** (cron sonraya bırakıldı). Erişilemezse `data_pending` (uydurma yok).
 
-**Kritik içgörü (the maintainer):** token uzun süre gelmeyebilir → forward sistem token-darboğazını **bypass eder** (auth-suz feed bugün çalışıyor, §5d).
+**Kritik içgörü (maintainer):** token uzun süre gelmeyebilir → forward sistem token-darboğazını **bypass eder** (auth-suz feed bugün çalışıyor, §5d).
 
 ---
 
@@ -88,7 +88,7 @@ Tam çıktı: [`docs/event_test/D188_DATA_FEASIBILITY.json`](../event_test/D188_
 
 - **Kanıt = kod yolu:** auth-suz gerçek-zamanlı erişim iddiası `src/data/kap_scraper.py:180 _fetch_kap_api` (POST `memberDisclosureQuery`, `disclosureCategory` param, token/login yok) + canlı probe (§5d, 2 kayıt) ile **kanıtlandı** — varsayımla değil.
 - **`NRR_EXPLORE.md`** bir veri-erişim fizibilite **probe BRIEF'i** (görev tanımı), **sonuç değil**; clone3'te `/demo-tests/` veya `DATA_ACCESS_FEASIBILITY.md` **yok** → kayıt-altı verdict yok. Bu yüzden "byCriteria auth-suz doğrulandı" diye **referans verilmedi** (kanıtsız-atıf yasağı).
-- **`NRR-001-SCREENING.md`** içerik-ilgili: §3 "RS XU100-relative, nominal değil" + look-ahead/survivorship disiplini → XU100-relative + reel-sürpriz + look-ahead seçimlerimize **gerçek dayanak**. **AMA UNTRACKED** (`git status: ??`) → kayıt-altı kanıt değil; PR'a **dahil edilmedi**; commit kararı **the maintainer/Orchestrator**'a (başkasının untracked araştırmasını sessiz commit'leme — shared-tree dersi).
+- **`NRR-001-SCREENING.md`** içerik-ilgili: §3 "RS XU100-relative, nominal değil" + look-ahead/survivorship disiplini → XU100-relative + reel-sürpriz + look-ahead seçimlerimize **gerçek dayanak**. **AMA UNTRACKED** (`git status: ??`) → kayıt-altı kanıt değil; PR'a **dahil edilmedi**; commit kararı **maintainer**'a (başkasının untracked araştırmasını sessiz commit'leme — shared-tree dersi).
 
 ---
 
@@ -105,7 +105,7 @@ Tam çıktı: [`docs/event_test/D188_DATA_FEASIBILITY.json`](../event_test/D188_
 
 ## 9. DEC-039 + ÖNERİ
 
-Bu program **ÖLÇMEYE HAZIRLAR**; verdict (backtest token/veri **VEYA** forward örneklem sonrası) **the project** kararı. Builder **ÖNERİR, atfetmez.**
+Bu program **ÖLÇMEYE HAZIRLAR**; verdict (backtest token/veri **VEYA** forward örneklem sonrası) **maintainer** kararı. arastirma katmani **ÖNERİR, atfetmez.**
 
 **Öneri:** (1) Forward recorder'ı **bu hafta manuel** başlat (auth-suz feed çalışıyor, token gerekmez) → temiz örneklem biriksin. (2) Backtest için MKK_VYK_TOKEN sağlanırsa E1 tarihsel açılır; sağlanmazsa forward tek-başına yeterli (daha temiz). (3) E2 endeks-dahil için ayrı veri-sağlama speci. **"Edge yok" sonucu da geçerli** → swing'in son alt-kümesi de kapanırsa Yol 2'ye netçe çapalanılır.
 

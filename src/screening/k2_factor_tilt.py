@@ -10,7 +10,7 @@ factor_ic_harness.py (rank_panel, block_bootstrap_ci), snapshot.py (freeze/load,
 content_hash), transaction_cost.py, macro_sources.py read-only. Does NOT touch them.
 No composite/conviction/MASTER_WEIGHTS or signal/backtest engine imports.
 
-Decision owner: the project (DEC-039). Harness MEASURES + RECOMMENDS.
+Decision owner: maintainer (DEC-039). Harness MEASURES + RECOMMENDS.
 """
 from __future__ import annotations
 
@@ -451,7 +451,7 @@ def k2_verdict(real_ci: dict, null_block: dict, inout: dict, factor_significance
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _r(x) -> float | None:
     try:
@@ -568,7 +568,7 @@ def run_k2(
         "n_rebalances": len(rebal),
         "profitability_primary": cfg.K2_PROFITABILITY_PRIMARY,
         "primary_variant": cfg.K2_PRIMARY_VARIANT,
-        "decision_owner": "the project (DEC-039)",
+        "decision_owner": "maintainer (DEC-039)",
         "survivorship_bias": cfg.K2_SURVIVORSHIP_BIAS,
         "tl_real_available": cpi is not None,
         "usd_real_available": (fx is not None and us_cpi is not None),

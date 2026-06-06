@@ -146,7 +146,7 @@ def subtier_consistency(
     within EACH half run hi52 top-min(top_n, half) vs that half's EW, AFTER realistic cost.
     PASS (g4) if BOTH halves are relative-positive -> the edge is not concentrated only at
     the very top of liquidity. REPORTS each half's basket SAMPLE SIZE (min/median): per the
-    the maintainer note, a narrow lower half (few names) makes the lower-half mean noisy, so a g4-FAIL
+    maintainer note, a narrow lower half (few names) makes the lower-half mean noisy, so a g4-FAIL
     must be read alongside the sample size (real signal-loss vs small-sample noise)."""
     pools, adv = liq["pools"], liq["adv"]
     half_baskets = {"upper": [], "lower": []}
@@ -210,7 +210,7 @@ def d205_verdict(
       liquid after-cost REAL net >= TLREF deposit hurdle AND breakeven >= safety_mult x cost.
     YINE-TRADEABLE-DEGIL (hi52 CLOSES, clean archive): after-cost <= 0 OR breakeven < safety_mult
       x cost OR liquid universe too narrow (top-15 infeasible somewhere) OR any gate FAILS.
-    OOS-gap attached in BOTH branches. Decision (even TRADEABLE-EDGE) is a separate the project one.
+    OOS-gap attached in BOTH branches. Decision (even TRADEABLE-EDGE) is a separate maintainer one.
     """
     be = float("inf") if breakeven_bps == "inf" else (
         float(breakeven_bps) if breakeven_bps is not None else None)
@@ -248,7 +248,7 @@ def d205_verdict(
                 "reasons": [f"5-gate hepsi-PASS AND likit-long reel net >= TLREF-esik AND "
                             f"breakeven >= {safety_mult}x maliyet AND top-{top_n} fizibil"],
                 "deploy_note": ("ilk deploy-edilebilir Yol-1 hi52 formu -- overlay ADAYI; "
-                                "deploy ayri the project karari, otomatik-DEGIL"),
+                                "deploy ayri maintainer karari, otomatik-DEGIL"),
                 "oos_gap": _OOS_GAP}
     return {"verdict": "YINE-TRADEABLE-DEGIL", "gates": gates,
             "reasons": reasons or ["belirsiz -- gate/maliyet kosullari saglanmadi"],
@@ -258,7 +258,7 @@ def d205_verdict(
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def _series_block(series: list[float]) -> dict:
     return {**eng._mean_ci(series), "nw_t": eng._r(eng._nw_t(series))}

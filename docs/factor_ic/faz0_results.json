@@ -749,5 +749,5 @@
     }
   },
   "faz1_recommended_factor_set": [],
-  "decision_owner": "the project (harness recommends only, DEC-039)"
+  "decision_owner": "maintainer (harness recommends only, DEC-039)"
 }

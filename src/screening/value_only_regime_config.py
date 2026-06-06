@@ -18,7 +18,7 @@ Dayanak: RR-Y1.md sec.SORU-1 (conflict resolution) + Recommendations Soru-1 #1
 (same-sample rank-IC + decile MR test) and #3 (single-subperiod t>2 INSUFFICIENT;
 need >=2 independent subperiods consistent sign). D-191 k2_* infra reused read-only.
 
-Decision owner: the project (DEC-039); harness MEASURES + RECOMMENDS.
+Decision owner: maintainer (DEC-039); harness MEASURES + RECOMMENDS.
 SINGLE-FACTOR (no composite); MEASURE-ONLY (Yol-2 overlay candidate at most, <=10-20%).
 """
 from __future__ import annotations
@@ -81,7 +81,7 @@ VOR_IC_HORIZONS = (63, 126)       # trading days (~quarter, ~half-year holding)
 VOR_IC_MIN_XSECTION = 5           # min names/day for a valid cross-sectional IC
 
 # ---------------------------------------------------------------------------
-# AYAK-3 regime resilience (Gate-3, MOST CRITICAL). TWO splits (the maintainer decision):
+# AYAK-3 regime resilience (Gate-3, MOST CRITICAL). TWO splits (maintainer decision):
 #   PRIMARY (decision gate): 3-way frozen INFLATION_REGIMES (pre_surge /
 #     high_inflation / disinflation). Gate-3: >=2 of 3 regimes with consistent
 #     positive sign.
@@ -133,7 +133,7 @@ VOR_US_CPI_SERIES = None                                     # None -> USD-nomin
 #           subperiod t>2 INSUFFICIENT, RR-Y1 #3); 2-way robustness alignment read.
 #   Gate-4 (AYAK-2): decile profile EXPLAINABLE (cheap-minus-expensive spread>0 AND
 #           premium concentrated at the cheap end: Spearman(decile, return)>0).
-# PASS -> Yol-2 overlay candidate (<=10-20%, the project). PARTIAL (Gate-1&2 pass,
+# PASS -> Yol-2 overlay candidate (<=10-20%, maintainer). PARTIAL (Gate-1&2 pass,
 # Gate-4 explains conflict, Gate-3 fails) -> "value regime-dependent, not stable".
 # FAIL -> value-only eliminated ("tried-and-refuted" archive).
 # ---------------------------------------------------------------------------

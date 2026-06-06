@@ -22,7 +22,7 @@ IN_SAMPLE_END = "2019-12-31"     # in-sample: 2010-2019 (10 yil)
 OUT_SAMPLE_START = "2020-01-01"  # out-of-sample: 2020-2026 (6 yil)
 
 # Decay split: H2 reversal hala var mi? 2020-sonrasi AYRI olcum.
-# the maintainer karari: 2020-01-01 (daha katı test; IN=10yr / OUT=6yr dengeli)
+# maintainer karari: 2020-01-01 (daha katı test; IN=10yr / OUT=6yr dengeli)
 DECAY_SPLIT = "2020-01-01"
 
 # ---------------------------------------------------------------------------

@@ -51,6 +51,6 @@
     "H3": "Karisik -> alan-bazli routing"
   },
 
-  "decision_owner": "the project (DEC-039). Test OLCER; kaynak kullanim karari sonuc gelince.",
+  "decision_owner": "maintainer (DEC-039). Test OLCER; kaynak kullanim karari sonuc gelince.",
   "build_constraint": "src/ dokunulmaz; throwaway scripts/_probe_*.py; build YOK."
 }

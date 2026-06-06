@@ -8,7 +8,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 _DEFAULT_SYSTEM_PROMPT_PATH = str(
-    Path(__file__).parent.parent.parent / "agents" / "prompts" / "strategist_system_prompt.txt"
+    Path(__file__).parent / "strategist_system_prompt.txt"
 )
 _DEFAULT_MODEL = "claude-sonnet-4-6"
 _DEFAULT_TIMEOUT = 10
@@ -124,7 +124,7 @@ class StrategistAgent:
 
     def analyze_report(self, report_data: dict) -> str:
         """
-        Generate strategic notes from Builder report dict.
+        Generate strategic notes from arastirma katmani report dict.
 
         Returns markdown-formatted string (300-500 words).
         Raises StrategistError on any failure.

@@ -5,7 +5,7 @@
   "preregistered_date": "2026-06-04",
   "config_module": "src/screening/d211_config.py",
   "config_version": "d211-v1",
-  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; never auto-deploys. Even a TRADEABLE verdict is a CANDIDATE only (separate the project decision).",
+  "decision_owner": "maintainer. Harness MEASURES + RECOMMENDS; never auto-deploys. Even a TRADEABLE verdict is a CANDIDATE only (separate maintainer decision).",
 
   "discipline_note": "Committed BEFORE any D-211 result is computed and BEFORE any result is seen. The engine (src/screening/d211_foreign_flow.py) REFUSES to run unless this file exists. ALL thresholds/definitions/keep-bar below are FROZEN and will NOT be relaxed post-hoc (no predictor redefinition, no window widening, no lag re-pick, no cost re-calibration, no keep-bar loosening). Post-hoc relaxation = guard-RAISE. MEASUREMENT-ONLY; optimization FORBIDDEN. N=1 candidate (aggregate foreign-flow market-timing). This is a MEASUREMENT, NOT an optimization.",
 
@@ -22,7 +22,7 @@
     "alternative_definitions_status": "z-score(NET_usd) and NET_usd/mcap are SECONDARY-REPORT ONLY. They CANNOT rescue a failed primary (cherry-pick FORBIDDEN). Alternative-definition mining is FORBIDDEN.",
     "lookahead_lag_LOCK": "To predict return-month t, predictor = NF_pct(t-2). Rationale: month (t-2) flow is published ~mid (t-1) (~6wk lag) so it is in the information set at end of (t-1) = the decision point entering month t. Look-ahead-safe.",
     "contemporaneous_status": "lag-0 reg(real_ret_t ~ NF_pct(t)) is reported for DIAGNOSIS ONLY, stamped NON-DEPLOYABLE; it does NOT count toward any keep-bar.",
-    "ticker_filter": "rows where col0 matches ^[A-Z0-9]{2,6}\\.E$ (segment sub-headers excluded). Parser geometry mirrors demo_smart_money/lab/ff_data.py (PORTED, read-only)."
+    "ticker_filter": "rows where col0 matches ^[A-Z0-9]{2,6}\\.E$ (segment sub-headers excluded). Parser geometry mirrors edge-arastirma/lab/ff_data.py (PORTED, read-only)."
   },
 
   "dependent_FROZEN": {
@@ -37,7 +37,7 @@
 
   "window_FROZEN": {
     "PRIMARY": {"start": "2019-01-01", "end": "2026-04-30", "primary": true},
-    "deviation_from_directive": "Directive named PRIMARY 2010-01..2026-04 'snapshot temiz, YENI-PULL YOK'. DATA-FACT (RR-Y1-002 STAGE-0 / D-210): the only clean LOCAL XU100 series (exposure_d187_xu100, XU100.IS price-only) covers 2019-01..2026-04 ONLY; prices_official BIST100-index column is entirely NULL; clean_universe adj-prices+adj-factors also start 2019, so a corporate-action-clean index pre-2019 is NOT locally constructible. the maintainer (Orchestrator) APPROVED Option-1 on 2026-06-04: set PRIMARY = 2019-01..2026-04 (no new pull), freeze the rest as directed.",
+    "deviation_from_directive": "Directive named PRIMARY 2010-01..2026-04 'snapshot temiz, YENI-PULL YOK'. DATA-FACT (RR-Y1-002 STAGE-0 / D-210): the only clean LOCAL XU100 series (exposure_d187_xu100, XU100.IS price-only) covers 2019-01..2026-04 ONLY; prices_official BIST100-index column is entirely NULL; clean_universe adj-prices+adj-factors also start 2019, so a corporate-action-clean index pre-2019 is NOT locally constructible. maintainer (maintainer) APPROVED Option-1 on 2026-06-04: set PRIMARY = 2019-01..2026-04 (no new pull), freeze the rest as directed.",
     "effective_forward_months": "first computable forward_real_ret = 2019-02 (needs idx Jan-end & Feb-end); through 2026-04 -> ~87 monthly observations. Predictor NF_pct(t-2) requires FF from 2018-12 (available).",
     "OPTIONAL_extension_2006_2010": "N/A -- no local XU100 pre-2019. Dropped (cannot run); not a primary-verdict input.",
     "gap_2017_04": "foreign_flow 2017-04 file is MISSING. It falls OUTSIDE the 2019+ window, so it does not affect this measurement. NO interpolation anywhere (locked principle); any future month with missing predictor or return is DROPPED, not filled."

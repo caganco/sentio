@@ -1,6 +1,6 @@
 {
   "directive": "D-177",
-  "phase": "FAZ 0 -- Stage 0 pre-registration (SPEC_PIVOT_ARCHITECTURE_1 sec.2)",
+  "phase": "FAZ 0 -- Stage 0 pre-registration (ic metodoloji notu sec.2)",
   "frozen_at_utc": "2026-05-29T16:05:31Z",
   "discipline": "Written and frozen BEFORE measurement. Factor definitions, thresholds, horizons, benchmark and snapshot hash must NOT change after results are seen (post-hoc rationalization guard). N=1 single design.",
   "config_version": "faz0-v1",
@@ -16,7 +16,7 @@
   "survivorship": {
     "excluded_delisted": ["KOZAA", "KOZAL", "IPEKE", "TRALT"],
     "reason": "not fetchable from yfinance (404) -> survivors-only snapshot",
-    "bias_direction": "Excluding delisted (mostly poor-outcome) names may make measured IC read OPTIMISTIC/inflated; in TEST 2 the missing left tail biases skewness UP (high-vol falsely good). Read Faz 0 as an upper-ish bound, not neutral. (the maintainer condition: bias direction MUST be reported.)"
+    "bias_direction": "Excluding delisted (mostly poor-outcome) names may make measured IC read OPTIMISTIC/inflated; in TEST 2 the missing left tail biases skewness UP (high-vol falsely good). Read Faz 0 as an upper-ish bound, not neutral. (maintainer condition: bias direction MUST be reported.)"
   },
   "factors": {
     "rs_vs_xu100": {
@@ -30,7 +30,7 @@
       "windows_days": {"lowvol20": 20, "lowvol60": 60},
       "orientation": "lower vol -> higher rank (invert)."
     },
-    "value": "DEFERRED to Faz 0b (market cap / EBITDA / net debt not available in any fetcher; the maintainer decision)."
+    "value": "DEFERRED to Faz 0b (market cap / EBITDA / net debt not available in any fetcher; maintainer decision)."
   },
   "composite": {
     "rule": "equal-weight rank average (invariant 4: no z-score, no weight optimization)",
@@ -59,6 +59,6 @@
     "ICIR_keep_min": 0.5
   },
   "benchmark_reference": "max(TUFE TP.FG.J0, TLREF TP.BISTTLREF.KAPANIS); RS/low-vol IC need no deflation (cross-sectional rank removes common inflation drift).",
-  "decision_owner": "the project (DEC-039). Harness MEASURES and RECOMMENDS; does not finalize factor set.",
+  "decision_owner": "maintainer (DEC-039). Harness MEASURES and RECOMMENDS; does not finalize factor set.",
   "config_budget": "N=1 (single frozen design; no variant sweep -- MinBTL/overfitting guard, SPEC sec.2)"
 }

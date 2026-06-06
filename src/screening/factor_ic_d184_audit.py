@@ -17,7 +17,7 @@ Tests:
 Decision rule (FROZEN, pre-registered):
   2 tests fail => lowvol60 with Faz 1 not rational
   3 tests fail => architectural premise re-think (regime-conditional MV-BIST + liquidity gates)
-  Decision owner: the project (DEC-039). This module MEASURES + RECOMMENDS.
+  Decision owner: maintainer (DEC-039). This module MEASURES + RECOMMENDS.
 
 No imports from signals.engine / backtest.engine / MASTER_WEIGHTS / conviction.
 """
@@ -709,7 +709,7 @@ def run_d184_audit(
         "pass_count": pass_count,
         "borderline_count": borderline_count,
         "recommendation": recommendation,
-        "decision_owner": "the project (DEC-039). This module MEASURES + RECOMMENDS.",
+        "decision_owner": "maintainer (DEC-039). This module MEASURES + RECOMMENDS.",
     }
 
     out_path = Path(out_dir)

@@ -1,7 +1,7 @@
 """D-206 NAV-iskonto-Z mean-reversion -- frozen Stage-0 MEASUREMENT geometry. TIME-SERIES.
 
 Cross-sectional factor selection is EXHAUSTED (hi52 KAPANDI D-205, lowvol63 ELENDI NRR-007,
-value-regime ELENDI NRR-008 -- 3/3 closed). the project decision: a NEW paradigm -- per-holding
+value-regime ELENDI NRR-008 -- 3/3 closed). maintainer decision: a NEW paradigm -- per-holding
 NAV-discount MEAN-REVERSION (time-series, low-turnover, retail-suited). This is NOT cross-
 sectional: each holding has its OWN discount time-series and is standardized against its OWN
 history. HYPOTHESIS (Pontiff 1995, CEF premia mean-revert, half-life 7.7-10.3mo): a HIGH
@@ -10,7 +10,7 @@ discount-Z (discount wide -> holding cheap) predicts a POSITIVE forward return.
 HONEST EXPECTATION (BEFORE results): UNCERTAIN. Holding-discount MR is well-documented for US
 CEFs but UNTESTED on BIST holdings; N is small (6-8 holdings). Elimination is a clean, valuable
 result. NO celebration. This is the FIRST NAV-discount reading (N<=3 lock); if a signal appears,
-the FULL RR-013 architecture is a SEPARATE next step (the project) -- this is measurement-ONLY.
+the FULL RR-013 architecture is a SEPARATE next step (maintainer) -- this is measurement-ONLY.
 
 MEASUREMENT-ONLY (optimization FORBIDDEN). Like d203/d204/nrr008, this holds the pre-registered
 GEOMETRY frozen at Stage-0; DECISION constants live in src/signals/thresholds.py (D206_*) and

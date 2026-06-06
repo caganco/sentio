@@ -1,8 +1,8 @@
 # RR-032-V3 — Açık-Kaynak Repo İzleme + Smart Money Veri Kanalları
 
 **Tarih:** 30 Mayıs 2026
-**Yazar:** Claude Code (Builder) — GitHub recon (kopyalama YOK) + codebase grep + canlı GET teyidi
-**Status:** ⏳ Karar bekliyor (the project, DEC-039)
+**Yazar:** Arastirma katmani — GitHub recon (kopyalama YOK) + codebase grep + canlı GET teyidi
+**Status:** ⏳ Karar bekliyor (maintainer, DEC-039)
 **Bağlı:** [RR-032](RR-032-FIZIBILITE.md), [RR-032-V2](RR-032-V2-GENISLETILMIS-ENVANTER.md), [RR-033](RR-033-isyatirim-tms29-uyum-testi.md), [RR-034](RR-034-isyatirim-usd-feasibility.md), [RR-001](RR-001-fintables-takas-scraper.md), [RR-002](RR-002-akd-terminalleri-python.md), [RR-020](RR-020-BIST-VERISI-MAP.md)
 
 > **Etik/lisans:** Hiçbir repo kodu kopyalanmadı. Sadece **kaynak-kanal keşfi** (endpoint URL'leri) yapıldı. borsapy (Apache-2.0) ve borsa-mcp (MIT) permissive → kanal bilgisi serbest. Kanallar kendi isteğimizle (repo kodu çalıştırmadan) canlı GET ile teyit edildi.

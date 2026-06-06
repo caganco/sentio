@@ -1,8 +1,8 @@
 # RR-032-V2 — BIST Fundamental Veri Kaynakları: Genişletilmiş Envanter
 
 **Tarih:** 30 Mayıs 2026
-**Yazar:** Claude Code (Builder) — web research + canlı probe (throwaway)
-**Status:** ⏳ Karar bekliyor (value veri kaynağı — the project, DEC-039)
+**Yazar:** Arastirma katmani — web research + canlı probe (throwaway)
+**Status:** ⏳ Karar bekliyor (value veri kaynağı — maintainer, DEC-039)
 **Bağlı:** [RR-032](RR-032-FIZIBILITE.md) (genişletir, yerini ALMAZ); [RR-033](RR-033-isyatirim-tms29-uyum-testi.md); [RR-034](RR-034-isyatirim-usd-feasibility.md); [RR-020](RR-020-BIST-VERISI-MAP.md); NRR-002
 
 ---

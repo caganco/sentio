@@ -2,7 +2,7 @@
 
 **Spec:** D-132  
 **Versiyon:** 1.0 | **Tarih:** 24 Mayıs 2026  
-**Durum:** 📋 Orchestrator Review — Builder başlamaz  
+**Durum:** 📋 maintainer Review — arastirma katmani başlamaz  
 **Tahmini uygulama süresi:** 6–8 saat (4 faz paralel geliştirilebilir, merge sırası önemli)  
 **Dayanak:** RR-010 §2 (metodoloji), §3 (16 karar), §4 (pseudocode), §5 (akademik kaynaklar)  
 **Bağlı:** CB-010 (statik weight savunulamazlığı), DEC-015 (Alpha Attribution Faz 1)
@@ -11,7 +11,7 @@
 
 ## 0. Özet
 
-BIST OS'un mevcut Alpha Attribution altyapısı (DEC-015) Layer × forward-return kaydını parquet formatında yapıyor ve `ICCalculator` ile Spearman IC hesaplıyor. Ancak framework **eksik** bileşenler içeriyor: BH-FDR çoklu test düzeltmesi yok, sektör-nötr IC yok, `ic_history` kalıcı zaman serisi yok, Bayesian weight kalibrasyonu yok, decay monitörü yok, delisted ticker koruması yok. Bu SPEC, DEC-015 üzerine kurularak RR-010'un öngördüğü eksiksiz IC framework'ünü 4 aşamalı Builder specleriyle tanımlar.
+BIST OS'un mevcut Alpha Attribution altyapısı (DEC-015) Layer × forward-return kaydını parquet formatında yapıyor ve `ICCalculator` ile Spearman IC hesaplıyor. Ancak framework **eksik** bileşenler içeriyor: BH-FDR çoklu test düzeltmesi yok, sektör-nötr IC yok, `ic_history` kalıcı zaman serisi yok, Bayesian weight kalibrasyonu yok, decay monitörü yok, delisted ticker koruması yok. Bu SPEC, DEC-015 üzerine kurularak RR-010'un öngördüğü eksiksiz IC framework'ünü 4 aşamalı arastirma katmani specleriyle tanımlar.
 
 **Kapsam sınırı:** `src/` üretim lojiği değişmez. Yeni bileşenler `src/analytics/` ve `src/data/` altında eklenir; `thresholds.py` yeni sabitleri alır; `MASTER_WEIGHTS` τ=0 aşamasında statik kalır.
 
@@ -279,9 +279,9 @@ except Exception as exc:
 **Temel tasarım kısıtı: MASTER_WEIGHTS KOD TARAFINDAN ASLA YAZILMAZ**
 
 Bayesian posterior → `data/analytics/weight_history.parquet`'e yazılır. Üretime geçmesi için:
-1. Builder `weight_history.parquet`'teki önerilen weight'leri rapor eder
-2. Orchestrator değerlendirir
-3. the maintainer onaylar → ayrı spec ile `thresholds.py` güncellenir
+1. arastirma katmani `weight_history.parquet`'teki önerilen weight'leri rapor eder
+2. maintainer değerlendirir
+3. maintainer onaylar → ayrı spec ile `thresholds.py` güncellenir
 
 ```python
 class WeightCalibrator:
@@ -300,14 +300,14 @@ class WeightCalibrator:
     def run_weekly(self, date: date) -> None: ...   # haftalık batch
 ```
 
-**Neden:** CB-010 ("statik weight savunulamazlığı"). τ=0 aşamasında (< 60 gün) hiçbir şey değişmez. 60. günden itibaren posterior öneriler raporda görünür, uygulama the maintainer onayına bağlı.
+**Neden:** CB-010 ("statik weight savunulamazlığı"). τ=0 aşamasında (< 60 gün) hiçbir şey değişmez. 60. günden itibaren posterior öneriler raporda görünür, uygulama maintainer onayına bağlı.
 
 ---
 
 ### K-07: `delisted_tickers.json` — survivorship bias koruması (Faz 2)
 
 **Yeni dosya:** `data/analytics/delisted_tickers.json`  
-**Bakımı:** Builder ilk sürümü KAP arşivinden son 5 yıl için manuel doldurur
+**Bakımı:** arastirma katmani ilk sürümü KAP arşivinden son 5 yıl için manuel doldurur
 
 **Format:**
 ```json
@@ -415,14 +415,14 @@ Mevcut veri durumu: 4 günlük signal log, `returns.parquet` boş. `MASTER_WEIGH
 **60. gün sonrası akış:**
 1. `weight_calibrator.compute_posterior_weights()` çalışır → önerilen weight'ler `weight_history.parquet`'e yazılır
 2. Dashboard bu öneriyi raporlar
-3. **the maintainer onay verir → ayrı Grunt task (`G-22`) ile thresholds.py güncellenir**
+3. **maintainer onay verir → ayrı Grunt task (`G-22`) ile thresholds.py güncellenir**
 4. PR → CI → yeşil → merge
 
 MASTER_WEIGHTS değeri her ne olursa olsun statik toplamı [0.85, 1.05] aralığında olmalı; `weight_validator.py` bunu CI'da doğrulamaya devam eder.
 
 ---
 
-## BÖLÜM 3 — Builder Spec Taslakları (Faz Sırası)
+## BÖLÜM 3 — arastirma katmani Spec Taslakları (Faz Sırası)
 
 > **Kural:** Aşağıdaki specler SPEC onayından önce başlamaz. Merge sırası önemli: D-133 → D-134 → D-135 → D-136.
 
@@ -594,7 +594,7 @@ BRANCH: feature/d136-ic-importlinter
 
 **Risk:** `src/analytics/weight_calibrator.py` `MASTER_WEIGHTS`'e yazmak için `thresholds.py`'yi import edebilir — bu güvenli. Ancak `src/signals/engine.py`'yi import ederse `signal-layering` kontratı kırılır.
 
-**Önlem:** K-08 + K-09 `test_analytics_not_importing_engine` invariantı. Builder, `weight_calibrator.py`'de `from src.signals.engine import …` satırı yazarsa CI fail olur.
+**Önlem:** K-08 + K-09 `test_analytics_not_importing_engine` invariantı. arastirma katmani, `weight_calibrator.py`'de `from src.signals.engine import …` satırı yazarsa CI fail olur.
 
 **Mevcut kontrat güvenliği:**
 - `src.analytics` şu an `signal-layering` kontratının dışında → mevcut CI doğrudan analytics'i test etmiyor
@@ -629,7 +629,7 @@ def compute_posterior_weights(self, date: date) -> dict | None:
         return None   # NOOP
 ```
 
-60. günden itibaren üretilen `weight_history.parquet` öneri dosyasıdır; thresholds.py'yi sıfır otomatik değişiklik yapar. Üretime geçmesi için the project onayı (G-22 Grunt task) zorunludur.
+60. günden itibaren üretilen `weight_history.parquet` öneri dosyasıdır; thresholds.py'yi sıfır otomatik değişiklik yapar. Üretime geçmesi için maintainer onayı (G-22 Grunt task) zorunludur.
 
 ---
 
@@ -724,7 +724,7 @@ D-133 merge edilince `docs/RESEARCH_REGISTRY.md`'de RR-010 satırı şöyle gün
 1. `python -m pytest tests/test_ic_framework.py -v` → min 10 test pass
 2. `python -m pytest tests/ -q --tb=short` → sıfır regresyon
 3. `python -m pytest tests/test_architecture.py -v` → 3 yeni IC invariant pass
-4. the maintainer onayı (PR review)
+4. maintainer onayı (PR review)
 
 **D-134 (D-133 sonrası):**
 1. `data/analytics/delisted_tickers.json` → min 20 ticker, son 5 yıl
@@ -735,7 +735,7 @@ D-133 merge edilince `docs/RESEARCH_REGISTRY.md`'de RR-010 satırı şöyle gün
 1. `test_master_weights_not_auto_mutated` pass
 2. `test_analytics_not_importing_engine` pass
 3. `weight_calibrator.compute_posterior_weights()` → `tau < IC_BAYESIAN_TAU_MIN_DAYS` ise `None` dönmeli
-4. Sıfır regresyon + the maintainer onayı
+4. Sıfır regresyon + maintainer onayı
 
 **D-136 (D-135 sonrası):**
 1. `lint-imports` CI geçer
@@ -743,7 +743,7 @@ D-133 merge edilince `docs/RESEARCH_REGISTRY.md`'de RR-010 satırı şöyle gün
 
 ---
 
-## Orchestrator Notu
+## maintainer Notu
 
 Bu SPEC CB-010 ("statik weight savunulamazlığı") ve RR-010'u doğrudan karşılıyor. Ancak BIST OS'ta **birincil kısıt veri birikimi**: şu an 4 günlük signal log, sıfır dolu forward return. D-133 uygulanıp 60 iş günü (yaklaşık Ağustos 2026 başı) beklenmeden D-135'in etkinleşmesi mümkün değil.
 
@@ -753,9 +753,9 @@ Pratik sıra önerisi:
 3. **Ağustos 2026 başı:** D-135 (Bayesian — 60 gün dolduğunda etkinleşir)
 4. **D-135 merge sonrası:** D-136 (kontrakt — 20 dakika)
 
-**Açık soru (Builder'a):** `IC_INVESTABLE_MONTHS_MIN = 24` çok muhafazakar mı? 2 yıl = ~504 günlük veri birikimi gerekiyor. BIST OS henüz 4 günlük; 2 yıl içinde hiçbir layer "INVEST" statüsüne giremeyecek. `IC_INVESTABLE_MONTHS_MIN = 6` (126 iş günü) daha uygun olabilir. the maintainer kararı.
+**Açık soru (arastirma katmani'a):** `IC_INVESTABLE_MONTHS_MIN = 24` çok muhafazakar mı? 2 yıl = ~504 günlük veri birikimi gerekiyor. BIST OS henüz 4 günlük; 2 yıl içinde hiçbir layer "INVEST" statüsüne giremeyecek. `IC_INVESTABLE_MONTHS_MIN = 6` (126 iş günü) daha uygun olabilir. maintainer kararı.
 
 ---
 
-*SPEC_IC_FRAMEWORK_1 tamamlandı. Builder specleri SPEC onayı bekleniyor.*  
+*SPEC_IC_FRAMEWORK_1 tamamlandı. arastirma katmani specleri SPEC onayı bekleniyor.*  
 *Bağlı: RR-010 §2-§4 §6 (tüm bölümler), CB-010, DEC-015, CLAUDE.md Dokunulmaz Prensipler*

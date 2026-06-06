@@ -35,7 +35,7 @@ gore anlamli deger KATMIYOR.
 
 **DEC-044 → GECMEZ.** Frozen kural: bu kesisimde edge anlamsizlasir → trend-motoru da (Faz 0
 cross-sectional gibi) bu evren/pencerede ZAYIF. **Iki paradigma da test edildi (bilgi, basarisizlik
-degil).** Sonraki adim: premise yeniden dusunulur (DEC-039, the project).
+degil).** Sonraki adim: premise yeniden dusunulur (DEC-039, maintainer).
 
 ---
 
@@ -151,7 +151,7 @@ verdict'i degistirmiyor. Post-hoc duzeltilMEDI (on-kayit disiplini); gelecek tur
 
 ---
 
-## 8. Caveat'lar (the maintainer onayinda gorulmeli)
+## 8. Caveat'lar (maintainer onayinda gorulmeli)
 
 - Survivors-only (88 ticker) korundu → relative edge de UST-SINIR egilimli; gercek edge daha da kucuk
   olabilir. GECMEZ bu yuzden DAHA guclu (ust-sinirda bile gecmiyor).
@@ -162,20 +162,20 @@ verdict'i degistirmiyor. Post-hoc duzeltilMEDI (on-kayit disiplini); gelecek tur
 - C 0.917 betimsel near-miss; "gercek edge" olarak SUNULMUYOR (CS-CI sifiri iciyor).
 - Veri olayi: D-186 gelistirme sirasinda clone3 calisma agaci Stage 0 commit'inden sonra harici bir
   `git checkout master` ile master'a gecmisti (reflog HEAD@{0}); is feature branch'te commit'liydi,
-  kurtarildi (kayip yok). Builder erken-commit ile korudu.
+  kurtarildi (kayip yok). arastirma katmani erken-commit ile korudu.
 
 ---
 
 ## 9. DEC-039 + Oneri
 
 Bu program OLCTU + 5-ajan adversarial dogruladi + frozen DEC-044'e gore verdict uretti: **GECMEZ.**
-Builder oneri sunar, karar vermez. Oneri (the project karari):
+arastirma katmani oneri sunar, karar vermez. Oneri (maintainer karari):
 
 - **Katman A motoru olarak ne cross-sectional faktor ne de bu trend-varyant seti gerekcelenMIYOR**
   (ikisi de test edildi, ikisi de zayif). Mevcut kanit, bu evren/pencerede "alfa entry-secimi"nden
   cok "rejim/maliyet/cikis-disiplini"nde oldugunu soyluyor (RR-038 ana dersiyle tutarli).
-- Sonraki adim secenekleri (the project): (a) premise yeniden -- farkli evren (BIST-genis/likidite-disi
+- Sonraki adim secenekleri (maintainer): (a) premise yeniden -- farkli evren (BIST-genis/likidite-disi
   delisted dahil), farkli ufuk, veya fundamental-suzgec eklenmis hibrit; (b) entry'den cok cikis/risk-
   yonetimi + rejim-filtresi merkezli tasarim; (c) trend-motoru tamamen rafa, baska Katman A hipotezi.
-- Karar kurali frozen oldugu icin verdict mekanik; Builder gevsetmedi, the project da sonuc gorup
+- Karar kurali frozen oldugu icin verdict mekanik; arastirma katmani gevsetmedi, maintainer da sonuc gorup
   gevsetmemeli (post-hoc yasagi).

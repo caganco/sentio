@@ -51,7 +51,7 @@
   "survivorship": {
     "excluded_delisted": ["KOZAA","KOZAL","IPEKE","TRALT"],
     "reason": "not fetchable from yfinance (404) -> survivors-only (D-177 ile ayni; alternatif kaynak YAPILMADI)",
-    "bias_direction": "Excluding delisted (mostly poor-outcome) names may make measured IC read OPTIMISTIC/inflated; TEST 2 skewness biased UP (high-vol falsely good). Read as upper-ish bound. (the maintainer condition: bias direction reported.)"
+    "bias_direction": "Excluding delisted (mostly poor-outcome) names may make measured IC read OPTIMISTIC/inflated; TEST 2 skewness biased UP (high-vol falsely good). Read as upper-ish bound. (maintainer condition: bias direction reported.)"
   },
 
   "fix2_overlap_correction": {
@@ -89,6 +89,6 @@
     "horizons_trading_days": [1, 5, 10, 21, 63]
   },
 
-  "decision_owner": "the project (DEC-039). Harness MEASURES and RECOMMENDS; does not finalize factor set.",
+  "decision_owner": "maintainer (DEC-039). Harness MEASURES and RECOMMENDS; does not finalize factor set.",
   "config_budget": "N=2 of <=3 (1 remaining)"
 }

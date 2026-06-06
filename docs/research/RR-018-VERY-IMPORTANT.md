@@ -2,7 +2,7 @@
 
 **Versiyon:** 1.0 | **Tarih:** 25 Mayıs 2026 | **Yazan:** Research Agent
 **Bağlam:** AUDIT_REPORT_001 D-061 C-1 closure + RR-014/015/016/017 entegrasyon
-**Hedef Kitle:** Builder (implementation-ready); the maintainer (karar-verici); Public release recruiter testi
+**Hedef Kitle:** arastirma katmani (implementation-ready); maintainer (karar-verici); Public release recruiter testi
 
 ---
 
@@ -10,7 +10,7 @@
 
 - **Mevcut `backtest/engine.py` yapısı akademik standartların altındadır ve go-live'ı tek başına bloke eder.** AUDIT C-1 bulgusu (production engine'den diverged hardcoded formula, current MASTER_WEIGHTS değişikliklerini yansıtmama) tüm raporlanmış Sharpe'ı şüpheli kılar. Ek beş yapısal eksiklik: (i) single-path walk-forward, (ii) IID varsayan k-fold yokluğu, (iii) survivorship bias (yfinance delisted ticker'ları kapsamaz), (iv) çoklu-deneme penaltısı olmadan raporlanmış Sharpe, (v) 6 aylık pencere içinde 7 kriz döneminden hiçbirini içermeyen "crisis-untested" tablo. Bu kombinasyon, bugünkü Sharpe raporlarının %30-60 aralığında enflasyonist olmasını beklenir kılar (Bailey & López de Prado 2014'ün selection bias büyüklüğü ile uyumlu).
 - **Önerilen yapı López de Prado (2018) *Advances in Financial Machine Learning* Bölüm 7 (Purged K-Fold s.103-111), Bölüm 12 (Combinatorial Purged CV), Bölüm 14 (Backtest Statistics) ve Bölüm 15 (Strategy Risk s.211-220) üzerine kuruludur**; Bailey-Borwein-López de Prado-Zhu (2014 Notices of AMS / 2017 JCF 20(4):39-69) Deflated Sharpe + Probability of Backtest Overfitting (PBO) ile tamamlanır. BIST OS kalibrasyon: **k=5 Purged K-Fold, purge=10 gün, embargo=5 gün** (RR-010 ile tutarlı), **CPCV: N=6, k=2, 15 patika**, geçiş eşikleri **DSR > 0.95 + PBO < 0.5**.
-- **the maintainer'ın $0 maliyet hedefi karşılanabilir.** Hudson & Thames mlfinlab Aralık 2020 "Unlocking the Commons" sponsorluk hedefini tutturamayıp tamamen ticarileşti — bugün **£100 + KDV / ay / kullanıcı**, sadece QuantConnect Cloud üzerinden (verbatim QC docs). Buna karşılık (i) **sam31415/timeseriescv 0.2 MIT** (CombPurgedKFoldCV, PurgedWalkForwardCV — ancak Issue #6'da unit testler "all your tests are failing" raporlu; kendi test suite şart), (ii) **esvhd/pypbo** (CSCV + MinBTL + DSR), (iii) **quantstats 0.0.81 Apache 2.0 + empyrical-reloaded** (metric library + HTML tear sheet), (iv) **vectorbt 1.0.0 Apache 2.0 + Commons Clause** (Faz 3 parameter sweep — "may not sell products or services that are primarily this software"), (v) **mlfinpy** (mlfinlab'ın açık kaynak rewrite alternatifi) kombinasyonu, paid mlfinlab'ın işlevselliğinin %90'ından fazlasını ücretsiz karşılar. **5 fazlı implementation roadmap toplam ~10-11 hafta** (paralel ile 8-9 hafta): (1) production sync C-1 closure — 1-2 hafta; (2) Purged K-Fold + DSR — 2 hafta; (3) CPCV + PBO — 1 ay; (4) 7 kriz stres testi — 2 hafta; (5) HTML/PDF/JSON raporlama — 1 hafta.
+- **maintainer'ın $0 maliyet hedefi karşılanabilir.** Hudson & Thames mlfinlab Aralık 2020 "Unlocking the Commons" sponsorluk hedefini tutturamayıp tamamen ticarileşti — bugün **£100 + KDV / ay / kullanıcı**, sadece QuantConnect Cloud üzerinden (verbatim QC docs). Buna karşılık (i) **sam31415/timeseriescv 0.2 MIT** (CombPurgedKFoldCV, PurgedWalkForwardCV — ancak Issue #6'da unit testler "all your tests are failing" raporlu; kendi test suite şart), (ii) **esvhd/pypbo** (CSCV + MinBTL + DSR), (iii) **quantstats 0.0.81 Apache 2.0 + empyrical-reloaded** (metric library + HTML tear sheet), (iv) **vectorbt 1.0.0 Apache 2.0 + Commons Clause** (Faz 3 parameter sweep — "may not sell products or services that are primarily this software"), (v) **mlfinpy** (mlfinlab'ın açık kaynak rewrite alternatifi) kombinasyonu, paid mlfinlab'ın işlevselliğinin %90'ından fazlasını ücretsiz karşılar. **5 fazlı implementation roadmap toplam ~10-11 hafta** (paralel ile 8-9 hafta): (1) production sync C-1 closure — 1-2 hafta; (2) Purged K-Fold + DSR — 2 hafta; (3) CPCV + PBO — 1 ay; (4) 7 kriz stres testi — 2 hafta; (5) HTML/PDF/JSON raporlama — 1 hafta.
 
 ---
 
@@ -118,7 +118,7 @@ train_set = all_indices
 ```python
 class BISTPurgedKFold:
     """LdP (2018) Bölüm 7.4. Sklearn-uyumlu generator.
-    Production-ready DEĞİL — Builder implement edecek."""
+    Production-ready DEĞİL — arastirma katmani implement edecek."""
     def __init__(self, n_splits=5, purge_days=10, embargo_days=5):
         self.n_splits = n_splits
         self.purge_days = purge_days
@@ -156,7 +156,7 @@ class BISTPurgedKFold:
 
 - **sam31415/timeseriescv 0.2 (MIT)**: `PurgedWalkForwardCV`, `CombPurgedKFoldCV`. setup.py verbatim: `version='0.2'`, `license='MIT'`, `author='Samuel Monnier'`. **Bilinmesi gereken**: Issue #6'da unit test'ler "all your tests at … test_cross_validation.py are failing" raporlandı; çekirdek sınıflar kullanılabilir fakat **kendi test suite zorunlu**.
 - **hudson-and-thames/mlfinlab fork (jmrichardson, snapshot pre-paywall)**: PurgedKFold + CombinatorialPurgedKFold içerir. Ancak Issue #295: *"PurgedKFold class creates folds such that events in the training set can overlap with events in the test set."* Upstream repo LICENSE dosyası yok → yeniden dağıtım hukuki gri alan.
-- **Custom implementation** (önerilen): ~200 satır, 1-2 günde; the maintainer budget + audit isolation.
+- **Custom implementation** (önerilen): ~200 satır, 1-2 günde; maintainer budget + audit isolation.
 
 ---
 
@@ -246,7 +246,7 @@ Verbatim (Section 3.1): *"For φ ≈ 0, a low proportion of the optimal IS strat
 N=12 trial, hedef Sharpe 1.5:
 $$\text{MinBTL} < \frac{2 \ln 12}{1.5^2} = \frac{2 \times 2.485}{2.25} \approx 2.21 \text{ yıl}$$
 
-the maintainer'ın 6 aylık backtest'i ≈ 0.5 yıl << 2.21 yıl → **N=12 deneme için teorik minimum altında**. 5-yıl önerimiz (Bölüm 7) bu hesabı rahatlıkla karşılar.
+maintainer'ın 6 aylık backtest'i ≈ 0.5 yıl << 2.21 yıl → **N=12 deneme için teorik minimum altında**. 5-yıl önerimiz (Bölüm 7) bu hesabı rahatlıkla karşılar.
 
 ### 6.5 Reporting
 
@@ -336,7 +336,7 @@ Her backtest raporu zorunlu olarak içermeli:
 
 Faz 1'de **(b)** uygula; Faz 1.5'te **(c)** drift detection CI ekle.
 
-### 8.4 Migration Roadmap (Builder-Implementable)
+### 8.4 Migration Roadmap (arastirma katmani-Implementable)
 
 **Faz 1a — Sync Test (3 gün):**
 ```python
@@ -385,7 +385,7 @@ class SignalCalculator:
 
 ---
 
-## 9. Library Karşılaştırma — the maintainer $0 Budget Analizi
+## 9. Library Karşılaştırma — maintainer $0 Budget Analizi
 
 ### 9.1 mlfinlab (Hudson & Thames) — Paid Status 2024-2025
 
@@ -396,7 +396,7 @@ class SignalCalculator:
 - **Community forks (jmrichardson, nasgoncalves/mlfinlab-updated, Roh-codeur/mlfinlab-1)**: Pre-paywall snapshot, sıfır maintenance.
 - **QC forum thread** (discussion 16833): *"The licensing system H&T used was broken, and the fix for the issue was not available in the near term, so we removed it from the foundational"* — erişim intermittent.
 
-**the maintainer $0 hedefi için sonuç: Hudson & Thames mlfinlab kullanılmaz.**
+**maintainer $0 hedefi için sonuç: Hudson & Thames mlfinlab kullanılmaz.**
 
 ### 9.2 Ücretsiz Alternatifler Matrisi
 
@@ -632,7 +632,7 @@ class BISTBacktestFramework:
     - 7 kriz dönemi stress testing
     - Production engine sync (Audit C-1 closure)
     - RR-014/015/016/017 entegrasyon
-    Production-ready DEĞİL — Builder implement edecek.
+    Production-ready DEĞİL — arastirma katmani implement edecek.
     """
     def __init__(self, strategy_engine: 'SignalCalculator',
                  start_date: str, end_date: str,
@@ -801,7 +801,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 ---
 
-## 16. the maintainer Portföyü Analizi
+## 16. Sistem Backtest Güvenilirlik Analizi
 
 ### 16.1 Mevcut Backtest Güvenilirlik Tahmini (6 aylık)
 
@@ -825,7 +825,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 | Reporting standardization | 3 (ad-hoc) | 8 |
 | **Overall** | **3/10** | **8/10** |
 
-### 16.3 the maintainer'ın Bu Rapor Sonrası Öğrenecekleri
+### 16.3 maintainer'ın Bu Rapor Sonrası Öğrenecekleri
 
 1. **Mevcut Sharpe raporu enflasyonist olabilir** — DSR ile geriye gidip hesaplanmalı; tahmini %30-60 düşüş beklenir.
 2. **6 aylık pencere göründüğünden çok daha zayıf** — N=12 deneme için MinBTL teoremi 2.21 yıl gerektirir; mevcut 0.5 yıl bunun çok altında.
@@ -841,7 +841,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 3. **Bailey, D.H. & López de Prado, M. (2014)** "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality", *Journal of Portfolio Management* 40(5):94-107, SSRN 2460551. DSR formülünün doğrudan referansı; §6.1 formulasyonu burdan.
 
-4. **Bailey, D.H., Borwein, J.M., López de Prado, M. & Zhu, Q.J. (2014)** "Pseudo-Mathematics and Financial Charlatanism", *Notices of the AMS* 61(5):458-471. MinBTL teoremi (Thm 3.1) — the maintainer 6-aylık backtest'inin yetersizliğinin matematiksel kanıtı.
+4. **Bailey, D.H., Borwein, J.M., López de Prado, M. & Zhu, Q.J. (2014)** "Pseudo-Mathematics and Financial Charlatanism", *Notices of the AMS* 61(5):458-471. MinBTL teoremi (Thm 3.1) — maintainer 6-aylık backtest'inin yetersizliğinin matematiksel kanıtı.
 
 5. **Bailey, D.H., Borwein, J.M., López de Prado, M. & Zhu, Q.J. (2017)** "The Probability of Backtest Overfitting", *Journal of Computational Finance* 20(4):39-69, DOI 10.21314/JCF.2016.322, SSRN 2326253. CSCV algoritması + PBO formülü; §6.3 doğrudan referans.
 
@@ -871,7 +871,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 1. **mlfinlab paid version sorunu**: Hudson & Thames mlfinlab artık £100/ay/kullanıcı, sadece QuantConnect Cloud. Bu rapor sıfır maliyetli alternatif önerir (timeseriescv + pypbo + custom DSR ~150-200 satır). Custom implementation Bailey-LdP orijinal makalelere sadık olabilir; ancak peer-review edilmiş bir paket olmadığı için **kendi unit test suite şart**.
 
-2. **Computational cost**: CPCV 15 patika × 6 katman × 5 yıl ≈ 7-8 dakika single-thread, 2 dakika 4-core. the maintainer'ın laptop spec'ine bağlı.
+2. **Computational cost**: CPCV 15 patika × 6 katman × 5 yıl ≈ 7-8 dakika single-thread, 2 dakika 4-core. maintainer'ın laptop spec'ine bağlı.
 
 3. **BIST veri kalitesi**: yfinance delisted şirketleri kapsamaz; KAP delisted listesi paralel veri kaynağı olarak tutulmalı. **Survivorship bias kalıcı** if yfinance only — sonuçlar %5-10 yukarı yanlı olabilir.
 
@@ -887,13 +887,13 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 9. **Twitter/X login-wall**: Türk fintwit pratisyen yaklaşımları sistematik gözlem yapılamadı. §14.4 ordinal skala kısmen sezgisel.
 
-10. **the maintainer broker bilgisi belirsizliği**: RR-015 Tier A/B/C paralel hesap. Backtest 3 tier ayrı senaryo üretmeli; nihai karar broker netleştiğinde verilir.
+10. **maintainer broker bilgisi belirsizliği**: RR-015 Tier A/B/C paralel hesap. Backtest 3 tier ayrı senaryo üretmeli; nihai karar broker netleştiğinde verilir.
 
 11. **2026 Mart CHP "mutlak butlan" krizi (21 Mayıs 2026)**: Bu rapor yazılırken yaşandı (≤4 gün önce); tam OOS verisi yok. Faz 4 backtest'inde bu kriz **live forward test** olarak izlenebilir.
 
 12. **HMM aktivasyonu (RR-017)**: ENABLE_HMM_WEIGHTS=False default; aktivasyon AG-001 sonrası muhafazakar varsayım. RR-018 framework HMM-on/off her iki durumu destekler.
 
-13. **DİSCLAİMER**: Bu rapor **implementation taslak — production-ready kod DEĞİL**. Builder her formül için unit test + sanity check yapmalı; Bailey-LdP orijinal makalelerine birebir referans göstererek implement etmeli. RR-018 sadece **roadmap + kavramsal iskelet**.
+13. **DİSCLAİMER**: Bu rapor **implementation taslak — production-ready kod DEĞİL**. arastirma katmani her formül için unit test + sanity check yapmalı; Bailey-LdP orijinal makalelerine birebir referans göstererek implement etmeli. RR-018 sadece **roadmap + kavramsal iskelet**.
 
 14. **timeseriescv olgunluk uyarısı**: sam31415/timeseriescv version 0.2 (Development Status: 3 - Alpha). Tests fail (Issue #6). Çekirdek CombPurgedKFoldCV sınıfı kullanılabilir ama **kendi test suite yazmadan production'a koymayın**.
 
@@ -901,7 +901,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 ---
 
-## Önerilen Karar Eşikleri (the maintainer için)
+## Önerilen Karar Eşikleri (maintainer için)
 
 | Karar | Eşik | Aksiyon |
 |---|---|---|

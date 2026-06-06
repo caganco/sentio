@@ -43,7 +43,7 @@ def apply_quality_filter(
 ) -> tuple[dict[str, pd.DataFrame], dict]:
     """Kuralli-veri-kalite-filtresi: %80 islem-gunu, <%10 sifir-hacim, >=252 gun.
 
-    Elle-secim YASAK. Filtre OBJEKTiF esik uygular (the maintainer Other-karari).
+    Elle-secim YASAK. Filtre OBJEKTiF esik uygular (maintainer Other-karari).
     Returns: (filtered_prices, quality_report).
     """
     s = pd.Timestamp(start)

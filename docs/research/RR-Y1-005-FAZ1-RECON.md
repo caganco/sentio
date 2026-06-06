@@ -1,4 +1,4 @@
-# RR-Y1-005 -- FAZ-1 RECON RAPORU (Builder)
+# RR-Y1-005 -- FAZ-1 RECON RAPORU (arastirma katmani)
 
 **Tip:** RECON / fizibilite. KOD-YOK, BUILD-YOK, KARAR-YOK. Sadece oku + olc + raporla + oner.
 **Girdi:** RR-Y1-005-TEST-MOTORU-TASARIM.md (donmus-tasarim v0.1, 4 Haz 2026).
@@ -163,7 +163,7 @@ Olcum: gunluk obs = **1848** (OHLCV fixture'da 1910).
 
 ---
 
-## C. ACIK ALT-TESHISLER + ONERILER (the maintainer C-yetkisi; karar VERMEZ)
+## C. ACIK ALT-TESHISLER + ONERILER (maintainer C-yetkisi; karar VERMEZ)
 
 1. **datahub yanlis-etiket (A4):** DataHub canli-router; motorun paneli clean_universe+snapshots
    parquet'ten gelir. Oneri: spec'te panel-kaynagini yeniden-adlandir, motor veri-arayuzu = genellesmis
@@ -181,7 +181,7 @@ Olcum: gunluk obs = **1848** (OHLCV fixture'da 1910).
 
 ---
 
-## SPEC-DEGISTIREBILECEK BULGULAR (Orchestrator bakacak)
+## SPEC-DEGISTIREBILECEK BULGULAR (maintainer bakacak)
 
 - **[S1]** Panel kaynagi = clean_universe + snapshots parquet katmani; DataHub (src/data/data_hub.py)
   canli-router, motorun panel-girdisi DEGIL. (A4)
@@ -221,7 +221,7 @@ veri-engeli degil. En zayif nokta aylik-frekansta temporal-CPCV gucu (B9) -- tas
 Kod yazilmadi, motor kurulmadi, test kosulmadi (pytest calistirilmadi), mimari/spec karari verilmedi,
 hicbir committed dosya degistirilmedi. Olcumler tek-seferlik read-only bir gecici-script ile uretildi
 (OS temp'inde, repoya yazilmadi). Bu rapor docs/research/ altinda yeni bir teslimat dosyasidir;
-RESEARCH_REGISTRY.md satiri + spec-karari the project'a birakildi.
+RESEARCH_REGISTRY.md satiri + spec-karari maintainer'a birakildi.
 
 *RR-Y1-005 Faz-1 recon -- 2026-06-04. Hukum: tasarim VERI+CODEBASE ile uygulanabilir; 2 kavramsal
 duzeltme (panel-kaynagi, parallel-motor) + 4 netlestirme/guc-uyarisi. Veri-duvari yok.*

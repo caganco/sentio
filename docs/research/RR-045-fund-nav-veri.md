@@ -1,9 +1,9 @@
 # RR-045 — FON-NAV-ARB Veri-Edinim FİZİBİLİTE (ETF/CEF iskonto, holding-DEĞİL)
 
 **Tür:** ARAŞTIRMA / FİZİBİLİTE + veri-edinim-planı (ölçüm-DEĞİL, edge-test-DEĞİL).
-**Tarih:** 3 Haziran 2026. **Builder/the maintainer.**
+**Tarih:** 3 Haziran 2026. **arastirma katmani/maintainer.**
 **Bağlam:** Yol-1 offline-paradigma-havuzu tükendi (cross-sectional hi52/lowvol63/value-regime +
-event dividend/bonus + NAV-holding D-206 hepsi-SERAP). demo-goal-HANDOFF (FINDINGS.md): tek
+event dividend/bonus + NAV-holding D-206 hepsi-SERAP). edge-arastirma-HANDOFF (FINDINGS.md): tek
 deploy-edilebilir reel-getiri motoru = piyasanın kendisi (beta, alfa-değil). NAV-fund-arb
 EN-YÜKSEK-ev olarak işaretlendi: dört-duvardan-kaçar — düşük-turnover + likit + long-only +
 arbitraj-mekanizması-NET.
@@ -12,7 +12,7 @@ arbitraj-mekanizması-NET.
 > ETF/closed-end-FUND iskonto/prim — **FARKLI mekanizma**. Holding iskontosu yönetim/likidite/
 > kontrol-primi-sürücülü ve gürültülü; kapalı-uçlu-fon iskontosu **saf-NAV-arbitraj** (CEF-literatür
 > güçlü: Pontiff 1995, Lee-Shleifer-Thaler 1991). Holding-SERAP bunu yanlışlamaz; yeni-paradigma,
-> meşru-yeni-test. **Bu rapor SADECE veri-fizibilitesi; ölçüm sonraki-adım (the project).**
+> meşru-yeni-test. **Bu rapor SADECE veri-fizibilitesi; ölçüm sonraki-adım (maintainer).**
 
 ---
 
@@ -117,7 +117,7 @@ doğrudan-tekrar-kullanılır.
   daha-saf-NAV-arb (portföy = markete-edilebilir-hisse, kontrol-primi-yok) → **bağımsız-test, SERAP-değil
   diye-iddia-EDİLMEZ ama mekanik-olarak-daha-temiz-aday.**
 
-## Veri-edinim PLANI (the maintainer ne-açmalı) — boşa-veri-toplama-YOK (D-200 dersi)
+## Veri-edinim PLANI (maintainer ne-açmalı) — boşa-veri-toplama-YOK (D-200 dersi)
 
 Önce NE-gerektiği netleşti; minimal-edinim:
 
@@ -125,7 +125,7 @@ doğrudan-tekrar-kullanılır.
 2. **MKYO haftalık-NAV (TEK kritik-eksik):** KAP haftalık net-aktif-değer / birim-pay-değeri bildirimleri.
    - Kaynak: KAP fon-portföy / net-aktif-değer bildirim-arşivi (RR-042'deki MKK_VYK/KAP structured-form
      yolu; auth + IP-rate-limit dikkat). 9-sembol × haftalık × ~yıllar = ORTA-hacim.
-   - the maintainer-aksiyonu: KAP-arşiv-erişimi (veya MKK_VYK CA-benzeri NAV-bildirim endpoint'i) + **açık
+   - maintainer-aksiyonu: KAP-arşiv-erişimi (veya MKK_VYK CA-benzeri NAV-bildirim endpoint'i) + **açık
      istek-bütçesi** (RR-042 kör-pagination-maliyet-uyarısı geçerli). Pre-fetch ÖNCE küçük-prob
      (1-2 sembol, 1 yıl) ile parse-edilebilirlik + lag doğrulanır.
 3. **TEFAS (opsiyonel, yardımcı):** TarihselVeriler 2010+ — yalnız BYF-iNAV-kontrolü / portföy-benchmark
@@ -153,10 +153,10 @@ iddiası temkinli-okunmalı.** Fizibil-değil-DEĞİL; ama "kolay-kazanç" da-de
 
 ## Sonraki adım
 
-1. **the maintainer-karar:** KAP haftalık-NAV küçük-probu (1-2 MKYO, 1 yıl) açılsın-mı → parse + lag + haftalık-
+1. **maintainer-karar:** KAP haftalık-NAV küçük-probu (1-2 MKYO, 1 yıl) açılsın-mı → parse + lag + haftalık-
    çözünürlük + iskonto-büyüklüğü/kalıcılığı ön-bak. (boşa-toplama-yok; ÖNCE-prob).
 2. Prob-OLUMLU-ise: D-206-mimarisini MKYO-haftalık-iskonto-MR'a-uyarla (Stage-0-dondur, time-series-gate,
-   look-ahead-safe-haftalık-lag, LOHO, carry-trap, D-204-maliyet) — **AYRI ölçüm-adımı (the project), bu-rapor-DEĞİL.**
+   look-ahead-safe-haftalık-lag, LOHO, carry-trap, D-204-maliyet) — **AYRI ölçüm-adımı (maintainer), bu-rapor-DEĞİL.**
 3. Prob-OLUMSUZ (NAV-arşiv-sığ/parse-imkansız/iskonto-yok): forward-recorder-only beyan VEYA paradigma-kapat.
 4. **N<=3 kilidi + grid-yasak + measurement-only** kısıtları ölçüm-adımında geçerli; bu-rapor-yalnız-fizibilite.
 

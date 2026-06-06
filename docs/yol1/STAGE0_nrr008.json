@@ -1,14 +1,14 @@
 {
   "directive": "NRR-008",
-  "title": "value-REJIM-KOLU: D-203-identical value tilt gated by a look-ahead-safe inflation-DIRECTION regime (value's 3rd and FINAL round, N<=3). Aday-A DIRECTION-definition, APPROVED by the project 2026-06-03, FROZEN before any edge is measured.",
+  "title": "value-REJIM-KOLU: D-203-identical value tilt gated by a look-ahead-safe inflation-DIRECTION regime (value's 3rd and FINAL round, N<=3). Aday-A DIRECTION-definition, APPROVED by maintainer 2026-06-03, FROZEN before any edge is measured.",
   "preregistered_date": "2026-06-03",
   "config_module": "src/screening/nrr008_config.py",
   "config_version": "nrr008-v1",
-  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE headline is at most an overlay CANDIDATE -- a separate the project decision. Deployment is NEVER auto-triggered.",
+  "decision_owner": "maintainer. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a GERCEK-EDGE headline is at most an overlay CANDIDATE -- a separate maintainer decision. Deployment is NEVER auto-triggered.",
 
   "two_stage_provenance": {
-    "stage1": "docs/yol1/NRR-008-rejim-onerisi.md -- Builder proposed 3 candidate regime variables (A inflation-direction trailing-TUFE; B real-rate TLREF, eliminated by sample length; C USDTRY FX-stress) with ECONOMIC/LITERATURE justification ONLY. NO edge was measured at Stage-1. Selecting among candidates by edge = p-hacking = FORBIDDEN.",
-    "approval": "the project approved Aday-A in DIRECTION form (not a level threshold) on 2026-06-03. The exact rule below is FROZEN here BEFORE any return/t-stat/gate is computed.",
+    "stage1": "docs/yol1/NRR-008-rejim-onerisi.md -- arastirma katmani proposed 3 candidate regime variables (A inflation-direction trailing-TUFE; B real-rate TLREF, eliminated by sample length; C USDTRY FX-stress) with ECONOMIC/LITERATURE justification ONLY. NO edge was measured at Stage-1. Selecting among candidates by edge = p-hacking = FORBIDDEN.",
+    "approval": "maintainer approved Aday-A in DIRECTION form (not a level threshold) on 2026-06-03. The exact rule below is FROZEN here BEFORE any return/t-stat/gate is computed.",
     "stage2": "Full test executed AFTER PR #176 (NRR-007) merge, using the frozen rule below. The engine REFUSES to run unless this file exists."
   },
 
@@ -75,9 +75,9 @@
 
   "verdict_rule_FROZEN_combined": {
     "ELENDI": "cost-free verdict (eng.d203_verdict) == SERAP (EW_FULL-relative <= 0 OR long-short < 0 OR liquidity_collapse OR a cost-free gate FAILS, incl. gate-2 NW|t|<2) -> value-regime ELIMINATED -> value thread CLOSED (N<=3 final). Clean archive; no OOS-gap needed (signal not even real cost-free).",
-    "GERCEK-EDGE": "cost-free verdict GERCEK-EDGE or REJIM-TILT AND realistic after-cost EW_FULL-relative mean > 0 AND breakeven >= 2x realistic cost -> the first deployable value-based Yol-1 cross-sectional CANDIDATE (overlay CANDIDATE; deploy is a separate the project decision, NOT auto-triggered). SURPRISE relative to the static-value SERAP/fragile prior.",
+    "GERCEK-EDGE": "cost-free verdict GERCEK-EDGE or REJIM-TILT AND realistic after-cost EW_FULL-relative mean > 0 AND breakeven >= 2x realistic cost -> the first deployable value-based Yol-1 cross-sectional CANDIDATE (overlay CANDIDATE; deploy is a separate maintainer decision, NOT auto-triggered). SURPRISE relative to the static-value SERAP/fragile prior.",
     "GERCEK-ama-tradeable-DEGIL": "cost-free verdict GERCEK-EDGE or REJIM-TILT BUT realistic after-cost mean <= 0 OR breakeven < 2x realistic cost -> signal real but not retail-tradeable; clean archive, value thread CLOSED.",
-    "oos_gap_MANDATORY": "Every NON-SERAP verdict attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime with a single disinflation episode at the end; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. The regime mask is fit-free (direction rule frozen) but its EFFICACY is not OOS-proven. Deployment is a separate the project decision.",
+    "oos_gap_MANDATORY": "Every NON-SERAP verdict attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime with a single disinflation episode at the end; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. The regime mask is fit-free (direction rule frozen) but its EFFICACY is not OOS-proven. Deployment is a separate maintainer decision.",
     "no_post_hoc_relaxation": "the regime variable, direction rule, 6-month window, t-1 lag, ON/OFF semantics, value definition, gate thresholds, and 2x safety multiple are frozen here; not loosened after seeing results. value N<=3 lock (3rd and FINAL)."
   },
 

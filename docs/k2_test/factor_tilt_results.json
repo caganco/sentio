@@ -26,7 +26,7 @@
   "n_rebalances": 15,
   "profitability_primary": "gpa",
   "primary_variant": "composite_tercile",
-  "decision_owner": "the project (DEC-039)",
+  "decision_owner": "maintainer (DEC-039)",
   "survivorship_bias": "optimistic upper-bound (survivors-only; delisted unfetchable)",
   "tl_real_available": true,
   "usd_real_available": false,

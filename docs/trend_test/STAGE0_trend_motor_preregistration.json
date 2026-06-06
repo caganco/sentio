@@ -9,14 +9,14 @@
     "rules": "RR-039 sec.6 (variants A/B/C)",
     "cost_and_regime": "RR-038 (BSMV on commission; round-trip >= 0.3-0.5%; modern BIST reversal-dominant, regime-dependent)",
     "architecture": "ARCHITECTURE v2.0 sec.3 (Katman A funnel), sec.7.1 (per-trade expectancy gating)",
-    "decision_rule": "DEC-039 -- this program MEASURES; Katman A motor choice is the project"
+    "decision_rule": "DEC-039 -- this program MEASURES; Katman A motor choice is maintainer"
   },
   "objective": "Measure whether the three trend rule variants carry real edge in BIST 2019-2026 via post-cost per-trade expectancy, beating a random-entry benchmark and a net-of-cost buy-and-hold, consistently across regimes. Precondition: no Katman A construction until edge is proven.",
   "universe": {
     "source": "faz0_config.FAZ0_BIST100_CONSTITUENTS (BIST 100 PIT ~2025-2026)",
     "window": {"start": "2019-01-01", "end": "2026-04-30"},
     "liquidity_floor": "median daily TL volume (snapshot._compute_adv) >= 50,000,000 TL over >= 60 days",
-    "adv_substitution_note": "Directive named is_adv_eligible (smart_money_layer); that requires a USD volume_3m_mn_usd shape the OHLCV snapshot does not carry. _compute_adv (TL median) is the fitting reuse. the maintainer-approved substitution."
+    "adv_substitution_note": "Directive named is_adv_eligible (smart_money_layer); that requires a USD volume_3m_mn_usd shape the OHLCV snapshot does not carry. _compute_adv (TL median) is the fitting reuse. maintainer-approved substitution."
   },
   "survivorship": {
     "ideal": "delist/halt included (KOZAA/KOZAL/IPEKE/TRALT etc.)",

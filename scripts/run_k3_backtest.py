@@ -436,7 +436,7 @@ def main() -> None:
             "H1_verdict": h1["verdict"],
             "H2_verdict": h2["verdict"],
             "conclusion": (
-                "Her ikisi PASS -> K3 Yol 2'ye aday (the project karari)"
+                "Her ikisi PASS -> K3 Yol 2'ye aday (maintainer karari)"
                 if h1["verdict"] == "PASS" and h2["verdict"] == "PASS"
                 else "En az biri FAIL -> ilgili nis Yol 2'ye GIRMEZ "
                 "(Yol 1 lab ileri-donuk izleyebilir)"

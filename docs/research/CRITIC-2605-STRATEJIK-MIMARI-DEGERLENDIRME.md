@@ -1,10 +1,10 @@
 # CRITIC 2605 — Stratejik Mimari Değerlendirme: Mevcut Durum, Teşhis ve Yol Haritası
 
 **Tarih:** 2026-05-26  
-**Yazar:** Builder (Claude Sonnet 4.6) — the maintainer ile beyin fırtınası oturumu  
+**Yazar:** Arastirma katmani — maintainer ile beyin fırtınası oturumu  
 **Kapsam:** L1/L2/L6 mimari analizi, "bot vs. danışman" kimlik sorusu, LLM'in gerçek rolü, uzun vadeli yön  
 **Bağlı Backtest:** D-153b (stub-free H2 2025), D-153c (2024 full year)  
-**Status:** Orchestrator'a iletilecek stratejik memo
+**Status:** maintainer'a iletilecek stratejik memo
 
 ---
 
@@ -134,7 +134,7 @@ Yani Claude şu anda bir **reporter**, signal generator değil. Karar sayısal m
 
 ### 3.2 Hedeflenen Gerçeklik (Doğru Vizyon)
 
-the maintainer'ın vizyon ifadesi:
+maintainer'ın vizyon ifadesi:
 > *"Uzman bir danışman gibi olsun istiyorum. Çıkan sonuçlara bakayım, yapay zekanın mevcut duruma dair analizlerini okuyayım."*
 
 Bu vizyon doğru. Ama uygulanabilmesi için mimaride paradigma değişikliği gerekiyor:
@@ -196,7 +196,7 @@ BIST iki nedenden dolayı LLM analizi için **özellikle verimli**:
 | 3 | L6 ya redesign (ağırlık 0.10, ATR-bazlı) ya da composite'ten çıkar | Gürültü azalır veya anlamlı sinyal gelir | Orta |
 | 4 | Volume surge için gradient (örn. 3 seviye: zayıf/güçlü/ekstrem) | L1 sinyal kalitesi artar | Düşük |
 
-*Not: Bu değişiklikler CLAUDE.md gereği spec + etkilenen dosyalar listesiyle Orchestrator onayına sunulmalı.*
+*Not: Bu değişiklikler CLAUDE.md gereği spec + etkilenen dosyalar listesiyle maintainer onayına sunulmalı.*
 
 ### 5.2 Orta Vadeli (CB-014 Tamamlandığında)
 
@@ -252,7 +252,7 @@ Tam stack devreye girdiğinde ne beklenmeli?
 
 ## Bölüm 7: Önerilen Sonraki Adım
 
-**Orchestrator'a Öneri:**
+**maintainer'a Öneri:**
 
 1. Bu raporu okuyun, mimari bulgulara katılıp katılmadığınıza karar verin
 2. Bölüm 5.1'deki hızlı kazanımları spec olarak sıralayın (ayrı D-XXX her biri için)

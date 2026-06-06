@@ -37,7 +37,7 @@ kesin-kapanisi). Kutlama-beklentisi YOK; sonuc-ne-olursa durust raporlanir.
   `eng.score_panel_for("value", pdata, rebal, "bm")` -> `_xs_rank(value_factor_panel(...))`,
   book-to-market primary, ay-sonu fundamentaller 1-ay-lagli (look-ahead-safe). Roll(1984)
   spread + Kyle(1985) impact; lambda_kyle DONMUS.
-- **Rejim-kurali (Aday-A, APPROVED the project 2026-06-03; DIRECTION-not-LEVEL):** rebal-ay M'de
+- **Rejim-kurali (Aday-A, APPROVED maintainer 2026-06-03; DIRECTION-not-LEVEL):** rebal-ay M'de
   `infl_yoy = trailing-12ay-YoY-TUFE`. ON (value-tilt AKTIF = D-203 top-15) eger
   `infl_yoy(M-1) >= infl_yoy(M-7)` (sabit/yukselen VEYA tanimsiz-warmup); OFF (value-tilt KAPALI
   = EW_FULL-notr, relatif-fazla=0) eger `infl_yoy(M-1) < infl_yoy(M-7)` (disinflasyon). 6-ay-
@@ -155,7 +155,7 @@ cost-free-bile gercek-degil; rejim-dayanikligi sorusu hic dogmadi). Yine-de kayi
   Yeni mantik yalniz: look-ahead-safe rejim-etiketi (`regime_mask_for`), OFF-notr-override,
   tilt-only gercekci-gate5 (`gated_tilt_cost_series`), birlesik-verdict.
 - **Disiplin:** Stage-0 sonuclardan ONCE donduruldu (motor yoksa RAISE); rejim-degiskeni
-  edge-GORMEDEN secildi (Iki-asama: the project TEK-degiskeni+yonu 2026-06-03 onayladi); rejim-
+  edge-GORMEDEN secildi (Iki-asama: maintainer TEK-degiskeni+yonu 2026-06-03 onayladi); rejim-
   pencere/lag/YoY-span edge-gormeden donmus (3/6/12-supurme YASAK; post-hoc-gevsetme YOK);
   value-tanimi D-203-BIREBIR; yeni-decision-threshold YOK (yon-degil-seviye); look-ahead-safe
   ZORUNLU; N<=3 (value 3. ve SON-tur). Eleme-de-degerli: kesin-kapatma, temiz-arsiv.

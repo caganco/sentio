@@ -27,7 +27,7 @@
   "n_rebalances": 15,
   "value_primary": "pb",
   "value_robust": "ep",
-  "decision_owner": "the project (DEC-039)",
+  "decision_owner": "maintainer (DEC-039)",
   "survivorship_bias": "optimistic upper-bound (survivors-only; delisted unfetchable)",
   "tl_real_available": true,
   "usd_real_available": false,
@@ -512,7 +512,7 @@
     },
     "verdict_DEC_Y1": {
       "passes_DEC_Y1": true,
-      "classification": "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; the project karari)",
+      "classification": "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; maintainer karari)",
       "gate1_tl_real_sig_positive": true,
       "gate2_beats_fair_null_95": true,
       "gate3_regime_resilient_3way": true,
@@ -1017,7 +1017,7 @@
   },
   "verdict_DEC_Y1": {
     "passes_DEC_Y1": true,
-    "classification": "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; the project karari)",
+    "classification": "PASS -> Yol-2 OVERLAY candidate (<=10-20%, ana-sisteme degil; maintainer karari)",
     "gate1_tl_real_sig_positive": true,
     "gate2_beats_fair_null_95": true,
     "gate3_regime_resilient_3way": true,

@@ -1,7 +1,7 @@
 # RR-035 — MaliTablo Cross-Sectional Tutarlılık Testi (D-182)
 
 **Tarih:** 30 Mayıs 2026
-**Yazar:** Claude Code (Builder) — çift-kaynak canlı probe (throwaway)
+**Yazar:** Arastirma katmani — çift-kaynak canlı probe (throwaway)
 **Status:** ✅ YEŞİL (cross-sectional tutarlı + 3. kaynak teyitli). MaliTablo Faz 0b value IC için kullanılabilir; mutlak-değer stockanalysis.com ile doğrulandı (caveat kapandı).
 **Bağlı:** [RR-033 v2 (D-181)](RR-033-isyatirim-tms29-uyum-testi.md), [RR-032-V3](RR-032-V3-OPENSOURCE-VE-SMART-MONEY.md), NRR-002; pre-reg: [STAGE0_d182](../factor_ic/STAGE0_d182_preregistration.json)
 
@@ -82,7 +82,7 @@ D-181 MaliTablo'nun TMS 29 fidelity'sini BELİRSİZ bulmuştu (mutlak değer). A
 
 ---
 
-## Öneri (DEC-039: önerir, seçmez — karar the project)
+## Öneri (DEC-039: önerir, seçmez — karar maintainer)
 
 - **MaliTablo Faz 0b value IC sıralaması için YEŞİL** — cross-sectional tutarlı, sektör kümeleme yok, bağımsız Mynet ile birebir. D-181'in KIRMIZI-eğilimi tersine döndü.
 - **Önkoşul/güçlendirme:** (a) bir authoritative full-statement ile konsolide-baz + TMS29 teyidi (1 ticker dipnot), (b) banka value'su ayrı ele alınır (F/DD), (c) ALCTL/KLGYO gibi ince-raporlu small-cap'lerde 2. kaynak gap'i kabul edilir veya MKK VYK prod ile doldurulur.

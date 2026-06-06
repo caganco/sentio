@@ -121,12 +121,12 @@ if (decisionsRes?.ok) {
    - /masterplan → strategy document
    - `/decisions` → today's decisions ✨
 3. **Context assembly** → All three sections merged into SYSTEM_PROMPT
-4. **Orchestrator agent** → Has full context on startup
+4. **maintainer agent** → Has full context on startup
 5. **Refresh button** → Re-fetches all three, updates SYSTEM_PROMPT
 
-### Orchestrator Context
+### maintainer Context
 
-When user opens chat, Orchestrator agent immediately has:
+When user opens chat, maintainer agent immediately has:
 - Daily report (portfolio snapshot, signals, analysis)
 - Master plan (strategy, allocation rules)
 - **Trading decisions** (position actions, macro interpretation) ✨
@@ -204,7 +204,7 @@ open chat.html      # in browser
 - Master plan
 - **Latest decisions** ✨
 
-### Ask Orchestrator
+### Ask maintainer
 User can now ask:
 - "Hangi aksiyonları almalıyım?" → Cites decisions document
 - "TAVHL neden sat?" → Explains TRANSITION regime, aviation weakness
@@ -220,7 +220,7 @@ Analyst can now reference decisions:
 # In analyst_chat.py
 decisions_text = load_intelligence_file("decisions_2026-05-13.md")
 analyst_context = f"""
-Orchestrator kararları:
+maintainer kararları:
 {decisions_text}
 
 Buna dayalı detaylı analiz:
@@ -349,7 +349,7 @@ Add endpoints:
 - Trading decisions document created
 - /decisions endpoint added to server
 - chat.html integrated with endpoint
-- Orchestrator context now includes decisions
+- maintainer context now includes decisions
 - All micro-services aligned
 
 ---

@@ -4,7 +4,7 @@
   "preregistered_date": "2026-06-03",
   "config_module": "src/screening/d204_config.py",
   "config_version": "d204-v1",
-  "decision_owner": "the project. Harness MEASURES + RECOMMENDS deploy-readiness; does NOT finalize deployment. Even a DEPLOY-ADAY verdict is an overlay CANDIDATE at most (separate the project decision). Deployment is NEVER auto-triggered.",
+  "decision_owner": "maintainer. Harness MEASURES + RECOMMENDS deploy-readiness; does NOT finalize deployment. Even a DEPLOY-ADAY verdict is an overlay CANDIDATE at most (separate maintainer decision). Deployment is NEVER auto-triggered.",
 
   "discipline_note": "Committed BEFORE any D-204 stress result is computed and BEFORE any result is seen. The engine (src/screening/d204_hi52_stress.py) REFUSES to run unless this file exists. The 5 stresses + the 3-way deploy verdict are FROZEN here and will NOT be relaxed post-hoc (no threshold lowering, no window/lookback widening, no factor redefinition, no cadence/breakeven cherry-picking, no lambda_kyle re-calibration). N=1 candidate (hi52 ISOLATED). MEASUREMENT-ONLY; cost-model calibration is FORBIDDEN (lambda_kyle FROZEN). The cadences (1/2/3-month) and the 0..400bp breakeven grid are reporting VIEWS of one measurement, NOT optimization variants -- no 'best' is selected. REUSES the D-203 frozen panel verbatim (same content hashes -> same universe, no re-measurement of data).",
 
@@ -14,7 +14,7 @@
 
   "basis": [
     "D-203 results docs/yol1/d203_results.json (hi52 GERCEK-EDGE; NW t=3.19; gate-3 both-positive on 2022-01; gate-4 liquid +1.35% / illiquid +1.77%) + STAGE0_d203.json",
-    "RR-015 docs/research/RR-015-TRANSACTION-COST.md sec.3.1 (empirical BIST liquidity-tier half-spreads mega/large/mid/micro) + Tier C Midas 0% commission",
+    "internal cost-research note sec.3.1 (empirical BIST liquidity-tier half-spreads mega/large/mid/micro) + Tier C Midas 0% commission",
     "RR-043 (literature: liquid > illiquid factor premium; the ordering D-203 reversed)",
     "Roll (1984) JF 39(4) close-only effective spread; Abdi-Ranaldo (2017) RFS 30(12) OHLC analogue (UNAVAILABLE -- D-202 panel is close-only)",
     "Kyle (1985) Econometrica 53(6) + Almgren et al. (2005) square-root impact; ballast transaction_cost_v2 (D-193, PORTED not imported)",
@@ -94,7 +94,7 @@
     "GERCEK_ama_tradeable_DEGIL": "liquid-tercile after-cost REAL net <= 0 OR not-liquid-positive-after-cost OR breakeven < realistic cost OR breakeven uncomputable -> real-phenomenon-but-not-deployable (literature-consistent, VALUABLE result).",
     "KIRILGAN": "breakeven < 2x realistic cost (breakeven ~ cost) OR liquid after-cost real net < the TLREF deposit hurdle OR the edge is illiquid-tercile-concentrated after cost (illiquid_still_dominates_after_cost).",
     "DEPLOY_ADAY": "liquid-tercile after-cost real net >= the TLREF deposit hurdle AND breakeven >= 2x realistic cost AND NOT illiquid-concentrated.",
-    "oos_gap_MANDATORY": "Every verdict (all three branches) attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the disinflation 2024-26 window is only a weak proxy; pre-2019 acquisition was rejected. Deployment is a separate the project decision.",
+    "oos_gap_MANDATORY": "Every verdict (all three branches) attaches the explicit OOS-gap statement: the 2019-26 sample is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the disinflation 2024-26 window is only a weak proxy; pre-2019 acquisition was rejected. Deployment is a separate maintainer decision.",
     "no_post_hoc_relaxation": "the stresses, the hurdle, and the 2x safety multiple are frozen; not loosened after seeing results."
   },
 

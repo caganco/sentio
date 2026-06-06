@@ -7,7 +7,7 @@
 > `src/screening/d205_config.py`. Karar esikleri: `src/signals/thresholds.py` (D205_* blok).
 >
 > **Bu bir OLCUMDUR, optimizasyon DEGILDIR.** N=1 aday (hi52 LIKIT-ONCE). Likit-ADV-esigi
-> (1e7 TL) NRR-006 havuz-fizibilitesi + the maintainer-deploy gerekcesiyle, **edge-GORMEDEN** donduruldu
+> (1e7 TL) NRR-006 havuz-fizibilitesi + maintainer-deploy gerekcesiyle, **edge-GORMEDEN** donduruldu
 > (post-hoc esik-secimi YASAK). lambda_kyle DONMUS; buffer (enter15/exit30) raporlama VIEW'i,
 > secim DEGIL. hi52 sinyali D-203 ile BIREBIR. D-203 donmus paneli aynen REUSE (ayni hash).
 > **D-205 = hi52'nin 3. ve SON olcumu (N<=3: D-203 + D-204 + D-205). Dorduncu tur YOK.**
@@ -88,7 +88,7 @@ gercekci-maliyet onu sifirin altina cekiyor.
 | gate4 likit-ici alt-tutarlilik (ust/alt-yari ADV, maliyet-sonrasi) | **FAIL** | ust -%0.20 / alt -%0.72, ikisi-de negatif |
 | gate5 maliyet-sonrasi relatif > 0 | **FAIL** | -%0.89 |
 
-**gate4 / the maintainer-notu (orneklem-boyutu):** her iki yari da **tam basket-boyutu 15** ile calisti
+**gate4 / maintainer-notu (orneklem-boyutu):** her iki yari da **tam basket-boyutu 15** ile calisti
 (basket_size_min = 15, medyan = 15) -- yani gate4-FAIL **kucuk-orneklem gurultusu DEGIL**,
 gercek sinyal-kaybi. Konservatif false-negatif riski (dar-alt-yari) burada GECERLI DEGIL;
 likit-evren her iki yarida da yeterince genis. FAIL gercek.

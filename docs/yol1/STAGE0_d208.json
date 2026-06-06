@@ -4,7 +4,7 @@
   "preregistered_date": "2026-06-04",
   "config_module": "src/screening/d205_config.py (REUSED verbatim -- D-208 changes NO measurement geometry)",
   "config_version": "d205-v1 (reused) + d207-corrected-cost",
-  "decision_owner": "the project. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a TRADEABLE-EDGE verdict is hi52's first deployable Yol-1 FORM (an overlay CANDIDATE at most -- separate the project decision). Deployment is NEVER auto-triggered.",
+  "decision_owner": "maintainer. Harness MEASURES + RECOMMENDS; does NOT finalize deployment. Even a TRADEABLE-EDGE verdict is hi52's first deployable Yol-1 FORM (an overlay CANDIDATE at most -- separate maintainer decision). Deployment is NEVER auto-triggered.",
 
   "what_this_is": "D-208 = D-205-REVISITED. It re-runs the D-205 hi52-liquid 5-gate test on the SAME frozen D-202 panel, SAME hi52 signal (D-203-identical), SAME liquid universe (trailing-63d-median ADV >= 1e7 TL), SAME EW_FULL_LIQUID benchmark, SAME 5 gates, SAME 2-way verdict rule and SAME deploy hurdle. The ONLY difference is the COST INPUT: the D-207-corrected realistic_cost (quoted-primary EOD spread -> 252d-Roll fallback -> re-scaled tier; FIX-1 half-spread doubled; FIX-3 re-tier) replaces the D-205 cost (then-inflated: 21d-Roll PRIMARY + the 2S double-count + the unreachable D-204 tiers).",
 
@@ -49,7 +49,7 @@
     "gate1_selection_null": "Cost-free REAL top-15 vs a fair null drawing random-15 from the SAME liquid pool each period; PASS if the strategy real-mean beats the >=95th percentile of the null. COST-FREE -> identical to D-205 (NOT affected by the cost change).",
     "gate2_newey_west_aftercost": "NW |t| (lags=3) of the AFTER-COST EW_FULL_LIQUID-relative series >= 2.0 (D205_GATE_NW_T_MIN). Computed on the CORRECTED-cost series.",
     "gate3_cross_regime_aftercost": "regime_split at 2022-01-01 on the AFTER-COST (corrected) series -> both sub-periods relative-positive.",
-    "gate4_subtier_consistency": "Within-liquid upper/lower ADV-half (split 0.5); both halves relative-positive AFTER corrected cost; lower-half SAMPLE SIZE reported (the maintainer note).",
+    "gate4_subtier_consistency": "Within-liquid upper/lower ADV-half (split 0.5); both halves relative-positive AFTER corrected cost; lower-half SAMPLE SIZE reported (maintainer note).",
     "gate5_after_cost": "AFTER-COST (corrected) EW_FULL_LIQUID-relative mean > 0."
   },
 
@@ -73,7 +73,7 @@
 
   "verdict_rule_FROZEN_2way_REUSE_D205": {
     "engine": "Reuses d205_hi52_liquid.d205_verdict VERBATIM (no new thresholds, no re-pick).",
-    "TRADEABLE_EDGE": "ALL 5 gates PASS AND liquid-long after-cost REAL net >= the TLREF deposit hurdle AND breakeven >= 2x the CORRECTED realized cost AND pool_size_min >= 15 -> hi52's FIRST deployable Yol-1 FORM (overlay CANDIDATE; deploy is a separate the project decision, NOT auto-triggered).",
+    "TRADEABLE_EDGE": "ALL 5 gates PASS AND liquid-long after-cost REAL net >= the TLREF deposit hurdle AND breakeven >= 2x the CORRECTED realized cost AND pool_size_min >= 15 -> hi52's FIRST deployable Yol-1 FORM (overlay CANDIDATE; deploy is a separate maintainer decision, NOT auto-triggered).",
     "TRADEABLE_DEGIL_significance": "If gate5 (after-cost mean) is now POSITIVE (cost gate passes) BUT gate2 (NW |t| >= 2) FAILS (or any other gate fails) -> hi52-liquid 'not cost, SIGNIFICANCE kills' is now DEFINITE on a fair footing: the inflated-cost excuse is removed, the signal is simply too thin to be statistically tradeable. Clean closure.",
     "oos_gap_MANDATORY": "Every verdict (both branches) attaches the explicit OOS-gap statement: 2019-26 is one long high-inflation regime; a true inflation-normalization OOS is ABSENT; the walk-forward is in-sample and the 2024-26 disinflation window is only a weak proxy. Regime-change robustness is NOT proven.",
     "no_post_hoc_relaxation": "No threshold, safety-multiple, gate, signal, or universe is loosened. The ONLY change vs D-205 is swapping the inflated cost for the D-207-corrected cost."

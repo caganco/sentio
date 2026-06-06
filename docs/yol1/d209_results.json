@@ -1,17 +1,17 @@
 {
   "directive": "D-209",
-  "phase": "H2b TEMETTU-RUNUP re-test (frozen demo-goal signal, D-207 corrected cost)",
+  "phase": "H2b TEMETTU-RUNUP re-test (frozen edge-arastirma signal, D-207 corrected cost)",
   "config_version": "d209-v1",
   "timestamp_utc": "2026-06-04T00:29:30Z",
   "price_content_hash": "fd207550da312b19",
-  "candidate": "H2b TEMETTU-RUNUP (dividend pre-ex run-up, exit before ex -> no tax) -- D-209 ilk-resmi-olcum (N<=3), demo-goal-FLAT-eleme sonrasi D-207-duzeltilmis-maliyet re-test",
+  "candidate": "H2b TEMETTU-RUNUP (dividend pre-ex run-up, exit before ex -> no tax) -- D-209 ilk-resmi-olcum (N<=3), edge-arastirma-FLAT-eleme sonrasi D-207-duzeltilmis-maliyet re-test",
   "detection": {
     "ex_gap_min": 0.005,
     "n_events": 1108,
     "n_symbols": 265,
     "median_est_div_yield": 0.022795,
     "n_liquid_events": 163,
-    "reproduction_band": "demo-goal H2 lab ~1108 events / 265 symbols (BIREBIR)"
+    "reproduction_band": "edge-arastirma H2 lab ~1108 events / 265 symbols (BIREBIR)"
   },
   "cost_model": {
     "model": "D-207 per-stock realistic (Roll+Kyle, EOD-quoted-primary)",
@@ -165,5 +165,5 @@
     "keep_bar_def": "cost-after rel mean>0 AND |t|>=2 (V1 NW lag5 / V2 simple-t) AND regime sign-stable AND survives liquid (>=1e7 ADV)",
     "note": "H2b duzeltilmis-maliyette de tradeable-DEGIL -> KAPANIR, temiz-arsiv (N<=3 SON, 4.tur YOK). onceden-ilan-edilen beklenti (anlamlilik-duvari, hi52-ikizi) OLCUMLE-dogrulandi; maliyet-bahanesi kalkti, kutlama-yok."
   },
-  "honest_framing": "ONCEDEN-ilan: demo-goal FLAT 20bp/side sutununda ZATEN NW-t=0.86(ALL)/1.16(likit); 20bp/side~=40bp round-trip~=D-207 duzeltilmis(~42bp). beklenti=anlamlilik-duvari (hi52-ikizi), kutlama-YOK. sonuc-ne-olursa kaydedilir. N<=3-SON."
+  "honest_framing": "ONCEDEN-ilan: edge-arastirma FLAT 20bp/side sutununda ZATEN NW-t=0.86(ALL)/1.16(likit); 20bp/side~=40bp round-trip~=D-207 duzeltilmis(~42bp). beklenti=anlamlilik-duvari (hi52-ikizi), kutlama-YOK. sonuc-ne-olursa kaydedilir. N<=3-SON."
 }

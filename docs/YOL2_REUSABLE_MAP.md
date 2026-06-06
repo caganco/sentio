@@ -26,11 +26,11 @@
 | Kod tamamlandı mı? | ✅ `src/screening/event_forward_recorder.py` (300+ satır) |
 | Giriş noktası | ✅ `scripts/event_forward_capture.py` (thin wrapper) |
 | `data/event_logs/` var mı? | ❌ HENÜZ YOK — ilk `capture_once()` çalışınca auto-mkdir |
-| Scheduler/otomatik çalışma | ❌ BAĞLI DEĞİL — the maintainer ~haftalık `scripts/event_forward_capture.py` ile elle |
+| Scheduler/otomatik çalışma | ❌ BAĞLI DEĞİL — maintainer ~haftalık `scripts/event_forward_capture.py` ile elle |
 | Canlı sinyal motoruna bağlantı | ❌ YOK (izole; engine/conviction import etmiyor — kasıtlı) |
 | Veri birikimini başlatmak için | `python scripts/event_forward_capture.py` — bir kez çalıştırmak yeterli |
 
-**Öneri:** `data/event_logs/` dizinini başlatmak için the maintainer'ın bir kez scripti elle çalıştırması gerekiyor. İlk çalışma sonrası haftalık rutin oluşturulabilir.
+**Öneri:** `data/event_logs/` dizinini başlatmak için maintainer'ın bir kez scripti elle çalıştırması gerekiyor. İlk çalışma sonrası haftalık rutin oluşturulabilir.
 
 ---
 

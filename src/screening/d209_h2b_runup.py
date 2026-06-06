@@ -1,16 +1,16 @@
-"""D-209 H2b TEMETTU-RUNUP engine -- frozen demo-goal signal, D-207 corrected cost.
+"""D-209 H2b TEMETTU-RUNUP engine -- frozen edge-arastirma signal, D-207 corrected cost.
 
-Re-runs the FROZEN demo-goal H2/H2b dividend pre-ex run-up signal (detection + book PORTED
+Re-runs the FROZEN edge-arastirma H2/H2b dividend pre-ex run-up signal (detection + book PORTED
 bit-for-bit, NO new definition) under the D-207 corrected per-stock realistic cost, replacing
-the demo-goal FLAT 20/100bp-per-side cost that originally eliminated it. Decides: is H2b still
+the edge-arastirma FLAT 20/100bp-per-side cost that originally eliminated it. Decides: is H2b still
 tradeable on a fair (de-inflated) cost ground, or a significance wall like hi52 (D-208)?
 
-Two FROZEN demo-goal variants (NO "best" selected; both gated, best is headline):
-  V1 daily-churn basket (demo-goal h2b_runup_basket.py BIREBIR): EW long-only daily book; a
+Two FROZEN edge-arastirma variants (NO "best" selected; both gated, best is headline):
+  V1 daily-churn basket (edge-arastirma h2b_runup_basket.py BIREBIR): EW long-only daily book; a
      name is HELD on day t iff its ex-date is in [t+1, t+5] (window [-5,-1]); exit before ex
      -> no dividend, no 15% tax. PRIMARY = invested-day market-RELATIVE arithmetic series
      (strat_net - EW_FULL), carry-immune. NW HAC t (lag=5) on that series.
-  V2 low-turnover discrete capture (demo-goal H2 "RUNUP_capture" leg BIREBIR): per (symbol,
+  V2 low-turnover discrete capture (edge-arastirma H2 "RUNUP_capture" leg BIREBIR): per (symbol,
      ex) event ONE round-trip, compound return over [-10,-1] (10 trading days = "hold-10g"),
      EW-combined per ex-month, exit before ex (add_div=False -> no tax). Simple t on the
      monthly cohort relative series (frozen significance metric for the aggregated leg).
@@ -23,7 +23,7 @@ FLAT model (verified by test). The frozen turnover STRUCTURE (enter/exit bodies,
 preserved verbatim -- only the per-name cost rate changes. Cost panel = D-204/D-207
 per_stock_cost_panel (Roll+Kyle, EOD-quoted-primary), REUSED read-only.
 
-Strangler: PORTS the frozen demo-goal detection/book (cannot drift; a reproduction guard
+Strangler: PORTS the frozen edge-arastirma detection/book (cannot drift; a reproduction guard
 asserts ~1108 events / 265 symbols on the local frozen panel) and REUSES the committed D-204
 cost harness + D-205 liquid-universe threshold (>=1e7 absolute ADV). Refuses to run unless
 STAGE0_d209.json exists (pre-registration). MEASUREMENT-ONLY: optimization/grid-sweep
@@ -52,10 +52,10 @@ _MICRO_RT = d204._MICRO_RT   # conservative micro-tier round-trip fallback (shar
 
 
 # ===========================================================================
-# PORTED frozen statistics + detection + windowing (demo-goal H2 lab, BIREBIR)
+# PORTED frozen statistics + detection + windowing (edge-arastirma H2 lab, BIREBIR)
 # ===========================================================================
 def tstat(arr):
-    """Frozen demo-goal simple t-stat of the mean (H0: mean=0). PORT (bit-for-bit)."""
+    """Frozen edge-arastirma simple t-stat of the mean (H0: mean=0). PORT (bit-for-bit)."""
     a = np.array([x for x in arr if np.isfinite(x)], dtype=float)
     if len(a) < 3:
         return np.nan, np.nan, len(a)
@@ -64,7 +64,7 @@ def tstat(arr):
 
 
 def nw_tstat(x, lag=cfg.D209_NW_LAG):
-    """Frozen demo-goal Newey-West HAC t-stat of the mean of series x. PORT (bit-for-bit).
+    """Frozen edge-arastirma Newey-West HAC t-stat of the mean of series x. PORT (bit-for-bit).
 
     Committed eng._nw_t is FIXED at lag=3 (D203_NW_LAGS); H2b's daily series needs lag=5,
     so the frozen estimator is ported rather than reused."""
@@ -85,7 +85,7 @@ def nw_tstat(x, lag=cfg.D209_NW_LAG):
 
 
 def detect_exdates(px: pd.DataFrame, ex_gap_min: float = cfg.D209_EX_GAP_MIN):
-    """Frozen demo-goal ex-date detection. PORT (bit-for-bit).
+    """Frozen edge-arastirma ex-date detection. PORT (bit-for-bit).
 
     Ex-date where the gross-TR-index return exceeds the price-only (adjusted_close) return by
     more than `ex_gap_min` (the reinvested dividend). Returns [(symbol, ex_date, est_yield)]."""
@@ -99,7 +99,7 @@ def detect_exdates(px: pd.DataFrame, ex_gap_min: float = cfg.D209_EX_GAP_MIN):
 
 
 def compound_ret(daily, idx, sym, d, lo, hi):
-    """Frozen demo-goal per-event compound return over [d+lo, d+hi]. PORT (bit-for-bit)."""
+    """Frozen edge-arastirma per-event compound return over [d+lo, d+hi]. PORT (bit-for-bit)."""
     pos = idx.searchsorted(d, side="left")
     if pos >= len(idx) or idx[pos] != d:
         return np.nan
@@ -112,7 +112,7 @@ def compound_ret(daily, idx, sym, d, lo, hi):
 
 
 def compound_window_mkt(mkt, idx, d, lo, hi):
-    """Frozen demo-goal EW-market compound return over [d+lo, d+hi]. PORT (bit-for-bit)."""
+    """Frozen edge-arastirma EW-market compound return over [d+lo, d+hi]. PORT (bit-for-bit)."""
     pos = idx.searchsorted(d, side="left")
     if pos >= len(idx) or idx[pos] != d:
         return np.nan
@@ -125,7 +125,7 @@ def compound_window_mkt(mkt, idx, d, lo, hi):
 
 
 def _cpi_ratio(cpi, idx, d, lo, hi):
-    """Frozen demo-goal CPI ratio over the event window (real-return deflator). PORT."""
+    """Frozen edge-arastirma CPI ratio over the event window (real-return deflator). PORT."""
     if cpi is None or len(cpi) == 0:
         return np.nan
     pos = idx.searchsorted(d, side="left")
@@ -139,7 +139,7 @@ def _cpi_ratio(cpi, idx, d, lo, hi):
 
 
 def build_holdings(events_cols, idx, lo=cfg.D209_HOLD_LO, hi=cfg.D209_HOLD_HI):
-    """Frozen demo-goal V1 holdings. PORT (bit-for-bit).
+    """Frozen edge-arastirma V1 holdings. PORT (bit-for-bit).
 
     Returns held: list (len=ndays) of column-int lists held that day; a name (col,ex) is held
     on day t iff its ex-date is in [t-lo .. t-hi] forward, i.e. ex in [t+1, t+5] for [-5,-1].
@@ -302,7 +302,7 @@ def run_v1(events, daily, ew, idx, cost_roll, label="ALL"):
 # V2 -- low-turnover discrete capture [-10,-1] under D-207 per-name cost
 # ===========================================================================
 def run_v2(events, daily, mkt, idx, cpi, cost_roll, label="ALL"):
-    """Frozen demo-goal RUNUP_capture leg [-10,-1] (per-event, EW-per-ex-month), with the FLAT
+    """Frozen edge-arastirma RUNUP_capture leg [-10,-1] (per-event, EW-per-ex-month), with the FLAT
     2*bp cost replaced by the D-207 per-event round-trip rt[sym] (evaluated at the entry day).
     rel_t = simple t on the monthly cohort series (frozen significance metric for this leg)."""
     lo, hi = cfg.D209_V2_HOLD_LO, cfg.D209_V2_HOLD_HI
@@ -399,7 +399,7 @@ def d209_verdict(v1_all, v1_liq, v2_all, v2_liq) -> dict:
         "V1" if (v1_liq.get("net_rel_nw_t") or 0) >= (v2_liq.get("net_rel_t") or 0) else "V2"))
     if any_pass:
         verdict = "TRADEABLE-EDGE"
-        note = ("H2b duzeltilmis-maliyette TRADEABLE -> deploy-aday (the project "
+        note = ("H2b duzeltilmis-maliyette TRADEABLE -> deploy-aday (maintainer "
                 "sonraki-adim). beklenti-disi: onceden-ilan-edilen anlamlilik-duvari ASILDI.")
     else:
         verdict = "YINE-TRADEABLE-DEGIL"
@@ -416,7 +416,7 @@ def d209_verdict(v1_all, v1_liq, v2_all, v2_liq) -> dict:
 
 
 # ===========================================================================
-# Orchestrator
+# maintainer
 # ===========================================================================
 def run_d209(
     root: Path | str = cfg.D209_CLEAN_UNIVERSE_ROOT,
@@ -426,7 +426,7 @@ def run_d209(
     quoted_panel: pd.DataFrame | None = None,
 ) -> dict:
     """Full D-209 H2b re-test. REFUSES to run unless STAGE0_d209.json exists (pre-registration).
-    PORTS the frozen demo-goal detection/book; REUSES the D-204/D-207 cost harness + D-203 panel.
+    PORTS the frozen edge-arastirma detection/book; REUSES the D-204/D-207 cost harness + D-203 panel.
 
     `quoted_panel` (default None) is forwarded to the cost harness; injecting the D-207 EOD
     quoted-spread panel reproduces the corrected quoted-primary cost (the D-208/D-209 fix)."""
@@ -449,11 +449,11 @@ def run_d209(
     events = [(s, d, y) for (s, d, y) in raw if s in daily.columns]
     n_ev = len(events)
     n_sym = len(set(s for s, _, _ in events))
-    # frozen-detection reproduction guard (demo-goal H2 lab ~1108/265 on this panel)
+    # frozen-detection reproduction guard (edge-arastirma H2 lab ~1108/265 on this panel)
     if not (900 <= n_ev <= 1300 and 220 <= n_sym <= 300):
         raise RuntimeError(
             f"D-209 detection drift: {n_ev} events / {n_sym} symbols outside the frozen "
-            f"demo-goal band (~1108/265). Detection must reproduce BIT-FOR-BIT.")
+            f"edge-arastirma band (~1108/265). Detection must reproduce BIT-FOR-BIT.")
 
     # liquid-restricted event set (D-205 absolute >=1e7 ADV at the ex-date)
     liq_events = [(s, d, y) for (s, d, y) in events if liquid_at(value_tl, idx, s, d)]
@@ -475,7 +475,7 @@ def run_d209(
 
     out = {
         "directive": "D-209",
-        "phase": "H2b TEMETTU-RUNUP re-test (frozen demo-goal signal, D-207 corrected cost)",
+        "phase": "H2b TEMETTU-RUNUP re-test (frozen edge-arastirma signal, D-207 corrected cost)",
         "config_version": cfg.D209_CONFIG_VERSION,
         "timestamp_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "price_content_hash": cfg.D209_PRICE_CONTENT_HASH,
@@ -484,7 +484,7 @@ def run_d209(
             "ex_gap_min": cfg.D209_EX_GAP_MIN, "n_events": n_ev, "n_symbols": n_sym,
             "median_est_div_yield": eng._r(float(np.median([y for _, _, y in events]))),
             "n_liquid_events": len(liq_events),
-            "reproduction_band": "demo-goal H2 lab ~1108 events / 265 symbols (BIREBIR)",
+            "reproduction_band": "edge-arastirma H2 lab ~1108 events / 265 symbols (BIREBIR)",
         },
         "cost_model": {
             "model": "D-207 per-stock realistic (Roll+Kyle, EOD-quoted-primary)",
@@ -497,7 +497,7 @@ def run_d209(
         "v2_discrete_capture": {"ALL": v2_all, "LIQUID": v2_liq},
         "verdict": verdict,
         "honest_framing": (
-            "ONCEDEN-ilan: demo-goal FLAT 20bp/side sutununda ZATEN NW-t=0.86(ALL)/1.16(likit); "
+            "ONCEDEN-ilan: edge-arastirma FLAT 20bp/side sutununda ZATEN NW-t=0.86(ALL)/1.16(likit); "
             "20bp/side~=40bp round-trip~=D-207 duzeltilmis(~42bp). beklenti=anlamlilik-duvari "
             "(hi52-ikizi), kutlama-YOK. sonuc-ne-olursa kaydedilir. N<=3-SON."),
     }

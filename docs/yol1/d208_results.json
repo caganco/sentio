@@ -517,7 +517,7 @@
       "gate2_newey_west FAIL"
     ],
     "close_note": "hi52 KESIN-KAPANIR (N<=3 son): gercek-fenomen ama likit-once bile retail-tradeable-degil; temiz-arsiv, D-204-verdict ile tutarli",
-    "oos_gap": "OOS-BOSLUK: ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi. Gercek enflasyon-normallesme OOS YOK -> rejim-degisim dayanikligi KANITLANAMAZ. Walk-forward in-sample; disinflasyon 2024-26 YALNIZCA zayif-proxy. pre-2019 acquisition reddedildi (corp-action-yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri the project karari."
+    "oos_gap": "OOS-BOSLUK: ornek (2019-2026) tek-uzun yuksek-enflasyon rejimi. Gercek enflasyon-normallesme OOS YOK -> rejim-degisim dayanikligi KANITLANAMAZ. Walk-forward in-sample; disinflasyon 2024-26 YALNIZCA zayif-proxy. pre-2019 acquisition reddedildi (corp-action-yok -> kirli, D-185-riski). Bu bir olcumdur; deployment ayri maintainer karari."
   },
   "revisited_of": "D-205 (records untouched; verdict preserved historically)",
   "only_difference": "D-207-corrected realistic_cost (quoted-primary EOD spread -> 252d-Roll fallback -> re-scaled tier; FIX-1 half-spread doubled; FIX-3 re-tier). Signal/universe/benchmark/gates/hurdle D-205-IDENTICAL.",

@@ -1,6 +1,6 @@
 """D-188 -- FORWARD (paper) recorder: accrue clean, look-ahead-free event samples.
 
-the maintainer's insight: MKK_VYK_TOKEN may not arrive for a long time, so historical backtest
+maintainer's insight: MKK_VYK_TOKEN may not arrive for a long time, so historical backtest
 stays blocked. A forward recorder instead accrues UNBIASED samples from today: it
 captures catalyst events in real time (auth-free KAP feed), records the pre-registered
 signal BEFORE the forward outcome exists, and fills t+5/+20/+60 returns later. Look-ahead,
@@ -14,7 +14,7 @@ Storage (separate from the live signal_logs -- strangler):
   data/event_logs/event_signals.parquet   (immutable; idempotent on natural_key)
   data/event_logs/event_returns.parquet    (append-only; idempotent on (natural_key, horizon))
 
-MANUAL-TRIGGER by default (the maintainer runs it ~weekly); cron wiring is deferred. No
+MANUAL-TRIGGER by default (maintainer runs it ~weekly); cron wiring is deferred. No
 composite/engine imports.
 """
 from __future__ import annotations
@@ -79,7 +79,7 @@ def events_from_news(news_items: list[dict]) -> list[dict]:
     """Map auth-free KAP/news items -> event dicts (pure, network-free).
 
     surprise_real is left None for E1 (the auth-free feed has no magnitude; it is
-    filled later when fundamentals/token arrive -- the maintainer's chosen scope: capture the
+    filled later when fundamentals/token arrive -- maintainer's chosen scope: capture the
     earnings DISCLOSURE + technical confirm now, magnitude later).
     """
     events: list[dict] = []

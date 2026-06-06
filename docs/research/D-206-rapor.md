@@ -13,11 +13,11 @@
 > cross-sectional faktor-secimi TUKENDI (hi52 KAPANDI D-205, lowvol63 ELENDI NRR-007, value-regime
 > ELENDI NRR-008 -- 3/3 kapandi). Bu CROSS-SECTIONAL DEGIL: her holding KENDI iskonto-zaman-
 > serisine sahip ve KENDI gecmisine gore standardize edilir. **NAV-discount ilk turu = N<=3 kilidi
-> 1.** Sinyal-VARSA tam RR-013 mimarisi AYRI-sonraki-adim (the project); bu yalniz ilk-okuma.
+> 1.** Sinyal-VARSA tam RR-013 mimarisi AYRI-sonraki-adim (maintainer); bu yalniz ilk-okuma.
 
 ## 1. Soru
 
-the project karari (pre-condition RR-044 tamam): holding-sirketi **NAV-iskonto mean-reversion** --
+maintainer karari (pre-condition RR-044 tamam): holding-sirketi **NAV-iskonto mean-reversion** --
 TIME-SERIES, dusuk-turnover, retail-uygun. Literatur (Pontiff 1995; CEF premia mean-revert,
 yari-omur 7.7-10.3 ay): bir holding'in NAV-iskontosu KENDI tarihsel ortalamasina geri-doner.
 Hipotez: **iskonto-Z YUKSEK** (iskonto genis -> holding ucuz) -> **forward-return POZITIF** (MR).
@@ -28,7 +28,7 @@ DEGERLI bir sonuc. Kutlama-beklentisi YOK. Sonuc-ne-olursa durust raporlanir.
 
 ## 2. Olcum cercevesi (Stage-0'da donmus)
 
-- **Evren (FROZEN):** 6 holding -- KCHOL, SAHOL, AGHOL, BRYAT, ALARK, DOHOL. Builder-curate;
+- **Evren (FROZEN):** 6 holding -- KCHOL, SAHOL, AGHOL, BRYAT, ALARK, DOHOL. arastirma katmani-curate;
   her holding `listed_subsidiaries[ticker, stake_pct]` + dogrulama-flag. ALARK/DOHOL
   `listed_fraction_low` flagli (DIKKAT: listelenmemis-istirak payi yuksek). AGHOL kisa (2018+).
   CCOLA HARIC (AEFES uzerinden cift-sayim).
@@ -117,7 +117,7 @@ degil ve OOS-zayif (asagi). Sonuc: BIST-holding NAV-iskontosu olculen-pencerede 
 
 ## 6. Sonraki adim
 
-NAV-discount ilk-turu (N<=3, 1/3) = **SERAP**. Sinyal-VARSA tam RR-013 mimarisi AYRI-the project-adimi
+NAV-discount ilk-turu (N<=3, 1/3) = **SERAP**. Sinyal-VARSA tam RR-013 mimarisi AYRI-maintainer-adimi
 olacakti; sinyal-YOK -> mimari-adim TETIKLENMEZ. Temiz-arsiv, kesin-okuma. Beklenti (BELIRSIZ)
-dogrulandi; kutlama-yok. NAV-discount 2./3. turu (farkli-tanim/horizon) the project-karari -- bu
+dogrulandi; kutlama-yok. NAV-discount 2./3. turu (farkli-tanim/horizon) maintainer-karari -- bu
 oturumda yeni-tur ACILMAZ (grid-supurme YASAK, N<=3 kilidi).

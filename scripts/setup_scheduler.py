@@ -37,7 +37,7 @@ def create_task() -> None:
     print(f"Gorev '{TASK_NAME}' olusturuluyor (run-only-when-logged-on, sifresiz).")
     print("Bu komut Administrator PowerShell'den calistirilmalidir.")
 
-    # Pin the task's working directory to the project root. Task Scheduler
+    # Pin the task's working directory to maintainer root. Task Scheduler
     # otherwise launches in %SystemRoot%\System32, where relative paths
     # (config.yaml, positions.yaml, parquet snapshots) resolve wrong and the
     # run fails. `cmd /c cd /d "<root>" && ...` fixes the CWD before Python

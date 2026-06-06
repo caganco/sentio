@@ -11,7 +11,7 @@ What it does:
   4. Dumps all relevant cookies to datastore_session.json (gitignored).
   5. Prints the x-auth-token value so you can verify it.
 
-D-130 Builder uses datastore_session.json to load x-auth-token for API calls.
+D-130 arastirma katmani uses datastore_session.json to load x-auth-token for API calls.
 
 SECURITY: datastore_session.json is gitignored via *_session.json pattern.
 Never commit it. Never paste the token in chat.

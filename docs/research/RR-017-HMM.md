@@ -12,19 +12,19 @@
 
 ## TL;DR (§1)
 
-> Hedef okuyucu: the projectrchestrator. Builder §5–§12'yi okur.
+> Hedef okuyucu: maintainer. arastirma katmani §5–§12'yi okur.
 
 - **Karar:** 3-state Gaussian HMM (Bull/Neutral/Bear). RR-003 §1 gerekçesi + 3 bağımsız argüman (sticky regime, Türk literatür kümesi, alternatiflere konum) §3'te.
 - **Feature seti:** Tier 1 = BIST 100 log-return, 20-gün realized vol, USD/TRY log-return, Türkiye 5Y CDS değişimi. Tier 2/3 ablation amaçlı.
 - **Alpha beklentisi:** Wang–Lin–Mikhelson (2020, *J. Risk and Financial Management* 13(12):311, DOI 10.3390/jrfm13120311) S&P 500'de 3-state HMM rotation modelinin Eylül 2017 – Nisan 2020 OOS penceresinde "higher annualized returns" ve "both a higher Sharpe ratio and a higher Treynor ratio when compared to the rest of the other models" verdiğini raporlar; **spesifik yıllık abnormal-return rakamı raporun makale içi Table 5'inde olup özetten doğrulanamadı**. Critic CB-002 "8–10 puan/yıl" finding'i BIST için **post-OOS doğrulanmadan kabul edilmez**.
-- **Aktivasyon timeline (iki paralel senaryo):** Erken Q3 2026 (Şubat OOS başlangıç + 180g), Geç Q4 2026 (Mayıs OOS başlangıç + 180g). **the maintainer açık soru:** Alpha Attribution Phase 1 IC dashboard OOS veri üretimine ne zaman başladı? Resmi log yoksa **muhafazakar Kasım 2026 varsayım**.
-- **Bugünden iş YOK:** ENABLE_HMM_WEIGHTS=False, MASTER_WEIGHTS değişmez. Bu rapor AG-001 günü Builder'ın elinde bulunması gereken belgedir.
+- **Aktivasyon timeline (iki paralel senaryo):** Erken Q3 2026 (Şubat OOS başlangıç + 180g), Geç Q4 2026 (Mayıs OOS başlangıç + 180g). **maintainer açık soru:** Alpha Attribution Phase 1 IC dashboard OOS veri üretimine ne zaman başladı? Resmi log yoksa **muhafazakar Kasım 2026 varsayım**.
+- **Bugünden iş YOK:** ENABLE_HMM_WEIGHTS=False, MASTER_WEIGHTS değişmez. Bu rapor AG-001 günü arastirma katmani'ın elinde bulunması gereken belgedir.
 
 ---
 
 ## §2. Akademik Temel + BIST Literatürü
 
-> Hedef okuyucu: the maintainer & Builder.
+> Hedef okuyucu: maintainer & arastirma katmani.
 
 **Akademik dayanak:**
 | Çalışma | Katkı | Kaynak |
@@ -54,9 +54,9 @@
 
 ## §3. Neden HMM? (RR-003 referans + 3 bağımsız argüman)
 
-> Hedef okuyucu: the maintainer + Builder. RR-003 §1 Aşama 1 HMM gerekçesini detaylı verir (düşük parametre, hmmlearn olgunluğu, finansal HMM literatür, sklearn API). RR-017 bunu tekrar etmez; 3 ek argüman:
+> Hedef okuyucu: maintainer + arastirma katmani. RR-003 §1 Aşama 1 HMM gerekçesini detaylı verir (düşük parametre, hmmlearn olgunluğu, finansal HMM literatür, sklearn API). RR-017 bunu tekrar etmez; 3 ek argüman:
 
-**3.1 Sticky regime — BIST'in deneysel imzası.** Samırkaş (2021, TVTP-MS) verbatim: *"BIST getiri serisinin boğa piyasası rejimindeyken bir sonraki dönemde tekrardan boğa piyasası rejiminde kalma olasılığı … %96,20 olmuştur. Ayı piyasası rejimindeyken tekrardan ayı piyasasında kalma olasılığı ise yaklaşık %86'dır."* HMM transition matrix diagonal'ı tam bu yapıyı modeller → uzun sojourn, düşük false-positive geçiş. CB-002 "64 ay bull / 11 ay bear" finding'i **Şenol (2020) sayısal değerleridir; orijinal çalışma birim "ay" mı "gün" mü açıkça belirtmemiş**, Samırkaş günde 7.75/32.64 raporlar — Builder §3.1 Validation not'unda bu birim ayrımını belgelemeli.
+**3.1 Sticky regime — BIST'in deneysel imzası.** Samırkaş (2021, TVTP-MS) verbatim: *"BIST getiri serisinin boğa piyasası rejimindeyken bir sonraki dönemde tekrardan boğa piyasası rejiminde kalma olasılığı … %96,20 olmuştur. Ayı piyasası rejimindeyken tekrardan ayı piyasasında kalma olasılığı ise yaklaşık %86'dır."* HMM transition matrix diagonal'ı tam bu yapıyı modeller → uzun sojourn, düşük false-positive geçiş. CB-002 "64 ay bull / 11 ay bear" finding'i **Şenol (2020) sayısal değerleridir; orijinal çalışma birim "ay" mı "gün" mü açıkça belirtmemiş**, Samırkaş günde 7.75/32.64 raporlar — arastirma katmani §3.1 Validation not'unda bu birim ayrımını belgelemeli.
 
 **3.2 Türk literatür dominant choice.** Türk BIST regime çalışmaları 2-state MS'e ağırlık veriyor; 3-state HMM seyrek. Bu **boşluk fırsat** (granular Bull/Neutral/Bear) ama **risk** (overfit). RR-017 §4 BIC ile doğrulama yaptırır.
 
@@ -68,7 +68,7 @@ Verbatim Shu-Yu-Mulvey (2024, arXiv:2402.05272): *"the statistical jump model (J
 
 ## §4. State Sayısı Kararı
 
-> Hedef okuyucu: Builder.
+> Hedef okuyucu: arastirma katmani.
 
 **4.1 Trade-off:**
 | Boyut | 2-state | 3-state | 4-state | 5-state |
@@ -99,7 +99,7 @@ Beklenti: 2→3 BIC↓; 3→4 marjinal; 4→5 BIC↑.
 
 **4.3 Öneri:** 3-state başlangıç + 4-state ablation post AG-001. 5-state YASAK.
 
-**4.4 Builder Validation Checklist — State sayısı:**
+**4.4 arastirma katmani Validation Checklist — State sayısı:**
 - [ ] BIC tablosu 2/3/4/5 üretildi mi?
 - [ ] Persistence (diag transmat) her state raporlandı mı?
 - [ ] Walk-forward'da state etiketleri stabil (permutation çözüldü) mi?
@@ -110,7 +110,7 @@ Beklenti: 2→3 BIC↓; 3→4 marjinal; 4→5 BIC↑.
 
 ## §5. Feature Engineering
 
-> Hedef okuyucu: Builder.
+> Hedef okuyucu: arastirma katmani.
 
 **5.1 Tier 1 (minimum, production başlangıç):**
 ```
@@ -137,7 +137,7 @@ Gerekçe literatür-türevi: Şenol (2020) BIST + USD/TRY + tahvil faizi; Wang-L
 z_t = (x_t - mean(x_{t-180:t-1})) / std(x_{t-180:t-1})
 ```
 
-**5.7 Builder Validation Checklist — Feature:**
+**5.7 arastirma katmani Validation Checklist — Feature:**
 - [ ] Tier 1 her feature ADF p<0.05 (log-return form) mu?
 - [ ] Pairwise VIF<5 mi?
 - [ ] Rolling 180-gün z-score lookahead-free mi?
@@ -148,7 +148,7 @@ z_t = (x_t - mean(x_{t-180:t-1})) / std(x_{t-180:t-1})
 
 ## §6. Kalibrasyon Metodolojisi
 
-> Hedef okuyucu: Builder.
+> Hedef okuyucu: arastirma katmani.
 
 **6.1 hmmlearn baseline (v0.3.x, https://hmmlearn.readthedocs.io/en/stable/):**
 ```python
@@ -186,7 +186,7 @@ assert means[bull_idx] > means[neutral_idx] > means[bear_idx], "State sıralama 
 assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 ```
 
-**6.7 Builder Validation Checklist — Kalibrasyon:**
+**6.7 arastirma katmani Validation Checklist — Kalibrasyon:**
 - [ ] hmmlearn ≥0.3.0 (`requirements.txt`)?
 - [ ] `random_state=42` tüm runs?
 - [ ] Training 36 ay > min veri?
@@ -197,7 +197,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 ## §7. Validation Framework
 
-> Hedef okuyucu: Builder + the maintainer.
+> Hedef okuyucu: arastirma katmani + maintainer.
 
 **7.1 In-sample metrikler:**
 | Metrik | Hesap | Eşik | Sanity |
@@ -221,7 +221,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 **7.5 Crisis period test:** §8'de 5 dönem, hindsight bias açıkça flag.
 
-**7.6 Builder Validation Checklist — Validation:**
+**7.6 arastirma katmani Validation Checklist — Validation:**
 - [ ] LL > baseline +%5?
 - [ ] BIC k-state minimum?
 - [ ] CPCV PBO < 0.5?
@@ -232,7 +232,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 ## §8. Crisis Period Kavramsal Simülasyon
 
-> Hedef okuyucu: Builder + the maintainer. **HINDSIGHT BIAS UYARISI:** Tüm "real-time HMM state" yorumları **retrospektif simülasyon**; gerçek zamanlı kalibre edilmiş model söz konusu değil. Her kriz için açıkça retrospektif olduğu işaretleniyor.
+> Hedef okuyucu: arastirma katmani + maintainer. **HINDSIGHT BIAS UYARISI:** Tüm "real-time HMM state" yorumları **retrospektif simülasyon**; gerçek zamanlı kalibre edilmiş model söz konusu değil. Her kriz için açıkça retrospektif olduğu işaretleniyor.
 
 ### 8.1 Ağustos 2018 — TRY krizi (Brunson)
 
@@ -245,7 +245,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 **Structural break vs state transition:** **State transition.** Politika çerçevesi değişmedi; model parametreleri korunmalı, sadece transition matrix update.
 
-**Builder Validation Checklist — 2018 TRY krizi:**
+**arastirma katmani Validation Checklist — 2018 TRY krizi:**
 - [ ] HMM 2018 Ağustos haftasında Bear geçişi ≤42 trading day içinde tespit etti mi?
 - [ ] CDS feature çıkarılırsa lag artıyor mu (Tier 1 ablation)?
 - [ ] Geçiş confidence min 0.55 üzerinde mi?
@@ -265,7 +265,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 **V-recovery handling kritik:** §13.5 — `manual_override_flag`; V-shape sırasında 7-gün MA smoothing.
 
-**Builder Validation Checklist — 2020 COVID:**
+**arastirma katmani Validation Checklist — 2020 COVID:**
 - [ ] HMM Mart 2020 ilk yarısında Bear'a geçti mi?
 - [ ] V-recovery sırasında (Nis-May 2020) Bear'da kalış süresi? >3 ay = false-defensive flag.
 - [ ] VIX (Tier 2) erken-uyarı 21 Şub 2020 öncesi/sonrası fark sağladı mı?
@@ -283,7 +283,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 **Structural break vs state transition:** **STRUCTURAL BREAK.** §6.5 — pre/post 2023 Haziran ayrı modeller; parametre miras yasak.
 
-**Builder Validation Checklist — 2023 politika değişikliği:**
+**arastirma katmani Validation Checklist — 2023 politika değişikliği:**
 - [ ] Pre/post 2023 Haziran ayrı modeller fit edildi mi?
 - [ ] KPSS rolling 6-ay TLREF spread için H0 reddediliyor mu (structural break sinyali)?
 - [ ] Post-Haziran 2023 model warm-up 6 ay kullandı mı?
@@ -301,7 +301,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 **Structural break vs state transition:** **Kısa-süreli vol spike** — state transition formal tetiklenmeyebilir. HMM bu tip 1-hafta-içi olayları yakalamak için tasarlanmamış — RR-016 vol-targeting daha uygun katman.
 
-**Builder Validation Checklist — 2023 Mayıs seçim:**
+**arastirma katmani Validation Checklist — 2023 Mayıs seçim:**
 - [ ] HMM Mayıs 2023 haftasında state değiştirdi mi? Lag kaç gün?
 - [ ] 14 Mayıs öncesi/sonrası 5-gün pencerede vol/return Z-score outlier flag tetikledi mi?
 - [ ] Manual override (kısa-pencere şok) test edildi mi?
@@ -319,7 +319,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 **Structural break vs state transition:** **Non-event** (HMM açısından) — sadece bir günlük vol spike.
 
-**Builder Validation Checklist — 2024 Mart yerel:**
+**arastirma katmani Validation Checklist — 2024 Mart yerel:**
 - [ ] HMM bu pencerede state değiştirmediğini doğrula (false-positive yok mu)?
 - [ ] Değiştiyse = overfit işareti, investigation.
 - [ ] Vol spike RR-016 vol-targeting tarafından handle edildi mi?
@@ -340,7 +340,7 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 
 ## §9. AG-001 Aktivasyon Detaylı
 
-> Hedef okuyucu: the maintainer (karar günü) + Builder.
+> Hedef okuyucu: maintainer (karar günü) + arastirma katmani.
 
 **9.1 4 ana kriter:**
 
@@ -359,10 +359,10 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 □ 3. BIC: 3-state minimum, 4-state ΔBIC<10
 □ 4. CPCV DSR > 0 (one-sided p<0.05) — López de Prado 2018
 □ 5. OOS Sharpe iyileşmesi ≥ +0.15 vs static MASTER_WEIGHTS
-□ 6. 5 kriz testi geçti (§8 her Builder Val Checklist)
+□ 6. 5 kriz testi geçti (§8 her arastirma katmani Val Checklist)
 □ 7. Lag ≤ 42 trading day
 □ 8. ENABLE_HMM_WEIGHTS toggle (off↔on, NAV continuity) test edildi
-□ 9. the maintainer + Builder dual sign-off (CB-002 protokolü)
+□ 9. maintainer + arastirma katmani dual sign-off (CB-002 protokolü)
 ```
 
 **9.3 İki paralel senaryo:**
@@ -371,18 +371,18 @@ assert vols[bear_idx] > vols[bull_idx], "Bear vol Bull'dan düşük → anomali"
 | Erken | ~Şubat 2026 | ~Ağustos 2026 | Q3 2026 (Eylül) |
 | Geç (muhafazakar) | ~Mayıs 2026 | ~Kasım 2026 | Q4 2026 (Aralık) |
 
-**9.4 the maintainer açık sorusu:**
+**9.4 maintainer açık sorusu:**
 > **Q:** Alpha Attribution Phase 1 IC dashboard OOS veri üretimine fiilen ne zaman başladı?
-> **Net cevap:** Bu rapor tarihi itibarıyla (25 Mayıs 2026) the maintainer notlarında resmi başlangıç tarihi belgelenmemiş.
-> **Implementation önerisi:** **Muhafazakar Kasım 2026 varsayım**. Erken senaryo the maintainer onayı ile aktive edilebilir, default geç.
+> **Net cevap:** Bu rapor tarihi itibarıyla (25 Mayıs 2026) maintainer notlarında resmi başlangıç tarihi belgelenmemiş.
+> **Implementation önerisi:** **Muhafazakar Kasım 2026 varsayım**. Erken senaryo maintainer onayı ile aktive edilebilir, default geç.
 
-**9.5 Karar protokolü:** Aylık the maintainer review → 9 maddenin 9'u tikli + tüm Builder Val Checklist (§4.4, §5.7, §6.7, §7.6, §8.×, §10.5, §11.5, §12.5) yeşil → PR → main merge → `ENABLE_HMM_WEIGHTS=True` toggle + dual sign-off. Rollback: ilk 30 gün manuel gözlem; tek satır revert garantili.
+**9.5 Karar protokolü:** Aylık maintainer review → 9 maddenin 9'u tikli + tüm arastirma katmani Val Checklist (§4.4, §5.7, §6.7, §7.6, §8.×, §10.5, §11.5, §12.5) yeşil → PR → main merge → `ENABLE_HMM_WEIGHTS=True` toggle + dual sign-off. Rollback: ilk 30 gün manuel gözlem; tek satır revert garantili.
 
 ---
 
 ## §10. HMM-Conditional Weights
 
-> Hedef okuyucu: Builder. Mevcut MASTER_WEIGHTS DEĞİŞMEZ; paralel kolon.
+> Hedef okuyucu: arastirma katmani. Mevcut MASTER_WEIGHTS DEĞİŞMEZ; paralel kolon.
 
 **10.1 Statik (değişmez):**
 ```python
@@ -424,18 +424,18 @@ def get_weights():
     return MASTER_WEIGHTS  # default
 ```
 
-**10.5 Builder Validation Checklist — Weights:**
+**10.5 arastirma katmani Validation Checklist — Weights:**
 - [ ] Her state Σ=1.00 ± 1e-6?
 - [ ] Confidence 0.50/0.60/0.70 sınır blend test edildi mi?
 - [ ] ENABLE_HMM_WEIGHTS=False default sabit mi?
 - [ ] Toggle on/off NAV continuity test edildi mi?
-- [ ] HMM_WEIGHTS_BY_STATE config (YAML/JSON) the maintainer tarafından review edildi mi?
+- [ ] HMM_WEIGHTS_BY_STATE config (YAML/JSON) maintainer tarafından review edildi mi?
 
 ---
 
 ## §11. POSITION_SIZER_V3 + HMM Entegrasyonu
 
-> Hedef okuyucu: Builder. RR-016 V3 + CB-002 macro gate interaction matrix.
+> Hedef okuyucu: arastirma katmani. RR-016 V3 + CB-002 macro gate interaction matrix.
 
 **11.1 Architecture impact:**
 ```
@@ -482,7 +482,7 @@ ENABLE_HMM_WEIGHTS = False
 assert effective_exposure(1.0, 0, "BULL", 0.9) == 1.0
 ```
 
-**11.5 Builder Validation Checklist — Entegrasyon:**
+**11.5 arastirma katmani Validation Checklist — Entegrasyon:**
 - [ ] min() yaklaşımı RR-016 §5 ile bire-bir uyumlu mu?
 - [ ] HMM_off + CB-002 yalnız çalışırken pre-RR-017 davranış korunuyor mu?
 - [ ] HMM_on + CB-002 birlikte interaction matrix otomatik test edildi mi?
@@ -493,7 +493,7 @@ assert effective_exposure(1.0, 0, "BULL", 0.9) == 1.0
 
 ## §12. Python Implementation Hintleri
 
-> Hedef okuyucu: Builder. **Production kod DEĞİL** — kavramsal template + docstring + comment.
+> Hedef okuyucu: arastirma katmani. **Production kod DEĞİL** — kavramsal template + docstring + comment.
 
 **12.1 hmmlearn template:**
 ```python
@@ -513,7 +513,7 @@ class BISTRegimeDetector:
         state, conf = detector.predict_current(X_recent_window)
     
     NOT production-ready: error handling, monitoring, S3 persistence,
-    CI/CD entegrasyonu Builder tarafından AG-001 öncesi tamamlanır.
+    CI/CD entegrasyonu arastirma katmani tarafından AG-001 öncesi tamamlanır.
     """
     def __init__(self, n_states=3, random_state=42):
         self.n_states = n_states
@@ -553,7 +553,7 @@ class BISTRegimeDetector:
         joblib.dump({"model": self.model, "mapping": self.state_mapping}, path)
 ```
 
-**12.2 Deterministic state labeling:** EM her run'da random state sıralar; çözüm mean return ile sort. Alternatif: mean vol (Bear vol > Bull vol). Çift sıralama Pareto sort Builder inisiyatifinde.
+**12.2 Deterministic state labeling:** EM her run'da random state sıralar; çözüm mean return ile sort. Alternatif: mean vol (Bear vol > Bull vol). Çift sıralama Pareto sort arastirma katmani inisiyatifinde.
 
 **12.3 Persistence:** Aylık kalibre, joblib pickle (`models/hmm_regime_v1_2026Q4.joblib`); production'da S3/Object Store + version tag.
 
@@ -588,7 +588,7 @@ def test_backward_compat_flag_off():
     assert get_weights() == MASTER_WEIGHTS
 ```
 
-**12.5 Builder Validation Checklist — Implementation:**
+**12.5 arastirma katmani Validation Checklist — Implementation:**
 - [ ] hmmlearn ≥0.3.0 (sklearn-compatible meta routing)?
 - [ ] State mapping deterministik (test_state_mapping_stable passes)?
 - [ ] Persistence path versioned (`model_v1_2026Q4`)?
@@ -599,7 +599,7 @@ def test_backward_compat_flag_off():
 
 ## §13. Risk & Failure Modes
 
-> Hedef okuyucu: the maintainer + Builder.
+> Hedef okuyucu: maintainer + arastirma katmani.
 
 | # | Risk | Olasılık | Etki | Mitigation |
 |---|---|---|---|---|
@@ -615,7 +615,7 @@ def test_backward_compat_flag_off():
 
 ## §14. BIST 2024–2026 Sektör Pratiği
 
-> Hedef okuyucu: the maintainer. Ordinal skala (Yüksek/Orta/Düşük/Yok) + gözlem notu.
+> Hedef okuyucu: maintainer. Ordinal skala (Yüksek/Orta/Düşük/Yok) + gözlem notu.
 
 **14.1 Türk fon yöneticileri regime-based mi?**
 | Aktör | Ordinal | Gözlem | Kaynak |
@@ -654,11 +654,11 @@ Sosyal medya / forum:                                  Yüksek (formal değil)
 
 ## §15. Implementation Roadmap
 
-> Hedef okuyucu: the maintainer + Builder.
+> Hedef okuyucu: maintainer + arastirma katmani.
 
 **15.1 Faz 1 — Veri biriktirme (mevcut → ~Kasım 2026).** Alpha Attribution Phase 1 IC dashboard OOS üretmeye devam. Tetik: AG-001 ≥180 gün. Çıktı: OOS panel veri. **Bu fazda HMM kod deploy YOK.**
 
-**15.2 Faz 2 — Kalibrasyon + OOS test (Kas 2026 ~ Oca 2027).** Builder Tier 1 pipeline + hmmlearn template refine; 5 kriz testleri çalıştır. Tetik: F1 done. Çıktı: Validation report (BIC, CPCV, lag). Gateway: §4.4, §5.7, §6.7, §7.6, §8.× Builder Val Checklist'leri.
+**15.2 Faz 2 — Kalibrasyon + OOS test (Kas 2026 ~ Oca 2027).** arastirma katmani Tier 1 pipeline + hmmlearn template refine; 5 kriz testleri çalıştır. Tetik: F1 done. Çıktı: Validation report (BIC, CPCV, lag). Gateway: §4.4, §5.7, §6.7, §7.6, §8.× arastirma katmani Val Checklist'leri.
 
 **15.3 Faz 3 — Architecture entegrasyon (Oca 2027 ~ Şub 2027).** HMM_WEIGHTS_BY_STATE config + position_sizer_v3 + CB-002 interaction matrix testleri. Tetik: F2 passed. Çıktı: PR draft (ENABLE_HMM_WEIGHTS=False default, tüm path test edilmiş).
 
@@ -672,14 +672,14 @@ Sosyal medya / forum:                                  Yüksek (formal değil)
 | 1 | Mevcut | Kas 2026 | 180g OOS veri | AG-001 §9.2 |
 | 2 | F1 done | Oca 2027 | Validation report | Val Checklist'ler |
 | 3 | F2 passed | Şub 2027 | PR draft | Code review |
-| 4 | F3 reviewed | Şub 2027 | Production HMM | the maintainer/Builder sign-off |
+| 4 | F3 reviewed | Şub 2027 | Production HMM | maintainer/arastirma katmani sign-off |
 | 5 | F4 stable 6m | Q3 2027 | Ensemble HMM+? | JM vs XGBoost review |
 
 ---
 
 ## §16. Akademik Kaynak Özeti + Kısıtlar & Caveat'lar
 
-> Hedef okuyucu: the maintainer + future reviewer.
+> Hedef okuyucu: maintainer + future reviewer.
 
 **16.1 Bu raporda kullanılan tam künyeler:** §2'deki iki tablo tam DOI/URL'lerle birlikte.
 
@@ -687,23 +687,23 @@ Sosyal medya / forum:                                  Yüksek (formal değil)
 
 - **K1 — 3-state HMM Türk BIST literatüründe seyrek:** Bu rapor literatür-aşırı (3-state) hipotez önerir; 2-state MS dominant gerçeklik (Şenol 2020, Samırkaş 2021). **AG-001 BIC ile bu hipotezi doğrulamak zorunda.**
 - **K2 — "8-10 puan/yıl alpha" iddiası post-OOS doğrulanmadan kabul edilmez:** Literatür kaynağı Wang-Lin-Mikhelson (2020) S&P 500 OOS'de HMM rotation modelinin Sharpe ve Treynor avantajı belgelenmiş ama spesifik yıllık abnormal-return rakamı raporun Table 5 ayrıntısı; verbatim olarak özetten doğrulanamadı. BIST için kalibrasyon + transaction cost (RR-015) sonrası rakam ölçülmeden iddia geçersiz.
-- **K3 — Hiperenflasyon non-stationarity ciddi tehdit:** §5.5 + §6.5 protokolü hayati. TÜİK ve ENAG serileri arasındaki büyük fark (TÜİK Aralık 2021 %36.08 vs ENAG %82.81, Ekim 2022 TÜİK zirvesi %85.51) feature input'unun TÜİK mi ENAG mı olduğu Builder tarafından **belgelenmeli**.
+- **K3 — Hiperenflasyon non-stationarity ciddi tehdit:** §5.5 + §6.5 protokolü hayati. TÜİK ve ENAG serileri arasındaki büyük fark (TÜİK Aralık 2021 %36.08 vs ENAG %82.81, Ekim 2022 TÜİK zirvesi %85.51) feature input'unun TÜİK mi ENAG mı olduğu arastirma katmani tarafından **belgelenmeli**.
 - **K4 — Türk kurumsal ve pratisyen formal regime detection BULUNAMADI:** §14 ordinal skalası fırsat gösterir; doğrulama riski yüksek.
 - **K5 — Crisis lag 2 ay eşiği muhafazakar:** 2018 Ağu (CDS 165→586 bps) ve 2023 May (devre kesici) gibi tek-haftalık şoklar HMM'in zayıf noktası; vol-targeting (RR-016) ile kapatılır ama gap kalır.
 - **K6 — Statistical Jump Model alternatifi:** Shu-Yu-Mulvey 2024 HMM'i US/DE/JP'de geçmiş; Faz 5 (§15.5) review zorunlu.
-- **K7 — Sayısal birim caveat'ı:** Samırkaş (2021) MS(2)-AR(0) için ortalama sojourn **7.75 gün boğa / 32.64 gün ayı**; TVTP modelinde transition olasılıkları farklı (%96.20 / %86). Şenol (2020) "64 / 11" birim çalışma özetinde açıkça verilmemiş. CB-002 finding'indeki "64 ay bull / 11 ay bear" yorumu **muhtemelen Şenol değerleri** ama birim ay/gün belirsiz — Builder §3.1 Val Checklist'inde belgelemeli.
+- **K7 — Sayısal birim caveat'ı:** Samırkaş (2021) MS(2)-AR(0) için ortalama sojourn **7.75 gün boğa / 32.64 gün ayı**; TVTP modelinde transition olasılıkları farklı (%96.20 / %86). Şenol (2020) "64 / 11" birim çalışma özetinde açıkça verilmemiş. CB-002 finding'indeki "64 ay bull / 11 ay bear" yorumu **muhtemelen Şenol değerleri** ama birim ay/gün belirsiz — arastirma katmani §3.1 Val Checklist'inde belgelemeli.
 - **K8 — TCMB faiz tepe noktası:** Görev brief'inde "Mayıs 2024 zirve" denmiş; TCMB resmi duyurularına göre **politika faizi Mart 2024'te %45'ten %50'ye yükseltilmiş (TCMB Duyuru 2024-14)** ve Kasım 2024'e kadar %50'de tutulmuştur; ilk indirim Aralık 2024 %47.5 (Duyuru 2024-70). RR-017 §6.5 ve §8.3 buna göre revize.
-- **K9 — Production-ready kod kapsamı DEĞİL:** §12 sadece kavramsal template; error handling, monitoring, S3 persistence, CI/CD entegrasyonu Builder tarafından AG-001 öncesi tamamlanır.
+- **K9 — Production-ready kod kapsamı DEĞİL:** §12 sadece kavramsal template; error handling, monitoring, S3 persistence, CI/CD entegrasyonu arastirma katmani tarafından AG-001 öncesi tamamlanır.
 
 **16.3 Erişim notları:**
 - López de Prado (2018), Mamon & Elliott (2007), Bulla & Bulla (2006) ücretli; SSRN/EconPapers/Wiley üzerinden parça erişim.
 - Hamilton (1989) JSTOR ücretli; her referans kitap özetler.
-- Şenol (2020), Samırkaş (2021) Dergipark açık erişim Türkçe — the maintainer/Builder okumalı.
+- Şenol (2020), Samırkaş (2021) Dergipark açık erişim Türkçe — maintainer/arastirma katmani okumalı.
 - Wang-Lin-Mikhelson (2020) MDPI açık erişim — recommended.
 - Aydınhan vd (2024) SSRN açık + DOI'li dergi.
 - Shu-Yu-Mulvey (2024) arXiv açık erişim — recommended for Faz 5 review.
 
-**16.4 Final caveat:** Bu rapor **kavramsal implementation belgesi**. AG-001 günü Builder bu raporu sıfırdan production kod yazmak için kullanır — her docstring, comment ve sanity test örneği refine edilir. **ENABLE_HMM_WEIGHTS=False default kalır**, hiçbir koşulda bu rapor sebebiyle production değişmez.
+**16.4 Final caveat:** Bu rapor **kavramsal implementation belgesi**. AG-001 günü arastirma katmani bu raporu sıfırdan production kod yazmak için kullanır — her docstring, comment ve sanity test örneği refine edilir. **ENABLE_HMM_WEIGHTS=False default kalır**, hiçbir koşulda bu rapor sebebiyle production değişmez.
 
 **RR-017 ile RR-016 entegrasyonu açıkça dokümante (§11); CB-002 macro gate × HMM interaction matrix min() yaklaşımı (§11.2); HMM "rejim NE der" (bu rapor), RR-016 vol-targeting "rejim İÇİNDE ne kadar" (RR-016 §5), DD soft gate "pozisyon NASIL koru" (RR-016 §6) üçlü ayrımı korunuyor.**
 
@@ -711,9 +711,9 @@ Sosyal medya / forum:                                  Yüksek (formal değil)
 
 ## Recommendations
 
-1. **Bu raporu uygula(ma):** the maintainer ENABLE_HMM_WEIGHTS=False bayrağını koru; bu rapor AG-001 günü Builder'ın eline geçer. Bugünden hiçbir kod değişikliği gerekmez.
+1. **Bu raporu uygula(ma):** maintainer ENABLE_HMM_WEIGHTS=False bayrağını koru; bu rapor AG-001 günü arastirma katmani'ın eline geçer. Bugünden hiçbir kod değişikliği gerekmez.
 2. **Faz 1 takip:** Alpha Attribution Phase 1 IC dashboard'ı her ay review et; OOS gün sayacı düzenli logla. Hedef Kasım 2026 (muhafazakar 180 gün).
-3. **Faz 2 hazırlığı (Q4 2026):** Builder Tier 1 pipeline development için yeterli zamanı ayır; CDS veri tedariki (Investing.com / IHS Markit) için kaynak belirle.
+3. **Faz 2 hazırlığı (Q4 2026):** arastirma katmani Tier 1 pipeline development için yeterli zamanı ayır; CDS veri tedariki (Investing.com / IHS Markit) için kaynak belirle.
 4. **Faz 5 review notu:** RR-003 §2'de XGBoost listede ama Shu-Yu-Mulvey (2024) JM'in HMM'i geçtiğini gösterdi. F4 sonrası **JM vs XGBoost A/B karşılaştırması zorunlu**.
 5. **Eşik değişiklik tetikleyicileri:** (a) AG-001 OOS Sharpe iyileşmesi < +0.15 ise HMM aktivasyonu yapma. (b) Crisis lag > 42 trading day ise Tier 1 → Tier 2 (VIX ekle). (c) BIST hiperenflasyon yeniden tetiklenirse (TÜİK yıllık >%50 veya ENAG >%80) re-calibration.
 
@@ -724,7 +724,7 @@ Sosyal medya / forum:                                  Yüksek (formal değil)
 - "8–10 puan/yıl alpha" rakamı **CB-002 finding'i**; literatür ile kısmen desteklenir ama BIST için doğrulanmadı.
 - Sayısal değerlerde Şenol (2020) ve Samırkaş (2021) farklı modeller (sabit vs TVTP) ile farklı sojourn değerleri raporlar; iki çalışmanın doğrudan toplanması yanlış olur.
 - Mediterra Capital AUM rakamı için kesin doğrulanmış kaynak bulunamadı (görev brief'indeki büyüklük tahmini referansa alınmamıştır).
-- TÜİK / ENAG TÜFE farkı politik tartışmaya konu; RR-017 feature seçimi (TÜFE delta Tier 2/3'te kullanılırsa) Builder tarafından kaynak seçim notu ile belgelenmeli.
+- TÜİK / ENAG TÜFE farkı politik tartışmaya konu; RR-017 feature seçimi (TÜFE delta Tier 2/3'te kullanılırsa) arastirma katmani tarafından kaynak seçim notu ile belgelenmeli.
 - Production-ready Python kod bu rapor kapsamı DEĞİL; §12 templates kavramsaldır.
 
 *Rapor sonu. Sonraki: AG-001 dashboard takibi → Faz 1 OOS biriktirme → Kasım 2026 (muhafazakar) Faz 2 kalibrasyon.*
