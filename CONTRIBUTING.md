@@ -11,8 +11,8 @@ and reproducibility.
 **Requirements:** Python 3.11+
 
 ```bash
-git clone https://github.com/caganco/bist-trading-system
-cd bist-trading-system
+git clone https://github.com/caganco/sentio
+cd sentio
 pip install -r requirements.txt
 cp .env.example .env   # fill in API keys (all optional for offline runs)
 ```
@@ -85,6 +85,6 @@ Pull requests must pass all four CI tiers before merge:
 
 ## Issue reporting
 
-Use [GitHub Issues](https://github.com/caganco/bist-trading-system/issues) to report
+Use [GitHub Issues](https://github.com/caganco/sentio/issues) to report
 bugs or ask questions about methodology. For questions about BIST data sources or
 research findings, reference the relevant report in `docs/research/`.
