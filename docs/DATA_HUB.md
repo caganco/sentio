@@ -532,7 +532,7 @@ for src in DataHub.list_sources():
 
 ```python
 import sys
-sys.path.insert(0, r"/path/to/bist-trading-system")
+sys.path.insert(0, r"/path/to/sentio")
 
 from src.data.data_hub import DataHub
 

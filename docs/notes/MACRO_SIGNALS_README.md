@@ -345,7 +345,7 @@ briefing["macro_signal"] = {
 
 ```bash
 # Run daily at 19:00 (after BIST close + macro feed update)
-0 19 * * * cd /path/to/bist-trading-system && python -c "from src.signals.macro_signals import generate_macro_signal, save_signal_json; signal = generate_macro_signal(); save_signal_json(signal)"
+0 19 * * * cd /path/to/sentio && python -c "from src.signals.macro_signals import generate_macro_signal, save_signal_json; signal = generate_macro_signal(); save_signal_json(signal)"
 ```
 
 ## Dependencies
