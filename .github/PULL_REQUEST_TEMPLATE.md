@@ -1,6 +1,7 @@
 ## Summary
 
-<!-- What does this PR change, and why? 1–3 bullet points. -->
+<!-- State what changes and why, for a reviewer. Describe the change itself and its
+     impact, not the editing or formatting process. Keep it factual. 1-3 bullets. -->
 -
 
 ## Affected files
@@ -18,5 +19,5 @@ pytest: X passed, 0 failed
 
 - [ ] No merge conflict with master
 - [ ] CI tiers passing (architecture → integration → lint → regression)
-- [ ] No hardcoded thresholds — all constants in `src/signals/thresholds.py`
-- [ ] No look-ahead violations — signals at `t`, actions at `t+1`
+- [ ] No hardcoded thresholds - all constants in `src/signals/thresholds.py`
+- [ ] No look-ahead violations - signals at `t`, actions at `t+1`
