@@ -5,7 +5,7 @@
 [![ruff](https://img.shields.io/badge/ruff-clean-green)](https://docs.astral.sh/ruff/)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org)
 
-Falsifiable signal research for Borsa Istanbul (BIST) — is the edge real, or am I fooling
+Falsifiable signal research for Borsa Istanbul (BIST) - is the edge real, or am I fooling
 myself?
 
 Sentio tests whether a BIST signal survives honest scrutiny instead of just looking good in
@@ -35,7 +35,7 @@ not a wall of green equity curves.
 ## Two tracks
 
 - **Anchor (the deployed idea):** a low-cost, fully-invested smart-passive strategy that beat
-  the TL-deposit benchmark in real (CPI-deflated) terms over 2019–2026. It lives in the
+  the TL-deposit benchmark in real (CPI-deflated) terms over 2019-2026. It lives in the
   companion repo [ballast-bist](https://github.com/caganco/ballast-bist).
 - **Lab (this repo):** the infrastructure for testing whether any edge exists above that
   anchor. So far, none does.
@@ -46,7 +46,7 @@ showed forgone beta, not bad stock selection, was the dominant damage channel.
 
 ## Data
 
-Daily BIST prices, 2019–2026, 681 symbols, survivorship-clean: delisted tickers stay in,
+Daily BIST prices, 2019-2026, 681 symbols, survivorship-clean: delisted tickers stay in,
 acquired via the official BIST free dataset, so tests don't silently exclude companies that
 went bankrupt. Seven years covers the modern post-2018 regime; it isn't deep history, and that
 bounds the statistical power (see [Scope & limits](#scope--limits)).
@@ -106,7 +106,7 @@ sentio/
 ├── src/
 │   ├── engine/        validation engine (harness, contracts, config, Mod-A/B/C)
 │   ├── backtest/      backtesting engine + López de Prado statistical validation stack
-│   ├── signals/       6-layer signal engine (L1–L6) + regime gate + strategist
+│   ├── signals/       6-layer signal engine (L1-L6) + regime gate + strategist
 │   ├── screening/     factor measurement engines (D-2xx series: event / exposure / trend)
 │   ├── analytics/     IC calculator, Brinson attribution, NAV tracker, XBRL scorer
 │   ├── data/          fetchers, scrapers, parsers, DataHub router
@@ -144,9 +144,9 @@ python examples/rry1008/run_part1_known_answer.py
 ```
 
 **Environment variables** (see `.env.example`):
-- `EVDS_API_KEY` — TCMB EVDS3 macro data (free registration at evds2.tcmb.gov.tr)
-- `FMP_API_KEY` — supplementary market data
-- `ANTHROPIC_API_KEY` — optional; enables the Strategist narrative layer
+- `EVDS_API_KEY` - TCMB EVDS3 macro data (free registration at evds2.tcmb.gov.tr)
+- `FMP_API_KEY` - supplementary market data
+- `ANTHROPIC_API_KEY` - optional; enables the Strategist narrative layer
 
 The engine and test suite run fully offline; API keys only matter for live data pulls. How to
 attach a signal, write a Stage-0, and read the output vector is in the
@@ -163,7 +163,7 @@ Stated up front rather than left to be discovered:
 - **One market, one person, no live trading.** Solo work on BIST only. Nothing here places
   orders; there is no execution layer and no live-slippage realization. It's a research
   instrument by design, not a deployment.
-- **Shallow history.** 2019–2026 is barely more than one regime. The ongoing disinflation gives
+- **Shallow history.** 2019-2026 is barely more than one regime. The ongoing disinflation gives
   a genuine prospective out-of-sample window, but today the power is whatever seven years buys.
 - **Uneven type-checking.** The engine core (`src/engine/`) is mypy-strict; some older edge
   modules are still on a baseline ignore-list being paid down.
@@ -171,11 +171,11 @@ Stated up front rather than left to be discovered:
 ## Methodology references
 
 - Harvey, Liu & Zhu (2016). *… and the Cross-Section of Expected Returns.* Review of Financial
-  Studies 29(1), 5–68. [Multiple testing in factor research; the `t > 3` threshold.]
+  Studies 29(1), 5-68. [Multiple testing in factor research; the `t > 3` threshold.]
 - Bailey & López de Prado (2014). *The Deflated Sharpe Ratio.* Journal of Portfolio Management.
   [Deflated Sharpe; the CSCV / PBO framework.]
 - McLean & Pontiff (2016). *Does Academic Research Destroy Stock Return Predictability?* Journal
-  of Finance 71(1), 5–32. [Post-publication decay of anomalies.]
+  of Finance 71(1), 5-32. [Post-publication decay of anomalies.]
 
 ## Going deeper
 
