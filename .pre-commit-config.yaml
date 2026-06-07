@@ -1,3 +1,7 @@
+# Install both stages with a bare `pre-commit install`. Without this, only the
+# pre-commit stage is wired and the commit-msg guard silently never runs.
+default_install_hook_types: [pre-commit, commit-msg]
+
 repos:
   - repo: local
     hooks:
