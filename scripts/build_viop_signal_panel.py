@@ -27,6 +27,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s — %(mes
 logger = logging.getLogger("build_viop_signal_panel")
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))  # allow `from src.*` without PYTHONPATH=.
+
 _STAGE0_PATH = REPO_ROOT / "docs" / "yol1" / "STAGE0_VIOP_SSF_OI.json"
 _VIOP_DATA_DIR = REPO_ROOT / "data" / "viop"
 
