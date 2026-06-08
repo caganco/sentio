@@ -6,7 +6,8 @@ on:
   pull_request:
     branches: [master]
   schedule:
-    - cron: '0 6 * * 1'   # Haftalık - Pazartesi 06:00 UTC (güvenlik denetimi)
+    - cron: '0 3 * * *'   # Nightly — her gün 03:00 UTC (full regression)
+    - cron: '0 6 * * 1'   # Haftalık — Pazartesi 06:00 UTC (güvenlik denetimi)
 
 # Jobs only check out the repo and run tests; no writes needed.
 permissions:
@@ -78,6 +79,8 @@ jobs:
   full-regression:
     name: "Tier 3 — Full Regression"
     runs-on: ubuntu-latest
+    # Nightly schedule veya master push'ta çalışır; PR'larda çalışmaz.
+    if: github.event_name == 'schedule' || github.event_name == 'push'
     needs: [architecture, integration, lint]
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
