@@ -3,11 +3,20 @@
 Reads pre-downloaded DataStore 3208 files from data/viop/ and returns
 a ViOpMonthlyPanel with front-month OI aggregated to month-end.
 Downloading is out of scope; loader raises DataUnavailableError when files absent.
+
+Schema landscape (3208 files):
+  2016-01 – 2017-02  GZ files, English lowercase cols (boardid/securityshortname)
+                     → no TARIH/SOZLESME_TIPI after normalization → dropped
+  2017-03 – 2026-05  Regular CSV, Turkish cols, no VADE_TARIHI
+                     → expiry extracted from SOZLESME_KODU (F_<TKR><MMYY>)
+  2020-06 – 2026-05  AHT CSV (VIOP_AS_*), same Turkish cols + VADE_TARIHI (YYYY-MM-DD)
+                     → both VADE_TARIHI and contract-code routes work
 """
 from __future__ import annotations
 
 import io
 import logging
+import re
 import warnings
 import zipfile
 from dataclasses import dataclass, field
@@ -19,9 +28,18 @@ logger = logging.getLogger(__name__)
 
 _SSF_CONTRACT_TYPE = "D_EQ_FPD"
 
+# Contract code pattern: F_<TICKER><MM><YY>[<optional suffix>]
+# Examples: F_AEFES0526, F_AKBNK0216S0
+_CONTRACT_CODE_RE = re.compile(
+    r"^F_[A-Z0-9]+?(\d{2})(\d{2})(?:[A-Z].*)?$", re.IGNORECASE
+)
+
 # Maps raw CSV column headers (Turkish chars + spaces) to normalized names.
 _COL_NORM: dict[str, str] = {
     "TARIH": "TARIH",
+    "SÖZLEŞME KODU": "SOZLESME_KODU",
+    "SOZLESME KODU": "SOZLESME_KODU",
+    "SOZLESME_KODU": "SOZLESME_KODU",
     "SÖZLEŞME TİPİ": "SOZLESME_TIPI",
     "SOZLESME TIPI": "SOZLESME_TIPI",
     "SOZLESME_TIPI": "SOZLESME_TIPI",
@@ -48,6 +66,30 @@ _COL_NORM: dict[str, str] = {
     "ACIK POZISYON DEGISIMI": "ACIK_POZISYON_DEGISIMI",
     "PRİM HACMİ": "PRIM_HACMI",
     "PRIM HACMI": "PRIM_HACMI",
+    # Known columns kept as-is (no rename needed, suppress "unrecognized" warning)
+    "SOZLESME ADI": "SOZLESME_ADI",
+    "SÖZLEŞME ADI": "SOZLESME_ADI",
+    "PAZAR": "PAZAR",
+    "PAZAR SEGMENTI": "PAZAR_SEGMENTI",
+    "SOZLESME SINIFI": "SOZLESME_SINIFI",
+    "SÖZLEŞME SINIFI": "SOZLESME_SINIFI",
+    "ONCEKI UZLASMA FIYATI": "ONCEKI_UZLASMA_FIYATI",
+    "ÖNCEKİ UZLAŞMA FİYATI": "ONCEKI_UZLASMA_FIYATI",
+    "UZLASMA FIYATI DEGISIMI (%)": "UZLASMA_FIYATI_DEGISIMI_PCT",
+    "UZLAŞMA FİYATI DEĞİŞİMİ (%)": "UZLASMA_FIYATI_DEGISIMI_PCT",
+    "ACILIS FIYATI": "ACILIS_FIYATI",
+    "AÇILIŞ FİYATI": "ACILIS_FIYATI",
+    "EN DUSUK FIYAT": "EN_DUSUK_FIYAT",
+    "EN DÜŞÜK FİYAT": "EN_DUSUK_FIYAT",
+    "EN YUKSEK FIYAT": "EN_YUKSEK_FIYAT",
+    "EN YÜKSEK FİYAT": "EN_YUKSEK_FIYAT",
+    "KAPANIS FIYATI": "KAPANIS_FIYATI",
+    "KAPANIŞ FİYATI": "KAPANIS_FIYATI",
+    "BEKLEYEN EN IYI ALIS": "BEKLEYEN_EN_IYI_ALIS",
+    "BEKLEYEN EN İYİ ALIŞ": "BEKLEYEN_EN_IYI_ALIS",
+    "BEKLEYEN EN IYI SATIS": "BEKLEYEN_EN_IYI_SATIS",
+    "BEKLEYEN EN İYİ SATIŞ": "BEKLEYEN_EN_IYI_SATIS",
+    "ISLEM SAYISI": "ISLEM_SAYISI",
 }
 
 _SCHEMA_PRE = "pre_redenomination"
@@ -87,7 +129,7 @@ class ViOpMonthlyPanel:
 # ---------------------------------------------------------------------------
 
 def _normalize_cols(df: pd.DataFrame) -> pd.DataFrame:
-    """Map raw header names to normalized underscore names; warn on unknowns."""
+    """Map raw header names to normalized underscore names; warn on truly unknowns."""
     renamed: dict[str, str] = {}
     unknown: list[str] = []
     normalized_values = set(_COL_NORM.values())
@@ -108,7 +150,7 @@ def _normalize_cols(df: pd.DataFrame) -> pd.DataFrame:
 
 def _detect_schema_version(ref_date: pd.Timestamp, cols: list[str]) -> str:
     """Return 'pre_redenomination' | 'post_redenomination' | 'aht'."""
-    if "ACIK_POZISYON_DEGISIMI" in cols:
+    if "VADE_TARIHI" in cols:
         return _SCHEMA_AHT
     if ref_date < _REDENOMINATION_DATE:
         return _SCHEMA_PRE
@@ -152,8 +194,11 @@ def _load_file(path: Path) -> pd.DataFrame:
 
 
 def _discover_files(data_dir: Path) -> list[Path]:
-    """Recursively collect CSV and ZIP files under data_dir."""
-    return sorted(data_dir.rglob("*.csv")) + sorted(data_dir.rglob("*.zip"))
+    """Recursively collect CSV, GZ, and ZIP files under data_dir."""
+    csvs = sorted(data_dir.rglob("*.csv"))
+    gzs = sorted(data_dir.rglob("*.csv.gz"))
+    zips = sorted(data_dir.rglob("*.zip"))
+    return csvs + gzs + zips
 
 
 def _to_float_series(s: pd.Series) -> pd.Series:
@@ -178,24 +223,51 @@ def _parse_tarih(s: pd.Series) -> pd.Series:
 
 
 def _parse_vade(s: pd.Series) -> pd.Series:
-    """Parse VADE_TARIHI to Period[M]; supports YYYYMM and YYYY-MM."""
+    """Parse VADE_TARIHI to Period[M]; supports YYYYMM, YYYY-MM, YYYY-MM-DD."""
     clean = s.astype(str).str.strip()
-    # Try YYYYMM (6 chars)
-    six_char = clean.str.len() == 6
     result = pd.Series(pd.NaT, index=s.index, dtype="object")
-    if six_char.any():
-        parsed_6 = pd.to_datetime(
-            clean[six_char] + "01", format="%Y%m%d", errors="coerce"
+
+    # YYYYMM (6 chars)
+    six = clean.str.len() == 6
+    if six.any():
+        result[six] = pd.to_datetime(
+            clean[six] + "01", format="%Y%m%d", errors="coerce"
         ).dt.to_period("M")
-        result[six_char] = parsed_6
-    # Fallback: YYYY-MM
-    other = ~six_char
-    if other.any():
-        parsed_other = pd.to_datetime(
-            clean[other], format="%Y-%m", errors="coerce"
+
+    # YYYY-MM (7 chars)
+    seven = (~six) & (clean.str.len() == 7)
+    if seven.any():
+        result[seven] = pd.to_datetime(
+            clean[seven], format="%Y-%m", errors="coerce"
         ).dt.to_period("M")
-        result[other] = parsed_other
+
+    # YYYY-MM-DD (10 chars) — AHT files store full expiry date
+    ten = (~six) & (~seven) & (clean.str.len() == 10)
+    if ten.any():
+        result[ten] = pd.to_datetime(
+            clean[ten], format="%Y-%m-%d", errors="coerce"
+        ).dt.to_period("M")
+
     return result
+
+
+def _vade_from_contract_code(codes: pd.Series) -> pd.Series:
+    """Extract expiry Period[M] from SOZLESME_KODU (fallback when VADE_TARIHI absent).
+
+    Pattern: F_<TICKER><MM><YY>[<suffix>]  e.g. F_AEFES0526 -> 2026-05
+    """
+    def _parse_one(code: str) -> object:
+        m = _CONTRACT_CODE_RE.match(str(code).strip())
+        if m:
+            try:
+                mm, yy = int(m.group(1)), int(m.group(2))
+                if 1 <= mm <= 12:
+                    return pd.Period(year=2000 + yy, month=mm, freq="M")
+            except (ValueError, TypeError):
+                pass
+        return pd.NaT
+
+    return codes.map(_parse_one)
 
 
 def _build_monthly_panel(
@@ -210,7 +282,17 @@ def _build_monthly_panel(
     df = df.dropna(subset=["TARIH"])
     df["year_month"] = df["TARIH"].dt.to_period("M")
 
-    df["VADE_YM"] = _parse_vade(df["VADE_TARIHI"])
+    # VADE_YM: prefer VADE_TARIHI (AHT files), fall back to SOZLESME_KODU
+    if "VADE_TARIHI" in df.columns:
+        df["VADE_YM"] = _parse_vade(df["VADE_TARIHI"])
+    else:
+        df["VADE_YM"] = pd.Series(pd.NaT, index=df.index, dtype="object")
+
+    missing_vade = df["VADE_YM"].isna()
+    if missing_vade.any() and "SOZLESME_KODU" in df.columns:
+        fallback = _vade_from_contract_code(df.loc[missing_vade, "SOZLESME_KODU"])
+        df.loc[missing_vade, "VADE_YM"] = fallback.values
+
     df = df.dropna(subset=["VADE_YM"])
 
     for num_col in ("ACIK_POZISYON", "ISLEM_HACMI", "ISLEM_MIKTARI"):
@@ -311,7 +393,8 @@ def load_viop_monthly_panel(
 
     df = pd.concat(frames, ignore_index=True)
 
-    required = {"SOZLESME_TIPI", "DAYANAK_VARLIK", "TARIH", "VADE_TARIHI"}
+    # VADE_TARIHI is only present in AHT files; contract-code fallback covers the rest.
+    required = {"SOZLESME_TIPI", "DAYANAK_VARLIK", "TARIH"}
     missing_cols = required - set(df.columns)
     if missing_cols:
         raise EmptyFilterError(

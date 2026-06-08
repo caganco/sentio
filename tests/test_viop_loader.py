@@ -259,7 +259,10 @@ class TestSchemaVersionGuard:
         post_date = pd.Timestamp("2020-07-28")
         assert _detect_schema_version(pre_date, ["TARIH", "ACIK_POZISYON"]) == "pre_redenomination"
         assert _detect_schema_version(post_date, ["TARIH", "ACIK_POZISYON"]) == "post_redenomination"
-        assert _detect_schema_version(post_date, ["TARIH", "ACIK_POZISYON_DEGISIMI"]) == "aht"
+        # AHT schema discriminator is VADE_TARIHI (only present in AHT/monthly-summary files).
+        # ACIK_POZISYON_DEGISIMI appears in both regular and AHT files from 2020+ — not reliable.
+        assert _detect_schema_version(post_date, ["TARIH", "VADE_TARIHI"]) == "aht"
+        assert _detect_schema_version(post_date, ["TARIH", "ACIK_POZISYON_DEGISIMI"]) == "post_redenomination"
 
 
 class TestNoLabImport:
