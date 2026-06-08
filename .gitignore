@@ -45,6 +45,7 @@ data/event_logs/
 data/viop/
 data/processed/viop_signal_panel.parquet
 data/processed/viop_signal_metadata.json
+data/processed/viop_k2_engine_output.json
 
 # Runtime / generated / local junk (not code)
 agents/intelligence/
