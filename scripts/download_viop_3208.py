@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -26,6 +27,35 @@ sys.path.insert(0, str(REPO_ROOT))
 
 _PRODUCT_ID = 3208
 _OUT_DIR = REPO_ROOT / "data" / "viop"
+_CAPTURE_SCRIPT = REPO_ROOT / "scripts" / "capture_datastore_session.py"
+
+
+def _ensure_valid_session() -> "DatastoreSession":
+    """Load session; if missing/expired auto-launch capture script, then reload."""
+    from src.data.bist_datastore_client import DatastoreSession
+
+    def _load() -> "DatastoreSession | None":
+        try:
+            return DatastoreSession()
+        except FileNotFoundError:
+            return None
+
+    session = _load()
+    if session is not None and session.is_valid():
+        return session
+
+    if session is None:
+        logger.info("datastore_session.json bulunamadi — tarayici aciliyor, giris yap...")
+    else:
+        logger.info("Session suresi dolmus — tarayici aciliyor, giris yap...")
+
+    subprocess.run([sys.executable, str(_CAPTURE_SCRIPT)], check=True)
+
+    session = DatastoreSession()
+    if not session.is_valid():
+        raise RuntimeError("Session yenilendi ama hala gecersiz — lutfen tekrar deneyin.")
+    logger.info("Session yenilendi.")
+    return session
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -39,7 +69,6 @@ def main(argv: list[str] | None = None) -> int:
         DatastoreAcquirer,
         DatastoreCatalog,
         DatastoreDownloader,
-        DatastoreSession,
         DatastoreSessionExpiredError,
     )
 
@@ -48,12 +77,9 @@ def main(argv: list[str] | None = None) -> int:
         since = date.fromisoformat(args.since)
 
     try:
-        session = DatastoreSession()
-    except FileNotFoundError as exc:
+        session = _ensure_valid_session()
+    except (FileNotFoundError, RuntimeError, subprocess.CalledProcessError) as exc:
         logger.error("%s", exc)
-        return 1
-    except DatastoreSessionExpiredError as exc:
-        logger.error("Session expired: %s\nRe-login: python scripts/capture_datastore_session.py", exc)
         return 1
 
     out_dir = Path(args.out_dir)
