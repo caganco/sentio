@@ -127,7 +127,7 @@ def _monthly_forward_return(data_root: Path | None = None) -> pd.DataFrame:
     long = (
         fwd.stack(future_stack=True)
         .reset_index()
-        .rename(columns={"level_0": "date", "level_1": "ticker", 0: "spot_fwd_ret_1m"})
+        .rename(columns={"symbol": "ticker", 0: "spot_fwd_ret_1m"})
     )
     long["date"] = pd.to_datetime(long["date"]).dt.normalize()
     return long
