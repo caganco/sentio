@@ -1,0 +1,98 @@
+{
+  "thread": "VIOP-SSF-OI",
+  "title": "Single-stock futures OI-change cross-sectional alpha (aylık OI büyümesi → bir-ay-sonraki spot getiri)",
+  "preregistered_date": "2026-06-08",
+  "directive": null,
+
+  "discipline_note": "Bu dosya direktif yazılmadan ÖNCE, herhangi bir ölçüm görülmeden ÖNCE commit edilmiştir. Tüm eşikler/tanımlar/keep-bar aşağıda DONDURULMUŞTUR; post-hoc gevşetme YASAKTIR (predictor yeniden tanımı, pencere genişletme, lag değişikliği, maliyet yeniden kalibrasyonu, keep-bar yumuşatma). Thread sonuç ne olursa olsun TEK bir koşuyla kapanır. K1 veya K3 üzerinden post-hoc zincir açılmaz.",
+
+  "hypothesis": "Bilgili katılımcılar spot'tan önce SSF'e pozisyon alır. Aylık OI değişimi bu birikimi ölçer ve bir-ay-sonraki spot getiriyi cross-sectional yönde tahmin eder. Beklenen yön: pozitif OI büyümesi → pozitif spot getiri.",
+
+  "honest_expectation": "prior DÜŞÜK. OI-change literatürde zayıf ve gürültülü bir proxy. BIST SSF universe küçük (48 isim), likidite tek taraflı. Olası verdict TRADEABLE-DEĞİL — ama ÖLÇÜLMÜŞ ve KAYDEDILMIŞ. Sürpriz ihtimali: kurumsal akıllı-para sinyali ayırt edilebiliyorsa K2 içeriği görünür.",
+
+  "primary_signal_FROZEN": {
+    "name": "K2",
+    "formula": "K2_t = (ACIK_POZISYON_{t,son} - ACIK_POZISYON_{t-1,son}) / ACIK_POZISYON_{t-1,son}",
+    "description": "Aylık OI büyüme oranı. Her stock için: ayın son işlem günündeki ACIK POZISYON değeri kullanılır. OI_{t-1} = 0 olan isimler o ay excluded.",
+    "source_column": "ACIK POZISYON (DataStore 3208, D_EQ_FPD filtreli)",
+    "lookahead_status": "K2_t, ay t'nin SON bilgisiyle hesaplanır. Tahmin ay t+1'in spot getirisi. Look-ahead-safe.",
+    "dsr_n_trials": 1,
+    "dsr_note": "K2 tek gate-kararı; N=1 → deflasyon yok."
+  },
+
+  "characterization_signals": {
+    "status": "KAPI-DIŞI. K2 PASS ederse okunur, K2 FAIL ederse okunmaz. Post-hoc kurtarma sinyali olarak kullanılamaz.",
+    "K1": {
+      "name": "basis",
+      "formula": "basis_t = (settle_front_t - spot_t × (1 + TLREF_monthly)) / spot_t",
+      "description": "Carry-adjusted basis. Temettü görmezden gelindi (carry-only proxy).",
+      "lookahead_status": "ay t sonu verisi; tahmin t+1. Look-ahead-safe."
+    },
+    "K3": {
+      "name": "sign_interaction",
+      "formula": "K3_t = sign(spot_ret_t) × K2_t",
+      "description": "Yön-etkileşim. spot_ret_t = ay t'nin kendi spot getirisi (T+1 değil). Look-ahead-safe.",
+      "lookahead_status": "ay t spot getirisi t+1 için look-ahead değil. Look-ahead-safe."
+    }
+  },
+
+  "keep_bar_FROZEN": {
+    "primary_K2_nw_t_min": 2.0,
+    "basis": "K2 Mod-A baseline NW-t (rank-IC serisi, NW-HAC, population-variance convention). Tek-kuyruk, pozitif yönde.",
+    "breadth_veto": {
+      "min_names_per_month": 10,
+      "description": "Aylık cross-section'da aktif SSF isim sayısı < 10 olan aylar IC hesabından çıkarılır (ölü-sözleşme dışlama: ACIK_POZISYON > 0 filtresi yetmez, SSF D_EQ_FPD filtresi de uygulanır).",
+      "tradeable_threshold_months": 36,
+      "tradeable_note": "Geçerli ay sayısı < 36 → TRADEABLE-DEĞİL; NW-t değerinden bağımsız, veto edilemez."
+    },
+    "relaxation_policy": "YASAK. Eşikler post-hoc gevşetilemez."
+  },
+
+  "universe_and_period": {
+    "contract_filter": "SOZLESME_TIPI == 'D_EQ_FPD'",
+    "active_filter": "ACIK_POZISYON > 0 (aylık son değer, ölü sözleşme dışlama)",
+    "start": "2016-01",
+    "end": "güncel (son mevcut 3208 dosyası)",
+    "start_rationale": "Stable universe, opsiyon-öncesi gürültüsüz dönem. Dosya-boyutu proxy'si 2013+'ten SSF mevcuttur; 2016 konservatif güvenli başlangıç.",
+    "spot_return_source": "data_adapter.py tr_index_gross (data/clean_universe/adjusted_prices_2019_2026.parquet)",
+    "spot_return_note": "Panel 2019-01 başlıyorsa 2016-2018 için OI predictor hesaplanır ama forward return boş kalır → etkili başlangıç 2019. Gelecek veri güncellemesinde tam 2016 paneli açılabilir; o zamana kadar etkili pencere 2019+."
+  },
+
+  "engine_spec": {
+    "primary": "Mod-A (name-split conjugate, rank-IC cross-sectional)",
+    "secondary": "Mod-B (CPCV temporal), Mod-C (rejim-içi holdout)",
+    "pm1_compliance": "assert_pm1_compliant() ZORUNLU",
+    "ic_type": "spearman",
+    "nw_variance_convention": "population (engine config.py ile tutarlı)",
+    "forward_return_basis": "tr_index_gross (config.FORWARD_RETURN_BASIS)"
+  },
+
+  "data_sources": {
+    "OI": "DataStore 3208 günlük dosyaları — aylık aggregation (son-gün OI veya AHT özet)",
+    "spot_returns": "data_adapter.py tr_index_gross",
+    "carry": "EVDS BISTTLREF (aylık) — yalnızca K1 characterization için"
+  },
+
+  "schema_guards_REQUIRED": [
+    {
+      "id": "SG-1",
+      "date": "2020-07-27",
+      "description": "Endeks redenominasyonu (2 sıfır atıldı). Endeks vadeli (D_IX_FUT) fiyat kolonlarını etkiler. D_EQ_FPD (single-stock) bu değişiklikten ETKİLENMEZ — fakat kolon adı değişiklikleri olabilir.",
+      "action": "Her 3208 dosya yüklemesinde kolon adlarını normalize et; schema-version guard ekle."
+    },
+    {
+      "id": "SG-2",
+      "date": "2021-01+",
+      "description": "Dosya başına 2 tip (günlük detay + AHT aylık-özet). AHT dosyaları cross-sectional aylık OI için doğrudan kullanılabilir — önce dene.",
+      "action": "ProductType field veya dosya adı pattern'ine göre AHT vs günlük ayrımı yap."
+    }
+  ],
+
+  "roll_convention": {
+    "front_month": true,
+    "roll_window": "Vade ayında son 5 işlem gününde sonraki aya switch (standart roll penceresi).",
+    "expiry_month_exclusion": "Aynı ayda hem vade hem settle varsa o ay excluded (fiyat kirişmesi riski)."
+  },
+
+  "graveyard_commitment": "Bu thread TEK bir koşuyla kapanır. Sonuç ne olursa olsun kaydedilir. K2 FAIL → TRADEABLE-DEĞİL kararı kesin, K1/K3 zinciri açılamaz. Post-hoc 'K1'i de deneyelim' kırılması bu dosyadaki graveyard taahhüdünü ihlal eder."
+}
