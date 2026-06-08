@@ -1,0 +1,58 @@
+{
+  "thread_id": "VIOP-SSF-OI",
+  "version": "1.0",
+  "created_date": "2026-06-08",
+  "hypothesis": "SSF açık pozisyon büyümesi (K2) informed flow birikimini ölçer ve bir sonraki ay spot cross-sectional getirisini tahmin eder; beklenen yön pozitif.",
+  "primary_signal": {
+    "name": "K2",
+    "formula": "(OI_t - OI_{t-1}) / OI_{t-1}",
+    "frequency": "monthly",
+    "universe_filter": "SOZLESME_TIPI == D_EQ_FPD",
+    "roll": "front_month_expiry_exclusion",
+    "note": "Front-month = min(VADE_YM) > current_month. Contracts expiring in current month excluded (roll + expiry exclusion). Month-end OI = last trading day of month."
+  },
+  "characterization_signals": [
+    "K1_basis",
+    "K3_direction_interaction"
+  ],
+  "note_characterization": "K1 ve K3 yalnızca K2 keep_bar geçerse okunur; K2 fail ederse zincir açılmaz. Ayrı DSR denemesi sayılmaz.",
+  "keep_bar": {
+    "metric": "nw_t_rank_ic",
+    "threshold": 2.0,
+    "direction": "greater",
+    "test": "Mod-A NW-HAC t-istatistigi, population-variance, rank-IC serisi"
+  },
+  "breadth_veto": {
+    "min_names_per_month": 10,
+    "min_valid_months": 36,
+    "action": "TRADEABLE_DEGIL — nw_t degerinden bagimsiz, veto edilemez"
+  },
+  "universe": {
+    "source": "3208 BIST Datastore VIOP",
+    "ticker_type": "SSF D_EQ_FPD",
+    "start": "2016-01",
+    "end": "current",
+    "oi_floor": "OI > 0 (olu sozlesme dislama)"
+  },
+  "engine_modes": [
+    "Mod-A",
+    "Mod-B",
+    "Mod-C"
+  ],
+  "pm1_compliant": true,
+  "dsr_design_count": 1,
+  "graveyard_commitment": "Bu thread tek kostuyla kapanir. K2 fail ederse post-hoc varyant zinciri acilamaz. Sonuc ne olursa olsun kaydedilir.",
+  "schema_guards": [
+    {
+      "id": "SG-1",
+      "date": "2020-07-27",
+      "description": "Endeks redenominasyonu; D_EQ_FPD etkilenmez, kolon adi degisimleri mumkun."
+    },
+    {
+      "id": "SG-2",
+      "date": "2021-01",
+      "description": "AHT aylik ozet dosyalari eklendi (ACIK_POZISYON_DEGISIMI varliginda AHT schema)."
+    }
+  ],
+  "content_hash": "34d312edf5b3c27b"
+}

@@ -41,6 +41,11 @@ data/analytics/
 data/signal_logs/
 data/event_logs/
 
+# VIOP-SSF-OI Stage-1: raw DataStore 3208 downloads + generated signal panel
+data/viop/
+data/processed/viop_signal_panel.parquet
+data/processed/viop_signal_metadata.json
+
 # Runtime / generated / local junk (not code)
 agents/intelligence/
 reports/
