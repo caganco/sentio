@@ -12,9 +12,9 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
-      - id: tier2-integration-tests
-        name: "Tier 2 — Integration Tests"
-        entry: python -m pytest tests/test_backtest.py tests/test_signal_alert.py -q --tb=short
+      - id: affected-tests
+        name: "Tier 2 — Affected Tests (staged-file mapped)"
+        entry: python scripts/pytest_affected.py
         language: system
         pass_filenames: false
         stages: [pre-commit]
