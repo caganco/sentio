@@ -18,7 +18,7 @@ disable_error_code = ["import-untyped"]
 # sınırı: anthropic SDK (strategist), playwright (fintables), requests/scraper'lar,
 # SMTP env (failure_notifier), pandas analytics. Davranış DEĞİŞMEZ — yeni kodun
 # temiz kalması için bunlar baseline'landı, ileride kademeli ödenecek teknik borç.
-# Sinyal modüllerine (macro_layer/macro_signals) müdahale CLAUDE.md gereği riskli
+# Sinyal modüllerine (macro_layer/macro_signals) müdahale PROJECT_GUIDE.md gereği riskli
 # olduğundan kod düzenlemek yerine ignore tercih edildi.
 [[tool.mypy.overrides]]
 module = [

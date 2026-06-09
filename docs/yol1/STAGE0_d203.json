@@ -131,7 +131,7 @@
   },
 
   "thresholds_reference": {
-    "gate_decision_constants": "src/signals/thresholds.py D203_* block (D203_GATE_NULL_PCTILE=0.95, D203_GATE_NW_T_MIN=2.0, D203_GATE_COST_LOW_BPS=20, D203_GATE_COST_HIGH_BPS=100, D203_DAILY_RETURN_CLIP=0.10, D203_LIQUIDITY_TERCILE=1/3, D203_TOP_N=15) -- single source per the CLAUDE.md tek-kaynak mandate + CLEAN_UNIVERSE_* precedent.",
+    "gate_decision_constants": "src/signals/thresholds.py D203_* block (D203_GATE_NULL_PCTILE=0.95, D203_GATE_NW_T_MIN=2.0, D203_GATE_COST_LOW_BPS=20, D203_GATE_COST_HIGH_BPS=100, D203_DAILY_RETURN_CLIP=0.10, D203_LIQUIDITY_TERCILE=1/3, D203_TOP_N=15) -- single source per the PROJECT_GUIDE.md tek-kaynak mandate + CLEAN_UNIVERSE_* precedent.",
     "measurement_geometry": "src/screening/d203_config.py (lookbacks, regime splits, windows, snapshot hashes); re-exports the gate constants for a single engine import surface."
   },
 

@@ -10,7 +10,7 @@ affects:
   - src/signals/engine.py
   - src/utils/weight_validator.py
   - tests/test_architecture.py
-rationale: "Phase 4.5 requires a 0.78 normalizer; CLAUDE.md immutable rule forbids a hardcoded normalizer and pins MASTER_WEIGHTS sum to [0.85,1.05]. Resolved by deriving 0.78 as the emergent runtime floor of the existing dynamic normalizer."
+rationale: "Phase 4.5 requires a 0.78 normalizer; PROJECT_GUIDE.md immutable rule forbids a hardcoded normalizer and pins MASTER_WEIGHTS sum to [0.85,1.05]. Resolved by deriving 0.78 as the emergent runtime floor of the existing dynamic normalizer."
 implementation_status: 100%
 test_coverage: tests/test_architecture.py::TestWeightSumValid, tests/test_conviction_validator.py
 ---
@@ -26,7 +26,7 @@ test_coverage: tests/test_architecture.py::TestWeightSumValid, tests/test_convic
 ## CONTEXT
 
 SPEC_SIGNAL_CONVICTION_1 specifies the reweighted composite divided by a
-`normalizer = 0.78`. The CLAUDE.md "Dokunulmaz Prensipler" (immutable
+`normalizer = 0.78`. The PROJECT_GUIDE.md "Dokunulmaz Prensipler" (immutable
 principles) mandate the opposite:
 
 - `MASTER_WEIGHTS` sum must stay in the architecture-safety band [0.85, 1.05].

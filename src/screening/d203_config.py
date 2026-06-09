@@ -10,7 +10,7 @@ excluded, rights/TERP unadjusted, +/-50% return clip) -> INVALID; D-203 corrects
 MEASUREMENT-ONLY (optimization FORBIDDEN). Like k2_tilt_config / value_only_regime_config,
 this holds pre-registered measurement knobs frozen at Stage-0. The GATE DECISION
 THRESHOLDS (pass/fail constants) live in src/signals/thresholds.py (D203_* block, per
-the CLAUDE.md "tek kaynak" mandate + the CLEAN_UNIVERSE_* precedent); this module only
+the PROJECT_GUIDE.md "tek kaynak" mandate + the CLEAN_UNIVERSE_* precedent); this module only
 holds GEOMETRY (lookbacks, regime splits, windows, snapshot hashes) and re-exports the
 gate constants so the engine has a single import surface.
 

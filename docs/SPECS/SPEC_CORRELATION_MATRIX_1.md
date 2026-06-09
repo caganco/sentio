@@ -654,9 +654,9 @@ Week 3 (June 23-27):
 
 ---
 
-## 7. DECISION: BUILDER READINESS
+## 7. DECISION: IMPLEMENTATION READINESS
 
-**Status:** ✅ **YES — READY FOR BUILDER (Phase 4.3)**
+**Status:** ✅ **YES — READY FOR IMPLEMENTATION (Phase 4.3)**
 
 **Conditions:**
 
@@ -670,7 +670,7 @@ Week 3 (June 23-27):
 | Configuration ready | ✅ YES | config.yaml template provided |
 | Testing strategy | ✅ YES | 8 tests (unit + integration) |
 | Risk mitigations | ✅ YES | 4 risks with mitigations documented |
-| **READY FOR BUILDER?** | **YES** | **Proceed after L4 (Phase 4.3, mid-June)** |
+| **READY FOR IMPLEMENTATION?** | **YES** | **Proceed after L4 (Phase 4.3, mid-June)** |
 
 **Handoff Checklist for arastirma katmani:**
 

@@ -7,7 +7,7 @@ selection. PRICE-ORTHOGONAL axis.
 
 MEASUREMENT-ONLY (optimization FORBIDDEN). Like d211_config, this holds pre-registered
 measurement knobs frozen at Stage-0 (STAGE0_d213.json). The DECISION THRESHOLDS live in
-src/signals/thresholds.py (D213_* block, per the CLAUDE.md tek-kaynak mandate); this
+src/signals/thresholds.py (D213_* block, per the PROJECT_GUIDE.md tek-kaynak mandate); this
 module holds GEOMETRY (window, predictor/dependent/cash-leg definitions, snapshot hashes,
 cost params) and re-exports the gate constants for a single import surface.
 

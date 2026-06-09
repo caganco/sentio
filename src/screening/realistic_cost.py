@@ -32,7 +32,7 @@ Citations:
     half-spreads (mega/large/mid/micro) used as the tier cross-check.
 
 All decision/tier constants live in src/signals/thresholds.py (D204_* historical +
-D207_* live re-calibrated block, single source per CLAUDE.md). This module holds only
+D207_* live re-calibrated block, single source per PROJECT_GUIDE.md). This module holds only
 the cost MECHANICS.
 """
 from __future__ import annotations

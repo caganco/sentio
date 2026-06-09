@@ -5,7 +5,7 @@ Positive LOO = removing L_i hurts -> L_i contributes positively.
 
 Optional Shapley decomposition (2^6=64 coalitions) -- weekly batch only.
 
-CLAUDE.md compliance: layer weights imported from thresholds.MASTER_WEIGHTS
+PROJECT_GUIDE.md compliance: layer weights imported from thresholds.MASTER_WEIGHTS
 (no hardcoded dict). Mapping signal-log column names (l1_tech_score, ...) to
 engine layer names (technical, ...) via _LAYER_COL_TO_NAME.
 """
