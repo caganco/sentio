@@ -7,7 +7,7 @@ status: decided
 priority: HIGH (process-level)
 affects:
   - CRITIC_BACKLOG.md (new, root)
-  - CLAUDE.md (boot protocol section)
+  - PROJECT_GUIDE.md (boot protocol section)
   - OS_STATE.md (summary block)
   - tests/test_critic_backlog.py (new)
   - docs/DECISIONS.md (index)
@@ -57,7 +57,7 @@ Repo root'unda kalıcı dosya. Format zorunlu:
 - SESSION CHECKPOINT LOG (her session sonu satır eklenir, audit trail)
 - DOSYA KURALLARI (silmek/değiştirmek için protokol)
 
-### Layer 2 — `CLAUDE.md` boot protocol (process enforcement)
+### Layer 2 — `PROJECT_GUIDE.md` boot protocol (process enforcement)
 
 Her maintainer session başında:
 1. CRITIC_BACKLOG.md okunur
@@ -71,7 +71,7 @@ CI'da koşan invariant testleri:
 - Dosya silinemez
 - Format bozulamaz
 - ACTIVE → CLOSED geçişi audit trail bırakmadan olamaz
-- CLAUDE.md'den boot protocol kaldırılamaz
+- PROJECT_GUIDE.md'den boot protocol kaldırılamaz
 - OS_STATE.md'den summary blok kaldırılamaz
 
 Bu üç katman birlikte: **bir maintainer** bilerek/bilmeyerek kuralı bozmaya çalışırsa, **CI kırılır**. Test eğitici hata mesajı verir.
@@ -104,7 +104,7 @@ Bu üç katman birlikte: **bir maintainer** bilerek/bilmeyerek kuralı bozmaya �
 Bu kararın kendisi nesilden nesile devralınır çünkü:
 
 1. **`CRITIC_BACKLOG.md`** dosya olarak repo'da — her yeni session okur
-2. **`CLAUDE.md`** boot protocol — her maintainer instance görür
+2. **`PROJECT_GUIDE.md`** boot protocol — her maintainer instance görür
 3. **`OS_STATE.md`** summary — session başı snapshot
 4. **`test_critic_backlog.py`** — mekanik kapsayıcı, silme girişimini durdurur
 5. **`DECISIONS.md`** indeksinde DEC-016 — değişiklik gerekçe gerektirir
@@ -124,5 +124,5 @@ Bir gelecek maintainer bu sistemi değiştirmek isterse:
 ---
 
 **Status:** ✅ DECIDED & IMPLEMENTED (20 May 2026)
-**Implementation files:** CRITIC_BACKLOG.md, CLAUDE.md (boot section), OS_STATE.md (summary block), tests/test_critic_backlog.py
+**Implementation files:** CRITIC_BACKLOG.md, PROJECT_GUIDE.md (boot section), OS_STATE.md (summary block), tests/test_critic_backlog.py
 **Approved By:** maintainer

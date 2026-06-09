@@ -6,7 +6,7 @@ Single-asset timing. NOT stock selection.
 
 MEASUREMENT-ONLY (optimization FORBIDDEN). Like d203_config / d205_config, this holds
 pre-registered measurement knobs frozen at Stage-0 (STAGE0_d211.json). The DECISION
-THRESHOLDS live in src/signals/thresholds.py (D211_* block, per the CLAUDE.md tek-kaynak
+THRESHOLDS live in src/signals/thresholds.py (D211_* block, per the PROJECT_GUIDE.md tek-kaynak
 mandate); this module holds GEOMETRY (window, predictor/dependent definitions, snapshot
 hashes, cost params) and re-exports the gate constants for a single import surface.
 

@@ -68,7 +68,7 @@ Tarihsel KAP text verisi gerektiren gerçek backtest Faz 2 kapsamındadır.
 ## Neye Dokunma
 
 - `KAP_EARNINGS_NEUTRAL_BAND` / `KAP_EARNINGS_STRONG_THRESHOLD` değerlerini
-  `thresholds.py` dışında tanımlama (CLAUDE.md kuralı)
+  `thresholds.py` dışında tanımlama (PROJECT_GUIDE.md kuralı)
 - `finansal_rapor` satırını `KAP_CATEGORY_IMPACT`'tan silme — Faz 2 kapsamı
 - `kap_layer.py` for-loop'una LLM çağrısı ekleme (Faz 1 kısıtı)
 - `parse_earnings_surprise()` içine fallback olmayan exception propagation ekleme

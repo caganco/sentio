@@ -81,7 +81,7 @@ KOZAA.IS   : HTTP 404 "possibly delisted"                                       
   `subProcessName` (BDLSZ/BDL), `preemtiveRightsPercentage`+`...Amount` (**bedelli**),
   `internalResourcesBonusPercentage`+`...Amount` (**bedelsiz**),
   `bonusIssueFromDividendPercentage`. NLP gerekmez (Faz-2'de KOZAL formunda doğrulandı).
-- `MKK_VYK_BASE_URL` (apigwdev→Basic auth) + `MKK_VYK_TOKEN` env gerekir (builder'da yok → maintainer-env).
+- `MKK_VYK_BASE_URL` (apigwdev→Basic auth) + `MKK_VYK_TOKEN` env gerekir (yerelde yok → maintainer-env).
 - **ASIL MALİYET — arama:** `get_disclosures` **tarih/event-type filtresi YOK**; `start_index`'ten
   artan ~9-kayıtlık sayfalar döner ve index **doğrusal-OLMAYAN** büyür (dönem hacmine göre).
   Belirli bir tarihsel CA bildirimini bulmak = kör pagination. (Probe: idx 1138619 → Nis-2023,

@@ -196,7 +196,7 @@ BIST iki nedenden dolayı LLM analizi için **özellikle verimli**:
 | 3 | L6 ya redesign (ağırlık 0.10, ATR-bazlı) ya da composite'ten çıkar | Gürültü azalır veya anlamlı sinyal gelir | Orta |
 | 4 | Volume surge için gradient (örn. 3 seviye: zayıf/güçlü/ekstrem) | L1 sinyal kalitesi artar | Düşük |
 
-*Not: Bu değişiklikler CLAUDE.md gereği spec + etkilenen dosyalar listesiyle maintainer onayına sunulmalı.*
+*Not: Bu değişiklikler PROJECT_GUIDE.md gereği spec + etkilenen dosyalar listesiyle maintainer onayına sunulmalı.*
 
 ### 5.2 Orta Vadeli (CB-014 Tamamlandığında)
 

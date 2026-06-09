@@ -630,6 +630,6 @@ BIST üzerinde size, B/M, 12-mo momentum, volatility, gross profitability. Verba
 - 60 günlük minimum birikme süresi MUTLAK — öncesinde statik prior'larla devam edilmeli; "şu an çalıştırıp sonuca bakmak" data snooping olur.
 - t > 3.0 hurdle US standartlarından alınmış muhafazakar bir kalibrasyon; BIST'te (daha az factor zoo) t > 2.5 tartışılabilir ama varsayılan 3.0 olmalı.
 - Transaction cost (%0.25-0.40 round-trip retail komisyon + BSMV + spread) net IC hesabına dahil edilmelidir; net negatif olabilecek senaryolar mevcuttur.
-- RR-010 sürümü 1.0; builder'a teslim edilebilir. Implementation pseudocode bölümü doğrudan kodlanabilir.
+- RR-010 sürümü 1.0; uygulamaya hazır. Implementation pseudocode bölümü doğrudan kodlanabilir.
 
 *Sonraki sürümler için açık konular:* L6 Risk/Kelly'nin Bayesian framework'üne entegrasyonu; Maximally Diversified weight (kovaryans tabanlı); XGBoost ICR tahmin (RR-011 hedef).

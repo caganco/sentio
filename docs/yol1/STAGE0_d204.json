@@ -73,7 +73,7 @@
   },
 
   "cost_constants_FROZEN": {
-    "thresholds_block": "src/signals/thresholds.py D204_* (single source per the CLAUDE.md tek-kaynak mandate)",
+    "thresholds_block": "src/signals/thresholds.py D204_* (single source per the PROJECT_GUIDE.md tek-kaynak mandate)",
     "lambda_kyle": 1.0, "lambda_kyle_note": "FROZEN (ballast default placeholder); calibration = optimization = FORBIDDEN in D-204",
     "roll_window": 21, "adv_window": 63, "commission_pct": 0.0,
     "tier_adv_boundaries_tl": {"mega": 2000000000.0, "large": 500000000.0, "mid": 100000000.0},

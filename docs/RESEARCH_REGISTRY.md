@@ -2,7 +2,7 @@
 
 > Raw research reports under [`docs/research/`](research/) are **permanent**.
 > Every new SPEC must reference the relevant RR-XXX reports by `§section_number`
-> (see CLAUDE.md → RESEARCH REGISTRY rule).
+> (see PROJECT_GUIDE.md → RESEARCH REGISTRY rule).
 >
 > The detailed verdict text in the table below is kept as raw research notes in the
 > working language; the curated English summary is in the

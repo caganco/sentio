@@ -63,7 +63,7 @@ invalid/
 *_session.json
 
 # Public-release: keep local, hide from GitHub (preserve-local cleanup)
-# _governance/ = critical project-continuity / AI-memory (CRITIC_BACKLOG, MASTER_PLAN, orchestrator/boot docs)
+# _governance/ = local project-continuity notes (planning + working docs)
 # miscellaneous/ = transient dev scratch / deprecated notes
 # OS_STATE.md, masterplan.md, CRITIC_BACKLOG.md = code/test-read -> hidden in place (not moved)
 _governance/
@@ -99,13 +99,13 @@ data/snapshots/*.parquet
 data/snapshots/*.meta.json
 
 # Public-release: AI-orkestrasyon sinyalini gizle (prod-equivalent imaj).
-# CLAUDE.md koksel stub + .agent-local/ govde, klonlara junction ile paylasilir.
-# Govde .agent-local/CLAUDE_BODY.md'de; duzenleme orada. Bkz .junction-map.md
+# Local project config stub + .agent-local/ body; shared to clones via junction.
+# Body lives in .agent-local/; edit there. See .junction-map.md
 /CLAUDE.md
 .agent-local/
 .junction-map.md
 
-# Session-state / builder-internal index: lokal kalir, klonlara hard-link ile paylasilir.
+# Session-state / local working index: lokal kalir, klonlara hard-link ile paylasilir.
 /FEATURE_INDEX.md
 
 # Public-hygiene guard: local-only pattern supplement (project-internal terms;

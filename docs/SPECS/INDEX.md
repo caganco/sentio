@@ -149,7 +149,7 @@
 
 **Features:**
 - `docs/` directory structure: BOOT files, SPECS, PROJECT, RUNBOOK
-- Three boot files: BOOT_ORCHESTRATOR, BOOT_ARCHITECT, BOOT_STRATEGIST
+- Three reference docs: coordination, architecture, strategy
 - Automatic OS_STATE.md update via daily_update.py (every 6h)
 - Staleness detection at agent startup
 - Cross-reference validation (lint)

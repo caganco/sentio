@@ -91,7 +91,7 @@ bugunun snapshot'ini dondurur. RR-034 §3 ile tutarli: **tarihsel seri YAPILAMAZ
 - **Gecmis derinlik:** SIFIR (0 gercek kayit).
 - **IC YAPILABILIR MI:** **HAYIR** — ~12ay gunluk biriktirme gerekli.
 - **Ne zaman hazir:** ForeignFlowConnector gunluk kosuyor, ~Haziran 2027'den itibaren 12ay panel.
-- **Eylem:** Connector'i SIMDI gunluk zamanlamaya bagla (CLAUDE.md scope disinda; bu araştırma).
+- **Eylem:** Connector'i SIMDI gunluk zamanlamaya bagla (PROJECT_GUIDE.md scope disinda; bu araştırma).
 
 ### 2.6 BIST Datastore 3153 "Yabanci Islemler" (Test Edilmedi)
 

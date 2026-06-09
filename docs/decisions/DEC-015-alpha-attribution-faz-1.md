@@ -48,7 +48,7 @@ Implement an Alpha Attribution infrastructure consisting of:
 
 6. **Layer attribution** (`src/analytics/layer_attribution.py`) — Leave-One-Out
    marginal IC per layer; optional weekly-batch Shapley decomposition.
-   Layer weights imported from `MASTER_WEIGHTS` (CLAUDE.md compliance — no
+   Layer weights imported from `MASTER_WEIGHTS` (PROJECT_GUIDE.md compliance — no
    hardcoded weight dict).
 
 7. **Tier-1 dashboard** (`src/reporting/ic_dashboard.py`) — CLI summary +

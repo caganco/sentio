@@ -169,7 +169,7 @@ DELISTED_TICKERS_PATH:  str = "data/analytics/delisted_tickers.json"
 SECTOR_RETURNS_CACHE:   str = "data/analytics/sector_returns_cache.parquet"
 ```
 
-**Neden:** thresholds.py tek sabit kaynağı prensibi (CLAUDE.md Dokunulmaz Prensipler). Yeni analitik sabitler de buraya girer.
+**Neden:** thresholds.py tek sabit kaynağı prensibi (PROJECT_GUIDE.md Dokunulmaz Prensipler). Yeni analitik sabitler de buraya girer.
 
 ---
 
@@ -580,7 +580,7 @@ ETKİLENEN DOSYALAR:
   - tests/test_architecture.py (mevcut TestICFrameworkInvariants::
       test_analytics_not_importing_engine zaten var — CI doğrulama)
 
-DAYANAK: CLAUDE.md "Her değişiklikten sonra pytest çalıştır", Dokunulmaz Prensipler
+DAYANAK: PROJECT_GUIDE.md "Her değişiklikten sonra pytest çalıştır", Dokunulmaz Prensipler
 
 TAHMINI SURE: 20 dakika
 BRANCH: feature/d136-ic-importlinter
@@ -758,4 +758,4 @@ Pratik sıra önerisi:
 ---
 
 *SPEC_IC_FRAMEWORK_1 tamamlandı. arastirma katmani specleri SPEC onayı bekleniyor.*  
-*Bağlı: RR-010 §2-§4 §6 (tüm bölümler), CB-010, DEC-015, CLAUDE.md Dokunulmaz Prensipler*
+*Bağlı: RR-010 §2-§4 §6 (tüm bölümler), CB-010, DEC-015, PROJECT_GUIDE.md Dokunulmaz Prensipler*

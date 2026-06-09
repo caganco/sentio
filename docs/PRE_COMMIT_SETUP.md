@@ -25,4 +25,4 @@ pytest tests/test_architecture.py -q
 git commit --no-verify -m "..."
 ```
 
-⚠️ ORCHESTRATOR ONAY GEREKTİRİR
+⚠️ MAINTAINER ONAYI GEREKTİRİR
