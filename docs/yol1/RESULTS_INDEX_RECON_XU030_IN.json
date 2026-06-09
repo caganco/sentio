@@ -1,0 +1,360 @@
+{
+  "directive": "RR-Y1-011-E",
+  "stage0_path": "docs\\yol1\\STAGE0_INDEX_RECON_XU030_IN.json",
+  "stage0_hash_prefix": "c7f8f6202a40b953",
+  "full_stats": {
+    "label": "IN_full",
+    "n_events": 24,
+    "nw_lag": 3,
+    "mean_car_gross_pct": 0.5752,
+    "mean_car_net_pct": 0.1072,
+    "nw_se_net": 0.020542,
+    "nw_t_net": 0.0522,
+    "nw_t_gross": 0.28,
+    "t_simple_net": 0.0459,
+    "pct_positive_gross": 45.8,
+    "pct_positive_net": 45.8,
+    "breakeven_bps": 57.5,
+    "cost_rt_bps": 46.8,
+    "cost_covered": true
+  },
+  "temporal_half_split_at": "2023-06-16",
+  "temporal_half_b_starts": "2023-09-21",
+  "half_stats": [
+    {
+      "label": "IN_half_A_n12",
+      "n_events": 12,
+      "nw_lag": 3,
+      "mean_car_gross_pct": 4.2606,
+      "mean_car_net_pct": 3.7926,
+      "nw_se_net": 0.009224,
+      "nw_t_net": 4.1117,
+      "nw_t_gross": 4.6191,
+      "t_simple_net": 1.4557,
+      "pct_positive_gross": 66.7,
+      "pct_positive_net": 66.7,
+      "breakeven_bps": 426.1,
+      "cost_rt_bps": 46.8,
+      "cost_covered": true
+    },
+    {
+      "label": "IN_half_B_n12",
+      "n_events": 12,
+      "nw_lag": 3,
+      "mean_car_gross_pct": -3.1102,
+      "mean_car_net_pct": -3.5782,
+      "nw_se_net": 0.039932,
+      "nw_t_net": -0.8961,
+      "nw_t_gross": -0.7789,
+      "t_simple_net": -0.9708,
+      "pct_positive_gross": 25.0,
+      "pct_positive_net": 25.0,
+      "breakeven_bps": -311.0,
+      "cost_rt_bps": 46.8,
+      "cost_covered": false
+    }
+  ],
+  "out_symmetry_stats": {
+    "label": "OUT_symmetry",
+    "n_events": 22,
+    "nw_lag": 3,
+    "mean_car_gross_pct": 0.9648,
+    "mean_car_net_pct": 0.4968,
+    "nw_se_net": 0.018821,
+    "nw_t_net": 0.264,
+    "nw_t_gross": 0.5127,
+    "t_simple_net": 0.2646,
+    "pct_positive_gross": 45.5,
+    "pct_positive_net": 45.5,
+    "breakeven_bps": 96.5,
+    "cost_rt_bps": 46.8,
+    "cost_covered": true
+  },
+  "keep_bar": {
+    "kb1_nw_t_ge_2": {
+      "pass": false,
+      "nw_t": 0.0522,
+      "threshold": 2.0
+    },
+    "kb2_sign_both_halves": {
+      "pass": false,
+      "half_a_mean_net_pct": 3.7926,
+      "half_b_mean_net_pct": -3.5782
+    },
+    "kb3_exceeds_breakeven": {
+      "pass": true,
+      "mean_gross_bps": 57.5,
+      "cost_rt_bps": 46.8
+    },
+    "verdict": "NOT-TRADEABLE"
+  },
+  "in_events_valid_n": 24,
+  "in_events_gap_n": 1,
+  "in_gap_details": [
+    {
+      "symbol": "FROTO",
+      "ann_date": "2018-12-21",
+      "eff_date": "2019-01-02",
+      "entry_date": null,
+      "exit_date": null,
+      "gap_days_spec": 12,
+      "actual_window_days": null,
+      "stock_ret": null,
+      "bm_ret": null,
+      "car_gross": null,
+      "cost_rt_bps": 46.8,
+      "car_net": null,
+      "bm_n_members": null,
+      "gap_flag": "entry_ge_exit",
+      "direction": "IN"
+    }
+  ],
+  "in_event_details": [
+    {
+      "symbol": "TOASO",
+      "ann_date": "2021-12-17",
+      "eff_date": "2022-01-03",
+      "actual_window_days": 17,
+      "stock_ret_pct": -2.469,
+      "bm_ret_pct": -8.884,
+      "car_gross_pct": 6.415,
+      "car_net_pct": 5.947
+    },
+    {
+      "symbol": "ALARK",
+      "ann_date": "2022-12-19",
+      "eff_date": "2023-01-02",
+      "actual_window_days": 14,
+      "stock_ret_pct": -3.517,
+      "bm_ret_pct": 6.516,
+      "car_gross_pct": -10.033,
+      "car_net_pct": -10.501
+    },
+    {
+      "symbol": "ODAS",
+      "ann_date": "2022-12-19",
+      "eff_date": "2023-01-02",
+      "actual_window_days": 14,
+      "stock_ret_pct": -0.516,
+      "bm_ret_pct": 6.516,
+      "car_gross_pct": -7.032,
+      "car_net_pct": -7.5
+    },
+    {
+      "symbol": "AEFES",
+      "ann_date": "2024-12-20",
+      "eff_date": "2025-01-02",
+      "actual_window_days": 13,
+      "stock_ret_pct": -26.343,
+      "bm_ret_pct": 2.817,
+      "car_gross_pct": -29.16,
+      "car_net_pct": -29.628
+    },
+    {
+      "symbol": "TRKCM",
+      "ann_date": "2020-03-19",
+      "eff_date": "2020-04-01",
+      "actual_window_days": 13,
+      "stock_ret_pct": 12.403,
+      "bm_ret_pct": 6.143,
+      "car_gross_pct": 6.26,
+      "car_net_pct": 5.792
+    },
+    {
+      "symbol": "HEKTS",
+      "ann_date": "2022-03-22",
+      "eff_date": "2022-04-01",
+      "actual_window_days": 10,
+      "stock_ret_pct": 1.731,
+      "bm_ret_pct": 2.482,
+      "car_gross_pct": -0.751,
+      "car_net_pct": -1.219
+    },
+    {
+      "symbol": "ENKAI",
+      "ann_date": "2023-03-16",
+      "eff_date": "2023-04-03",
+      "actual_window_days": 18,
+      "stock_ret_pct": 1.808,
+      "bm_ret_pct": -7.841,
+      "car_gross_pct": 9.649,
+      "car_net_pct": 9.181
+    },
+    {
+      "symbol": "BRSAN",
+      "ann_date": "2024-03-21",
+      "eff_date": "2024-04-01",
+      "actual_window_days": 11,
+      "stock_ret_pct": -5.247,
+      "bm_ret_pct": -1.638,
+      "car_gross_pct": -3.609,
+      "car_net_pct": -4.077
+    },
+    {
+      "symbol": "CIMSA",
+      "ann_date": "2025-03-21",
+      "eff_date": "2025-04-02",
+      "actual_window_days": 12,
+      "stock_ret_pct": 0.339,
+      "bm_ret_pct": 6.835,
+      "car_gross_pct": -6.495,
+      "car_net_pct": -6.963
+    },
+    {
+      "symbol": "TAVHL",
+      "ann_date": "2025-03-21",
+      "eff_date": "2025-04-02",
+      "actual_window_days": 12,
+      "stock_ret_pct": -1.62,
+      "bm_ret_pct": 6.835,
+      "car_gross_pct": -8.454,
+      "car_net_pct": -8.922
+    },
+    {
+      "symbol": "TSKB",
+      "ann_date": "2019-06-21",
+      "eff_date": "2019-07-01",
+      "actual_window_days": 10,
+      "stock_ret_pct": 8.333,
+      "bm_ret_pct": 5.544,
+      "car_gross_pct": 2.789,
+      "car_net_pct": 2.321
+    },
+    {
+      "symbol": "MGROS",
+      "ann_date": "2020-06-19",
+      "eff_date": "2020-07-01",
+      "actual_window_days": 12,
+      "stock_ret_pct": 6.027,
+      "bm_ret_pct": 2.753,
+      "car_gross_pct": 3.274,
+      "car_net_pct": 2.806
+    },
+    {
+      "symbol": "ASTOR",
+      "ann_date": "2023-06-16",
+      "eff_date": "2023-07-03",
+      "actual_window_days": 17,
+      "stock_ret_pct": 27.037,
+      "bm_ret_pct": 10.259,
+      "car_gross_pct": 16.778,
+      "car_net_pct": 16.31
+    },
+    {
+      "symbol": "DOAS",
+      "ann_date": "2024-06-13",
+      "eff_date": "2024-07-01",
+      "actual_window_days": 18,
+      "stock_ret_pct": -5.443,
+      "bm_ret_pct": -1.692,
+      "car_gross_pct": -3.751,
+      "car_net_pct": -4.219
+    },
+    {
+      "symbol": "GUBRF",
+      "ann_date": "2025-06-20",
+      "eff_date": "2025-07-01",
+      "actual_window_days": 11,
+      "stock_ret_pct": 8.508,
+      "bm_ret_pct": 11.353,
+      "car_gross_pct": -2.846,
+      "car_net_pct": -3.314
+    },
+    {
+      "symbol": "GUBRF",
+      "ann_date": "2020-09-18",
+      "eff_date": "2020-10-01",
+      "actual_window_days": 13,
+      "stock_ret_pct": 8.74,
+      "bm_ret_pct": 2.454,
+      "car_gross_pct": 6.286,
+      "car_net_pct": 5.818
+    },
+    {
+      "symbol": "OYAKC",
+      "ann_date": "2020-09-18",
+      "eff_date": "2020-10-01",
+      "actual_window_days": 13,
+      "stock_ret_pct": -0.99,
+      "bm_ret_pct": 2.454,
+      "car_gross_pct": -3.444,
+      "car_net_pct": -3.912
+    },
+    {
+      "symbol": "AKSEN",
+      "ann_date": "2022-09-21",
+      "eff_date": "2022-10-03",
+      "actual_window_days": 12,
+      "stock_ret_pct": 26.263,
+      "bm_ret_pct": 5.327,
+      "car_gross_pct": 20.936,
+      "car_net_pct": 20.468
+    },
+    {
+      "symbol": "KONTR",
+      "ann_date": "2023-09-21",
+      "eff_date": "2023-10-02",
+      "actual_window_days": 11,
+      "stock_ret_pct": 10.289,
+      "bm_ret_pct": 5.683,
+      "car_gross_pct": 4.606,
+      "car_net_pct": 4.138
+    },
+    {
+      "symbol": "OYAKC",
+      "ann_date": "2023-09-21",
+      "eff_date": "2023-10-02",
+      "actual_window_days": 11,
+      "stock_ret_pct": 9.904,
+      "bm_ret_pct": 5.683,
+      "car_gross_pct": 4.221,
+      "car_net_pct": 3.753
+    },
+    {
+      "symbol": "MGROS",
+      "ann_date": "2024-09-20",
+      "eff_date": "2024-10-01",
+      "actual_window_days": 11,
+      "stock_ret_pct": -11.569,
+      "bm_ret_pct": -4.689,
+      "car_gross_pct": -6.881,
+      "car_net_pct": -7.349
+    },
+    {
+      "symbol": "TTKOM",
+      "ann_date": "2024-09-20",
+      "eff_date": "2024-10-01",
+      "actual_window_days": 11,
+      "stock_ret_pct": -4.747,
+      "bm_ret_pct": -4.689,
+      "car_gross_pct": -0.059,
+      "car_net_pct": -0.526
+    },
+    {
+      "symbol": "ULKER",
+      "ann_date": "2024-09-20",
+      "eff_date": "2024-10-01",
+      "actual_window_days": 11,
+      "stock_ret_pct": -15.974,
+      "bm_ret_pct": -4.689,
+      "car_gross_pct": -11.286,
+      "car_net_pct": -11.754
+    },
+    {
+      "symbol": "DSTKF",
+      "ann_date": "2025-09-12",
+      "eff_date": "2025-10-01",
+      "actual_window_days": 19,
+      "stock_ret_pct": 32.954,
+      "bm_ret_pct": 6.562,
+      "car_gross_pct": 26.392,
+      "car_net_pct": 25.924
+    }
+  ],
+  "cost_model": {
+    "half_spread_bps": 13.4,
+    "kyle_bps": 10.0,
+    "round_trip_bps": 46.8,
+    "source": "D-207 large-cap tier Roll+Kyle FIX-2/FIX-3"
+  }
+}
