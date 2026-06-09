@@ -320,7 +320,7 @@
 ## HOW TO ADD A NEW SPEC
 
 1. **Create file:** `docs/SPECS/SPEC_[ID].md`
-2. **Write SPEC:** Use template from BOOT_ARCHITECT.md
+2. **Write SPEC:** Use the SPEC template
 3. **Update this INDEX:** Add row to table above
 4. **Validate:** Ensure no contradictions with existing SPECs
 5. **Submit to maintainer:** For review and directive
