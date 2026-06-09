@@ -186,7 +186,7 @@ yapılacaksa her alt-küme ~14-28 olur — bu dikkat gerektirir.
 
 ---
 
-## 7. Önerilen Sonraki Adımlar (Orchestrator + Çağan kararı)
+## 7. Önerilen Sonraki Adımlar (maintainer kararı)
 
 1. **F-1 gider:** `scripts/download_index_components_3184.py` yaz, 1 yıllık ZIP indir
 2. **F-2 gider:** ZIP şemasını belgele; ilan-tarihi var mı?
