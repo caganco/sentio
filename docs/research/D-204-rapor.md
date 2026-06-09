@@ -1,4 +1,4 @@
-# D-204 hi52 STRES-TEST -- gercekci-maliyet + vade + OOS + mekanizma + likidite-paradoksu
+# D-204 hi52 stress test -- gercekci-maliyet + vade + OOS + mekanizma + likidite-paradoksu
 
 > Stage-0 on-kayit: `docs/yol1/STAGE0_d204.json` (config_version d204-v1, sonuclardan
 > ONCE donduruldu). Ham sonuc: `docs/yol1/d204_results.json`. Motor:
@@ -18,7 +18,7 @@ D-203'te **hi52 (52wk-high proximity) = GERCEK-EDGE** cikti: en guclu aday, EW_F
 asteriksiz edge'i**. AMA "5-gate-gecti" != "deploy-edilebilir". D-203 dort caveat birakti
 (flat-maliyet, aylik kadans, tek-uzun-rejim, mekanizma-acik-degil) ve EKLEME-3 besinciyi:
 **likidite-paradoksu** -- D-203'te hi52 illikit(+%1.77) > likit(+%1.35), literaturun TERSI
-(RR-043: likit > illikit). D-204 bu deploy-bosluguni kapatan stres-testidir.
+(RR-043: likit > illikit). D-204 bu deploy-bosluguni kapatan stres testidir.
 
 ## 2. Olcum cercevesi (Stage-0'da donmus)
 

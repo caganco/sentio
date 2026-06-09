@@ -94,7 +94,7 @@ NRR008_DISINFLATION_WINDOW = _d204.D204_DISINFLATION_WINDOW  # 2024-01..2026-04 
 NRR008_REGIME_PRIMARY = _d203.D203_REGIME_PRIMARY          # 2022-01-01 (gate-3 calendar split)
 
 # ---------------------------------------------------------------------------
-# Statistics knobs -- REUSE D-203/204 (matches the KESIN-TEST exactly).
+# Statistics knobs -- REUSE D-203/204 (matches the validation test exactly).
 # ---------------------------------------------------------------------------
 NRR008_GATE_NW_T_MIN = _d203.D203_GATE_NW_T_MIN            # 2.0 (KEY gate: static value failed at 0.76)
 

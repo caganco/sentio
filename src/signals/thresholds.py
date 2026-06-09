@@ -767,7 +767,7 @@ CLEAN_UNIVERSE_DIVIDEND_WITHHOLDING: float = 0.15
 # _meta.json for auditability.
 CLEAN_UNIVERSE_SELF_VALIDATE_TOL: float = 0.02
 
-# --- D-203 KESIN-TEST gate decision thresholds (single source per "tek kaynak") ---
+# --- D-203 validation test gate decision thresholds (single source per "tek kaynak") ---
 # These are the FROZEN pass/fail thresholds for the 5-gate measurement of the three
 # edge candidates (VALUE / EDGE-2 composite / 52wk-high) on the D-202 681-symbol clean
 # universe. Decision constants live here; measurement GEOMETRY (lookbacks, regime
@@ -781,7 +781,7 @@ D203_DAILY_RETURN_CLIP: float = 0.10     # daily return cap +/-10% (NOT broken D
 D203_LIQUIDITY_TERCILE: float = 1.0 / 3.0  # gate-4: liquid/mid/illiquid tercile split
 D203_TOP_N: int = 15                     # fixed top-15 EW basket (no optimization path)
 
-# --- D-204 hi52 STRES-TEST decision/cost constants (single source per "tek kaynak") ---
+# --- D-204 hi52 stress test decision/cost constants (single source per "tek kaynak") ---
 # D-203 found hi52 = GERCEK-EDGE (strongest). D-204 stress-tests deploy-readiness under
 # REALISTIC per-stock cost (vs D-203 flat 20/100bp). MEASUREMENT-ONLY: these are FROZEN
 # at Stage-0 and NOT tuned after seeing results. Cost MECHANICS live in

@@ -71,7 +71,7 @@ NRR007_DISINFLATION_WINDOW = _d204.D204_DISINFLATION_WINDOW  # 2024-01..2026-04 
 NRR007_REGIME_PRIMARY = _d203.D203_REGIME_PRIMARY          # 2022-01-01
 
 # ---------------------------------------------------------------------------
-# Statistics knobs -- REUSE D-203/204 (matches the KESIN-TEST exactly).
+# Statistics knobs -- REUSE D-203/204 (matches the validation test exactly).
 # ---------------------------------------------------------------------------
 NRR007_GATE_NW_T_MIN = _d203.D203_GATE_NW_T_MIN            # 2.0
 

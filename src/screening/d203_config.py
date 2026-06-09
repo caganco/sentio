@@ -1,4 +1,4 @@
-"""D-203 KESIN-TEST -- frozen Stage-0 MEASUREMENT geometry. FAZ-1.
+"""D-203 validation test -- frozen Stage-0 MEASUREMENT geometry. FAZ-1.
 
 Resolves the two-lab contradiction (edge-arastirma VALUE=mirage / 52wk-high=regime-tilt
 vs edge-arastirma EDGE-2 composite "strongest, +12.9pp above EW") by re-measuring

@@ -15,7 +15,7 @@
 ## 1. Soru
 
 D-203'te **hi52 = GERCEK-EDGE** cikti (sistemin ilk asteriksiz edge'i; NW t=3.19, 5/5 gate).
-D-204 stres-testi bu **prototipi** (252g + top15 + EW + aylik + filtre-yok) **tradeable-DEGIL**
+D-204 stres testi bu **prototipi** (252g + top15 + EW + aylik + filtre-yok) **tradeable-DEGIL**
 buldu: gerceklesen gercekci round-trip ~340bp > breakeven ~302bp; kok-neden ~%88 turnover x
 ~%98 microcap (medyan-ADV 1.65M-TL). NRR-005 gozlemsel-teshis (a) kok-nedenin **maliyet-ORANI
 (microcap)** oldugunu (turnover-seviyesi degil) ve (b) **hi52-sinyalinin likit-isimlerde de

@@ -1,4 +1,4 @@
-# D-203 KESIN-TEST -- value + EDGE-2 + 52wk-high, D-202 temiz-evren (681 sembol)
+# D-203 validation test -- value + EDGE-2 + 52wk-high, D-202 temiz-evren (681 sembol)
 
 > Stage-0 on-kayit: `docs/yol1/STAGE0_d203.json` (config_version d203-v1, sonuclardan
 > ONCE donduruldu). Ham sonuc: `docs/yol1/d203_results.json`. Motor:
