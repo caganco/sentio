@@ -1,4 +1,4 @@
-"""D-204 hi52 STRES-TEST engine -- realistic-cost + vade + OOS + mechanism + H1.
+"""D-204 hi52 stress test engine -- realistic-cost + vade + OOS + mechanism + H1.
 
 D-203 found ADAY-C hi52 = GERCEK-EDGE (strongest). D-204 stress-tests deploy-readiness
 WITHOUT re-running the data: it REUSES the D-203 engine (price/rebalance/return/liquidity/

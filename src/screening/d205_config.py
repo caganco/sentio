@@ -74,7 +74,7 @@ D205_DEPLOY_HURDLE_TOL = _d204.D204_DEPLOY_HURDLE_TOL          # 5e-6
 D205_BREAKEVEN_SAFETY_MULT = _d204.D204_BREAKEVEN_SAFETY_MULT  # 2.0
 
 # ---------------------------------------------------------------------------
-# Statistics knobs -- REUSE D-203/204 (matches KESIN-TEST + STRES-TEST exactly).
+# Statistics knobs -- REUSE D-203/204 (matches validation test + stress test exactly).
 # ---------------------------------------------------------------------------
 D205_GATE_NW_T_MIN = _d203.D203_GATE_NW_T_MIN                # 2.0
 

@@ -1,4 +1,4 @@
-"""D-203 KESIN-TEST engine -- 5-gate measurement on the D-202 clean universe. FAZ-1.
+"""D-203 validation test engine -- 5-gate measurement on the D-202 clean universe. FAZ-1.
 
 Re-measures three edge candidates (ADAY-A VALUE / ADAY-B EDGE-2 composite / ADAY-C
 52wk-high) on the SAME corrected D-202 681-symbol clean universe with the SAME 5-gate

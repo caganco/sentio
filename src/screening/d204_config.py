@@ -1,4 +1,4 @@
-"""D-204 hi52 STRES-TEST -- frozen Stage-0 MEASUREMENT geometry. FAZ-1.
+"""D-204 hi52 stress test -- frozen Stage-0 MEASUREMENT geometry. FAZ-1.
 
 D-203 found ADAY-C hi52 (52wk-high proximity) = GERCEK-EDGE, the strongest candidate
 (NW |t|=3.19, post>=pre on the primary split, 5/5 gates) -- the system's first
@@ -98,7 +98,7 @@ D204_TLREF_AVAILABLE_START = "2022-07-01"                       # TLREF return-i
 D204_DEPLOY_HURDLE_TOL = 5e-6                                   # recompute-vs-frozen assert tol
 
 # ---------------------------------------------------------------------------
-# Reused statistics knobs (verbatim D-203 -> matches the KESIN-TEST exactly).
+# Reused statistics knobs (verbatim D-203 -> matches the validation test exactly).
 # ---------------------------------------------------------------------------
 D204_NW_LAGS = _d203.D203_NW_LAGS                  # 3
 D204_NULL_SEED = _d203.D203_NULL_SEED              # 12345
