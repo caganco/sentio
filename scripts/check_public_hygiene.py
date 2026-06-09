@@ -37,10 +37,10 @@ from pathlib import Path
 
 ALLOW_MARK = "hygiene-allow"
 
-# Files where the personal name is legitimate: the copyright holder (LICENSE) and
-# the identity map (.mailmap), whose explicit purpose is to declare the canonical
-# author name for the contributor view.
-NAME_ALLOW_FILES = {"LICENSE", "LICENSE.md", "LICENSE.txt", ".mailmap"}
+# Files where the personal name is legitimate: the copyright/author files (LICENSE,
+# NOTICE, pyproject metadata) and the identity map (.mailmap), whose explicit purpose
+# is to declare the canonical author name for the contributor view.
+NAME_ALLOW_FILES = {"LICENSE", "LICENSE.md", "LICENSE.txt", ".mailmap", "NOTICE", "pyproject.toml"}
 
 # This guard would otherwise be scanned like any other file; skip it.
 SELF_FILES = {"scripts/check_public_hygiene.py"}
