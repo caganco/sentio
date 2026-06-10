@@ -3,8 +3,8 @@
 > **Bu bir fizibilite probudur, Stage-0 ölçümü DEĞİLDİR.** Hiçbir CAR / getiri /
 > drift-büyüklüğü / Sharpe / t-istatistiği hesaplanmadı ve bu raporda yer almaz
 > (`no_performance_metrics: true`, probe-JSON'unda makine-okunur olarak kayıtlı).
-> Karar ağacı (RR-Y1-013 §5) Orchestrator + Çağan'dadır; aşağıdaki hükümler
-> otomatik-Stage-0-tetikleyici değildir (DISC-1 dersi, S#16).
+> Stage-0 kararı bu raporun kapsamı dışında, ayrı bir değerlendirme adımıdır;
+> aşağıdaki hükümler otomatik-Stage-0-tetikleyici değildir (DISC-1).
 >
 > Üretici script: `scripts/probe/pead_feasibility.py` (committed-motor `src/engine/`
 > sıfır-dokunuş; tüm girdiler read-only). Ham kanıt: `data/probe/pead_feasibility_summary.json`
