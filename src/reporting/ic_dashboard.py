@@ -3,7 +3,7 @@
 Daily output format:
 
   =========================================================================
-   BIST OS -- Alpha Attribution Dashboard  | 2026-05-20 | Regime: BULL
+   Sentio -- Alpha Attribution Dashboard  | 2026-05-20 | Regime: BULL
   -------------------------------------------------------------------------
    Layer            IC(t+5)    IR  t-stat  LOO dIC   Status
    L1 Technical     0.0421   0.65    1.80  +0.0030   WATCH
@@ -66,7 +66,7 @@ class ICDashboard:
         sep = "=" * 90
         print()
         print(sep)
-        print(f"  BIST OS -- Alpha Attribution Dashboard  |  {self._today}  |  Regime: {self._regime}")
+        print(f"  Sentio -- Alpha Attribution Dashboard  |  {self._today}  |  Regime: {self._regime}")
         print(sep)
         print(f"  {'Layer':<18} {'IC(t+5)':>9} {'IR':>7} {'t-stat':>8} "
               f"{'LOO dIC':>10} {'Decay30d':>11} {'Status':>10}")
@@ -154,7 +154,7 @@ def _status_label(t_stat: float, is_investable: bool) -> str:
 def main() -> int:
     from src.signals.thresholds import RETURNS_LOG_PATH, SIGNAL_LOG_BASE_PATH
 
-    parser = argparse.ArgumentParser(description="BIST OS IC Dashboard")
+    parser = argparse.ArgumentParser(description="Sentio IC Dashboard")
     parser.add_argument("--tier", type=int, default=1, help="Dashboard tier (1=CLI summary)")
     parser.add_argument("--json", type=str, default=None,
                         help="Optional explicit JSON output path")

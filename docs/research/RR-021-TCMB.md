@@ -1,6 +1,6 @@
 # RR-021 — TCMB EVDS3 API Operasyonel Referans
 
-**Sistem:** BIST OS Trading System · **Snapshot:** Mayıs 2026 · **Önceki:** RR-009 (seri kod mapping), D-135/D-136 (evds2 → evds3 migration)
+**Sistem:** Sentio Trading System · **Snapshot:** Mayıs 2026 · **Önceki:** RR-009 (seri kod mapping), D-135/D-136 (evds2 → evds3 migration)
 
 ---
 
@@ -40,7 +40,7 @@ https://evds3.tcmb.gov.tr/igmevdsms-dis/{ACTION}/{PARAMS}
 | `series` | `TP.DK.USD.A` veya `KOD1-KOD2-KOD3` (tire ayrımlı) | Evet (series endpoint'inde) | Maksimum ~400 seri/çağrı (community) |
 | `startDate` | **DD-MM-YYYY** | Evet | YYYY-MM-DD REDDEDİLİR — 400 Bad Request |
 | `endDate` | **DD-MM-YYYY** | Evet | Aynı kural |
-| `type` | `json` / `xml` / `csv` | Hayır (default xml) | BIST OS'te `json` |
+| `type` | `json` / `xml` / `csv` | Hayır (default xml) | Sentio'da `json` |
 | `frequency` | 1=Günlük, 2=İşgünü, 3=Haftalık, 4=Ayda 2, 5=Aylık, 6=3 Aylık, 7=6 Aylık, 8=Yıllık | Hayır | Serinin orijinal frekansından düşük olamaz |
 | `aggregationTypes` | `avg`, `min`, `max`, `first`, `last`, `sum` | Hayır | Çoklu seride tire ayrımlı |
 | `formulas` | 0=Düzey, 1=% değişim, 2=Fark, 3=Yıllık %, 4=Yıllık fark, 5=YTD %, 6=YTD fark, 7=Har. ort., 8=Har. toplam | Hayır | Formül uygulanırsa orijinal None döner; ham veri için ayrı çağrı |
@@ -57,7 +57,7 @@ https://evds3.tcmb.gov.tr/igmevdsms-dis/{ACTION}/{PARAMS}
 | fatihmete/evds v0.4 (EVDS3 uyum changelog'lu, PyPI'da yayım tarihi CAPTCHA nedeniyle teyit edilemedi) | `key` |
 | TCMB Kullanım Şartları (docId=18) | Header adı spesifiye edilmemiş |
 
-**Karar:** arastirma katmani ilk test çağrısında `key` header'ını dene; 401 dönerse `x-auth-token` ile tekrarla. Mevcut BIST OS kodu D-136 sonrası çalışıyorsa header'ı doğrula — muhtemelen `key` ile geçildi ve brief notu güncel değil.
+**Karar:** arastirma katmani ilk test çağrısında `key` header'ını dene; 401 dönerse `x-auth-token` ile tekrarla. Mevcut Sentio kodu D-136 sonrası çalışıyorsa header'ı doğrula — muhtemelen `key` ile geçildi ve brief notu güncel değil.
 
 ### 2.5 Request Örnekleri
 
@@ -94,7 +94,7 @@ data = r.json()["items"]
 
 ### 2.7 Sektör Pratiği (minimal)
 
-Türk quant community'sinde EVDS, Python tarafında üç paket etrafında konsolide olmuş durumda: `fatihmete/evds` (klasik, EVDS3 uyumu v0.4 ile geldi), `kaymal/tcmb-py` (modern, datagroup-aware), ve `saidsurucu/borsapy` (geniş finans suite içine gömülü EVDS provider). Bunlar resmi TCMB ürünü değil; hepsi MIT/Apache lisansla "kişisel kullanım" disclaim'i taşır. Pratikte tek satır seri çekme (`evds.get_data([...])` veya `tcmb.read(...)`) standart hâline gelmiş; üretim kodlarında çoğunlukla wrapper'ın altındaki `requests` çağrısı doğrudan kullanılıyor (bağımlılık azaltmak ve EVDS3 migration kırılganlığından kaçınmak için — BIST OS yaklaşımıyla aynı).
+Türk quant community'sinde EVDS, Python tarafında üç paket etrafında konsolide olmuş durumda: `fatihmete/evds` (klasik, EVDS3 uyumu v0.4 ile geldi), `kaymal/tcmb-py` (modern, datagroup-aware), ve `saidsurucu/borsapy` (geniş finans suite içine gömülü EVDS provider). Bunlar resmi TCMB ürünü değil; hepsi MIT/Apache lisansla "kişisel kullanım" disclaim'i taşır. Pratikte tek satır seri çekme (`evds.get_data([...])` veya `tcmb.read(...)`) standart hâline gelmiş; üretim kodlarında çoğunlukla wrapper'ın altındaki `requests` çağrısı doğrudan kullanılıyor (bağımlılık azaltmak ve EVDS3 migration kırılganlığından kaçınmak için — Sentio yaklaşımıyla aynı).
 
 ---
 
@@ -184,7 +184,7 @@ Brief'teki `x-auth-token` ile community'deki `key` çatışması için §2.4'e b
 | HTTP 429 davranışı | Community'de raporlanmamış | — |
 | Performans tavsiyesi | "günde bir kez veri toplama" | TCMB EVDS Web Service Usage Guide (Jan 2022) |
 
-**Pratik öneri:** BIST OS `daily_update.py`'da seri başına ayrı çağrı yerine **gruplu çağrı** (tire-ayrımlı çoklu seri, aynı tarih aralığı). 5 dakika içinde 200+ çağrı atmaktan kaçın.
+**Pratik öneri:** Sentio `daily_update.py`'da seri başına ayrı çağrı yerine **gruplu çağrı** (tire-ayrımlı çoklu seri, aynı tarih aralığı). 5 dakika içinde 200+ çağrı atmaktan kaçın.
 
 ### 4.4 IP Kısıtlaması
 
@@ -206,7 +206,7 @@ Resmi IP whitelisting/blacklisting mekanizması dokümante edilmemiş (BULUNAMAD
 
 ### 5.1 Error Kodu Tablosu
 
-| HTTP | Sebep | BIST OS Response |
+| HTTP | Sebep | Sentio Response |
 |---|---|---|
 | 200 + `items: []` | Geçerli istek, ama seri için bu tarih aralığında veri yok / deprecated kod | WARN log + cached değere düş; seri kodu RR-009'a karşı kontrol |
 | 200 + parsable | Normal | Devam |
@@ -370,7 +370,7 @@ def test_evds3_connection(api_key: str) -> dict:
 
 - **Snapshot Mayıs 2026.** EVDS3 hâlâ **beta** — TCMB Basın Duyurusu DUY2026-03 (26.01.2026) açıkça "EVDS 3 beta sürüm" diyor. EVDS2 paralel açık; kesin kapanış tarihi resmi belgede yok.
 - **TCMB resmi Swagger/OpenAPI spec'i BULUNAMADI.** `https://evds3.tcmb.gov.tr/dokumanlar` SPA olarak yükleniyor; ham scraping çalışmıyor. Tüm endpoint bilgileri community wrapper'lardan tersine mühendislik (borsapy README, kaymal/tcmb-py v0.5.0 — 20 Şubat 2026 PyPI yayını, fatihmete/evds v0.4).
-- **Auth header çelişkisi.** Brief `x-auth-token` diyor, community `key` diyor. Mevcut BIST OS kodu çalışıyorsa header'ı kontrol et — muhtemelen kod yorumu güncel değil. İlk arastirma katmani testi her iki header'ı denemeli.
+- **Auth header çelişkisi.** Brief `x-auth-token` diyor, community `key` diyor. Mevcut Sentio kodu çalışıyorsa header'ı kontrol et — muhtemelen kod yorumu güncel değil. İlk arastirma katmani testi her iki header'ı denemeli.
 - **Rate limit resmi BULUNAMADI.** Çağrı başına ~1000 gözlem + ~400 seri community-sourced (borsapy: *"Max gözlem/çağrı: 1000 — TCMB doğrudan çağrılırsa son 1000 gözlemi sessizce kesip getirir"*). 429 davranışı raporlanmamış.
 - **Lag tahminleri ampirik değil.** Tablolardaki "0–1 gün", "~3 gün", "~45–60 gün" değerleri community kullanım gözleminden; TCMB resmi SLA yok.
 - **Son canlı veri tarihleri.** Her seri için "arastirma katmani API key ile teyit etmeli" notu — bu raporu yazan ajan API key'e erişmediği için canlı doğrulama yapamadı. İlk arastirma katmani seansında §8.3 test script ile envantere geç.

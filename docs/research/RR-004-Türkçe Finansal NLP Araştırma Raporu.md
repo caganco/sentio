@@ -1,4 +1,4 @@
-# BIST OS L4 Sentiment Katmanı Yeniden Mimarisi — Türkçe Finansal NLP Araştırma Raporu
+# Sentio L4 Sentiment Katmanı Yeniden Mimarisi — Türkçe Finansal NLP Araştırma Raporu
 
 ## TL;DR
 

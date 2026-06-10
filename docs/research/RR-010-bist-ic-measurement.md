@@ -1,4 +1,4 @@
-# RR-010: BIST OS Trading System — Information Coefficient (IC) Ölçüm Metodolojisi
+# RR-010: Sentio Trading System — Information Coefficient (IC) Ölçüm Metodolojisi
 
 **Versiyon:** 1.0 | **Tarih:** 23 Mayıs 2026 | **Hedef dosya:** `docs/research/RR-010-bist-ic-measurement.md`
 **Önceki referanslar:** CB-002 (regime detection), CB-010 (statik weight savunulamazlığı), RR-002 (KAP), RR-005 (custody), RR-006 (short/VIOP), RR-008 (Türkçe NLP).
@@ -7,7 +7,7 @@
 
 ## 1. EXECUTIVE SUMMARY
 
-BIST OS sisteminin **statik (felsefe-tabanlı) layer weight'leri** (L1=0.25, L2=0.20, L3=0.30, L4=0.12, L5=0.10, L6=0.03) CB-010'da "savunulamaz" olarak işaretlendi; bu rapor, akademik literatür standardına uygun, **ölçüm-tabanlı** bir IC framework'ünü ~660 listelenmiş şirketten (CEIC Mart 2026) aktif ~300, BIST OS pre-filter 50-100 ticker'lık evrene uyarlar. Önerilen mimari: **5-günlük cross-sectional Spearman rank IC** (layer'a göre 5-20d), **120-günlük rolling window**, **Benjamini-Hochberg FDR düzeltmesi**, **ICIR-tabanlı + Bayesian shrinkage** weight kalibrasyonu. Minimum 60 işlem günü `signal_logger.py` birikimi sonrası faza geçilmesi zorunludur; o zamana kadar statik prior'lar korunur.
+Sentio sisteminin **statik (felsefe-tabanlı) layer weight'leri** (L1=0.25, L2=0.20, L3=0.30, L4=0.12, L5=0.10, L6=0.03) CB-010'da "savunulamaz" olarak işaretlendi; bu rapor, akademik literatür standardına uygun, **ölçüm-tabanlı** bir IC framework'ünü ~660 listelenmiş şirketten (CEIC Mart 2026) aktif ~300, Sentio pre-filter 50-100 ticker'lık evrene uyarlar. Önerilen mimari: **5-günlük cross-sectional Spearman rank IC** (layer'a göre 5-20d), **120-günlük rolling window**, **Benjamini-Hochberg FDR düzeltmesi**, **ICIR-tabanlı + Bayesian shrinkage** weight kalibrasyonu. Minimum 60 işlem günü `signal_logger.py` birikimi sonrası faza geçilmesi zorunludur; o zamana kadar statik prior'lar korunur.
 
 **5 maddelik yapılacaklar:**
 1. `signal_logger.py` çıktısını **panel formatına** (date × ticker × layer_score) dönüştür ve **forward returns** tablosu (1d/5d/10d/20d) hesapla; survivorship için delisted ticker'ları koruyan ayrı tablo tut.
@@ -16,7 +16,7 @@ BIST OS sisteminin **statik (felsefe-tabanlı) layer weight'leri** (L1=0.25, L2=
 4. Weight güncellemesini **Bayesian shrinkage** ile aşamalı yap: prior = mevcut statik, likelihood = gözlenen ICIR. τ schedule 60d %20, 180d %50, 365d %80, 730d %95. Min-max: 0.05 ≤ wᵢ ≤ 0.50.
 5. **Re-calibration trigger'ları:** (a) son 60d ICIR < 0, (b) CB-002 rejim değişimi flag'i, (c) layer kümülatif IC −2σ kırılması, (d) yeni layer ekleme (RR-008 hybrid, RR-006 short).
 
-### Tablo 1 — Önerilen IC Parametreleri (BIST OS)
+### Tablo 1 — Önerilen IC Parametreleri (Sentio)
 
 | Parametre | Seçim | Kaynak |
 |---|---|---|
@@ -60,7 +60,7 @@ Hit Rate      = (1/T) Σ 1[sign(score_t) == sign(fwd_return_t)]
 
 **Akademik kaynaklar:** Grinold, R. (1989) *JPM* 15(3):30-37; Qian & Hua (2004) *JOIM* 2(3), SSRN 569281.
 
-**BIST'e uyarlama:** Breadth (N) düşük. Grinold formülünde N = ticker × yıldaki bağımsız tahmin. BIST OS pre-filter ~75 ticker × 250 işlem günü / holding(5d) ≈ **3750 efektif bet/yıl** — US tipik 36 000 bet'in ~%10'u. Aynı IC ile IR ~√10 = 3.16 kat düşer; **multi-horizon ve sektör-içi paralel hesap kritik**.
+**BIST'e uyarlama:** Breadth (N) düşük. Grinold formülünde N = ticker × yıldaki bağımsız tahmin. Sentio pre-filter ~75 ticker × 250 işlem günü / holding(5d) ≈ **3750 efektif bet/yıl** — US tipik 36 000 bet'in ~%10'u. Aynı IC ile IR ~√10 = 3.16 kat düşer; **multi-horizon ve sektör-içi paralel hesap kritik**.
 
 ---
 
@@ -117,7 +117,7 @@ SR̂₀ = √V[{SR̂ₙ}] · [(1−γ_E)·Φ⁻¹(1−1/N) + γ_E·Φ⁻¹(1−1
 ```
 γ_E ≈ 0.5772 (Euler-Mascheroni); N = bağımsız trial sayısı; T = obs; γ̃₃, γ̃₄ = skewness/kurtosis. DSR ≥ 0.95 hurdle (verbatim örnek: SR̂=2.5, T=1250, N=100 → DSR=0.9004, %95'i geçmez).
 
-**BIST OS için öneri:** 6 layer × 2 birincil window (5d, 20d) = **12 test, BH-FDR α=0.10**. Yeni layer için |t|>3.0 ve DSR>0.95 zorunlu.
+**Sentio için öneri:** 6 layer × 2 birincil window (5d, 20d) = **12 test, BH-FDR α=0.10**. Yeni layer için |t|>3.0 ve DSR>0.95 zorunlu.
 
 ---
 
@@ -264,7 +264,7 @@ t-stat = IC · √(N − 2) / √(1 − IC²)
 95% CI = IC ± 1.96 · SE(IC)
 ```
 
-**BIST OS minimum:**
+**Sentio minimum:**
 - Cross-section: N=20 sıkı, 50 ideal, **75 pre-filter sonrası tipik**.
 - Toplam panel: 60d × 75 = **4500 gözlem** — yeterli ama dar.
 - IC=0.05 için: SE = √(0.9975/4498) ≈ 0.0149; t ≈ 3.36 → anlamlı.
@@ -272,7 +272,7 @@ t-stat = IC · √(N − 2) / √(1 − IC²)
 
 **Lewellen (2015):** Fama-MacBeth slopes 10-yıl rolling, 15 karakteristik → expected return σ_CS = 0.87% aylık; predictive slope 0.74 (SE 0.07).
 
-**BIST extrapolasyon:** US literatür N>50 000 varsayar (3000 stock × monthly × 20+ yıl). BIST OS panel iki sıra (10²) daha küçük → **IC > 0.03 eşik**, **6 aydan az tarihçeli sinyalleri "deneysel"** statüde tut.
+**BIST extrapolasyon:** US literatür N>50 000 varsayar (3000 stock × monthly × 20+ yıl). Sentio panel iki sıra (10²) daha küçük → **IC > 0.03 eşik**, **6 aydan az tarihçeli sinyalleri "deneysel"** statüde tut.
 
 ---
 
@@ -299,7 +299,7 @@ w_post = [Σ_prior⁻¹ + Σ_data⁻¹]⁻¹ · [Σ_prior⁻¹·w_prior + Σ_dat
 **Constraints (Clarke, de Silva, Thorley 2002 *FAJ* 58(5):48-66, doi:10.2469/faj.v58.n5.2468):**
 - Σwᵢ = 1.0
 - 0.05 ≤ wᵢ ≤ 0.50
-- Transfer Coefficient (TC) — verbatim: *"the correlation between the risk-adjusted alphas and active weights"*; constraint'ler altında IR = IC × TC × √N. BIST OS retail (long-only, lot, likidite) tipik TC ≈ 0.3-0.7.
+- Transfer Coefficient (TC) — verbatim: *"the correlation between the risk-adjusted alphas and active weights"*; constraint'ler altında IR = IC × TC × √N. Sentio retail (long-only, lot, likidite) tipik TC ≈ 0.3-0.7.
 
 ---
 
@@ -311,7 +311,7 @@ E[R]_post = [(τΣ)⁻¹ + Pᵀ·Ω⁻¹·P]⁻¹ · [(τΣ)⁻¹·Π + Pᵀ·Ω
 ```
 Π = equilibrium prior; Q = views; P = view-asset mapping; Ω = view uncertainty (He & Litterman 1999: Ω_diag = τ·P·Σ·Pᵀ); τ ∈ [0.025, 0.05].
 
-**BIST OS uyarlama (weight-space):**
+**Sentio uyarlama (weight-space):**
 - Prior: statik weight (L1=0.25, ..., L6=0.03), Σ_prior = I · 0.10² (uzman uncertainty).
 - Data: ICIR-implied w_data; Σ_data = diag(SE(ICIR)²).
 - τ_eff = N_observed / N_target.
@@ -550,7 +550,7 @@ Fama-MacBeth 15 karakteristikle composite expected return; predictive slope 0.74
 Bayesian posterior; τ ∈ [0.025, 0.05]. **BIST katkısı:** Layer weight güncelleme için Bayesian; CB-010 statik weight prior, gözlenen IC likelihood.
 
 ### Atilgan, Y., Bali, T.G., Demirtas, K.O., Gunaydin, A.D. (2013) "Return Predictability of Turkish Stocks" *EMFT* 49(5)
-Ocak 1997 – Temmuz 2011; beta, total/idiosyncratic volatility, **book-to-market** predictive — B/M en güçlü; **large-cap stocks en az predictable**. **BIST katkısı:** BIST OS pre-filter'ında likidite gereği large-cap yoğunluğu → small-cap'lere genişletme (RR-005 custody data triangulasyon) IC'yi artırabilir. (Tam coefficient tabloları paywall arkasında.)
+Ocak 1997 – Temmuz 2011; beta, total/idiosyncratic volatility, **book-to-market** predictive — B/M en güçlü; **large-cap stocks en az predictable**. **BIST katkısı:** Sentio pre-filter'ında likidite gereği large-cap yoğunluğu → small-cap'lere genişletme (RR-005 custody data triangulasyon) IC'yi artırabilir. (Tam coefficient tabloları paywall arkasında.)
 
 ### Gokcen, U. (2023) "Factor Investing in the Turkish Equity Market" SSRN 4588551
 BIST üzerinde size, B/M, 12-mo momentum, volatility, gross profitability. Verbatim: *"Value is the strongest and the most robust factor, generating spreads of 19% annualized over growth in the full sample, and 14% in the latter part. A multifactor portfolio based on the composite z-scores of the stock characteristics delivers an alpha of 20% (in dollars) relative to the emerging markets index and a Sharpe ratio of 0.82."* **BIST katkısı:** Value faktörünün BIST'te en güçlü ampirik kanıt; L3 KAP layer'ında fundamental value sinyalleri (P/B, P/E) önceliklendirilmesine destek.

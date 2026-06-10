@@ -1,4 +1,4 @@
-# RR-012: BIST OS Trading System — 14 EM/BIST-Spesifik Faktör Literatür Derinleştirmesi ve İmplementasyon Fizibilite Analizi
+# RR-012: Sentio Trading System — 14 EM/BIST-Spesifik Faktör Literatür Derinleştirmesi ve İmplementasyon Fizibilite Analizi
 
 **Rapor No:** RR-012  
 **Tarih:** 24 Mayıs 2026  
@@ -11,7 +11,7 @@
 
 ## 1. EXECUTIVE SUMMARY
 
-Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlendirilmesi gereken 14 emerging-market (EM) ve BIST-spesifik faktörün akademik literatürünü derinleştirir, BIST veri durumunu haritalandırır ve 90-günlük implementasyon fizibilite skorlarını üretir. Mevcut mimari (L1–L6, per-stock signal) ile uyum açısından kritik bulgu: **14 faktörün 6'sı cross-sectional sort gerektiriyor**; bu, Phase 5 için "sort_layer" altyapısının kritik path üzerinde olduğunu doğrular.
+Bu rapor, Sentio algoritmik trading sisteminin Phase 5 mimarisi için değerlendirilmesi gereken 14 emerging-market (EM) ve BIST-spesifik faktörün akademik literatürünü derinleştirir, BIST veri durumunu haritalandırır ve 90-günlük implementasyon fizibilite skorlarını üretir. Mevcut mimari (L1–L6, per-stock signal) ile uyum açısından kritik bulgu: **14 faktörün 6'sı cross-sectional sort gerektiriyor**; bu, Phase 5 için "sort_layer" altyapısının kritik path üzerinde olduğunu doğrular.
 
 ### 1.1 14 Faktör Ranked Tablosu (özet)
 
@@ -85,7 +85,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 
 **BIST veri durumu.** B/M oranı: KAP'tan firma bazlı book value + İş Yatırım screener'dan market value. yfinance fiyat verisi 12-ay momentum hesaplaması için yeterli (tarihsel 2000+ aylık veri). Erişilebilirlik: **mevcut**. Veri kalitesi: KAP standart finansal tablolar IFRS uyumlu, ancak 2022–2024 hiperenflasyon dönemi inflation-adjusted reporting (TMS 29) sonrası book value yorumlaması dikkat gerektirir.
 
-**Implementation kompleksitesi: 5/5 (yüksek).** Cross-sectional sort gerekli (Top 30% – Bottom 30% kompozit skor). Tahmini ~400–600 satır kod (factor_engine, sort_layer, combination). Aylık rebalance. Mimari değişiklik **zorunlu**: BIST OS şu an per-stock signal — Phase 5'te sort_layer/universe_ranker eklenmesi gerek.
+**Implementation kompleksitesi: 5/5 (yüksek).** Cross-sectional sort gerekli (Top 30% – Bottom 30% kompozit skor). Tahmini ~400–600 satır kod (factor_engine, sort_layer, combination). Aylık rebalance. Mimari değişiklik **zorunlu**: Sentio şu an per-stock signal — Phase 5'te sort_layer/universe_ranker eklenmesi gerek.
 
 **Beklenen alpha.** Literatür quote: AMP (2013) U.S. equities value-momentum kombinasyonu için Sharpe ≈ 0.79; global stock selection için Sharpe ≈ 1.21. Doğan et al. (2022) BIST'te FF6F momentum t-istatistiklerinin anlamlı olduğunu raporlar. **BIST için tahmin (extrapolation, directional):** EM panellerinde value-momentum kombinasyonu net pozitif; BIST'in yüksek volatilitesi ham getiriyi yükseltir ama Sharpe daha düşük olabilir.
 
@@ -101,11 +101,11 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 
 **Akademik temel.** Menkhoff, Sarno, Schmeling & Schrimpf (2012) "Currency Momentum Strategies", *Journal of Financial Economics* 106(3): 660–684, DOI: 10.1016/j.jfineco.2012.06.009. Verbatim: "We find a significant cross-sectional spread in excess returns of up to 10% per annum (p.a.) between past winner and loser currencies." 48-currency örneklem 1976–2010; momentum strategy Sharpe oranı yazarların benchmark carry-trade SR'sini (0.82) aşıyor. Transaction-cost sonrası net kar düşüyor. TRY paneldedir (sample sonradan emerging FX'i içerir). Burnside, Eichenbaum, Kleshchelski & Rebelo (2011) carry trade ile momentum'un farklı risk faktörleri olduğunu gösterir.
 
-**BIST veri durumu.** TRY/USD, TRY/EUR günlük veri TCMB EVDS'den çekilebilir (mevcut). EM cross-section için MSCI EM currency basket verisi ücretli olabilir. BIST OS tek-piyasa (Türkiye); strategy implement edilse "TRY long vs USD short" gibi pozisyon BIST hisse sistemi dışında.
+**BIST veri durumu.** TRY/USD, TRY/EUR günlük veri TCMB EVDS'den çekilebilir (mevcut). EM cross-section için MSCI EM currency basket verisi ücretli olabilir. Sentio tek-piyasa (Türkiye); strategy implement edilse "TRY long vs USD short" gibi pozisyon BIST hisse sistemi dışında.
 
 **Implementation kompleksitesi: 4/5.** FX trading altyapısı yok; yfinance FX vekilleri (TRY=X) günlük close veriyor ama Türkiye'de FX trade için ayrı broker hesabı gerek. <500K TL portföyde 1 lot FX kontratı ölçek-dışı.
 
-**Beklenen alpha.** MSS&S (2012): cross-sectional spread up to **10% p.a.** TRY'nin BIST OS portföy bağlamında doğrudan trade'i mümkün değil; **dolaylı kullanım: TRY momentum sinyali → BIST defensive/offensive sektör allocation**'a girdi olabilir.
+**Beklenen alpha.** MSS&S (2012): cross-sectional spread up to **10% p.a.** TRY'nin Sentio portföy bağlamında doğrudan trade'i mümkün değil; **dolaylı kullanım: TRY momentum sinyali → BIST defensive/offensive sektör allocation**'a girdi olabilir.
 
 **Riskler.** (1) FX trade altyapısı yok; (2) TCMB intervention sık (politika döviz alımı); (3) regime change (Şimşek programı 2023 sonrası); (4) Türk lirasının yapısal değer kaybı momentum'u tek yönlü trapler.
 
@@ -263,7 +263,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 
 **Akademik temel.** Holthausen, Leftwich & Mayers (1990) "Large-block transactions, the speed of response, and temporary and permanent stock-price effects", *Journal of Financial Economics* 26(1): 71–95 — büyük blok işlemlerin geçici ve kalıcı fiyat etkisi olduğunu, fiyatların 3 işlem içinde adapte olduğunu belgeler: "the temporary price effect is the price rebound of a security following a block transaction and the permanent price effect is the change from the equilibrium price before the block trade to the equilibrium price afterwards." Türk literatür: Hacettepe Üniversitesi İktisadi ve İdari Bilimler Fakültesi Dergisi — "Price Impacts of Large Trades in Futures Markets: Evidence from Turkey" Türk futures piyasasında block trade impact ölçer (dergipark/huniibf 340699).
 
-**BIST veri durumu.** BIST OS şu an günlük close veri kullanıyor (yfinance). Intraday tick-by-tick block tespit için Matriks/Foreks ücretli abonelik zorunlu. Borsa İstanbul "Toptan İşlemler Pazarı" (Wholesale Market) duyuruları KAP'tan günlük çekilebilir ama bu sadece pre-arranged büyük işlemler için.
+**BIST veri durumu.** Sentio şu an günlük close veri kullanıyor (yfinance). Intraday tick-by-tick block tespit için Matriks/Foreks ücretli abonelik zorunlu. Borsa İstanbul "Toptan İşlemler Pazarı" (Wholesale Market) duyuruları KAP'tan günlük çekilebilir ama bu sadece pre-arranged büyük işlemler için.
 
 **Implementation kompleksitesi: 5/5 (çok yüksek).** Intraday tick verisi + abnormal volume tespit + spread/price-pressure modeli. ~600+ satır kod + ücretli veri.
 
@@ -358,7 +358,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 - Hafta 2: Cross-sectional rank entegrasyonu (3 gün), backtest + test (2 gün)
 
 **arastirma katmani speci taslağı:**
-> "BIST OS'a B14 Earnings Revision Momentum faktörünü ekle. Chan-Jegadeesh-Lakonishok 1996 metodolojisini Türk verisine uyarla (literatür: SUE 6-ay spread %7.5, revision spread %7.7, IBES 1977–1993). KAP earnings release tarihinden 3 gün önce/sonra consensus EPS revizyon yüzdesini hesapla. Aylık cross-sectional rank ile top decile (5 hisse) long, bottom decile short (yasak nedeniyle short = cash). Aylık rebalance. L3 KAP layer'a entegre et. Backtest 2018–2024, Sharpe ve IR raporla."
+> "Sentio'ya B14 Earnings Revision Momentum faktörünü ekle. Chan-Jegadeesh-Lakonishok 1996 metodolojisini Türk verisine uyarla (literatür: SUE 6-ay spread %7.5, revision spread %7.7, IBES 1977–1993). KAP earnings release tarihinden 3 gün önce/sonra consensus EPS revizyon yüzdesini hesapla. Aylık cross-sectional rank ile top decile (5 hisse) long, bottom decile short (yasak nedeniyle short = cash). Aylık rebalance. L3 KAP layer'a entegre et. Backtest 2018–2024, Sharpe ve IR raporla."
 
 ### 4.2 A5 — Sovereign CDS Conditional Gate (Mini-Spec)
 
@@ -383,7 +383,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 - Hafta 2: Backtest harness (2 gün), threshold kalibrasyon (2 gün), entegrasyon testi (1 gün)
 
 **arastirma katmani speci taslağı:**
-> "BIST OS'a A5 Sovereign CDS Conditional Gate ekle. Türkiye 5Y CDS spread'ini günlük çek (investing.com / tradingeconomics / MacroMicro). CDS > eşik (kalibrasyon için 300/350 bps) olduğunda L6 Risk Kelly multiplier'ı 0.5×; CDS > 450 bps olduğunda 0× (cash bias). L2 Macro veya regime_detector modülüne entegre et. Longstaff-Pan-Pedersen-Singleton 2011 literatür quotelu olarak dökümante et: 'A single principal component accounts for 64 percent of the variation in sovereign credit spreads.'"
+> "Sentio'ya A5 Sovereign CDS Conditional Gate ekle. Türkiye 5Y CDS spread'ini günlük çek (investing.com / tradingeconomics / MacroMicro). CDS > eşik (kalibrasyon için 300/350 bps) olduğunda L6 Risk Kelly multiplier'ı 0.5×; CDS > 450 bps olduğunda 0× (cash bias). L2 Macro veya regime_detector modülüne entegre et. Longstaff-Pan-Pedersen-Singleton 2011 literatür quotelu olarak dökümante et: 'A single principal component accounts for 64 percent of the variation in sovereign credit spreads.'"
 
 ### 4.3 B7 — USDTRY Pass-Through Beta (Mini-Spec)
 
@@ -407,7 +407,7 @@ Bu rapor, BIST OS algoritmik trading sisteminin Phase 5 mimarisi için değerlen
 - Hafta 2: Sektör/firm tilt logic (3 gün), backtest + raporlama (2 gün)
 
 **arastirma katmani speci taslağı:**
-> "BIST OS'a B7 USDTRY Pass-Through Beta faktörü ekle. Her BIST100 hissesi için 60-gün rolling regresyon: R_i = α + β_i ΔlnUSDTRY + ε. Beta'ya göre ranking yap. USDTRY trend yukarı yönlüyse top-beta (exporter) long; aşağı yönlüyse top-negative-beta (importer) long. Aylık rebalance. L1 Technical + L2 Macro entegrasyonu. RIETI (2022) 'Impact of Exchange Rates on Turkish Economy' ve Doğan et al. (2022) literatür referansları."
+> "Sentio'ya B7 USDTRY Pass-Through Beta faktörü ekle. Her BIST100 hissesi için 60-gün rolling regresyon: R_i = α + β_i ΔlnUSDTRY + ε. Beta'ya göre ranking yap. USDTRY trend yukarı yönlüyse top-beta (exporter) long; aşağı yönlüyse top-negative-beta (importer) long. Aylık rebalance. L1 Technical + L2 Macro entegrasyonu. RIETI (2022) 'Impact of Exchange Rates on Turkish Economy' ve Doğan et al. (2022) literatür referansları."
 
 ---
 
@@ -495,7 +495,7 @@ Hangi faktör hangi layer'a girer (öneri; teknik haritalama):
 
 ### 8.1 Per-Stock Signal → Cross-Sectional Sort Geçişi
 
-Mevcut BIST OS "per-stock signal" mimarisi her hisse için bağımsız sinyal üretiyor; agregasyon hisse-bazlı (al/sat/bekle). 14 faktörden **A1, A3, A4, B6 (hisse versiyonu), B14** cross-sectional sort gerektiriyor — yani **tüm BIST evreni (~400 ticker) aynı anda skorlanıp sıralanıp Top/Bottom decile seçilmelidir.** Bu, mevcut "her hisse bağımsız" akışından farklı bir batch-mode çalıştırma rejimidir.
+Mevcut Sentio "per-stock signal" mimarisi her hisse için bağımsız sinyal üretiyor; agregasyon hisse-bazlı (al/sat/bekle). 14 faktörden **A1, A3, A4, B6 (hisse versiyonu), B14** cross-sectional sort gerektiriyor — yani **tüm BIST evreni (~400 ticker) aynı anda skorlanıp sıralanıp Top/Bottom decile seçilmelidir.** Bu, mevcut "her hisse bağımsız" akışından farklı bir batch-mode çalıştırma rejimidir.
 
 ### 8.2 Phase 5 sort_layer Kavramsal Taslağı
 
@@ -597,7 +597,7 @@ Aşağıdaki sorular araştırmada yanıtlanamadı; literatür gap veya paywall 
 
 ## 12. SONUÇ
 
-BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibilite analizi sonucunda en yüksek katma değer-maliyet oranı sunan üçlü **B14 (Earnings Revision Momentum) + A5 (Sovereign CDS Gate) + B7 (USDTRY Pass-Through Beta)** olarak belirlenmiştir; bu üçü 30-gün penceresinde implement edilebilir ve **Phase 5 sort_layer altyapısı olmadan** dahi (B14 hariç — yarısı sort_layer'a bağlı) deploy edilebilir. Cross-sectional sort altyapısının inşası kritik path üzerindedir ve A1, A3, B8 gibi yüksek-alpha faktörler bu altyapıya bağımlıdır. SPK 15/517 sayılı kararı uyarınca açığa satış yasağı (10 Nisan 2026 seans sonuna kadar uzatılmış) aktif olduğu sürece B13 implementasyonu yasak; B11 ise <500K TL portföy ölçeği nedeniyle ROI negatif. Regime-conditional faktör allocation Phase 5 sonrası 2027 roadmap için önerilir.
+Sentio Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibilite analizi sonucunda en yüksek katma değer-maliyet oranı sunan üçlü **B14 (Earnings Revision Momentum) + A5 (Sovereign CDS Gate) + B7 (USDTRY Pass-Through Beta)** olarak belirlenmiştir; bu üçü 30-gün penceresinde implement edilebilir ve **Phase 5 sort_layer altyapısı olmadan** dahi (B14 hariç — yarısı sort_layer'a bağlı) deploy edilebilir. Cross-sectional sort altyapısının inşası kritik path üzerindedir ve A1, A3, B8 gibi yüksek-alpha faktörler bu altyapıya bağımlıdır. SPK 15/517 sayılı kararı uyarınca açığa satış yasağı (10 Nisan 2026 seans sonuna kadar uzatılmış) aktif olduğu sürece B13 implementasyonu yasak; B11 ise <500K TL portföy ölçeği nedeniyle ROI negatif. Regime-conditional faktör allocation Phase 5 sonrası 2027 roadmap için önerilir.
 
 ---
 
@@ -673,11 +673,11 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 
 **(b) Mayıs 2023 — Seçim haftası.** İkinci tur öncesi yabancılar çıkış yaptı, kur baskılandı. Cumhuriyet gazetesinin 30 Mayıs 2023 tarihli haberine göre ikinci tur sonrasının ikinci işlem gününde "TL dolar karşısında yılbaşından bugüne ise yüzde 7.4 kayıp yaşadı"; dolar/TL gün içi 20.42 ile tarihi zirveye çıktı. **B6 Foreign Flow** o haftada **negatif ivme** (sürekli çıkış) gösterdi; pratisyen söyleminde "yabancı satış kuruyor mu" sorusu Hisse.net ana gündemiydi. **B8 NAV İskonto** ise eş zamanlı **genişledi** — KCHOL ve SAHOL gibi holding hisseleri tarihsel ortalama iskonto bandının üzerine çıktı; ardından Haziran-Temmuz 2023 toparlanmasında **iskonto daraldı** ve holding hisseleri BIST-100'ü geçti (Deniz Yatırım 3.04.2025 raporu KCHOL için 298,80 TL hedef, NAD iskontosu tarihsel ortalamanın üzerinde gözleminde bulunmuştur). Bu, **B8 mean reversion** tezini güçlü destekleyen bir doğal deneydir.
 
-**(c) Şubat 2023 — Kahramanmaraş depremi.** Olay etüdü literatürü (dergipark.org.tr Anadolu İİBFD, 2024) deprem günü ve sonraki 10 gün için: BIST Sigorta endeksinde **istatistiksel olarak anlamlı negatif** kümülatif anormal getiri (-CAR); BIST Taş-Toprak (çimento) endeksinde **anlamlı pozitif** CAR; BIST Antalya, İletişim, Turizm, Ulaştırma'da anlamlı negatif CAR. Borsa İstanbul 8 Şubat saat 11:00'de pazarı 5 iş günü süreyle kapattı ve günün tüm işlemlerini iptal etti. **Faktör investing perspektifinden ders:** A3 (likidite) ve A5 (CDS gate) gibi piyasa-geneli faktörler bu tarz **exogenous tail event'lerde** koruma sağlamaz; sektörel faktör (B7 USDTRY beta türevi olan "ihracat-ağırlığı" tipi sektör tilt'leri) ancak post-event reaktif şekilde devreye girer. BIST OS'un 14 faktörlü çerçevesi bu tip "afet rejimi" durumlarında **devre dışı bırakılması gereken bir override katmanı**na ihtiyaç duyar.
+**(c) Şubat 2023 — Kahramanmaraş depremi.** Olay etüdü literatürü (dergipark.org.tr Anadolu İİBFD, 2024) deprem günü ve sonraki 10 gün için: BIST Sigorta endeksinde **istatistiksel olarak anlamlı negatif** kümülatif anormal getiri (-CAR); BIST Taş-Toprak (çimento) endeksinde **anlamlı pozitif** CAR; BIST Antalya, İletişim, Turizm, Ulaştırma'da anlamlı negatif CAR. Borsa İstanbul 8 Şubat saat 11:00'de pazarı 5 iş günü süreyle kapattı ve günün tüm işlemlerini iptal etti. **Faktör investing perspektifinden ders:** A3 (likidite) ve A5 (CDS gate) gibi piyasa-geneli faktörler bu tarz **exogenous tail event'lerde** koruma sağlamaz; sektörel faktör (B7 USDTRY beta türevi olan "ihracat-ağırlığı" tipi sektör tilt'leri) ancak post-event reaktif şekilde devreye girer. Sentio'nun 14 faktörlü çerçevesi bu tip "afet rejimi" durumlarında **devre dışı bırakılması gereken bir override katmanı**na ihtiyaç duyar.
 
 **(d) 2023 enflasyon zirvesi (%75–85,51 koridoru).** Hiperenflasyon koşullarında **A4 LOW-inflation-beta long** pozisyonu pratisyen söyleminde **anlam taşımadı**; aksine HIGH-pass-through (Migros, BIM, gıda perakende, çimento) tematik olarak öne çıktı. Akademik "LOW vs HIGH inflation-beta" sıralamasının pratiğe çevirisinde, pratisyen "pricing power" söylemini kullandı — kavramsal olarak benzer ama metodolojik olarak (sektör vs hisse-spesifik beta) farklı.
 
-**Erişim Notu / §3.** 2023 olaylarının faktör perspektifinden analizi büyük ölçüde **post-hoc**'tur; o dönem real-time yayınlanmış BIST OS-tipi sistematik raporlama bulunamadı. Yorum, akademik olay etüdü literatürü + güncel pratisyen retrospektif söyleminin kombinasyonudur.
+**Erişim Notu / §3.** 2023 olaylarının faktör perspektifinden analizi büyük ölçüde **post-hoc**'tur; o dönem real-time yayınlanmış Sentio-tipi sistematik raporlama bulunamadı. Yorum, akademik olay etüdü literatürü + güncel pratisyen retrospektif söyleminin kombinasyonudur.
 
 ---
 
@@ -685,7 +685,7 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 
 **(a) Dezenflasyon rally beklentisi (2024H2-2025).** TCMB Aralık 2024 toplantısında politika faizini indirdi: TCMB resmi Basın Duyurusu 2024-70 (tcmb.gov.tr) ifadesiyle "Para Politikası Kurulu, politika faizi olan bir hafta vadeli repo ihale faiz oranının yüzde 50'den yüzde 47,5'e indirilmesine karar vermiştir." Midas yatırım trendleri raporuna göre 2024 sonunda BIST 100 dolar bazında ~275 $ seviyesinde, 2025 analiz konsensüsü 320-330 $ aralığında. Bu rejimde **A1 V-M combo** için tipik beklenti: dezenflasyon başlangıcında VALUE bacağı (özellikle banka) önde, momentumun fazlalaşması ortalama 6 ay sonra. **A4 LOW-inflation-beta long** stratejisi 2024 yılı boyunca BIST-100'ün altında kaldı; 2024'ün en kazandıranı **Pardus Portföy Birinci Hisse Senedi Fonu (BIH) %176.66 getiri ile** sektördeki en yüksek hisse senedi fonu performansını gösterdi (TEFAS verisi, Midas) — ancak BIH izahnamesi salt mevzuat dili olup sistematik faktör (momentum/value/yabancı-flow) ifadesi içermez. **Bankacılık endeksli fonlar** ise sektör tilt'iyle %70+ getiri sağladı (İş Portföy BIST Banka Endeksi TAU %75.96; Ak Portföy ADP %72.91 — Midas raporu).
 
-**(b) Yabancı geri dönüş 2024-2026 ve Critic iddiasının testi.** 2 Haziran 2025 itibariyle QNB Finansbank dâhil yabancı oranı %27.75, QNB hariç %25.84; 29 Eylül 2025'te QNB dâhil %35.93 (Mayıs 2022'den beri en yüksek), QNB hariç %26.82 (ekonomim.com — Tankut Taner Çelik hesaplaması). QNB'nin fiili dolaşımdaki payı %0.12 olmasına rağmen takasta tamamı yabancı olarak kaydedildiği için aggregate yabancı oranı **çarpıtılmış** durumda — bu, BIST OS'un B6 sinyal hesaplamasında **QNB-temizlenmiş seri** kullanmasını zorunlu kılan kritik bir bulgu. 13 Şubat 2026 itibariyle yabancı oranı 6.71'e, düzeltilmiş yabancı oranı 5.89'a yükseldi; SURGY, TRALT, MOPAS gibi hisseler "10 gündür kesintisiz alım" listesinde (İş Yatırım Günlük Yabancı Oranları + endeks24.com).
+**(b) Yabancı geri dönüş 2024-2026 ve Critic iddiasının testi.** 2 Haziran 2025 itibariyle QNB Finansbank dâhil yabancı oranı %27.75, QNB hariç %25.84; 29 Eylül 2025'te QNB dâhil %35.93 (Mayıs 2022'den beri en yüksek), QNB hariç %26.82 (ekonomim.com — Tankut Taner Çelik hesaplaması). QNB'nin fiili dolaşımdaki payı %0.12 olmasına rağmen takasta tamamı yabancı olarak kaydedildiği için aggregate yabancı oranı **çarpıtılmış** durumda — bu, Sentio'nun B6 sinyal hesaplamasında **QNB-temizlenmiş seri** kullanmasını zorunlu kılan kritik bir bulgu. 13 Şubat 2026 itibariyle yabancı oranı 6.71'e, düzeltilmiş yabancı oranı 5.89'a yükseldi; SURGY, TRALT, MOPAS gibi hisseler "10 gündür kesintisiz alım" listesinde (İş Yatırım Günlük Yabancı Oranları + endeks24.com).
 
 **Critic iddiası testi — özet bulgu (§F'de detaylı).** Türk pratisyen kaynaklarında "5-gün rolling delta" formel/standart bir metrik **DEĞİL**. Kullanılan dominant zaman pencereleri: (i) günlük bps değişim (İş Yatırım, Vakıf), (ii) "X gündür ardışık artış" — genellikle 10 güne kadar sayım (İş Yatırım matrisi, Halil Buhur takas blogu, Endeks24), (iii) haftalık delta (Paraajansı, Hisse.net haberleri, ICBC "BIST-30 Haftalık Yabancı Takası Raporu"), (iv) TCMB haftalık menkul kıymet istatistikleri (net $ giriş/çıkış), (v) aylık delta. Yani: Critic'in "günlük acceleration vs weekly net" ayrımı pratisyen literatüründe **kısmen yansıyor** (günlük + ardışık gün sayımı ivmeye işaret eder) ama "5 gün" özel pencere değil. Bulgu: **partial — sinyal şekli (ivme/persistence) doğrudur, parametre seçimi (5-gün) pratisyen söyleminde gerekçesini bulamamaktadır.**
 
@@ -703,7 +703,7 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 
 **Tier-1 (KIID + izahname).** 20+ TEFAS hisse senedi fonu strateji metni tarandı. Bulgu: Metinlerin neredeyse tamamı **mevzuat asgarisi**dir. Tipik formülasyonlar: "Fon toplam değerinin en az %80'i devamlı olarak ihraççı paylarına yatırılır" / "değer ve büyüme stratejisi izlenir" / "VİOP sözleşmelerine de yatırım yapılabilir". Sistematik faktör (momentum/value/quality/foreign-flow/EPS-revision) ifadesi **hiçbir TEFAS fonunda doğrudan bulunamadı**. MAC için pazarlama dili "MAC invests in Turkish equities, aiming to generate absolute return. The fund's strategy is investing in a concentrated portfolio comprising shares of companies trading at a significant discount to their underlying values, identified by fundamental company research." (marmaracapital.com.tr/en/mac-mutual-fund/) — klasik bottom-up, faktör değil. BIH için izahname salt mevzuat dilidir (pardusportfoy.com).
 
-**Tier-2 (Aylık fon portföy disclosures).** Takasbank/TEFAS aylık portföy dökümleri kamuya açıktır; parse edildiğinde sektör tilt'leri, hisse yoğunlaşması ve devir hızı gözlenebilir — ancak **örtük faktör maruziyetidir, açık beyan değildir**. Bu yamada Tier-2 parse'i yapılmadı; öneri: BIST OS pipeline'ına aylık TEFAS portföy verisini bağlamak ve top-decile fonların faktör maruziyetini (Fama-French 5 + momentum + USDTRY-beta regresyonuyla) sürekli izlemek.
+**Tier-2 (Aylık fon portföy disclosures).** Takasbank/TEFAS aylık portföy dökümleri kamuya açıktır; parse edildiğinde sektör tilt'leri, hisse yoğunlaşması ve devir hızı gözlenebilir — ancak **örtük faktör maruziyetidir, açık beyan değildir**. Bu yamada Tier-2 parse'i yapılmadı; öneri: Sentio pipeline'ına aylık TEFAS portföy verisini bağlamak ve top-decile fonların faktör maruziyetini (Fama-French 5 + momentum + USDTRY-beta regresyonuyla) sürekli izlemek.
 
 **Sermaye Aile Holdingleri İç Asset Management.** Koç Holding (KCHOL) ve Sabancı Holding (SAHOL) iç hazine/portföy yönetimleri — kamuya açık veri **yoktur**. Halka açık iştirakler üzerinden dolaylı çıkarım yapılabilir (Akbank için ROE, Enerjisa tarife dönemi, vs. — halkaarzmerkezi.com SAHOL analizi).
 
@@ -711,7 +711,7 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 
 **LinkedIn — Türk Quant/Portföy Manager pozisyon ilanları (gözlem).** İlanların büyük çoğunluğu "kantitatif analiz", "Python/SQL", "risk modeli" başlıkları altında — saf "factor investing" rolü çok seyrek. Türk büyük portföy şirketlerinde (Ak Portföy, İş Portföy, Garanti Portföy, QNB Finansinvest, Yapı Kredi Portföy) "factor strategist" tipi rol nadirdir; "kantitatif analist" pozisyonları genelde **risk yönetimi** ya da **müşteri portföyleri optimizasyon** odaklıdır.
 
-**Erişim Notu / §5.** TEFAS Tier-1 strateji metinlerinin zayıflığı önemli bir veri-açığıdır: pratisyen ekosistemde "biz şu faktörü kullanıyoruz" tipi resmi beyan ender olduğundan, BIST OS'un faktör çerçevesinin "ne kadar kuş bakışı yenidir, ne kadar var olanı yeniden adlandırır" sorusunun cevabı **gözleme dayalı** kalıyor.
+**Erişim Notu / §5.** TEFAS Tier-1 strateji metinlerinin zayıflığı önemli bir veri-açığıdır: pratisyen ekosistemde "biz şu faktörü kullanıyoruz" tipi resmi beyan ender olduğundan, Sentio'nun faktör çerçevesinin "ne kadar kuş bakışı yenidir, ne kadar var olanı yeniden adlandırır" sorusunun cevabı **gözleme dayalı** kalıyor.
 
 ---
 
@@ -773,19 +773,19 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 - **Midas/Gedik Pay kuşağı (gençler)**: BIST'te aylık 200 bin TL'ye kadar %0.04 komisyon (Midas), 7/24 mobile execution (Midas'ta US borsalarda 24 saat), TEFAS fonlarına yönelim — uzun-vade davranışta yeni nesil.
 - **VIOP yeniden canlanma (kısmen)**: Açığa satış yasağı koşullarında VİOP put alımı tek shorting yolu — pratisyen bu yoldan kısıtlı hedge yapıyor.
 
-**Erişim Notu / §7.** Forum/Investing.com gözlemleri **anekdoltal** doğaya sahiptir; "Bayram accumulation" ya da "bilanço Cuma" pattern'lerinin sistematik back-test'i bu yamanın kapsamı dışındadır — BIST OS pipeline'ı içinde test edilmeyi hak eden hipotezler olarak işaretlendi.
+**Erişim Notu / §7.** Forum/Investing.com gözlemleri **anekdoltal** doğaya sahiptir; "Bayram accumulation" ya da "bilanço Cuma" pattern'lerinin sistematik back-test'i bu yamanın kapsamı dışındadır — Sentio pipeline'ı içinde test edilmeyi hak eden hipotezler olarak işaretlendi.
 
 ---
 
 ### Kritik Bulgu Uyarıları (Confirmation Bias Karşıtı)
 
-1. **B14 EPS Revision Akademik-Pratik Uyumsuzluğu.** Akademik literatür EPS revision momentum'unu BIST için top-1 olarak işaret ederken, Türk broker'ları "konsensüs revizyonu" sıralamasını sistematik olarak yayımlamıyor; Foreks aboneliği gerekli. **Rekabet avantajı boşluğu = BIST OS lehine bir alpha kanalı** (akademik premium pratisyene henüz tam yayılmamış).
+1. **B14 EPS Revision Akademik-Pratik Uyumsuzluğu.** Akademik literatür EPS revision momentum'unu BIST için top-1 olarak işaret ederken, Türk broker'ları "konsensüs revizyonu" sıralamasını sistematik olarak yayımlamıyor; Foreks aboneliği gerekli. **Rekabet avantajı boşluğu = Sentio lehine bir alpha kanalı** (akademik premium pratisyene henüz tam yayılmamış).
 
-2. **A3 EM Liquidity Premium = Tam Boşluk.** Türk pratisyen söyleminde **likidite alpha-kaynağı değil, risk-kaynağı**. Akademik bulgu Türkiye küçük-cap'leri için premium var; BIST OS bu boşluğu kullanabilir (örnek: ILLIQ-sıralı küçük-cap long bacağı). Confirmation bias riski: bu boşluk **çok küçük örneklemle** doğrulanmış olabilir; canlı sistemde A3 sinyalinin **eşik altı dönemler için kısıtlama** ile uygulanması önerilir.
+2. **A3 EM Liquidity Premium = Tam Boşluk.** Türk pratisyen söyleminde **likidite alpha-kaynağı değil, risk-kaynağı**. Akademik bulgu Türkiye küçük-cap'leri için premium var; Sentio bu boşluğu kullanabilir (örnek: ILLIQ-sıralı küçük-cap long bacağı). Confirmation bias riski: bu boşluk **çok küçük örneklemle** doğrulanmış olabilir; canlı sistemde A3 sinyalinin **eşik altı dönemler için kısıtlama** ile uygulanması önerilir.
 
-3. **MAC Fonu Pazarlama Dili vs Davranış**. MAC kendisini "fundamental value investing — concentrated portfolio of companies trading at a significant discount" olarak tanımlar (marmaracapital.com.tr) ama 5 yılda %2643 getiri ve BTCIM/BSOKE gibi mid-cap yoğunluğu klasik value yatırımcılığından **momentum/concentrated growth**'a kayan bir profil önerir. BIST OS perspektifinden ders: **Fon strateji metinlerine değil, performans-tilt regresyonuna** güvenmek gerekir.
+3. **MAC Fonu Pazarlama Dili vs Davranış**. MAC kendisini "fundamental value investing — concentrated portfolio of companies trading at a significant discount" olarak tanımlar (marmaracapital.com.tr) ama 5 yılda %2643 getiri ve BTCIM/BSOKE gibi mid-cap yoğunluğu klasik value yatırımcılığından **momentum/concentrated growth**'a kayan bir profil önerir. Sentio perspektifinden ders: **Fon strateji metinlerine değil, performans-tilt regresyonuna** güvenmek gerekir.
 
-4. **B13 Askıya Alınmış Yasak Kalkarsa.** SPK yasağı 26 Mayıs 2026 sonrası kaldırılırsa, B13 sinyali ölü statüsünden çıkar; **yeniden tetiklenebilir hazırlık** (lending fee veri akışı, açığa satış oranı hesaplaması) BIST OS'a tedrici olarak yeniden eklenmelidir.
+4. **B13 Askıya Alınmış Yasak Kalkarsa.** SPK yasağı 26 Mayıs 2026 sonrası kaldırılırsa, B13 sinyali ölü statüsünden çıkar; **yeniden tetiklenebilir hazırlık** (lending fee veri akışı, açığa satış oranı hesaplaması) Sentio'ya tedrici olarak yeniden eklenmelidir.
 
 ---
 
@@ -807,9 +807,9 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 - **Bulgu: KISMI (PARTIAL).**
 - Yansıyan kısım: pratisyen kaynakları **günlük bps değişim + ardışık gün sayısı** matrisini standart kabul ediyor; bu, "weekly net'ten daha hızlı sinyal" sezgisinin yansımasıdır. İş Yatırım günlük raporundaki "10 gündür kesintisiz" sayımı, daha sofistike bir **persistence-of-acceleration** sinyalidir ve birinci-türev (günlük net) + ikinci-türev (kaç gündür aynı yönde) bilgisini birleştirir.
 - Yansımayan kısım: "5 gün" özel pencere pratisyen söyleminde **standart değil**. Görülen pencereler: günlük (1), 10-gün ardışık (persistence), haftalık (5–7 işlem günü ama "5-gün rolling delta" olarak adlandırılmamış), aylık (~22), TCMB-haftalık net $ giriş.
-- **Sonuç:** Critic'in sinyal **biçim**i (ivme/persistence) hakkında haklı; sinyal **parametre seçimi** (5-gün) keyfi gözüküyor. BIST OS için pragmatik öneri: (i) günlük bps değişim, (ii) **3, 5 ve 10 gün rolling sum** + **ardışık-aynı-yön gün sayısı** persistence göstergesi, (iii) haftalık net (TCMB), (iv) aylık delta — bu dört zaman penceresinin **enssamble**i, single-window 5-gün rolling delta'dan daha sağlamdır. Critic'in dar tanımı yerine **multi-window foreign-flow ivme paneli** öneririz.
+- **Sonuç:** Critic'in sinyal **biçim**i (ivme/persistence) hakkında haklı; sinyal **parametre seçimi** (5-gün) keyfi gözüküyor. Sentio için pragmatik öneri: (i) günlük bps değişim, (ii) **3, 5 ve 10 gün rolling sum** + **ardışık-aynı-yön gün sayısı** persistence göstergesi, (iii) haftalık net (TCMB), (iv) aylık delta — bu dört zaman penceresinin **enssamble**i, single-window 5-gün rolling delta'dan daha sağlamdır. Critic'in dar tanımı yerine **multi-window foreign-flow ivme paneli** öneririz.
 
-**Test 4: QNB Çarpıtması.** Critic'in iddiası aggregate yabancı oranı verisi kullanıyor olabilir. QNB Finansbank'ın fiili dolaşımı %0.12 olmasına rağmen takasta tamamı yabancı olarak kayıtlı olduğundan, BIST genelinde yabancı oranı Ağustos 2025-Eylül 2025 sürecinde **yapay olarak şişti** (ekonomim.com — Tankut Taner Çelik). BIST OS'un B6 hesabında **QNB-temizlenmiş seri** kullanılması zorunludur. Bu, Critic'in iddiasına ortogonal ama uygulamada B6'nın değerini doğrudan etkileyen kritik bir teknik nokta.
+**Test 4: QNB Çarpıtması.** Critic'in iddiası aggregate yabancı oranı verisi kullanıyor olabilir. QNB Finansbank'ın fiili dolaşımı %0.12 olmasına rağmen takasta tamamı yabancı olarak kayıtlı olduğundan, BIST genelinde yabancı oranı Ağustos 2025-Eylül 2025 sürecinde **yapay olarak şişti** (ekonomim.com — Tankut Taner Çelik). Sentio'nun B6 hesabında **QNB-temizlenmiş seri** kullanılması zorunludur. Bu, Critic'in iddiasına ortogonal ama uygulamada B6'nın değerini doğrudan etkileyen kritik bir teknik nokta.
 
 **Genel Critic Verdict.** **Partial — sinyal biçimi (acceleration/persistence) doğrudur, parametre seçimi (5-gün) gerekçesiz ve dar; QNB-temizleme gibi pratik şart akademik tartışmada görünmüyor.**
 
@@ -817,7 +817,7 @@ BIST OS Trading System için 14 EM/BIST-spesifik faktörün literatür ve fizibi
 
 ### Sonuç ve RR-012 Ana Karar Matrisine Yansıma
 
-BIST 2023-2026 pratisyen ekosistemi, akademik faktör literatürünün önerdiği 14 faktörün önemli bir alt-kümesini (özellikle B6, B7, B8, B9, B10, A5) **kurumsal raporlama düzeyinde** yansıtmaktadır; ancak A1 V-M combo, A3 Amihud ILLIQ premium ve B14 EPS revision momentum'da akademik premium pratisyene **tam aktarılmamış** durumdadır — bunlar BIST OS için **alfa rekabet avantajı boşlukları**dır. Critic iddiası foreign-flow ivmesinin önemini doğrular ancak parametre seçimi olarak 5-gün rolling delta'yı zorunlu kılmaz — multi-window panel daha uygundur. SPK açığa satış yasağı süresince B13 askıdadır; yasak kalkarsa veri pipeline'ının yeniden devreye alınmaya hazır tutulması önerilir. RR-012'nin akademik top-3'ünden B14'ün pratik altyapı zayıflığı nedeniyle bir kademe geriye, B6'nın hem pratik hem akademik gücüyle birleşik top-1'e yükseltilmesi önerilir.
+BIST 2023-2026 pratisyen ekosistemi, akademik faktör literatürünün önerdiği 14 faktörün önemli bir alt-kümesini (özellikle B6, B7, B8, B9, B10, A5) **kurumsal raporlama düzeyinde** yansıtmaktadır; ancak A1 V-M combo, A3 Amihud ILLIQ premium ve B14 EPS revision momentum'da akademik premium pratisyene **tam aktarılmamış** durumdadır — bunlar Sentio için **alfa rekabet avantajı boşlukları**dır. Critic iddiası foreign-flow ivmesinin önemini doğrular ancak parametre seçimi olarak 5-gün rolling delta'yı zorunlu kılmaz — multi-window panel daha uygundur. SPK açığa satış yasağı süresince B13 askıdadır; yasak kalkarsa veri pipeline'ının yeniden devreye alınmaya hazır tutulması önerilir. RR-012'nin akademik top-3'ünden B14'ün pratik altyapı zayıflığı nedeniyle bir kademe geriye, B6'nın hem pratik hem akademik gücüyle birleşik top-1'e yükseltilmesi önerilir.
 
 
 *Son güncelleme: 24 Mayıs 2026. Bu rapor implementation-ready'dir; ancak içerdiği sayısal değerler sadece literatür quote'larıdır — projeye-uygun parametre önerisi içermez. Tüm akademik kaynaklar DOI/URL ile referanslanmıştır.*

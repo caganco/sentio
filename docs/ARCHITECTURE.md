@@ -1,4 +1,4 @@
-# ARCHITECTURE — BIST OS Mimari Sözleşmesi v3.0
+# ARCHITECTURE — Sentio Mimari Sözleşmesi v3.0
 ## Tek-kaynak-gerçek. Önceki v2.0 (trend/swing paradigması) GEÇERSİZ.
 
 **Tarih:** 1 Haziran 2026

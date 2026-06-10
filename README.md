@@ -187,3 +187,8 @@ Stated up front rather than left to be discovered:
 ---
 
 Solo research project. Every finding, including the null ones, is documented in full.
+
+**Not affiliated.** This is an independent, non-commercial research project with no connection
+to, sponsorship by, or endorsement from Borsa Istanbul A.S. "Borsa Istanbul" and "BIST" are
+trademarks of their respective owner, used here only descriptively to identify the market this
+research studies.

@@ -45,7 +45,7 @@ def write_failure_file(
     fpath = out_dir / f"failure_{when:%Y-%m-%d_%H%M%S}.txt"
     tb = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
     body = (
-        "BIST OS — daily_update FAILURE\n"
+        "Sentio — daily_update FAILURE\n"
         f"Timestamp: {when.isoformat()}\n"
         f"Context:   {context}\n"
         f"Exception: {type(exc).__name__}: {exc}\n\n"
@@ -98,7 +98,7 @@ def notify_failure(exc: BaseException, context: str = "") -> Path:
     """Failure dosyası yaz (her zaman) + opsiyonel email. Failure dosyası path'ini döner."""
     fpath = write_failure_file(exc, context=context)
     try:
-        subject = f"[BIST OS] daily_update FAILED — {datetime.now():%Y-%m-%d %H:%M}"
+        subject = f"[Sentio] daily_update FAILED — {datetime.now():%Y-%m-%d %H:%M}"
         maybe_send_email(subject, fpath.read_text(encoding="utf-8"))
     except Exception as exc2:  # noqa: BLE001 - notification must never re-raise
         logger.warning("notify_failure email step failed (non-fatal): %s", exc2)
