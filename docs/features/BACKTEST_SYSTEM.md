@@ -7,7 +7,7 @@
 
 ## Ne Yapar
 
-BIST OS'un sinyal engine'ini geçmiş veriler üzerinde simüle eder.
+Sentio'nun sinyal engine'ini geçmiş veriler üzerinde simüle eder.
 Production engine ile **aynı** composite hesabını yapar (`src/signals/calculator.py` paylaşımlı modül).
 
 ---

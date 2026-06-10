@@ -1,4 +1,4 @@
-# RR-018: BIST OS Trading System — López de Prado Tabanlı Backtesting Framework
+# RR-018: Sentio Trading System — López de Prado Tabanlı Backtesting Framework
 
 **Versiyon:** 1.0 | **Tarih:** 25 Mayıs 2026 | **Yazan:** Research Agent
 **Bağlam:** AUDIT_REPORT_001 D-061 C-1 closure + RR-014/015/016/017 entegrasyon
@@ -9,7 +9,7 @@
 ## 1. TL;DR
 
 - **Mevcut `backtest/engine.py` yapısı akademik standartların altındadır ve go-live'ı tek başına bloke eder.** AUDIT C-1 bulgusu (production engine'den diverged hardcoded formula, current MASTER_WEIGHTS değişikliklerini yansıtmama) tüm raporlanmış Sharpe'ı şüpheli kılar. Ek beş yapısal eksiklik: (i) single-path walk-forward, (ii) IID varsayan k-fold yokluğu, (iii) survivorship bias (yfinance delisted ticker'ları kapsamaz), (iv) çoklu-deneme penaltısı olmadan raporlanmış Sharpe, (v) 6 aylık pencere içinde 7 kriz döneminden hiçbirini içermeyen "crisis-untested" tablo. Bu kombinasyon, bugünkü Sharpe raporlarının %30-60 aralığında enflasyonist olmasını beklenir kılar (Bailey & López de Prado 2014'ün selection bias büyüklüğü ile uyumlu).
-- **Önerilen yapı López de Prado (2018) *Advances in Financial Machine Learning* Bölüm 7 (Purged K-Fold s.103-111), Bölüm 12 (Combinatorial Purged CV), Bölüm 14 (Backtest Statistics) ve Bölüm 15 (Strategy Risk s.211-220) üzerine kuruludur**; Bailey-Borwein-López de Prado-Zhu (2014 Notices of AMS / 2017 JCF 20(4):39-69) Deflated Sharpe + Probability of Backtest Overfitting (PBO) ile tamamlanır. BIST OS kalibrasyon: **k=5 Purged K-Fold, purge=10 gün, embargo=5 gün** (RR-010 ile tutarlı), **CPCV: N=6, k=2, 15 patika**, geçiş eşikleri **DSR > 0.95 + PBO < 0.5**.
+- **Önerilen yapı López de Prado (2018) *Advances in Financial Machine Learning* Bölüm 7 (Purged K-Fold s.103-111), Bölüm 12 (Combinatorial Purged CV), Bölüm 14 (Backtest Statistics) ve Bölüm 15 (Strategy Risk s.211-220) üzerine kuruludur**; Bailey-Borwein-López de Prado-Zhu (2014 Notices of AMS / 2017 JCF 20(4):39-69) Deflated Sharpe + Probability of Backtest Overfitting (PBO) ile tamamlanır. Sentio kalibrasyon: **k=5 Purged K-Fold, purge=10 gün, embargo=5 gün** (RR-010 ile tutarlı), **CPCV: N=6, k=2, 15 patika**, geçiş eşikleri **DSR > 0.95 + PBO < 0.5**.
 - **maintainer'ın $0 maliyet hedefi karşılanabilir.** Hudson & Thames mlfinlab Aralık 2020 "Unlocking the Commons" sponsorluk hedefini tutturamayıp tamamen ticarileşti — bugün **£100 + KDV / ay / kullanıcı**, sadece QuantConnect Cloud üzerinden (verbatim QC docs). Buna karşılık (i) **sam31415/timeseriescv 0.2 MIT** (CombPurgedKFoldCV, PurgedWalkForwardCV — ancak Issue #6'da unit testler "all your tests are failing" raporlu; kendi test suite şart), (ii) **esvhd/pypbo** (CSCV + MinBTL + DSR), (iii) **quantstats 0.0.81 Apache 2.0 + empyrical-reloaded** (metric library + HTML tear sheet), (iv) **vectorbt 1.0.0 Apache 2.0 + Commons Clause** (Faz 3 parameter sweep — "may not sell products or services that are primarily this software"), (v) **mlfinpy** (mlfinlab'ın açık kaynak rewrite alternatifi) kombinasyonu, paid mlfinlab'ın işlevselliğinin %90'ından fazlasını ücretsiz karşılar. **5 fazlı implementation roadmap toplam ~10-11 hafta** (paralel ile 8-9 hafta): (1) production sync C-1 closure — 1-2 hafta; (2) Purged K-Fold + DSR — 2 hafta; (3) CPCV + PBO — 1 ay; (4) 7 kriz stres testi — 2 hafta; (5) HTML/PDF/JSON raporlama — 1 hafta.
 
 ---
@@ -26,7 +26,7 @@ López de Prado'nun *Advances in Financial Machine Learning* (Wiley 2018, ISBN 9
 - **Bölüm 15 — "Understanding Strategy Risk"**: 15.2 Symmetric Payouts (s.211) — stratejinin ±π bahisleri için SR formülü; payout π **iptal olur**, sadece (p precision, n frequency) belirler. 15.3 Asymmetric Payouts (s.213) — π+ profit target ve π− stop-loss farklı, payout artık iptal olmaz. 15.4 Probability of Strategy Failure (s.216).
 - **Bölüm 16 — "Machine Learning Asset Allocation"**: Hierarchical Risk Parity (HRP) — Markowitz Lanetinin (yakın-tekil Σ'da konveks MV optimizasyonun istikrarsızlığı) çözümü.
 
-López de Prado'nun **Birinci Yasası** (Bölüm 1'den): *"Backtesting is not a research tool. Feature importance is."* BIST OS'un mevcut backtest-merkezli mimarisi bu yasaya aykırı; özellik önem analizi (RR-010 IC framework) merkeze çekilmelidir.
+López de Prado'nun **Birinci Yasası** (Bölüm 1'den): *"Backtesting is not a research tool. Feature importance is."* Sentio'nun mevcut backtest-merkezli mimarisi bu yasaya aykırı; özellik önem analizi (RR-010 IC framework) merkeze çekilmelidir.
 
 ### 2.2 Multiple Testing Problem (Harvey-Liu-Zhu 2016)
 
@@ -34,7 +34,7 @@ López de Prado'nun **Birinci Yasası** (Bölüm 1'den): *"Backtesting is not a 
 
 > *"Hundreds of papers and hundreds of factors attempt to explain the cross-section of expected returns. Given this extensive data mining, it does not make any economic or statistical sense to use the usual significance criteria for a newly discovered factor, e.g., a t-ratio greater than 2.0… The estimation of our model suggests that a newly discovered factor needs to clear a much higher hurdle, with a t-ratio greater than 3.0. Echoing a recent disturbing conclusion in the medical literature, we argue that most claimed research findings in financial economics are likely false."*
 
-BIST OS implikasyonu: L1–L6 toplam **m=12 indicator değişkeni** denenmektedir (RR-010 ile tutarlı). Standart t-stat > 2 eşiği overfitting riski taşır; **Benjamini-Hochberg FDR α=0.10 m=12** doğru kalibrasyondur.
+Sentio implikasyonu: L1–L6 toplam **m=12 indicator değişkeni** denenmektedir (RR-010 ile tutarlı). Standart t-stat > 2 eşiği overfitting riski taşır; **Benjamini-Hochberg FDR α=0.10 m=12** doğru kalibrasyondur.
 
 ### 2.3 IID Violation (LdP Bölüm 7.3)
 
@@ -103,7 +103,7 @@ train_set = all_indices
             \ {i : i ∈ (end(test_set), end(test_set) + embargo]}  # embargo
 ```
 
-### 4.2 BIST OS Parametreleri (RR-010 ile Tutarlı)
+### 4.2 Sentio Parametreleri (RR-010 ile Tutarlı)
 
 | Parametre | Değer | Gerekçe |
 |---|---|---|
@@ -418,7 +418,7 @@ class SignalCalculator:
 - **backtrader**: Event-driven; LdP yok; yavaş; topluluk maintenance düşük; **önerilmez**.
 - **pyfolio (Quantopian)**: Archived; **pyfolio-reloaded (stefan-jansen fork)** aktif. **quantstats 0.0.81 (ranaroussi, Apache 2.0)**: HTML tear sheet, Sharpe/Sortino/Calmar/MaxDD/Win Rate. **empyrical-reloaded**: metric library, quantstats bağımlılığı.
 
-### 9.4 BIST OS Önerilen Stack ($0 Budget)
+### 9.4 Sentio Önerilen Stack ($0 Budget)
 
 ```
 Core: Custom (src/signals/calculator.py + backtest/runner.py)
@@ -837,7 +837,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 1. **López de Prado, M. (2018)** *Advances in Financial Machine Learning*, Wiley, ISBN 978-1119482086. **Bölüm 7** (Purged K-Fold) s.103-111, **12** (CPCV), **14** (Backtest Statistics) s.194-211, **15** (Strategy Risk) s.211-220, **16** (HRP) s.221-242. Tüm metodolojik iskelet; Purged K-Fold + CPCV BIST L1-L6 sinyal değerlendirmesinin akademik tabanı.
 
-2. **López de Prado, M. (2020)** *Machine Learning for Asset Managers*, Cambridge UP. Daha kısa, BIST OS Faz 2-3 dokümantasyonu için pratisyene yönelik referans.
+2. **López de Prado, M. (2020)** *Machine Learning for Asset Managers*, Cambridge UP. Daha kısa, Sentio Faz 2-3 dokümantasyonu için pratisyene yönelik referans.
 
 3. **Bailey, D.H. & López de Prado, M. (2014)** "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality", *Journal of Portfolio Management* 40(5):94-107, SSRN 2460551. DSR formülünün doğrudan referansı; §6.1 formulasyonu burdan.
 
@@ -845,7 +845,7 @@ Paralel çalışma (1 dev tam zaman) ile **8-9 haftaya** inebilir.
 
 5. **Bailey, D.H., Borwein, J.M., López de Prado, M. & Zhu, Q.J. (2017)** "The Probability of Backtest Overfitting", *Journal of Computational Finance* 20(4):39-69, DOI 10.21314/JCF.2016.322, SSRN 2326253. CSCV algoritması + PBO formülü; §6.3 doğrudan referans.
 
-6. **Harvey, C.R., Liu, Y. & Zhu, H. (2016)** "...and the Cross-Section of Expected Returns", *Review of Financial Studies* 29(1):5-68. Multiple testing penaltısı; t-stat > 3 yeni hurdle BIST OS L1-L6 IC validation'da uygulanmalı.
+6. **Harvey, C.R., Liu, Y. & Zhu, H. (2016)** "...and the Cross-Section of Expected Returns", *Review of Financial Studies* 29(1):5-68. Multiple testing penaltısı; t-stat > 3 yeni hurdle Sentio L1-L6 IC validation'da uygulanmalı.
 
 7. **Harvey, C.R. (2017)** "The Scientific Outlook in Financial Economics", *Journal of Finance* 72(4):1399-1440, DOI 10.1111/jofi.12530. Replication crisis ve pre-registration disiplini; §11 reporting standardization felsefi tabanı.
 

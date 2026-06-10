@@ -1,4 +1,4 @@
-# BIST OS Cloud Setup — GitHub Actions Production
+# Sentio Cloud Setup — GitHub Actions Production
 
 **Tahmini kurulum suresi:** ~20 dakika
 
@@ -42,7 +42,7 @@ Yoksa `daily_update.py` graceful devam eder (FMP adimi atlanir).
 ## 3. Telegram Bot Kurma (~5 dakika) ok
 
 1. Telegram'da `@BotFather`'a yaz → `/newbot`
-2. Bot ismi: `BIST OS Alerts` → username: `bist_os_bot` (benzersiz olmali)
+2. Bot ismi: `Sentio Alerts` → username: `bist_os_bot` (benzersiz olmali)
 3. Aldigin token → `TELEGRAM_BOT_TOKEN` secret
 4. Chat ID almak icin:
    - Bota bir mesaj gonder

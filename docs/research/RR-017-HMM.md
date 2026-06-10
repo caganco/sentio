@@ -2,7 +2,7 @@
 
 # GEÇERLİLİK: "Katman D rejim TESPİTİ için (ama "weight override" kısmı ÖLÜ)"
 
-**Sistem:** BIST OS Trading System (Python, yfinance, EVDS API, KAP, long-only)
+**Sistem:** Sentio Trading System (Python, yfinance, EVDS API, KAP, long-only)
 **Status:** ENABLE_HMM_WEIGHTS = False · AG-001 bekleniyor (>=90 gün OOS + Sharpe iyileşmesi ≥ +0.15)
 **Bağlam:** RR-003 (4-aşamalı yol haritası — Aşama 1) · RR-012/013/015/016 yama disiplini
 **Tamamlayıcılık:** HMM "rejim NE der" · RR-016 vol-targeting "rejim İÇİNDE ne kadar" · DD soft gate "pozisyon NASIL koru"

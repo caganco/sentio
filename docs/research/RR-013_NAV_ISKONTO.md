@@ -2,7 +2,7 @@
 
 # GEÇERLİLİK: "Katman A holding faktörü adayı AMA long-only uyarısıyla"
 
-**Hazırlayan:** Research Layer (BIST OS) | **Tarih:** 24 Mayıs 2026 | **Önceki rapor:** RR-012 §B8 (20× detaylı versiyon)
+**Hazırlayan:** Research Layer (Sentio) | **Tarih:** 24 Mayıs 2026 | **Önceki rapor:** RR-012 §B8 (20× detaylı versiyon)
 **Pilot kapsam:** KCHOL, SAHOL, AGHOL, KOZAL, DOHOL — pilot başlangıç KCHOL
 
 ---
@@ -256,7 +256,7 @@ NAV iskontosu z-skoru tek başına sinyal değil; mevcut L1-L6 katmanı ile birl
 
 ### 5.4 Long-Only Adaptasyonu
 
-Akademik literatür (Pontiff 1995, Lee-Shleifer-Thaler 1991) sıklıkla **long-short pair trade** strateji önerir (long holding, short underlying). BIST OS'un long-only kısıtı bunu uygulanamaz kılar. Long-only adaptasyon:
+Akademik literatür (Pontiff 1995, Lee-Shleifer-Thaler 1991) sıklıkla **long-short pair trade** strateji önerir (long holding, short underlying). Sentio'nun long-only kısıtı bunu uygulanamaz kılar. Long-only adaptasyon:
 - Sinyal **giriş timing'i** olarak kullanılır (z > +1.5 → giriş)
 - Sinyal **çıkış timing'i** olarak kullanılır (z < 0 → kademeli çıkış)
 - Pozisyon boyutu Kelly L6'dan; NAV-z-skor pozisyon boyutu MODÜLATÖRÜ olarak kullanılır (z = +2 → tam Kelly, z = 0 → Kelly × 0.5)
@@ -419,7 +419,7 @@ Lins (2003) ve Yurtoğlu (2000) Türk holding yapısının ortaklarının yapıs
 ### 10.4 Long-Only Constraint
 Akademik literatürün önerdiği klasik strateji long holding + short underlying basket pair trade. Long-only ortamda:
 - Z-skor sinyal sadece **giriş timing'i** olarak (entry); short component eksik kaldığı için tam alfa hasadı yapılamaz
-- Bu yaklaşımın akademik olarak BIST OS yapısına uyumsuz olduğunu açıkça belirtiyoruz; full alpha hasadı için CFD veya VIOP araçları gerekir (bu raporun kapsamı dışında)
+- Bu yaklaşımın akademik olarak Sentio yapısına uyumsuz olduğunu açıkça belirtiyoruz; full alpha hasadı için CFD veya VIOP araçları gerekir (bu raporun kapsamı dışında)
 
 ### 10.5 Vergi (Türk Yatırımcısı)
 - KCHOL temettü %15 stopaj; net dividend yield literatürde brüt yieldten %15 düşük

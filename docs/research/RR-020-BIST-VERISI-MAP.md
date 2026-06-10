@@ -1,8 +1,8 @@
-# RR-020: BIST OS Veri Kaynakları Haritalama / BIST Data Source Atlas
+# RR-020: Sentio Veri Kaynakları Haritalama / BIST Data Source Atlas
 
 **Doküman tipi:** Reference / "Rosetta Stone" — arastirma katmani için tablo ağırlıklı atlas
 **Tarih:** 24 Mayıs 2026
-**Hedef sistem:** BIST OS (Borsa İstanbul Algoritmik Analiz Sistemi)
+**Hedef sistem:** Sentio (Borsa İstanbul Algoritmik Analiz Sistemi)
 **Dil:** Türkçe açıklama + İngilizce teknik terim (rate limit, WebSocket, endpoint, delisted, survivorship bias, API key)
 
 ---
@@ -102,7 +102,7 @@ L6 RISK:     World Gov Bonds (CDS) + Investing.com CDS fallback + USDTRY (yfinan
 
 **A3. Investing.com** — Resmi public API yok. `investpy` (alvarobartt) bakım azaldı. Cloudflare protection — aşırı request'te IP-ban yüksek risk. Fusion Media ToS scraping konusunda gri; investpy bakım sahibi yetkililerden izinle çalıştığını GitHub Discussion #336'da ifade etmiştir ancak resmi yazılı icazet yok. **Avoid as primary**; sadece CDS gibi başka yerde olmayan veriler için fallback.
 
-**A4. TradingView** — Public REST yok; Webhook (Pine Script alarmlarından gelen HTTP POST) + Pine Script. BIST coverage tam (`BIST:` prefix). Ücretsiz tier 1 chart + 2 alert + watermark. Pro $14.95/ay; Pro+ $29.95/ay; Premium $59.95/ay. **Alert layer olarak** (webhook → BIST OS), veri kaynağı olarak değil.
+**A4. TradingView** — Public REST yok; Webhook (Pine Script alarmlarından gelen HTTP POST) + Pine Script. BIST coverage tam (`BIST:` prefix). Ücretsiz tier 1 chart + 2 alert + watermark. Pro $14.95/ay; Pro+ $29.95/ay; Premium $59.95/ay. **Alert layer olarak** (webhook → Sentio), veri kaynağı olarak değil.
 
 **A5. Twelve Data** — Basic Free: 8 req/dakika, 800 req/gün (Twelve Data resmi pricing). Grow $29/ay (55-377 req/dk, no daily cap); Pro $99/ay (610-1,597 req/dk); Ultra $329/ay (2,584-10,946 req/dk). WebSocket Pro+ tier'larda ~170 ms latency. [G2](https://www.g2.com/products/twelve-data/pricing) BIST coverage Grow+ tier'da. **Future**: AUM >$50K veya >5 farklı veri tipine ihtiyaç doğduğunda $29 tier mantıklı.
 
@@ -233,7 +233,7 @@ Akademik referans: Oner & Oner (2022, *Quarterly Journal of Econometrics Researc
 
 ```python
 """
-BIST OS — Cross-Validation Script for Data Sources
+Sentio — Cross-Validation Script for Data Sources
 RR-020 Section 5. maintainer: bu scripti olduğu gibi çalıştır.
 
 Karşılaştırılan kaynaklar:
@@ -285,7 +285,7 @@ def fetch_isyatirim(t):
            f"&startdate={S_DDMMYYYY}&enddate={E_DDMMYYYY}.json")
     try:
         r = requests.get(url, timeout=15,
-                         headers={"User-Agent": "BIST-OS-Validator/1.0"})
+                         headers={"User-Agent": "Sentio-Validator/1.0"})
         data = r.json()["value"]
     except Exception:
         return None
@@ -570,7 +570,7 @@ Toplam                                  ~$4.500-5.500/ay ($55K-65K/yr)
 
 ### 2026 Hızlı Değişen Landscape
 - **Veri vendor konsolidasyonu**: IEX Cloud kapanış kararı 31 Mayıs 2024'te duyuruldu ve tüm IEX Cloud API ürünleri 31 Ağustos 2024'te resmi olarak kapatıldı; [Alpha Vantage](https://www.alphavantage.co/iexcloud_shutdown_analysis_and_migration/) [AlphaLog](https://alphalog.ai/blog/alphavantage-api-complete-guide) IEX Group resmi gerekçesi (Alpha Vantage migration guide üzerinden citation): *"IEX Cloud represented less than 2% of IEX Group overall revenue and had been operating at a loss since its inception."* Alpha Vantage tier'ları daraltıldı (500 → 100 → 25 req/gün). [Macroption](https://www.macroption.com/alpha-vantage-api-limits/) **X API (Twitter): 6 Şubat 2026'da pay-per-use modele geçti** [Blotato](https://www.blotato.com/blog/twitter-api-pricing) ($0.005/post read, $0.01/post created); legacy Basic/Pro yeni signup'a kapalı; Enterprise $42,000/ay'dan başlar. [Postproxy](https://postproxy.dev/blog/x-api-pricing-2026/) Trend: ücretsiz/açık veri kısıtlanıyor, paid tier'lar normalleşiyor.
-- **AI/MCP integration**: Alpha Vantage, EPİAŞ (eptr2), borsa-mcp gibi servisler MCP server'larıyla AI agent'larla doğrudan entegre. BIST OS'un da MCP server'a sahip olması Phase 5'te değerlendirilmeli.
+- **AI/MCP integration**: Alpha Vantage, EPİAŞ (eptr2), borsa-mcp gibi servisler MCP server'larıyla AI agent'larla doğrudan entegre. Sentio'nun da MCP server'a sahip olması Phase 5'te değerlendirilmeli.
 - **KVKK enforcement artışı**: Kurul son 2 yılda scraping/cookie ile ilgili cezaları %200+ artırdı (Decision 2022/229: 800K TL; [Kvkk](https://www.kvkk.gov.tr/Icerik/7275/2022-229) Decision 2022/1358: 300K TL). [Kvkk](https://www.kvkk.gov.tr/Icerik/7595/2022-1358) Kişisel veri içeren scraping için risk artıyor.
 - **Borsa İstanbul kendi data API'lerini açıyor**: VERDA API geliştirici portalı sunuyor (verda.borsaistanbul.com). 2026'da retail tier gelmesi söylentisi var ama resmi duyuru yok — izle.
 

@@ -1,6 +1,6 @@
 ---
 report_id: RR-019
-title: "Multi-LLM Orchestration — BIST OS İçin AI Jüri Sistemi"
+title: "Multi-LLM Orchestration — Sentio İçin AI Jüri Sistemi"
 last_updated: 2026-05-24
 phase_position: "Phase 6+ (Q1 2027+)"
 priority: "Nice-to-have, NOT must-have"
@@ -8,7 +8,7 @@ status: "Araştırma + Tasarım (implementation bekler)"
 predecessors: [RR-010, RR-011, RR-012, RR-013, RR-015, RR-016, RR-017, RR-018]
 ---
 
-# RR-019: Multi-LLM Orchestration — BIST OS İçin AI Jüri Sistemi
+# RR-019: Multi-LLM Orchestration — Sentio İçin AI Jüri Sistemi
 
 > **Snapshot:** Mayıs 2026. LLM landscape 3–6 ayda değişir. Bu raporu son revize tarihi için header'daki `last_updated` alanına bak. Yeni model çıktığında veya fiyat değiştiğinde tablolar geçersizleşir.
 
@@ -42,11 +42,11 @@ Jiang (2026) — **"DiscoUQ: Structured Disagreement Analysis for Uncertainty Qu
 
 Kadavath et al. (2022) — **"Language Models (Mostly) Know What They Know"** (arXiv:2207.05221). Büyük LLM'lerin kendi P(True) skorlarını üretebildiği ve bunların makul kalibrasyon gösterdiği — yani LLM'lerden kendi güven skorlarını sözel olarak istemek kullanılabilir bir sinyaldir. RR-019 prompt tasarımı bu bulguya dayanır: her LLM çıktısı `{sentiment, confidence: HIGH/MEDIUM/LOW, reasoning}` JSON şemasında olacak.
 
-Lin, Hilton, Evans (2022) — **"Teaching Models to Express Their Uncertainty in Words"** (arXiv:2205.14334). GPT-3'ün doğal dilde ("90% confidence", "high confidence") kalibre güven ifade edebildiğini gösterdi; verbalized probability vs. logit-based probability karşılaştırması. BIST OS için: token-cost açısından verbalized confidence yeterli (LLM'den logit çekmeye gerek yok).
+Lin, Hilton, Evans (2022) — **"Teaching Models to Express Their Uncertainty in Words"** (arXiv:2205.14334). GPT-3'ün doğal dilde ("90% confidence", "high confidence") kalibre güven ifade edebildiğini gösterdi; verbalized probability vs. logit-based probability karşılaştırması. Sentio için: token-cost açısından verbalized confidence yeterli (LLM'den logit çekmeye gerek yok).
 
 ### 2.3 Token-Efficient Multi-Agent Debate
 
-Fan, Yoon, Ji (2025) — **"iMAD: Intelligent Multi-Agent Debate for Efficient and Accurate LLM Inference"** (arXiv:2511.11306). Paper abstract verbatim: *"iMAD significantly reduces token usage (by up to 92%) while also improving final answer accuracy (by up to 13.5%)."* MAD'in her sorgu için tetiklenmesinin verimsiz olduğunu, sadece "muğlak" durumlarda tetiklenirse maliyet/doğruluk dengesinin dramatik iyileştiğini gösterdi. Mekanizma: tek-ajan self-critique ile 41 dilbilimsel özellik çıkarılır, hafif bir classifier MAD'i tetikleyip tetiklememeye karar verir. BIST OS için optimum strateji: **"selective debate"** — sadece tek-LLM HOLD/AMBIGUOUS dönerse ikinci LLM tetikle.
+Fan, Yoon, Ji (2025) — **"iMAD: Intelligent Multi-Agent Debate for Efficient and Accurate LLM Inference"** (arXiv:2511.11306). Paper abstract verbatim: *"iMAD significantly reduces token usage (by up to 92%) while also improving final answer accuracy (by up to 13.5%)."* MAD'in her sorgu için tetiklenmesinin verimsiz olduğunu, sadece "muğlak" durumlarda tetiklenirse maliyet/doğruluk dengesinin dramatik iyileştiğini gösterdi. Mekanizma: tek-ajan self-critique ile 41 dilbilimsel özellik çıkarılır, hafif bir classifier MAD'i tetikleyip tetiklememeye karar verir. Sentio için optimum strateji: **"selective debate"** — sadece tek-LLM HOLD/AMBIGUOUS dönerse ikinci LLM tetikle.
 
 Liu et al. (2024) — **"GroupDebate: Enhancing the Efficiency of Multi-Agent Debate Using Group Discussion"** (arXiv:2409.14051). Ajanları gruplara bölüp grup-içi tartışma + grup-arası özet paylaşımı ile token maliyetini Arithmetic'te %45, GSM8K'da %42.6, MMLU'da %50.6, MATH'ta %51.7 azalttı; MMLU'da %25, MATH'ta %11 doğruluk artışı. 2-LLM setupta GroupDebate doğrudan uygulanmaz ama "sıkıştırılmış özet" prensibi (her tur sonunda sadece anahtar bullet noktaları paylaşmak) token tasarrufu sağlar.
 
@@ -538,7 +538,7 @@ SPK 2024 İdare Faaliyet Raporu (Temmuz 2025 yayını) ve III-37.1 Tebliğ deği
 - *"Algoritmik ve yüksek frekanslı işlem gerçekleştiren yatırım kuruluşlarına yönelik belirlemeler yapılması"* — hazırlık aşamasında.
 - Güncel yürürlük: III-37.1 Tebliğ (Resmî Gazete 11/7/2013, no. 28704); ilgili güncel SPK kararı i-SPK.37.7 (18.12.2025, 65/2354) profesyonel müşteri eşiklerini güncelledi (finansal varlık alt sınırı 1M TL → 10M TL).
 
-**BIST OS impact:** maintainer **kişisel** trading sistemi, "yatırım kuruluşu" değil → düzenleme doğrudan bağlamaz. Yetki belgesi alıp başkalarına LLM-based tavsiye satarsa SPK çerçevesi devreye girer. DEC-010 "advisory only, never executive" boundary'sı bu çerçeveye uyumlu kalır.
+**Sentio impact:** maintainer **kişisel** trading sistemi, "yatırım kuruluşu" değil → düzenleme doğrudan bağlamaz. Yetki belgesi alıp başkalarına LLM-based tavsiye satarsa SPK çerçevesi devreye girer. DEC-010 "advisory only, never executive" boundary'sı bu çerçeveye uyumlu kalır.
 
 ### 10.4 Maliyet Farkındalığı
 

@@ -11,7 +11,7 @@
 
 ## 0. Özet
 
-BIST OS'un mevcut Alpha Attribution altyapısı (DEC-015) Layer × forward-return kaydını parquet formatında yapıyor ve `ICCalculator` ile Spearman IC hesaplıyor. Ancak framework **eksik** bileşenler içeriyor: BH-FDR çoklu test düzeltmesi yok, sektör-nötr IC yok, `ic_history` kalıcı zaman serisi yok, Bayesian weight kalibrasyonu yok, decay monitörü yok, delisted ticker koruması yok. Bu SPEC, DEC-015 üzerine kurularak RR-010'un öngördüğü eksiksiz IC framework'ünü 4 aşamalı arastirma katmani specleriyle tanımlar.
+Sentio'nun mevcut Alpha Attribution altyapısı (DEC-015) Layer × forward-return kaydını parquet formatında yapıyor ve `ICCalculator` ile Spearman IC hesaplıyor. Ancak framework **eksik** bileşenler içeriyor: BH-FDR çoklu test düzeltmesi yok, sektör-nötr IC yok, `ic_history` kalıcı zaman serisi yok, Bayesian weight kalibrasyonu yok, decay monitörü yok, delisted ticker koruması yok. Bu SPEC, DEC-015 üzerine kurularak RR-010'un öngördüğü eksiksiz IC framework'ünü 4 aşamalı arastirma katmani specleriyle tanımlar.
 
 **Kapsam sınırı:** `src/` üretim lojiği değişmez. Yeni bileşenler `src/analytics/` ve `src/data/` altında eklenir; `thresholds.py` yeni sabitleri alır; `MASTER_WEIGHTS` τ=0 aşamasında statik kalır.
 
@@ -745,7 +745,7 @@ D-133 merge edilince `docs/RESEARCH_REGISTRY.md`'de RR-010 satırı şöyle gün
 
 ## maintainer Notu
 
-Bu SPEC CB-010 ("statik weight savunulamazlığı") ve RR-010'u doğrudan karşılıyor. Ancak BIST OS'ta **birincil kısıt veri birikimi**: şu an 4 günlük signal log, sıfır dolu forward return. D-133 uygulanıp 60 iş günü (yaklaşık Ağustos 2026 başı) beklenmeden D-135'in etkinleşmesi mümkün değil.
+Bu SPEC CB-010 ("statik weight savunulamazlığı") ve RR-010'u doğrudan karşılıyor. Ancak Sentio'da **birincil kısıt veri birikimi**: şu an 4 günlük signal log, sıfır dolu forward return. D-133 uygulanıp 60 iş günü (yaklaşık Ağustos 2026 başı) beklenmeden D-135'in etkinleşmesi mümkün değil.
 
 Pratik sıra önerisi:
 1. **Bu hafta:** D-133 (Faz 1 altyapısı — hemen uygulanabilir)
@@ -753,7 +753,7 @@ Pratik sıra önerisi:
 3. **Ağustos 2026 başı:** D-135 (Bayesian — 60 gün dolduğunda etkinleşir)
 4. **D-135 merge sonrası:** D-136 (kontrakt — 20 dakika)
 
-**Açık soru (arastirma katmani'a):** `IC_INVESTABLE_MONTHS_MIN = 24` çok muhafazakar mı? 2 yıl = ~504 günlük veri birikimi gerekiyor. BIST OS henüz 4 günlük; 2 yıl içinde hiçbir layer "INVEST" statüsüne giremeyecek. `IC_INVESTABLE_MONTHS_MIN = 6` (126 iş günü) daha uygun olabilir. maintainer kararı.
+**Açık soru (arastirma katmani'a):** `IC_INVESTABLE_MONTHS_MIN = 24` çok muhafazakar mı? 2 yıl = ~504 günlük veri birikimi gerekiyor. Sentio henüz 4 günlük; 2 yıl içinde hiçbir layer "INVEST" statüsüne giremeyecek. `IC_INVESTABLE_MONTHS_MIN = 6` (126 iş günü) daha uygun olabilir. maintainer kararı.
 
 ---
 
