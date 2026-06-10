@@ -3,8 +3,9 @@
 > **Veri-backfill görevi — Stage-0 ölçümü DEĞİL.** Hiçbir CAR / getiri / drift /
 > Sharpe / t-istatistiği üretilmedi (`no_performance_metrics: true`, özet-JSON'da
 > makine-okunur). Tasarım-parametreleri (ilk-duyuru, gün-çözünürlük, seans-kuralı,
-> T+2) RR-Y1-013 §2'den devralındı; değiştirilmedi. Karar-ağacı (RR-Y1-013-B §6)
-> Orchestrator + Çağan'dadır; aşağıdaki hüküm otomatik-Stage-0-tetikleyici değildir.
+> T+2) RR-Y1-013 §2'den devralındı; değiştirilmedi. Stage-0 kararı bu raporun
+> kapsamı dışında, ayrı bir değerlendirme adımıdır; aşağıdaki hüküm
+> otomatik-Stage-0-tetikleyici değildir.
 >
 > Üretici script: `scripts/probe/pead_daydate_backfill.py` (src/engine sıfır-dokunuş;
 > RR-Y1-013 probe-scripti/çıktıları değiştirilmedi — üstüne katman). Panel:
