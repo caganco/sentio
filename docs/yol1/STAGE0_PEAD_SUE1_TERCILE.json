@@ -1,0 +1,74 @@
+{
+  "prototip_id": "PEAD_SUE1_TERCILE",
+  "hipotez": "BIST likit-evreninde, ceyreklik kazanc-duyurusu sonrasi, yuksek-SUE tercile'ine giren hisseler, duyuru-sonrasi T+2'den baslayan 60-isgunu penceresinde, esit-agirlikli likit-evrene gore pozitif kumulatif-anormal-getiri (drift) uretir (RR-Y1-014 sect-1; Bernard-Thomas 1989 underreaction; Yilmaz et al. 2020 BIST tercile-spread).",
+  "tutunma_noktasi": "cross_sectional",
+  "split_modu": "A+B",
+  "psi": "spearman",
+  "faktor_notrleme": ["market"],
+  "embargo_h": "construction_window",
+  "split_arm_floor": 10000000.0,
+  "sort_depth": "tercile",
+  "hedef_rejim": "agnostic",
+  "frekans": "daily",
+  "getiri_tabani": "tr_index_gross",
+  "keep_bar": {
+    "pbo_max": 0.5,
+    "dsr_min": 0.95,
+    "nw_t_min": 2.0,
+    "birincil": "TAM-panel yuksek-SUE-tercile long-bacagi, EW-aktif-olay-evreni-relative gunluk aktif-getiri serisi uzerinden NW-t >= 2.0 (motor basligi: harness nw_t, lag=5 gunluk, tr_index_gross). 60-isgunu-CAR'in takvim-zamani (calendar-time) esdegeri: pozisyonlar 60-gun-yasar, gunluk artislarin NW-t'si.",
+    "konjuge": "Mod-A tek-bolme (DEC-053/DISC-9): X2 (lockbox'li bagimsiz isim-alt-kumesi) ayni istatistikte BAGIMSIZ NW-t >= 2.0, TEK-ATIS. X2 arm-istatistigi: committed harness._tilt_active (frac=1/3, h=1, basis=tr_index_gross, min_names=15) + stats.nw_tstat (lag=5).",
+    "fail_tanimi": "NW-t_full < 2.0 VEYA NW-t_X2 < 2.0 (veya hesaplanamaz) -> MEZAR (DEC-053). Sign-flip yasak (dusuk-SUE-long denenmez). Diriltme yasak. Post-hoc gevsetme yasak (DISC-3).",
+    "dsr_pbo_rolu": "pbo_max/dsr_min motor-protokol raporlama-barlaridir (sema-geregi); RR-Y1-014 sect-4 geregi DSR tek-config'te near-identity beklenir ve hukum-degistirici DEGILDIR. Hukum yalniz birincil+konjuge kosullarindadir."
+  },
+  "denenen_konfig_sayisi": 1,
+  "frozen_before_results": true,
+  "date_frozen": "2026-06-10",
+  "snapshots_content_hash_sha256_prefix": "e5dddae304d686cb",
+  "strangler_constraints": "committed-motor src/engine READ-ONLY (sifir-dokunus); sinyal-paneli ayri uretildi (scripts/scratch/build_pead_signal_panel.py, getiri-gormeden); runner scripts/scratch/run_rr_y1_014_stage0.py yalniz motor-primitiflerini cagirir; realistic-cost D-207 motor-icinden uygulanir (sisirme-yok); EVDS/KAP ham-veri CI-disi.",
+  "lockbox_spec": {
+    "scope": "X2 isim-alt-kumesi (92 isim) x tum panel-tarihleri (close-degerleri fingerprint'lenir)",
+    "names_ref": "data/processed/pead_stage0_freeze_inputs.json#x2_names (ayni commit'te donmus)",
+    "n_names_x2": 92,
+    "split": "likidite-stratified pair-randomization (committed moda._pair_randomize), seed=0, R=1; ADV-siralamasi her ismin KENDI ilk-olay-D0'inda trailing-63g medyan value_tl (look-ahead-safe; IPO-isimleri dislamaz)",
+    "x1_rolu": "X1 (92 isim) = uygulama-dogrulamasi yarisi; parametreler bu dosyada donmustur, X1-bakislari yalniz pipeline-dogrulugu icindir; bakis-butcesi <= 3 (data/processed/pead_x1_looks.json'a kayitli); X1-bakisi konfig-aramasi DEGILDIR -> denenen_konfig_sayisi=1 kalir"
+  },
+  "lockbox_content_hash": "5b0e50ec5854663f",
+  "eval_window_start": "2019-01-01",
+  "eval_window_end": "2026-05-26",
+  "sinyal_tanimi": {
+    "sue_formu": "SUE1 = UE_t / MV_onceki_ceyrek_sonu; UE_t = Q_t - Q_{t-4q} (qid-hizali, gap-safe; RR-046 devir-envanteri `ue` kolonu); MV = D-206-harmonize degoran mktval, ay = period_end - 3ay'in takvim-ayi (duyuru-oncesi, look-ahead-safe)",
+    "sue_transkripsiyon_notu": "RR-Y1-013/014 tablolarinda 'SUE formu' satiri iki kez 'onceki-ceyrek-sonu mktval'e olceklenmis' der; '8-ceyrek (payda)' satiri trailing-std formunun kalintisidir. EN-SPESIFIK + iki-kez-tekrarlanan tanim (mktval-olcekli) SONUC-GORULMEDEN esas alindi; 8-ceyrek kosulu gecmis-tabani olarak uygulandi (qid_t - qid_ilk >= 8). Trailing-std formu HESAPLANMADI (ikinci-config yok).",
+    "giris": "RR-Y1-013-B gun-damgali panel entry_date_t2 (D0 + 2 isgunu; seans-kurali >=18:00 -> ertesi-isgunu D0; ilk-duyuru=min-publishDate, restate-ayrik)",
+    "tutus": "60 islem-gunu: skor [entry .. entry+59] gunlerinde aktif; panel-sonu kirpmasi dahil-tutulur (72 olay kirpik); cakisan ardisik olayda en-yeni giris gecerli",
+    "construction_window_deklarasyonu": "construction_window = 1 (gunluk). RR-Y1-008 cift-rol uyarisi geregi ACIK DEKLARASYON: tutma-horizonu (60g) construction_window DEGILDIR; 60g tutus sinyalin skor-persistansinda kodludur; motor gunluk takvim-zamani (calendar-time portfolio) artislariyla degerlendirir. h=60 secimi ortusen-pencere sahte-t enflasyonu yaratirdi - reddedildi.",
+    "likidite": "olay-uygunlugu: liquid_names(panel, asof=D0) (motor B7: trailing-63g medyan islem-degeri >= 10M TL; RR-Y1-008 parite)",
+    "agirlik": "tercile-ici esit-agirlik (motor frac=1/3 top-tilt); long-only; dusuk-SUE short-EDILMEZ",
+    "benchmark": "EW-aktif-olay-evreni (ayni gun skoru-tanimli isimlerin esit-agirligi) - PM-1 karsi-olgusu; motor _tilt_active bench'i",
+    "pm1": "assert_pm1_compliant motor-icinde kosulur; sinyal nakit-gate degil, sepet-ici re-tilt"
+  },
+  "evren_kaydi": {
+    "fy_araligi": "2019Q1..2025Q4",
+    "filtre_zinciri": {"fy_penceresi": 11373, "sue_tanimli": 7890, "gun_damgali": 7620, "likit_d0": 1473},
+    "n_olay": 1473,
+    "n_isim": 184,
+    "bilinen_sinirlar": [
+      "SUE-tanimli olaylarin ~%81'i likit-evren-disi (F6/D6): olcum likit-evrenle-sinirli yorumlanir",
+      "2019-2022 gun-damgasi KAP-public-tek-kaynak (MKK-bant-disi); degoran ay-uyusmasi %96.6 exact",
+      "retroaktif-kod-alias firmalari (6 alias) dahil; ayri-dilimleme YASAK (invariant 6)",
+      "TPC/IFRS tek-seri; nominal-TL SUE 2021-2024 enflasyon-donemini tasir (real-deflasyon uygulanmadi - tek-config)",
+      "delist-ici-olaylar: getiri delist-gunune-kadar (son-gun haric, forward-return NaN) - survivorship-honest"
+    ]
+  },
+  "mod_secimi_kaydi": {
+    "mod_a": "BIRINCIL konjuge: tek X1/X2 likidite-stratified isim-bolmesi (yukarida). Motor run_moda R=50 agreement-makinesi AYRICA kosulur ama tam-pencere likit-surekli-evrende breadth-degenerate beklenir (RR-Y1-008 duvari: ~38 surekli-likit isim < 100); guard-mesaji raporlanir, hukum X1/X2-protokolundedir.",
+    "mod_b": "IKINCIL/TESHIS: temporal-CPCV (N=10,k=2) DSR + decay-gozlemi; keep-bar KAPAMAZ",
+    "mod_c": "ATLANIR (tek-rejim-evrende dusuk-bilgi)"
+  },
+  "arm_kosu_sabitleri": {
+    "arm_min_names": 15,
+    "gerekce": "motor MIN_NAMES_CROSS_SECTION=30 tam-evren-icindir; yarim-evren (92-isim) gunluk-kesitleri orantili taban ister; 15 = ceil(30/2), SONUC-GORULMEDEN donduruldu",
+    "nw_lag": 5,
+    "full_panel_min_names": 30
+  },
+  "beklenti_kalibrasyonu": "~%60-65 mezar / %35-40 marjinal-gercek (RR-Y1-014 TL;DR; sonuc-oncesi kayit)"
+}
