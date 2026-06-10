@@ -20,6 +20,8 @@ Modes:
   --ci-range A...B     scan lines added in a PR range (CI)
   --all                scan every tracked text file (post-cleanup full sweep)
   --commit-msg FILE    scan a commit message file ('-' = stdin) for AI attribution
+  --pr-body FILE       scan a PR description ('-' = stdin) before opening the PR
+                       (PR bodies are public but covered by no other scan)
 
 Exit 0 = clean, 1 = leak found (prints file:line + reason), 2 = usage error.
 
@@ -47,8 +49,11 @@ SELF_FILES = {"scripts/check_public_hygiene.py"}
 
 # Optional git-ignored file with project-specific patterns (name / process terms /
 # clone ids). Kept out of the public tree on purpose. One rule per line:
-#     <regex><TAB><reason>[<TAB>name]
-# A 3rd column "name" marks a rule that is skipped inside NAME_ALLOW_FILES.
+#     <regex><TAB><reason>[<TAB>flags]
+# The 3rd column "flags" is a comma/space list. Recognized flags:
+#   name    -> rule is skipped inside NAME_ALLOW_FILES (e.g. LICENSE author line)
+#   prbody  -> rule applies ONLY in --pr-body mode (not file/diff scans); use for
+#              terms that are fine in code but not in a public PR description.
 # Lines that are blank or start with '#' are ignored. Patterns are case-insensitive.
 LOCAL_PATTERNS_FILE = os.environ.get(
     "HYGIENE_LOCAL_PATTERNS",
@@ -68,6 +73,7 @@ SKIP_EXT = {
 CONTENT_RULES = [
     (re.compile(r"<local-path>", re.IGNORECASE), "machine-specific home path (<local-path>)", False),
     (re.compile(r"/home/[A-Za-z0-9._-]+/"), "machine-specific home path (/home/<user>/)", False),
+    (re.compile(r"[A-Za-z]:\\Users\\", re.IGNORECASE), "machine-specific home path (Windows C:\\Users\\<user>)", False),
     # Personal-provider email (maintainer should use no-reply/service addresses).
     # Generic on purpose: avoids embedding a real address in this public file.
     (re.compile(r"[A-Za-z0-9._%+-]+@(?:gmail|hotmail|yahoo|outlook|icloud|protonmail|proton)\.(?:com|net|me)",
@@ -79,6 +85,14 @@ COMMIT_MSG_RULES = [
     (re.compile(r"Generated with .*Claude Code", re.IGNORECASE), "AI attribution (Generated with Claude Code)"),
     (re.compile(r"noreply@anthropic\.com", re.IGNORECASE), "AI attribution email"),
 ]
+
+# Extra rules that apply ONLY to PR descriptions (--pr-body), not to file diffs.
+# A PR description is free prose typed at `gh pr create` time and is NOT covered by
+# the file-diff or commit-msg scans, yet it is fully public. Project-specific terms
+# that are acceptable inside code/comments but read as internal-process narration in
+# a public PR body are loaded here from the git-ignored local file (3rd column flag
+# "prbody"); none are hardcoded in this public file. See _load_local_rules.
+PRBODY_EXTRA_RULES: list = []
 
 
 def _load_local_rules() -> None:
@@ -100,11 +114,17 @@ def _load_local_rules() -> None:
         parts = line.split("\t")
         pat = parts[0]
         reason = parts[1].strip() if len(parts) > 1 and parts[1].strip() else "internal/project-specific pattern"
-        is_name = len(parts) > 2 and parts[2].strip().lower() == "name"
+        flags = parts[2].lower().replace(",", " ").split() if len(parts) > 2 else []
+        is_name = "name" in flags
         try:
-            CONTENT_RULES.append((re.compile(pat, re.IGNORECASE), reason, is_name))
+            compiled = re.compile(pat, re.IGNORECASE)
         except re.error:
             sys.stderr.write(f"warning: bad regex in {path.name}: {pat}\n")
+            continue
+        if "prbody" in flags:
+            PRBODY_EXTRA_RULES.append((compiled, reason))
+        else:
+            CONTENT_RULES.append((compiled, reason, is_name))
 
 
 def _git(args: list[str]) -> str:
@@ -187,15 +207,39 @@ def scan_commit_msg(source: str) -> list[str]:
     return hits
 
 
+def scan_pr_body(source: str) -> list[str]:
+    """Scan a PR description ('-' = stdin) for AI attribution, generic leaks, and
+    project-internal process narration. Stricter than file scans by design."""
+    text = sys.stdin.read() if source == "-" else Path(source).read_text(encoding="utf-8", errors="replace")
+    hits: list[str] = []
+    for i, line in enumerate(text.splitlines(), start=1):
+        if ALLOW_MARK in line:
+            continue
+        for pat, reason in COMMIT_MSG_RULES:
+            if pat.search(line):
+                hits.append(f"pr-body:{i}: {reason}\n    {line.strip()[:160]}")
+        for pat, reason, _is_name in CONTENT_RULES:
+            if pat.search(line):
+                hits.append(f"pr-body:{i}: {reason}\n    {line.strip()[:160]}")
+        for pat, reason in PRBODY_EXTRA_RULES:
+            if pat.search(line):
+                hits.append(f"pr-body:{i}: {reason}\n    {line.strip()[:160]}")
+    return hits
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Public-hygiene leak guard")
     ap.add_argument("--all", action="store_true", help="scan every tracked text file (post-cleanup)")
     ap.add_argument("--ci-range", metavar="A...B", help="scan lines added in a git range (CI)")
     ap.add_argument("--commit-msg", metavar="FILE", help="scan a commit message file ('-' = stdin)")
+    ap.add_argument("--pr-body", metavar="FILE", help="scan a PR description ('-' = stdin) before opening it")
     args = ap.parse_args()
 
     if args.commit_msg:
         hits = scan_commit_msg(args.commit_msg)
+    elif args.pr_body:
+        _load_local_rules()
+        hits = scan_pr_body(args.pr_body)
     else:
         _load_local_rules()
         if args.all:
