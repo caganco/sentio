@@ -80,13 +80,12 @@ class PEADSue1Signal:
         self._wide = wide
 
     def scores(self, panel: Panel, names: list[str], asof: pd.Timestamp) -> pd.Series:
+        # Istenen TUM isimlere NaN-dolgulu reindex: committed _tilt_active/moda skor-
+        # karesini fwd ile kolon-hizalar; eksik-kolon (object-NaN) boolean-maskeyi
+        # bozar (uygulama-duzeltmesi, X1-bakis-2'de dogrulandi; parametre DEGISMEDI).
         if asof not in self._wide.index:
-            return pd.Series(dtype=float)
-        row = self._wide.loc[asof].dropna()
-        if not len(row):
-            return row
-        keep = row.index.intersection(names)
-        return row.loc[keep]
+            return pd.Series(np.nan, index=list(names), dtype=float)
+        return self._wide.loc[asof].reindex(list(names))
 
 
 def build_score_frame(events: pd.DataFrame, dates: pd.DatetimeIndex) -> pd.DataFrame:
