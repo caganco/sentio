@@ -1,0 +1,285 @@
+{
+  "task": "RR-Y1-013-B KAP Katman-2 gun-damgasi backfill",
+  "timestamp_utc": "2026-06-10T17:29:43Z",
+  "no_performance_metrics": true,
+  "channel_architecture": {
+    "bulk": "KAP public byCriteria (publishDate saniye-PIT; 2019+ arsiv)",
+    "cross_validation": "MKK VYK disclosureDetail.time (ayni index, bagimsiz altyapi)",
+    "third_channel": "degoran step-month (RR-046 devir-envanteri) tam-panel ay-uyusmasi",
+    "mkk_retention_finding": "MKK VYK liste-API'si ~2023-02 oncesini servis ETMIYOR (olculdu); 2019-2022 icin tek gun-damga kanali KAP public"
+  },
+  "fetch": {
+    "windows_fetched": 0,
+    "windows_cached": 91,
+    "http_requests": 0,
+    "saturated_days": [],
+    "n_records_raw": 64260
+  },
+  "build": {
+    "n_fr_category": 22732,
+    "subject_breakdown_fr_category": {
+      "Finansal Rapor": 22728,
+      "Sorumluluk Beyan\u0131 (Konsolide Olmayan)": 1,
+      "Faaliyet Raporu (Konsolide Olmayan)": 1,
+      "Sorumluluk Beyan\u0131 (Konsolide)": 1,
+      "Faaliyet Raporu (Konsolide)": 1
+    },
+    "n_fr_with_year_period_stock": 22726,
+    "n_alias_rows_added": 188,
+    "ticker_aliases": {
+      "DGNMO": "DGKLB",
+      "BESLR": "KERVT",
+      "TRALT": "KOZAL",
+      "TRMET": "KOZAA",
+      "TRENJ": "IPEKE",
+      "LRSHO": "ITTFH"
+    },
+    "n_fr_exploded_rows": 25618,
+    "n_tickers": 1085,
+    "n_event_keys": 22492,
+    "restate_share": 0.1337,
+    "n_d0_beyond_calendar": 10,
+    "n_entry_beyond_calendar": 13
+  },
+  "coverage": {
+    "priority1_tercile_extreme": {
+      "n_target": 737,
+      "n_stamped": 737,
+      "coverage": 1.0
+    },
+    "priority2_all_sue": {
+      "n_target": 5771,
+      "n_stamped": 5611,
+      "coverage": 0.9723
+    },
+    "degoran_month_agreement": {
+      "n_compared": 5611,
+      "exact_share": 0.9663,
+      "within_1m_share": 0.9882,
+      "diff_histogram": {
+        "-3": 1,
+        "-1": 4,
+        "0": 5422,
+        "1": 119,
+        "2": 29,
+        "3": 12,
+        "4": 9,
+        "5": 3,
+        "6": 7,
+        "7": 4,
+        "8": 1
+      }
+    }
+  },
+  "mkk_cross_validation": {
+    "attempted": true,
+    "n_names_requested": 24,
+    "mkk_gateway": "TEST (apigwdev) \u2014 dar veri-snapshot'i",
+    "mkk_serving_band_observed": "liste-tabani ~2023-02; detail OK 2023-03..2023-11, ER005 2024-03+ ve 2026-05 (vintage-taramasi)",
+    "spot_sample_band": [
+      "2023-04-01",
+      "2023-11-30"
+    ],
+    "n_candidates": 24,
+    "api_calls_used": 24,
+    "n_compared": 24,
+    "n_exact_day": 24,
+    "exact_day_share": 1.0,
+    "n_errors": 0,
+    "evidence_rows": [
+      {
+        "symbol": "CEMAS",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216745,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "IEYHO",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216742,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "GSDHO",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216718,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "YGYO",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216691,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "IHLAS",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216658,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "SNGYO",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216630,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "HALKB",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216396,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "BERA",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216357,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "ULKER",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216355,
+        "kap_public_day": "2023-11-09",
+        "mkk_vyk_day": "2023-11-09",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "ADESE",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1216060,
+        "kap_public_day": "2023-11-08",
+        "mkk_vyk_day": "2023-11-08",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "EKGYO",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215962,
+        "kap_public_day": "2023-11-08",
+        "mkk_vyk_day": "2023-11-08",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "ENKAI",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215954,
+        "kap_public_day": "2023-11-08",
+        "mkk_vyk_day": "2023-11-08",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "AVOD",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215871,
+        "kap_public_day": "2023-11-08",
+        "mkk_vyk_day": "2023-11-08",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "PETKM",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215443,
+        "kap_public_day": "2023-11-08",
+        "mkk_vyk_day": "2023-11-08",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "IHEVA",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215401,
+        "kap_public_day": "2023-11-07",
+        "mkk_vyk_day": "2023-11-07",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "IHLGM",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215397,
+        "kap_public_day": "2023-11-07",
+        "mkk_vyk_day": "2023-11-07",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "DOHOL",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215224,
+        "kap_public_day": "2023-11-07",
+        "mkk_vyk_day": "2023-11-07",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "KATMR",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215183,
+        "kap_public_day": "2023-11-07",
+        "mkk_vyk_day": "2023-11-07",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "OZKGY",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1215171,
+        "kap_public_day": "2023-11-07",
+        "mkk_vyk_day": "2023-11-07",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "CIMSA",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1214655,
+        "kap_public_day": "2023-11-06",
+        "mkk_vyk_day": "2023-11-06",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "TUKAS",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1214570,
+        "kap_public_day": "2023-11-06",
+        "mkk_vyk_day": "2023-11-06",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "ALBRK",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1214072,
+        "kap_public_day": "2023-11-03",
+        "mkk_vyk_day": "2023-11-03",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "FORMT",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1212628,
+        "kap_public_day": "2023-10-31",
+        "mkk_vyk_day": "2023-10-31",
+        "exact_day_match": true
+      },
+      {
+        "symbol": "RTALB",
+        "fiscal_period": "2023Q3",
+        "disclosure_index": 1212118,
+        "kap_public_day": "2023-10-30",
+        "mkk_vyk_day": "2023-10-30",
+        "exact_day_match": true
+      }
+    ],
+    "status": "ok"
+  }
+}
