@@ -1,0 +1,113 @@
+{
+  "probe": "RR-Y1-015-B PEAD illikit-dilim harvest-fizibilite (RR-Y1-015 eklentisi)",
+  "timestamp_utc": "2026-06-11T00:20:02Z",
+  "no_performance_metrics": true,
+  "context": "RR-Y1-014 PEAD Stage-0 likit-evrende FAIL (NW-t -0.029). Olcum ON-KAYITLI olarak SADECE likit dilimi kapsadi; illikit ~%81 'harvest-edilemez' diye ON-DEKLARE-DISLANMISTI. Bu prob o dislamayi niceler \u2014 mezar-acmaz/diriltmez.",
+  "engine_touch": "SIFIR (src/engine + realistic_cost READ-ONLY import)",
+  "split_counts": {
+    "n_events_fy_window": 11373,
+    "n_sue_defined": 7890,
+    "n_daystamped": 7620,
+    "n_entry_in_panel": 7594,
+    "n_liquid_at_d0": 1473,
+    "n_illiquid_at_d0": 6121,
+    "illiquid_share_of_daystamped_panel": 0.806,
+    "liquidity_definition": "engine liquid_names (recon B7; RR-Y1-008 parite): trailing-63g medyan islem-degeri >= 10M TL, asof = duyuru-gunu (D0, point-in-time)"
+  },
+  "H1_costwall": {
+    "order_value_tl": 20000.0,
+    "cost_model": "D-207 round_trip_cost (Roll close-only spread + Kyle sqrt-impact + re-scaled tier-floor); panel close-only => quoted_spread YOK (spread_source roll/tier); event-hold = TEK round-trip/60g (gunluk-churn DEGIL)",
+    "illiquid": {
+      "n": 6110,
+      "round_trip_median": 0.022731,
+      "round_trip_p25": 0.010572,
+      "round_trip_p75": 0.041603,
+      "round_trip_p90": 0.065414,
+      "round_trip_mean": 0.138745,
+      "spread_source_counts": {
+        "roll": 3492,
+        "tier": 2618
+      },
+      "order_to_adv_ratio_median": 0.018063,
+      "order_to_adv_ratio_p90": 0.22811
+    },
+    "liquid_baseline": {
+      "n": 1473,
+      "round_trip_median": 0.011342,
+      "round_trip_p25": 0.003135,
+      "round_trip_p75": 0.027108,
+      "round_trip_p90": 0.040749,
+      "round_trip_mean": 0.016877,
+      "spread_source_counts": {
+        "roll": 864,
+        "tier": 609
+      },
+      "order_to_adv_ratio_median": 0.000729,
+      "order_to_adv_ratio_p90": 0.001712
+    },
+    "illiquid_vs_liquid_median_ratio": 2.004,
+    "pass_bars": {
+      "round_trip_pass_lt": 0.015,
+      "round_trip_fail_gt": 0.04
+    },
+    "verdict": "CONDITIONAL",
+    "interpretation": "Tek round-trip maliyeti illikit medyani; event-hold long-bacagi NET-pozitif olabilmesi icin 60-gun GROSS drift'in bu maliyeti asmasi gerekir. RR-Y1-014 likit-evrende gross'u zaten ~SIFIR olcmustu \u2014 maliyet bar'i yapisal referanstir."
+  },
+  "H2_stale_phantom": {
+    "metric_note": "sifir-getiri-gun-payi = veri-stale olcutu (fiyat-degisim VAR/YOK); kumulatif-getiri/drift/CAR HESAPLANMADI",
+    "illiquid": {
+      "n": 6121,
+      "zero_volume_day_share_median": 0.0,
+      "zero_volume_day_share_p90": 0.0333,
+      "zero_return_day_share_median": 0.0333,
+      "zero_return_day_share_p90": 0.1,
+      "entry_day_tradeable_share": 0.986,
+      "d0_tradeable_share": 0.9794
+    },
+    "liquid_baseline": {
+      "n": 1473,
+      "zero_volume_day_share_median": 0.0,
+      "zero_volume_day_share_p90": 0.0,
+      "zero_return_day_share_median": 0.0333,
+      "zero_return_day_share_p90": 0.1333,
+      "entry_day_tradeable_share": 0.998,
+      "d0_tradeable_share": 0.998
+    },
+    "pass_bars": {
+      "zero_volume_median_lt": 0.05,
+      "entry_tradeable_share_gt": 0.95
+    },
+    "verdict": "PASS",
+    "interpretation": "Yuksek stale/sifir-hacim => olculecek 'drift'in bir kismi gercek-alinabilir getiri degil, gecikmeli fiyat-yakalama HAYALETIDIR; ayrica giris-gunu islenemiyorsa pozisyon kurulamaz. Stale-price artefakti illikit-PEAD'in yapisal antagonistidir (clone1-lab dersi)."
+  },
+  "H3_capacity": {
+    "n_illiquid_name_pool": 432,
+    "n_illiquid_events": 6121,
+    "n_quarters": 28,
+    "n_illiquid_sue_per_quarter": {
+      "mean": 218.61,
+      "median": 229.5,
+      "min": 134,
+      "max": 327
+    },
+    "tercile_top_n": {
+      "mean": 73.11,
+      "median": 76.5,
+      "min": 45
+    },
+    "share_quarters_both_extremes_ge_5": 1.0,
+    "pass_bars": {
+      "extreme_bin_min_ok": 5,
+      "quarter_share_pass": 0.8
+    },
+    "verdict": "PASS",
+    "interpretation": "Illikit evren BUYUKTUR (olay-kutlesinin ~%81'i) -> kesitsel-genislik beklenen darbogaz DEGIL; baglayici kisitlar H1 (maliyet) + H2 (stale/phantom)."
+  },
+  "overall": {
+    "h1_costwall": "CONDITIONAL",
+    "h2_stale_phantom": "PASS",
+    "h3_capacity": "PASS",
+    "harvest_feasibility": "CONDITIONAL-NEGATIVE",
+    "note": "Kesitsel-genislik (H3) BOL ve dilim hala-isler (H2 PASS \u2014 stale/phantom ON-YARGISI bu bantta DESTEKLENMEDI: likidite-tabani zaten olu-mikrocaplari eler). Baglayici kisit H1: illikit medyan tek round-trip ~2x-likit, kuyruk uninvestable (p90 ve mean cok-yuksek; ince isimde emir ADV'nin buyuk-payi). Bu KNOCKOUT degil maliyet-KAPISI: 60-gun event-hold long-bacagi icin medyan isim >medyan-RT gross drift gerektirir, kuyruk fiilen alinamaz. RR-Y1-014 LIKIT gross'u ~SIFIR olctu (decay-karsi-prior); illikit gross icin POZITIF prior YOK. Sonuc: harvest-fizibilite CONDITIONAL-NEGATIF \u2014 illikit 'bedava ogun' DEGIL; pesine dusmek YENI on-kayitli Stage-0 gerektirir (post-hoc-YASAK) ve dusuk-beklenen-deger. Bu prob PERFORMANS-HUKMU vermez; RR-Y1-014 likit-FAIL'inin actigi 'ya illikit' sorusunu fizibilite-tarafindan kapatir. Stage-0 karari / graveyard-kaydi ayri degerlendirme adimidir."
+  }
+}
