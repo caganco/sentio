@@ -1,0 +1,116 @@
+{
+  "task": "RR-Y1-014 PEAD Stage-0 olcumu",
+  "stage0": "docs\\yol1\\STAGE0_PEAD_SUE1_TERCILE.json",
+  "stage0_snapshot_hash16": "e5dddae304d686cb",
+  "lockbox_hash": "5b0e50ec5854663f",
+  "timestamp_utc": "2026-06-10T23:49:59Z",
+  "n_events": 1473,
+  "n_event_names": 184,
+  "full_panel_engine_output": {
+    "gross_active_ann": -0.0011997811079416138,
+    "net_active_ann": -0.07283490502363017,
+    "cost_ann": 0.06713512391568856,
+    "tax_ann": 0.0045,
+    "mean_rt_bps": 71.39080567915099,
+    "null_percentile": null,
+    "mirror_active_ann": null,
+    "real_active_ann": -0.3301359003810652,
+    "benchmark_floor_ann": 0.3841092476874126,
+    "beats_benchmark_floor": false,
+    "pbo": null,
+    "deflated_oos_t": null,
+    "dsr": 0.6797716002964969,
+    "dsr_n_trials": 1,
+    "nw_t": -0.028839060702710462,
+    "agreement_pass": false,
+    "agreement_t_cross_median": null,
+    "sign_consistency": null,
+    "residual_cross_sectional_corr": null,
+    "residual_corr_flag": false,
+    "agreement_confidence": "low",
+    "agreement_confidence_reasons": [
+      "arm=0 < 50 (underpowered breadth)",
+      "R=0 < 50 (too few name-splits)"
+    ],
+    "holdout_persistence_pass": null,
+    "holdout_ic_t": null,
+    "holdout_ic_mean": null,
+    "train_ic_t": null,
+    "train_ic_mean": null,
+    "holdout_sign_consistent": null,
+    "n_holdout_obs": null,
+    "n_train_obs": null,
+    "holdout_confidence": null,
+    "holdout_confidence_reasons": [],
+    "per_regime": {
+      "pre_2022": {
+        "active_ann": -0.011878834506967556,
+        "n_obs": 452.0
+      },
+      "post_2022": {
+        "active_ann": 0.004116223447520624,
+        "n_obs": 908.0
+      }
+    },
+    "plateau_map": {
+      "tercile_h1": -0.0011997811079416138,
+      "tercile_h2": -0.011067557858115005,
+      "decile_h1": -0.05483022879616855,
+      "decile_h2": -0.07305351169785221
+    },
+    "pm1_guard_raised": true,
+    "guard_messages": [
+      "TLREF floor window [2019-10-30, 2026-05-25] straddles the pre-2022-07 silent-NaN region (d213 precedent); floor falls back to TUFE-only for this window.",
+      "only 38 eligible names; need >= 100 for two arms of 50 (Section 3.3)"
+    ],
+    "n_obs": 1360,
+    "n_names": 681,
+    "split_mode": "A+B",
+    "notes": [
+      "null_percentile / mirror_active_ann: not produced by the Faz-2 legs -- left None (fair-null resampler is out of Faz-3 scope)",
+      "deflated_oos_t: cut-family (anchored/rolling/expanding) deflation not wired in Faz-3 -- left None"
+    ]
+  },
+  "x1": {
+    "label": "X1 (gelistirme-yarisi, kayit)",
+    "n_obs": 1410,
+    "n_names_held": 71,
+    "min_names_floor": 15,
+    "nw_lag": 5,
+    "nw_t": 0.07813864351827926,
+    "gross_active_ann": 0.0044526789815043984,
+    "d0": "2019-11-04",
+    "d1": "2026-05-25"
+  },
+  "x2": {
+    "label": "X2 (lockbox, tek-atis)",
+    "n_obs": 1404,
+    "n_names_held": 73,
+    "min_names_floor": 15,
+    "nw_lag": 5,
+    "nw_t": -0.4860675891919158,
+    "gross_active_ann": -0.03236426418514982,
+    "d0": "2019-08-20",
+    "d1": "2026-05-25"
+  },
+  "keep_bar": {
+    "nw_t_min": 2.0,
+    "nw_t_full": -0.028839060702710462,
+    "nw_t_x2": -0.4860675891919158,
+    "cond_full": false,
+    "cond_x2": false,
+    "keep_bar_pass": false
+  },
+  "x1_looks_used": [
+    {
+      "at_utc": "2026-06-10T18:01:49Z",
+      "n_obs": 1410,
+      "purpose": "implementation-verification"
+    },
+    {
+      "at_utc": "2026-06-10T23:49:07Z",
+      "n_obs": 1410,
+      "purpose": "implementation-verification"
+    }
+  ]
+}

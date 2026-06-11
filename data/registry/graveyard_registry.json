@@ -14,7 +14,8 @@
     ],
     "entry_count": 14,
     "pending_count": 1,
-    "absent_count": 4
+    "absent_count": 4,
+    "phase5_localization": "See localization_phase5 (cross-repo localization + status verification of the Phase-2 absent items). Localization only; no revival, no recompute. C7/C8/C9 + DEC-054 + S#13/15/16 = UNLOCATED; NRR-009 + DEC-053 = LOCATED-PARTIAL; Grup-C = LOCATED-VERIFIED."
   },
 
   "entries": [
@@ -430,28 +431,121 @@
       "axis": "event-tilt",
       "directive_refs": ["C7 (düşen-bıçak)", "S#13"],
       "artifact_status": "ABSENT_FROM_MASTER",
-      "note": "Referenced by RR-Y1-015 §1 background but no C7 event-tilt graveyard artifact (report / Stage-0 / results / code) located in this repository's master branch. The 'C7' tokens in master belong to the unrelated RR-Y1-005 validation-engine contract namespace. Likely lives in an unmerged branch. Recorded as a gap, not fabricated."
+      "localization_status": "UNLOCATED",
+      "located_repo": null,
+      "located_path": null,
+      "verified_metric": null,
+      "note": "Referenced by RR-Y1-015 §1 background but no C7 event-tilt graveyard artifact (report / Stage-0 / results / code) located in this repository's master branch. The 'C7' tokens in master belong to the unrelated RR-Y1-005 validation-engine contract namespace. Phase-5 cross-repo sweep (lab-demo-goal/ in all 3 sentio clones + the research/edge-discovery-lab branch, all origin/* branches, all local feature branches, bist-flow-intel, _ballast_clone, bist_yol2, bist-ts-gitbackup, bist-backups folder) found ZERO falling-knife/düşen-bıçak artifact anywhere. The lab tested L1-L23; none is an event-tilt falling-knife candidate. Status hardened from 'likely unmerged' to UNLOCATED. Recorded as a gap, not fabricated."
     },
     {
       "candidate_id": "event_tilt_c8_core_satellite",
       "axis": "event-tilt",
       "directive_refs": ["C8 (core-satellite)", "S#13"],
       "artifact_status": "ABSENT_FROM_MASTER",
-      "note": "No C8 core-satellite event-tilt artifact in master. See consistency audit."
+      "localization_status": "UNLOCATED",
+      "located_repo": null,
+      "located_path": null,
+      "verified_metric": null,
+      "note": "No C8 core-satellite event-tilt artifact in master. Phase-5 cross-repo sweep found no measurement artifact in any repo/branch; 'core-satellite' appears only as prose in RR-Y1.md. UNLOCATED. See LOCALIZATION_REPORT.md."
     },
     {
       "candidate_id": "event_tilt_c9_sector_tilt",
       "axis": "event-tilt",
       "directive_refs": ["C9 (sektör-tilt)", "S#13"],
       "artifact_status": "ABSENT_FROM_MASTER",
-      "note": "No C9 sector-tilt event-tilt artifact in master. See consistency audit."
+      "localization_status": "UNLOCATED",
+      "located_repo": null,
+      "located_path": null,
+      "verified_metric": null,
+      "note": "No C9 sector-tilt event-tilt artifact in master. Phase-5 cross-repo sweep found nothing in any repo/branch. UNLOCATED. See LOCALIZATION_REPORT.md."
     },
     {
       "candidate_id": "fund_nav_arb_nrr009",
       "axis": "cross-sectional",
       "directive_refs": ["NRR-009", "RR-045"],
       "artifact_status": "ABSENT_FROM_MASTER",
-      "note": "RR-045 records 'NRR-009 ucuz-on-bakis TETIKLENDI' (fund/CEF NAV-arb cheap preview triggered) but no NRR-009 report / Stage-0 / results exist in master docs/research. Distinct mechanism from D-206 holding-discount (which IS present). Recorded as a triggered-but-not-merged axis."
+      "localization_status": "LOCATED-PARTIAL",
+      "located_repo": "this repo's LOCAL working tree; git-EXCLUDED via .git/info/exclude — not committed, not on any branch, not pushed",
+      "located_path": "investigate/NRR-009-mkyo-nav-prob.md",
+      "verified_metric": {
+        "name": "observational NAV-proxy discount (transcribed, NOT a frozen 5-gate test)",
+        "value": "8/8 MKYO median PBV 2.0–6.9 (= persistent 2x–7x PREMIUM; thesis-opposite)",
+        "threshold": "NOT-APPLICABLE",
+        "note": "Self-described 'gozlemsel on-bakis, tam-test-DEGIL' (observational preview, NOT a full test). PROB-HUKMU: OLUMSUZ — SERAP-flag (paradigm closes). Long-only discount mean-reversion absent; the only positive-discount months are rare tails. NAV-proxy = degoran equity/mktval (local), cross-confirmed by a KAP headline (ISYAT ~2.12)."
+      },
+      "note": "Phase-5 UPDATE: RR-045 (committed, master) records the 'NRR-009 ucuz-on-bakis TETIKLENDI' trigger; the preview itself was then RUN locally and located at investigate/NRR-009-mkyo-nav-prob.md in this repo's working tree. It is git-EXCLUDED scratch — never committed, no Stage-0 / results JSON / test / 5-gate. Its own verdict LEANS MORE NEGATIVE (double-elimination: RR-045 N=9-weak PLUS wrong-sign persistent premium), not a revival. Status: located as an uncommitted observational preview; the fund/CEF NAV-arb axis remains NOT a committed measured grave. This is a localization finding, NOT a status upgrade and NOT a revival warrant."
     }
-  ]
+  ],
+
+  "localization_phase5": {
+    "purpose": "RR-Y1-015 Phase-5 cross-repo localization + status verification of items the Phase-2 consistency audit flagged ABSENT from master. Localization, NOT revival: nothing was re-run, re-parametrized, or sign-flipped (DEC-053/DISC-9). Metrics/rulings are transcribed from located artifacts; never recomputed or fabricated.",
+    "repos_searched": [
+      "main repo (master + all origin/* branches; lab-demo-goal/ on disk)",
+      "parallel local working copies, shared origin (full origin/* set + all local feature/research branches: rr-y1-011-*, rr-y1-013/014, viop-*, rry1009/1010, rr-y1-010; lab-demo-goal/ on disk)",
+      "this working tree (incl. git-excluded investigate/)",
+      "research/edge-discovery-lab branch (lab L1-L23, PR #189)",
+      "Yol-2 repos (main + chore branches)",
+      "flow/insider repo (master + 2 branches)",
+      "historical git backups + a dated backup folder snapshot"
+    ],
+    "records": [
+      {
+        "item": "C7 / falling-knife / düşen-bıçak (event-tilt)",
+        "localization_status": "UNLOCATED",
+        "evidence": "No report/Stage-0/results/code in any repo, branch, or backup. Lab (L1-L23) has no falling-knife candidate. Bare 'C7' tokens belong to the unrelated RR-Y1-005 contract namespace.",
+        "status_effect": "Hardened from 'likely-unmerged' to UNLOCATED. Graveyard claim remains undocumented (no metric existed to lose)."
+      },
+      {
+        "item": "C8 / core-satellite (event-tilt)",
+        "localization_status": "UNLOCATED",
+        "evidence": "Only prose in RR-Y1.md; no measurement artifact anywhere searched.",
+        "status_effect": "UNLOCATED; undocumented claim."
+      },
+      {
+        "item": "C9 / sektör-tilt (event-tilt)",
+        "localization_status": "UNLOCATED",
+        "evidence": "No artifact in any repo/branch/backup.",
+        "status_effect": "UNLOCATED; undocumented claim."
+      },
+      {
+        "item": "NRR-009 / fund-CEF NAV-arb (fon-arb)",
+        "localization_status": "LOCATED-PARTIAL",
+        "located_repo": "this repo's working tree (git-excluded local scratch)",
+        "located_path": "investigate/NRR-009-mkyo-nav-prob.md",
+        "transcribed": "Observational preview (tam-test-DEGIL); PROB-HUKMU OLUMSUZ / SERAP-flag; 8/8 MKYO median PBV 2.0–6.9 = persistent premium (thesis-opposite); long-only discount-MR absent.",
+        "status_effect": "Preview LEANS MORE NEGATIVE (double-elimination), not a revival. Axis stays an uncommitted, previewed-negative item — NOT a committed measured grave."
+      },
+      {
+        "item": "DEC-053 (sign-flip / post-hoc rescue ban)",
+        "localization_status": "LOCATED-PARTIAL",
+        "located_repo": "master (cross_references.json) + an unmerged PEAD branch (Stage-0)",
+        "located_path": "data/registry/cross_references.json → LAW-sign-flip-ban (master); docs/yol1/STAGE0_PEAD_SUE1_TERCILE.json (branch feature/rr-y1-014-pead-stage0, READ-ONLY)",
+        "transcribed": "Operative rule frozen in PEAD Stage-0 fail_tanimi: '… -> MEZAR (DEC-053). Sign-flip yasak …' The governing discipline is enforced; only a standalone DEC-053 ledger entry in docs/decisions/ is absent (ledger tops out at DEC-046).",
+        "status_effect": "Rule exists and is enforced; numbered ledger entry unwritten. Maintainer decision whether to backfill the DEC ledger row."
+      },
+      {
+        "item": "DEC-054 (index-recon decision)",
+        "localization_status": "UNLOCATED",
+        "located_repo": null,
+        "located_path": "referenced only as dec_ref on the index_recon_xu030_in entry",
+        "transcribed": "No decision text exists in any repo/branch. The closure it would formalize IS fully recorded as a master artifact: docs/yol1/graveyard/INDEX_RECON_XU030_IN.md (KB1 NW-t 0.052, KB2 sign-flip, SERAP).",
+        "status_effect": "No ledger record; the underlying verdict is independently documented. Maintainer decision whether to write DEC-054."
+      },
+      {
+        "item": "S#13 / S#15 / S#16 (session labels)",
+        "localization_status": "UNLOCATED",
+        "transcribed": "Never committed in any repo; conversational/directive-framing labels only (cf. S#14 appears once inline in RR-Y1-005-FAZ1-RECON narrative).",
+        "status_effect": "Confirmed conversational-only; not a record-keeping gap."
+      },
+      {
+        "item": "Grup-C: D-185 / D-186 / D-187 + PA-/TA-paradigm + edge2_composite",
+        "localization_status": "LOCATED-VERIFIED",
+        "located_repo": "master",
+        "located_path": "docs/RESEARCH_REGISTRY.md rows RR-038 / RR-039 / RR-Y1 (+ edge2_composite already a registry entry)",
+        "transcribed": "D-185 INCONCLUSIVE -> D-186 KESİN: GECMEZ (entry-alpha, 5-agent verified) -> D-187 active-timing GECMEZ (200-MA switch real -5.7%, random-null pctile 0.17). 3rd prediction-failure; RR-038 thesis (cost/exposure discipline > prediction) confirmed.",
+        "status_effect": "Verdict sources present in master; no dedicated graveyard-doc but fully recorded. No gap."
+      }
+    ],
+    "discipline_check": "All repos read-only; no candidate re-run/re-parametrized; metrics transcribed not recomputed; status changes are findings (UNLOCATED / LOCATED-PARTIAL), never revival proposals; UNLOCATED items honestly marked (no invented locations); only this branch's registry/docs were written."
+  }
 }
