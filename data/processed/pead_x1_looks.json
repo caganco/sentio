@@ -1,0 +1,12 @@
+[
+  {
+    "at_utc": "2026-06-10T18:01:49Z",
+    "n_obs": 1410,
+    "purpose": "implementation-verification"
+  },
+  {
+    "at_utc": "2026-06-10T23:49:07Z",
+    "n_obs": 1410,
+    "purpose": "implementation-verification"
+  }
+]
