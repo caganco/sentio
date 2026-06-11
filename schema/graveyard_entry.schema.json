@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/caganco/bist-trading-system/schema/graveyard_entry.schema.json",
+  "title": "Graveyard Entry",
+  "description": "Machine-readable record of one eliminated edge-research candidate. Negative-knowledge registry (RR-Y1-015). Records existing FAIL knowledge only; introduces no new edge metric and revives no candidate (DEC-053/DISC-9 spirit).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidate_id",
+    "axis",
+    "directive_refs",
+    "verdict",
+    "primary_metric",
+    "why",
+    "reproducible",
+    "revival_status"
+  ],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "description": "Stable kebab/snake id, e.g. hi52, viop_ssf_oi_k2, index_recon_xu030_in.",
+      "minLength": 1
+    },
+    "axis": {
+      "type": "string",
+      "enum": [
+        "cross-sectional",
+        "orthogonal-timing",
+        "event-tilt",
+        "derivative-oi",
+        "mechanical-flow",
+        "infrastructure-law"
+      ],
+      "description": "Elimination axis. 'infrastructure-law' = graveyard code that produced a permanent design invariant rather than an edge verdict (e.g. PM-1)."
+    },
+    "title": {
+      "type": "string",
+      "description": "Short human-readable title."
+    },
+    "directive_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Directive / research IDs (D-NNN, NRR-NNN, RR-Y1-NNN). At least one required.",
+      "minItems": 1
+    },
+    "pr_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "GitHub PR numbers that merged the artifact (e.g. '#172'). Empty if not located in master history."
+    },
+    "verdict": {
+      "type": "string",
+      "description": "Recorded verdict, verbatim taxonomy used across the project.",
+      "enum": [
+        "SERAP",
+        "FAIL",
+        "TRADEABLE-DEGIL",
+        "KESIN-KAPANDI",
+        "FRAGILE",
+        "REAL-EDGE-NOT-DEPLOYED",
+        "LAW-PRODUCING",
+        "PENDING",
+        "UNKNOWN"
+      ]
+    },
+    "deployable": {
+      "type": "boolean",
+      "description": "Whether the candidate is deployable as an edge. false for every eliminated candidate; null/omitted for LAW-PRODUCING and PENDING."
+    },
+    "primary_metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value", "threshold"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Metric that carried the verdict, e.g. NW-t (cost-free gate2), FE-within-beta, KB1 NW-t."
+        },
+        "value": {
+          "description": "Recorded value. Number when recorded; the literal string 'NOT-RECORDED' when no metric exists in the artifacts.",
+          "type": ["number", "string"]
+        },
+        "threshold": {
+          "description": "Keep-bar threshold the metric was judged against (number) or 'NOT-APPLICABLE'.",
+          "type": ["number", "string"]
+        },
+        "direction": {
+          "type": "string",
+          "description": "Pass direction, e.g. '>=' or 'abs >='."
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional one-line clarification (e.g. illiquid-driven ALL-universe statistic vs deployable liquid)."
+        }
+      }
+    },
+    "why": {
+      "type": "string",
+      "description": "FAIL mechanism, single honest paragraph. No softening, no fabrication.",
+      "minLength": 1
+    },
+    "graveyard_doc": {
+      "type": ["string", "null"],
+      "description": "Path to the dedicated graveyard markdown, or null if none exists."
+    },
+    "stage0_json": {
+      "type": ["string", "null"],
+      "description": "Path to the pre-registered Stage-0 JSON, or null."
+    },
+    "results_json": {
+      "type": ["string", "null"],
+      "description": "Path to the recorded results JSON, or null."
+    },
+    "code_modules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Strangler-isolated code modules (read-only; never deleted/modified by this task)."
+    },
+    "test_modules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Committed test modules that pin this candidate's harness/verdict logic."
+    },
+    "reproducible": {
+      "type": "string",
+      "enum": ["VERIFIED", "STALE", "NOT-CHECKED", "NO-FIXTURE"],
+      "description": "Reproducibility status. VERIFIED = committed determinism/harness tests pass. STALE = recorded result no longer reproduces (code-drift finding; verdict unchanged). NO-FIXTURE = no committed deterministic vector / input data git-ignored. NOT-CHECKED = not evaluated."
+    },
+    "reproducible_note": {
+      "type": "string",
+      "description": "What exactly was (or could not be) reproduced."
+    },
+    "session_closed": {
+      "type": ["string", "null"],
+      "description": "Session label at closure (e.g. S#15) or null if not labeled in master."
+    },
+    "dec_ref": {
+      "type": ["string", "null"],
+      "description": "Architectural decision id (DEC-NNN). May reference a decision not yet merged to master (flagged in consistency audit)."
+    },
+    "revival_status": {
+      "type": "string",
+      "enum": ["PERMANENT", "save/wait", "N/A"],
+      "description": "PERMANENT = revival forbidden (post-hoc chain blocked / no clean X_2). save/wait = eliminated in current universe but a future clean regime/universe could re-warrant a fresh Stage-0. N/A = law or active research."
+    },
+    "revival_note": {
+      "type": "string",
+      "description": "Why PERMANENT vs save/wait."
+    }
+  }
+}
