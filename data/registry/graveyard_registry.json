@@ -15,7 +15,7 @@
     "entry_count": 14,
     "pending_count": 1,
     "absent_count": 4,
-    "phase5_localization": "See localization_phase5 (cross-repo localization + status verification of the Phase-2 absent items). Localization only; no revival, no recompute. C7/C8/C9 + DEC-054 + S#13/15/16 = UNLOCATED; NRR-009 + DEC-053 = LOCATED-PARTIAL; Grup-C = LOCATED-VERIFIED."
+    "phase5_localization": "See localization_phase5 (cross-repo localization + status verification of the Phase-2 absent items). Localization only; no revival, no recompute. C7/C8/C9 = LOCATED-VERIFIED in lab-demo-clone1 (committed-motor C-series; measured-NEGATIVE — CORRECTS the Phase-2 'absent' / early-Phase-5 'UNLOCATED' finding, which searched the wrong sibling lab); Grup-C = LOCATED-VERIFIED; NRR-009 + DEC-053 = LOCATED-PARTIAL; DEC-054 + S#13/15/16 = UNLOCATED."
   },
 
   "entries": [
@@ -429,35 +429,50 @@
     {
       "candidate_id": "event_tilt_c7_falling_knife",
       "axis": "event-tilt",
-      "directive_refs": ["C7 (düşen-bıçak)", "S#13"],
-      "artifact_status": "ABSENT_FROM_MASTER",
-      "localization_status": "UNLOCATED",
-      "located_repo": null,
-      "located_path": null,
-      "verified_metric": null,
-      "note": "Referenced by RR-Y1-015 §1 background but no C7 event-tilt graveyard artifact (report / Stage-0 / results / code) located in this repository's master branch. The 'C7' tokens in master belong to the unrelated RR-Y1-005 validation-engine contract namespace. Phase-5 cross-repo sweep (lab-demo-goal/ in all 3 sentio clones + the research/edge-discovery-lab branch, all origin/* branches, all local feature branches, bist-flow-intel, _ballast_clone, bist_yol2, bist-ts-gitbackup, bist-backups folder) found ZERO falling-knife/düşen-bıçak artifact anywhere. The lab tested L1-L23; none is an event-tilt falling-knife candidate. Status hardened from 'likely unmerged' to UNLOCATED. Recorded as a gap, not fabricated."
+      "directive_refs": ["C7 (düşen-bıçak / negative-veto)", "S#13"],
+      "artifact_status": "LOCATED_IN_LAB (lab-demo-clone1; CORRECTS Phase-2 ABSENT_FROM_MASTER)",
+      "localization_status": "LOCATED-VERIFIED",
+      "located_repo": "lab-demo-clone1 (CONSTRUCTION-as-EDGE lab; git-excluded local sibling lab, present in one working copy; same lab that produced the committed C9/C12 golden fixtures; production repo read-only by design)",
+      "located_path": "harness/c7_negative_veto.py + stage0/STAGE0_C7_negative_veto.json + results/c7_negative_veto_results.json + notes/C7_negative_veto.md",
+      "verified_metric": {
+        "name": "negative-selection VETO keep-bar (5 conditions, LIQUID-deployable)",
+        "value": "verdict.deployable_veto_edge = FALSE; identifiable_not_monetizable = TRUE",
+        "threshold": "5/5 in LIQUID",
+        "note": "Best lens V3 falling-knife: LIQUID 4/5 (NEAR-MISS, fails only regime-stability; uplift +1.13%/yr, precision 0.573 NW-t 2.58); ALL-universe 5/5 'WIN' but ALL is NOT the tradeable LIQUID universe (liquidity-mirage pattern, same as the rest of the graveyard). V1/V2/V4 fail. NOT a deployable edge."
+      },
+      "note": "CORRECTION (Phase-5, prompted by the C11/C12 lead): C7 is NOT absent and NOT an unrelated contract token. It is the committed-motor C-series candidate `c7_negative_veto` in lab-demo-clone1 — the directive's 'düşen-bıçak' = negative/falling-knife veto. Full artifact set (harness + frozen Stage-0 + results + notes) present and internally consistent → LOCATED-VERIFIED. Measured-NEGATIVE (identifiable-but-not-monetizable); belongs to the negative-knowledge set, no revival. The earlier UNLOCATED finding searched the wrong sibling lab (lab-demo-goal) under the wrong token frame; corrected here."
     },
     {
       "candidate_id": "event_tilt_c8_core_satellite",
       "axis": "event-tilt",
       "directive_refs": ["C8 (core-satellite)", "S#13"],
-      "artifact_status": "ABSENT_FROM_MASTER",
-      "localization_status": "UNLOCATED",
-      "located_repo": null,
-      "located_path": null,
-      "verified_metric": null,
-      "note": "No C8 core-satellite event-tilt artifact in master. Phase-5 cross-repo sweep found no measurement artifact in any repo/branch; 'core-satellite' appears only as prose in RR-Y1.md. UNLOCATED. See LOCALIZATION_REPORT.md."
+      "artifact_status": "LOCATED_IN_LAB (lab-demo-clone1; CORRECTS Phase-2 ABSENT_FROM_MASTER)",
+      "localization_status": "LOCATED-VERIFIED",
+      "located_repo": "lab-demo-clone1 (git-excluded local sibling lab)",
+      "located_path": "harness/c8_core_satellite.py (+ c8b/c8c variants) + stage0/STAGE0_C8_core_satellite.json + results/c8_core_satellite_results.json + notes/C8_core_satellite.md",
+      "verified_metric": {
+        "name": "core-satellite 80/20 V3 re-tilt keep-bar (5 conditions, LIQUID smarter-beta)",
+        "value": "verdict.deployable_smarter_beta_liquid = FALSE (4/5; fails only decisiveness vs random 80/20 tilt, 91.4th pctile < 95th bar)",
+        "threshold": "5/5 in LIQUID",
+        "note": "RISK-REDUCING-BUT-NOT-FREE: a=0.80 V3 tilt cuts the left tail with correct sign at no CAGR cost (+0.26%/yr, DD -34.04% vs EW -34.31%, regime-stable, mirror hurts) but the DD reduction is not statistically decisive against a generic random 80/20 tilt. NOT a deployable edge."
+      },
+      "note": "CORRECTION (Phase-5): C8 is the committed-motor C-series candidate `c8_core_satellite` in lab-demo-clone1 (directive's 'core-satellite', exact). Full artifact set present → LOCATED-VERIFIED. Measured-NEGATIVE (not decisively better than a generic tilt); negative-knowledge, no revival."
     },
     {
       "candidate_id": "event_tilt_c9_sector_tilt",
       "axis": "event-tilt",
-      "directive_refs": ["C9 (sektör-tilt)", "S#13"],
-      "artifact_status": "ABSENT_FROM_MASTER",
-      "localization_status": "UNLOCATED",
-      "located_repo": null,
-      "located_path": null,
-      "verified_metric": null,
-      "note": "No C9 sector-tilt event-tilt artifact in master. Phase-5 cross-repo sweep found nothing in any repo/branch. UNLOCATED. See LOCALIZATION_REPORT.md."
+      "directive_refs": ["C9 (sektör-tilt / event sector-tilt)", "S#13"],
+      "artifact_status": "LOCATED_IN_LAB (lab-demo-clone1; CORRECTS Phase-2 ABSENT_FROM_MASTER)",
+      "localization_status": "LOCATED-VERIFIED",
+      "located_repo": "lab-demo-clone1 (git-excluded local sibling lab; note: the c9 module's `_nw_t` convention is also the lineage of the committed C9/C12 golden NW anchor in master)",
+      "located_path": "harness/c9_event_sector_tilt.py + stage0/STAGE0_C9.json + results/c9_event_sector_tilt_results.json + notes/C9_event_sector_tilt.md",
+      "verified_metric": {
+        "name": "event-driven winner-sector post-shock relative drift keep-bar (LIQUID, [T+1,+20])",
+        "value": "keep_bar.PASS = FALSE; D1 sign-test FAIL (3/9 positive, p=0.910); net_t_nw +0.629",
+        "threshold": "sign-test p<0.05 AND net-mean>0 AND drop-one-robust",
+        "note": "net mean rel-EW [T+1,+20] = +1.26% (gross +2.06%) but driven by 2-3 spectacular shocks; sign-test refuses to certify (3/9). N=9 frozen events (T1=2/T2=4/T3=3); GATE-0 data-feasibility + count PASS. VERDICT NEGATIVE: winner-sector drift already priced / inconsistent, NOT tradeable."
+      },
+      "note": "CORRECTION (Phase-5): C9 is the committed-motor C-series candidate `c9_event_sector_tilt` in lab-demo-clone1 (directive's 'sektör-tilt', exact). Full artifact set present → LOCATED-VERIFIED. Measured-NEGATIVE (pre-registered keep-bar fails on the sign-test); negative-knowledge, no revival."
     },
     {
       "candidate_id": "fund_nav_arb_nrr009",
@@ -490,22 +505,28 @@
     ],
     "records": [
       {
-        "item": "C7 / falling-knife / düşen-bıçak (event-tilt)",
-        "localization_status": "UNLOCATED",
-        "evidence": "No report/Stage-0/results/code in any repo, branch, or backup. Lab (L1-L23) has no falling-knife candidate. Bare 'C7' tokens belong to the unrelated RR-Y1-005 contract namespace.",
-        "status_effect": "Hardened from 'likely-unmerged' to UNLOCATED. Graveyard claim remains undocumented (no metric existed to lose)."
+        "item": "C7 / falling-knife / düşen-bıçak (negative-veto)",
+        "localization_status": "LOCATED-VERIFIED",
+        "located_repo": "lab-demo-clone1 (git-excluded local sibling lab)",
+        "located_path": "harness/c7_negative_veto.py + stage0 + results + notes/C7_negative_veto.md",
+        "transcribed": "verdict.deployable_veto_edge=FALSE / identifiable_not_monetizable=TRUE. V3 falling-knife LIQUID 4/5 (fails regime-stability; +1.13%/yr, precision 0.573 NW-t 2.58); ALL 5/5 but ALL-universe (liquidity-mirage), not tradeable LIQUID.",
+        "status_effect": "CORRECTS Phase-2/early-Phase-5 'absent/UNLOCATED' (wrong sibling lab searched). LOCATED-VERIFIED, measured-NEGATIVE — negative-knowledge, no revival."
       },
       {
-        "item": "C8 / core-satellite (event-tilt)",
-        "localization_status": "UNLOCATED",
-        "evidence": "Only prose in RR-Y1.md; no measurement artifact anywhere searched.",
-        "status_effect": "UNLOCATED; undocumented claim."
+        "item": "C8 / core-satellite",
+        "localization_status": "LOCATED-VERIFIED",
+        "located_repo": "lab-demo-clone1 (git-excluded local sibling lab)",
+        "located_path": "harness/c8_core_satellite.py (+c8b/c8c) + stage0 + results + notes/C8_core_satellite.md",
+        "transcribed": "verdict.deployable_smarter_beta_liquid=FALSE (4/5; fails only decisiveness vs random 80/20 tilt, 91.4th<95th). RISK-REDUCING-BUT-NOT-FREE (+0.26%/yr, DD -34.04% vs EW -34.31%).",
+        "status_effect": "CORRECTS Phase-2 'absent'. LOCATED-VERIFIED, measured-NEGATIVE — no revival."
       },
       {
-        "item": "C9 / sektör-tilt (event-tilt)",
-        "localization_status": "UNLOCATED",
-        "evidence": "No artifact in any repo/branch/backup.",
-        "status_effect": "UNLOCATED; undocumented claim."
+        "item": "C9 / sektör-tilt / event sector-tilt",
+        "localization_status": "LOCATED-VERIFIED",
+        "located_repo": "lab-demo-clone1 (git-excluded local sibling lab; c9 `_nw_t` is also the committed C9/C12 golden-anchor lineage)",
+        "located_path": "harness/c9_event_sector_tilt.py + stage0/STAGE0_C9.json + results + notes/C9_event_sector_tilt.md",
+        "transcribed": "keep_bar.PASS=FALSE, D1 sign-test FAIL (3/9, p=0.910), net_t_nw +0.629, net rel-EW [T+1,+20] +1.26% (driven by 2-3 shocks). N=9 events. VERDICT NEGATIVE (already priced/inconsistent).",
+        "status_effect": "CORRECTS Phase-2 'absent'. LOCATED-VERIFIED, measured-NEGATIVE — no revival."
       },
       {
         "item": "NRR-009 / fund-CEF NAV-arb (fon-arb)",
