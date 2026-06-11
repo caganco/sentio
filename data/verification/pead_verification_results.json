@@ -1,0 +1,188 @@
+{
+  "task": "RR-Y1-014-V PEAD-FAIL olcum-dogrulama (measurement-verification)",
+  "timestamp_utc": "2026-06-11T00:56:48Z",
+  "scope": "PEAD-adayi YENIDEN-OLCULMEDI (DEC-053); yalniz kontroller/transform/placebo. committed-motor + runner-primitifleri AYNI-kod-yolu read-only.",
+  "frozen_expectations_FAZ0": {
+    "A1a_positive_control": "nw_t >= 2.0 ve isaret POZITIF (pipeline injekte-drifti bulur)",
+    "A2_microcase_active": "aktif-getiri serisi el-hesabiyla EXACT (|fark| < 1e-9)",
+    "A2_nw_zero_mean": "mean-sifir simetrik seri -> |nw_t| < 1e-9",
+    "A2_nw_positive": "pozitif-ortalama seri -> nw_t > 0",
+    "B1_sign_reversal": "injekte-panelde sinyal-negatiflenince nw_t ISARET-DONER (negatif)",
+    "B2_label_shuffle": "injekte-panelde isim-permutasyonu -> |nw_t| < 1.0 (link kirilir)",
+    "B3_lookahead_peek": "gercek-panelde giris-1g-erken -> |nw_t| < 1.0 (SICRAMA-yok=sizinti-yok)",
+    "B4_safe_shift": "gercek-panelde giris-1g-gec -> |nw_t| < 1.0 (sicrama-yok)",
+    "B5_rank_invariance": "monoton-yeniden-olcekle (x^3) -> aktif-getiri DEGISMEZ (|fark| < 1e-9)",
+    "B7_benchmark_self": "frac=1.0 (top=tum-evren) -> aktif == 0 EXACT (max|aktif| < 1e-10)",
+    "C1_pure_noise": "rastgele-skor (gercek-pencere) -> |ortalama nw_t| < 1.0, ~0-merkezli",
+    "C3_pre_event_placebo": "duyuru-ONCESI pencere -> |nw_t| < 1.0 (olay-penceresi/join temiz)"
+  },
+  "pipeline": {
+    "n_events": 1473,
+    "n_names": 184,
+    "snapshot_hash16": "e5dddae304d686cb",
+    "rr_y1_014_verdict": "FAIL (nw_t_full -0.029, nw_t_x2 -0.486)"
+  },
+  "FAZ1_differential": {
+    "A1a_positive_control": {
+      "control": "A1a_positive_control",
+      "expect": "nw_t >= 2.0 ve isaret POZITIF (pipeline injekte-drifti bulur)",
+      "nw_t": 20.050019197481593,
+      "gross_active_ann": 0.8363018131596474,
+      "n_obs": 1680,
+      "inject_meta": {
+        "beta_daily": 0.004,
+        "n_top_events_injected": 491,
+        "n_bottom_events_injected": 491,
+        "sue_hi_tercile_cut": 0.04811110774203417,
+        "sue_lo_tercile_cut": -0.02222106918024064
+      },
+      "pass": true,
+      "interpretation": "pipeline injekte-drifti bulur -> siralama+hizalama+getiri-yakalama SAGLAM"
+    },
+    "A2_microcase": {
+      "control": "A2_microcase",
+      "expect_active": "aktif-getiri serisi el-hesabiyla EXACT (|fark| < 1e-9)",
+      "expect_nw_zero": "mean-sifir simetrik seri -> |nw_t| < 1e-9",
+      "expect_nw_pos": "pozitif-ortalama seri -> nw_t > 0",
+      "expected_active_per_day": 0.04,
+      "got_active_sample": 0.040000000000000036,
+      "n_active_obs": 5,
+      "held": [
+        "N0",
+        "N1"
+      ],
+      "active_exact": true,
+      "nw_zero_mean_t": 0.0,
+      "nw_positive_t": 66.59777141837955,
+      "pass": true,
+      "interpretation": "cekirdek aktif-getiri-montaji + nw_tstat-davranisi DOGRU"
+    }
+  },
+  "FAZ2_metamorphic": [
+    {
+      "control": "B1_sign_reversal",
+      "expect": "injekte-panelde sinyal-negatiflenince nw_t ISARET-DONER (negatif)",
+      "nw_t_ref_pos": 20.050019197481593,
+      "nw_t_reversed": -18.979724500879218,
+      "pass": true,
+      "interpretation": "sinyal-pozisyonu suruluyor (isaret doniyor)"
+    },
+    {
+      "control": "B2_label_shuffle",
+      "expect": "injekte-panelde isim-permutasyonu -> |nw_t| < 1.0 (link kirilir)",
+      "nw_t": 0.003789084863238921,
+      "pass": true,
+      "interpretation": "shuffle edge'i yok-eder -> sizinti/join-bug-yok"
+    },
+    {
+      "control": "B3_lookahead_peek",
+      "expect": "gercek-panelde giris-1g-erken -> |nw_t| < 1.0 (SICRAMA-yok=sizinti-yok)",
+      "nw_t": 0.24948865588017097,
+      "pass": true,
+      "interpretation": "sicrama-yok -> look-ahead-hizalamasi temiz"
+    },
+    {
+      "control": "B4_safe_shift",
+      "expect": "gercek-panelde giris-1g-gec -> |nw_t| < 1.0 (sicrama-yok)",
+      "nw_t": 0.11997489393365406,
+      "pass": true,
+      "interpretation": "sicrama-yok -> look-ahead-hizalamasi temiz"
+    },
+    {
+      "control": "B5_rank_invariance",
+      "expect": "monoton-yeniden-olcekle (x^3) -> aktif-getiri DEGISMEZ (|fark| < 1e-9)",
+      "max_abs_active_diff": 0.0,
+      "n_obs": 1680,
+      "pass": true,
+      "interpretation": "siralama rank-tabanli (deger-tabanli-degil) -> dogru"
+    },
+    {
+      "control": "B7_benchmark_self",
+      "expect": "frac=1.0 (top=tum-evren) -> aktif == 0 EXACT (max|aktif| < 1e-10)",
+      "max_abs_active": 0.0,
+      "n_obs": 1680,
+      "pass": true,
+      "interpretation": "benchmark = top-evren oldugunda aktif sifir -> wiring dogru"
+    }
+  ],
+  "FAZ3_placebo": [
+    {
+      "control": "C1_pure_noise",
+      "expect": "rastgele-skor (gercek-pencere) -> |ortalama nw_t| < 1.0, ~0-merkezli",
+      "n_seeds": 12,
+      "mean_nw_t": -0.012645503713495765,
+      "max_abs_nw_t": 1.5108480073703456,
+      "frac_seeds_abs_nw_lt_2": 1.0,
+      "pass": true,
+      "interpretation": "rastgele-skor ~0-merkezli -> sizinti/hizalama/benchmark-bug-yok"
+    },
+    {
+      "control": "C3_pre_event_placebo",
+      "expect": "duyuru-ONCESI pencere -> |nw_t| < 1.0 (olay-penceresi/join temiz)",
+      "nw_t": 2.9684826868316545,
+      "n_obs": 1694,
+      "frozen_bar_pass": false,
+      "discriminator": {
+        "near_-15_-3": {
+          "nw_t": 2.866342712055889,
+          "gross_active_ann": 0.3315518017725452,
+          "n_obs": 495
+        },
+        "mid_-35_-16": {
+          "nw_t": -0.10708762472404576,
+          "gross_active_ann": -0.008556120320326441,
+          "n_obs": 743
+        },
+        "far_-62_-36": {
+          "nw_t": 2.1075343849229773,
+          "gross_active_ann": 0.1615088331044031,
+          "n_obs": 987
+        }
+      },
+      "runup_signature": true,
+      "classification": "CONFOUND-runup",
+      "pass": true,
+      "interpretation": "C3 frozen-bar IHLAL (nw_t=2.97) AMA ayirt-edici: pre-event sinyali olaya-yaklastikca guclenir (near nw_t=2.866 > far nw_t=2.108; gross near>far) = GERCEK pre-announcement RUN-UP (placebo gelecekteki-SUE'ya gore sirniyor). Pipeline-BUG-DEGIL: boyle-bir join/window-bug A1a/B3/B4'u de bozardi (temiz). Dahasi 'pre-event +, post-event ~0' = bilgi duyuruda-fiyatlanir, harvest-edilebilir-post-drift-yok -> RR-Y1-014 FAIL'ini DESTEKLER."
+    }
+  ],
+  "FAZ4_human_slice": {
+    "control": "D1_D2_human_slice",
+    "slice_csv": "docs\\yol1\\verification\\pead_slice_10events.csv",
+    "n_slice": 10,
+    "highest_sue_event": {
+      "symbol": "YGYO",
+      "fiscal_period": "2022Q4",
+      "sue_mkt": 9.70409384,
+      "entry_T2": "2023-03-16",
+      "window_fwd_return": -0.130233
+    },
+    "lowest_sue_event": {
+      "symbol": "DOHOL",
+      "fiscal_period": "2019Q2",
+      "sue_mkt": -2.37620657,
+      "entry_T2": "2019-08-19",
+      "window_fwd_return": 0.251908
+    },
+    "sue_min": -2.37620657,
+    "sue_max": 9.70409384,
+    "sue_median": 0.0077698,
+    "note": "insan-checkpoint: tarih-hizalamasi (T+2), SUE-isaret/olcek, tercile-uyelik Cagan-gozuyle-dogrulanabilir; agrega-edge yeniden-olculmedi"
+  },
+  "FAZ5_verdict": {
+    "verdict": "TRUSTWORTHY-WITH-CAVEATS",
+    "bug_failed_controls": [],
+    "confound_classified_breaches": [
+      {
+        "control": "C3_pre_event_placebo",
+        "nw_t": 2.9684826868316545,
+        "classification": "CONFOUND-runup"
+      }
+    ],
+    "positive_control_pass": true,
+    "caveats": [
+      "A1b_literature_case: dis-PEAD-ornekleme (Yilmaz-2020 eski-donem/illikit-dahil veya ABD-proxy) repo'da erisilemez -> veri-bloklu (A1a differential yeterli)",
+      "C3_pre_event_placebo: frozen-bar ihlal (nw_t=2.968) AMA bug-DEGIL CONFOUND-siniflandirildi (pre-announcement run-up; ayirt-edici gradyan) -> FAIL'i destekler (bilgi duyuruda-fiyatlanir)"
+    ],
+    "pead_fail_effect": "PEAD-FAIL ayakta: pozitif-kontrol drifti-buldu (nw_t=20.05), metamorphic-tutuyor, post-event-placebo-null; bazi-kontroller yapilamadi/confound-siniflandirildi (asagida). Hicbiri bug-tutarli-DEGIL."
+  }
+}
