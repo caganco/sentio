@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "registry_id": "RR-Y1-015",
+    "title": "Graveyard cross-reference graph — which elimination produced which lesson / law",
+    "discipline": "Organizes EXISTING relationships only. No new claim, no edge interpretation. Each edge is sourced from a recorded artifact.",
+    "node_kinds": ["candidate", "law", "discipline", "decision", "axis-closure"]
+  },
+
+  "laws_and_disciplines": [
+    {
+      "id": "LAW-forgone-beta",
+      "kind": "law",
+      "name": "Forgone-beta invariant (PM-1)",
+      "statement": "Idle capital is benchmarked as fully-invested equal-weight; a tilt earns no free credit for sitting in cash.",
+      "produced_by": ["pm1_forgone_beta"],
+      "source": "RR-Y1-005 §10; src/engine PM-1 guard; Stage-0 pm1_compliant flag"
+    },
+    {
+      "id": "LAW-cost-premise-audit",
+      "kind": "law",
+      "name": "Cost-premise audit (un-inflated cost model)",
+      "statement": "A tradeability verdict must run on a fidelity-checked cost model; an inflated cost model can mask the true wall (significance vs cost).",
+      "produced_by": ["hi52"],
+      "via": ["D-207 cost re-calibration (~12-25x de-inflation, fidelity-gated)", "D-208 fair-ground re-test"],
+      "source": "D-204 -> NRR-010 inflated-cost diagnosis -> D-207 calibration -> D-208"
+    },
+    {
+      "id": "LAW-sign-flip-ban",
+      "kind": "discipline",
+      "name": "Sign-flip / post-hoc rescue ban",
+      "statement": "A graveyard candidate is not revived by re-parametrizing, sign-flipping, sub-sampling, window-widening, or outlier-removal. The Stage-0 split is frozen before results; whatever the re-run shows, a grave stays a grave (no clean X_2).",
+      "produced_by": ["index_recon_xu030_in", "viop_ssf_oi_k2"],
+      "decision_refs": ["DEC-053 (directive-referenced, ABSENT from master)", "DISC-9"],
+      "source": "INDEX_RECON_XU030_IN.md 'Neden Bir Duzeltme Bu Mezarligi Kurtarmaz'; VIOP_SSF_OI.md graveyard-commitment"
+    },
+    {
+      "id": "DISC-timing-defeat",
+      "kind": "discipline",
+      "name": "Timing defeat (DISC-2) — co-movement is not a lead",
+      "statement": "A signal strongly contemporaneous with price (lag-0) but empty in its knowable lagged form is co-movement, not prediction; orthogonal-timing on a price axis loses repeatedly.",
+      "produced_by": ["foreign_flow_timing", "real_rate_timing"],
+      "source": "D-211 (lag-0 NW-t=3.68 strong, lag-2 knowable t=0.73 empty); D-213 (lag-1~lag-0, weak-but-correct)"
+    },
+    {
+      "id": "LAW-liquidity-mirage",
+      "kind": "law",
+      "name": "Liquidity-premium mirage",
+      "statement": "Cross-sectional 'edges' that exist only in the illiquid tail (Gate-4 liquidity_collapse) are a liquidity premium, not a deployable retail edge; the apparent ALL-universe significance is illiquidity-driven and dies in the liquid universe.",
+      "produced_by": ["lowvol63", "h2b_dividend_runup", "value_static", "value_regime_arm"],
+      "source": "NRR-007 (illiquid +1.20% vs liquid -0.31%); D-209 (ALL NW-t=2.565 vs liquid 0.61)"
+    },
+    {
+      "id": "LAW-three-measurement-lock",
+      "kind": "discipline",
+      "name": "N<=3 measurement lock per thread",
+      "statement": "An exhausted thread closes after at most 3 measurements; a value-premise change (e.g. corrected cost) is new information (a REVISIT), not a 4th round.",
+      "produced_by": ["value_static", "value_regime_arm", "value_only_regime", "hi52"],
+      "source": "NRR-008 (value 3/3 KESIN-KAPANIR); D-208 (N<=3 REVISITED, premise changed)"
+    }
+  ],
+
+  "axis_closures": [
+    {
+      "id": "CLOSURE-cross-sectional-factor",
+      "axis": "cross-sectional",
+      "statement": "The cross-sectional factor-selection program is exhausted (3/3): hi52, lowvol63, value all closed; H2b (the last t>=2 candidate) also closed; NAV-discount (new time-series paradigm) SERAP.",
+      "members": ["value_static", "value_regime_arm", "value_only_regime", "hi52", "lowvol63", "mom120", "edge2_composite", "h2b_dividend_runup", "nav_discount_z"],
+      "common_payoff": "retail-inaccessible (liquidity-premium) OR sub-significance"
+    },
+    {
+      "id": "CLOSURE-orthogonal-timing",
+      "axis": "orthogonal-timing",
+      "statement": "Price-orthogonal single-asset timing loses on both tested axes; co-movement is not a lead, knowable content is weak/absent.",
+      "members": ["foreign_flow_timing", "real_rate_timing"],
+      "common_payoff": "knowable-form content weak/absent (significance wall)"
+    },
+    {
+      "id": "CLOSURE-derivative-oi",
+      "axis": "derivative-oi",
+      "statement": "VIOP SSF open-interest growth carries no signed cross-sectional information; thin cross-section + unsigned construction.",
+      "members": ["viop_ssf_oi_k2"],
+      "common_payoff": "unsigned/noise (NW-t≈0)"
+    },
+    {
+      "id": "CLOSURE-mechanical-flow",
+      "axis": "mechanical-flow",
+      "statement": "Index-reconstitution demand-shock is priced in the 11-19-day public window; not retail-accessible.",
+      "members": ["index_recon_xu030_in"],
+      "common_payoff": "priced at public announcement (detection-not-monetizable)"
+    }
+  ],
+
+  "relations": [
+    {"from": "value_static", "rel": "spawned-isolation-of", "to": "edge2_composite", "note": "D-203 split value (SERAP) from EDGE-2 (real composite)"},
+    {"from": "edge2_composite", "rel": "decomposed-into", "to": ["hi52", "lowvol63", "mom120"], "note": "EDGE-2 = equal-weight composite; each constituent isolated and closed"},
+    {"from": "hi52", "rel": "escalated-to", "to": "hi52", "note": "D-203 (discovered) -> D-204 (stress) -> D-205 (liquid-first) -> D-208 (fair-cost re-test)"},
+    {"from": "hi52", "rel": "produced-law", "to": "LAW-cost-premise-audit"},
+    {"from": "lowvol63", "rel": "produced-law", "to": "LAW-liquidity-mirage"},
+    {"from": "value_static", "rel": "third-round-with", "to": ["value_only_regime", "value_regime_arm"], "note": "3-measurement value closure"},
+    {"from": "h2b_dividend_runup", "rel": "is-twin-of", "to": "hi52", "note": "same significance-wall pattern in liquid universe"},
+    {"from": "nav_discount_z", "rel": "new-paradigm-after", "to": "CLOSURE-cross-sectional-factor", "note": "time-series MR attempted after factor-selection exhausted; also SERAP"},
+    {"from": "nav_discount_z", "rel": "distinct-mechanism-from", "to": "fund_nav_arb_nrr009", "note": "holding-discount (present) vs fund/CEF NAV-arb (NRR-009, ABSENT from master)"},
+    {"from": "foreign_flow_timing", "rel": "produced-discipline", "to": "DISC-timing-defeat"},
+    {"from": "real_rate_timing", "rel": "produced-discipline", "to": "DISC-timing-defeat"},
+    {"from": "real_rate_timing", "rel": "refutes-claim-of", "to": "foreign_flow_timing", "note": "both test RR-038 timing theses; both lose in knowable form"},
+    {"from": "index_recon_xu030_in", "rel": "produced-discipline", "to": "LAW-sign-flip-ban"},
+    {"from": "viop_ssf_oi_k2", "rel": "produced-discipline", "to": "LAW-sign-flip-ban"},
+    {"from": "pm1_forgone_beta", "rel": "produced-law", "to": "LAW-forgone-beta"},
+    {"from": "viop_ssf_oi_k2", "rel": "complies-with", "to": "LAW-forgone-beta", "note": "Stage-0 pm1_compliant:true"},
+    {"from": "index_recon_xu030_in", "rel": "validated-by", "to": "RR-Y1-005-engine", "note": "uses the frozen-before-results Stage-0 + hash-guard discipline the validation engine codifies"}
+  ],
+
+  "yol2_ground_validation": {
+    "statement": "Across all five tested elimination axes (cross-sectional, orthogonal-timing, event-tilt-derivative, derivative-OI, mechanical-flow) no deployable retail edge was confirmed. This independently validates that Yol-2 (static-exposure + cost/tax discipline + quality, passive smart ground) is the rational base — not because prediction was untried, but because it was tried across five axes and failed each on a recorded, frozen-before-results basis.",
+    "supporting_closures": ["CLOSURE-cross-sectional-factor", "CLOSURE-orthogonal-timing", "CLOSURE-derivative-oi", "CLOSURE-mechanical-flow"],
+    "note": "This is an organization of existing findings, not a new claim. PEAD (event-tilt) is PENDING and excluded from the closure count."
+  }
+}
