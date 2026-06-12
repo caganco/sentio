@@ -1,0 +1,155 @@
+{
+  "id": "RR-Y1-016-D X1 sell-side confound control",
+  "class": "diagnostic-only; Stage-0-NOT; no verdict (decision-input)",
+  "provenance": "fresh KAP scrape run-2 (2026-06-12); NOT the canonical panel",
+  "split": "X1 look-half only (frozen, same as RR-Y1-016-C); X2 sealed/untouched",
+  "frozen_rule_sha256": "240514c3110b8d9322545d33655a7cd82a5bb14bcf0f841336ad58e3157ab41e",
+  "seed": 42,
+  "n_perm": 10000,
+  "n_boot": 10000,
+  "exclude_days_around_disclosure": 90,
+  "group_counts": {
+    "sell_events": 147,
+    "buy_events": 134,
+    "control_events": 183,
+    "placebo_events": 135,
+    "sell_tickers": 48,
+    "x1_tickers": 67
+  },
+  "layer_A_within_universe": {
+    "21": {
+      "n_sell": 133,
+      "n_nonsell": 293,
+      "sell_mean": 3.0146,
+      "sell_median": 0.8523,
+      "nonsell_mean": 6.1145,
+      "nonsell_median": 3.1393,
+      "raw_diff_sell_minus_nonsell": -3.0999,
+      "perm_p_mean": 0.1129,
+      "perm_p_median": 0.111,
+      "boot_ci95": [
+        -6.7718,
+        0.7485
+      ],
+      "size_liq_adjusted_diff": -3.2982,
+      "deciles_used": 10
+    },
+    "42": {
+      "n_sell": 130,
+      "n_nonsell": 292,
+      "sell_mean": 6.0686,
+      "sell_median": 1.7817,
+      "nonsell_mean": 9.7869,
+      "nonsell_median": 4.6802,
+      "raw_diff_sell_minus_nonsell": -3.7183,
+      "perm_p_mean": 0.1991,
+      "perm_p_median": 0.2744,
+      "boot_ci95": [
+        -9.507,
+        2.0272
+      ],
+      "size_liq_adjusted_diff": -4.0938,
+      "deciles_used": 10
+    },
+    "63": {
+      "n_sell": 124,
+      "n_nonsell": 282,
+      "sell_mean": 11.3944,
+      "sell_median": 3.7694,
+      "nonsell_mean": 16.8686,
+      "nonsell_median": 6.0903,
+      "raw_diff_sell_minus_nonsell": -5.4742,
+      "perm_p_mean": 0.2082,
+      "perm_p_median": 0.5644,
+      "boot_ci95": [
+        -13.7701,
+        2.9186
+      ],
+      "size_liq_adjusted_diff": -11.531,
+      "deciles_used": 10
+    }
+  },
+  "layer_A_market_relative_ref": {
+    "21": {
+      "sell_median_mktrel": -2.5598,
+      "nonsell_median_mktrel": -1.0704
+    },
+    "42": {
+      "sell_median_mktrel": -6.6916,
+      "nonsell_median_mktrel": -1.4842
+    },
+    "63": {
+      "sell_median_mktrel": -10.8544,
+      "nonsell_median_mktrel": -0.8684
+    }
+  },
+  "layer_B_placebo": {
+    "21": {
+      "n_sell": 133,
+      "n_placebo": 135,
+      "sell_mean": 3.0146,
+      "placebo_mean": 6.7713,
+      "placebo_median": 1.3514,
+      "diff_sell_minus_placebo": -3.7567,
+      "perm_p_mean": 0.1165,
+      "perm_p_median": 0.658,
+      "boot_ci95": [
+        -8.4306,
+        0.8704
+      ]
+    },
+    "42": {
+      "n_sell": 130,
+      "n_placebo": 135,
+      "sell_mean": 6.0686,
+      "placebo_mean": 12.6936,
+      "placebo_median": 4.3947,
+      "diff_sell_minus_placebo": -6.6251,
+      "perm_p_mean": 0.0754,
+      "perm_p_median": 0.2858,
+      "boot_ci95": [
+        -13.9831,
+        0.6494
+      ]
+    },
+    "63": {
+      "n_sell": 124,
+      "n_placebo": 135,
+      "sell_mean": 11.3944,
+      "placebo_mean": 19.6685,
+      "placebo_median": 6.7445,
+      "diff_sell_minus_placebo": -8.274,
+      "perm_p_mean": 0.1306,
+      "perm_p_median": 0.282,
+      "boot_ci95": [
+        -18.8989,
+        2.2345
+      ]
+    }
+  },
+  "diagnosis": {
+    "21": {
+      "a_significant": false,
+      "b_significant": false,
+      "call": "(ii-a) universe-confound (sell not separated from within-universe non-sell)"
+    },
+    "42": {
+      "a_significant": false,
+      "b_significant": false,
+      "call": "(ii-a) universe-confound (sell not separated from within-universe non-sell)"
+    },
+    "63": {
+      "a_significant": false,
+      "b_significant": false,
+      "call": "(ii-a) universe-confound (sell not separated from within-universe non-sell)"
+    }
+  },
+  "caveats": [
+    "Within-universe RAW drift is primary; market-relative is reference-only.",
+    "Per-disclosure event grain for ALL groups (controls buy=cluster vs sell=event def asymmetry).",
+    "Control/placebo = pseudo-events on dates >90d from any disclosure of that ticker.",
+    "Size/liquidity adjustment = liquidity-decile-stratified diff (thin cells dropped).",
+    "Permutation-p primary (small N + fat tails); bootstrap CI on mean diff. seed=42.",
+    "Fresh-scrape lineage, NOT canonical panel. Sell-side diagnostic-only (long-only)."
+  ]
+}
