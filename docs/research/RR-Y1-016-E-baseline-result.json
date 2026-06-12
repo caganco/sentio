@@ -1,0 +1,236 @@
+{
+  "id": "RR-Y1-016-E clean-baseline confound re-run (audit remediation)",
+  "class": "diagnostic-only; Stage-0-NOT; no verdict (decision-input)",
+  "provenance": "fresh KAP scrape run-2 (2026-06-12); NOT the canonical panel",
+  "split": "X1 look-half only (frozen, same as 016-C/D); X2 sealed/untouched",
+  "frozen_rule_sha256": "240514c3110b8d9322545d33655a7cd82a5bb14bcf0f841336ad58e3157ab41e",
+  "audit_finding": "016-D baseline (buy+control) contaminated by buy-flagged negative drift; re-run with control-only clean baseline.",
+  "decision_rule_prefrozen": "PRIMARY = C1 (sell vs no-disclosure-control-only), size/liquidity-adjusted. C1 still NS -> confound SOLIDIFIED, axis fully closed. C1 significant (sell negative-deviates after size/liq) -> confound CHALLENGED, sell-side live again.",
+  "seed": 42,
+  "n_perm": 10000,
+  "n_boot": 10000,
+  "group_counts": {
+    "sell_events": 147,
+    "buy_events": 134,
+    "control_events": 183,
+    "placebo_events": 135,
+    "sell_tickers": 48,
+    "x1_tickers": 67
+  },
+  "C1_sell_vs_control_only_PRIMARY": {
+    "21": {
+      "n_a": 133,
+      "n_b": 183,
+      "a_mean": 3.0146,
+      "a_median": 0.8523,
+      "b_mean": 7.0138,
+      "b_median": 3.0689,
+      "raw_diff_a_minus_b": -3.9992,
+      "perm_p_mean": 0.0696,
+      "perm_p_median": 0.1571,
+      "boot_ci95": [
+        -8.2187,
+        0.3549
+      ],
+      "size_liq_adjusted_diff": -4.7226,
+      "size_liq_adjusted_perm_p": 0.0448,
+      "deciles_used": 10
+    },
+    "42": {
+      "n_a": 130,
+      "n_b": 183,
+      "a_mean": 6.0686,
+      "a_median": 1.7817,
+      "b_mean": 11.309,
+      "b_median": 5.3,
+      "raw_diff_a_minus_b": -5.2405,
+      "perm_p_mean": 0.122,
+      "perm_p_median": 0.307,
+      "boot_ci95": [
+        -11.9,
+        1.1928
+      ],
+      "size_liq_adjusted_diff": -6.565,
+      "size_liq_adjusted_perm_p": 0.0541,
+      "deciles_used": 10
+    },
+    "63": {
+      "n_a": 124,
+      "n_b": 183,
+      "a_mean": 11.3944,
+      "a_median": 3.7694,
+      "b_mean": 18.5127,
+      "b_median": 6.5292,
+      "raw_diff_a_minus_b": -7.1183,
+      "perm_p_mean": 0.1526,
+      "perm_p_median": 0.5239,
+      "boot_ci95": [
+        -16.5436,
+        2.3212
+      ],
+      "size_liq_adjusted_diff": -13.8539,
+      "size_liq_adjusted_perm_p": 0.0109,
+      "deciles_used": 10
+    }
+  },
+  "C2_sell_vs_buy": {
+    "21": {
+      "n_a": 133,
+      "n_b": 110,
+      "a_mean": 3.0146,
+      "a_median": 0.8523,
+      "b_mean": 4.6184,
+      "b_median": 3.6577,
+      "raw_diff_a_minus_b": -1.6038,
+      "perm_p_mean": 0.4573,
+      "perm_p_median": 0.0788,
+      "boot_ci95": [
+        -5.7413,
+        2.5084
+      ],
+      "size_liq_adjusted_diff": -1.1283,
+      "size_liq_adjusted_perm_p": 0.7808,
+      "deciles_used": 10
+    },
+    "42": {
+      "n_a": 130,
+      "n_b": 109,
+      "a_mean": 6.0686,
+      "a_median": 1.7817,
+      "b_mean": 7.2314,
+      "b_median": 4.3983,
+      "raw_diff_a_minus_b": -1.1628,
+      "perm_p_mean": 0.732,
+      "perm_p_median": 0.2819,
+      "boot_ci95": [
+        -7.5738,
+        5.4385
+      ],
+      "size_liq_adjusted_diff": -3.4252,
+      "size_liq_adjusted_perm_p": 0.4857,
+      "deciles_used": 10
+    },
+    "63": {
+      "n_a": 124,
+      "n_b": 99,
+      "a_mean": 11.3944,
+      "a_median": 3.7694,
+      "b_mean": 13.8294,
+      "b_median": 5.2342,
+      "raw_diff_a_minus_b": -2.435,
+      "perm_p_mean": 0.6296,
+      "perm_p_median": 0.6604,
+      "boot_ci95": [
+        -11.7281,
+        7.0598
+      ],
+      "size_liq_adjusted_diff": -15.025,
+      "size_liq_adjusted_perm_p": 0.0331,
+      "deciles_used": 10
+    }
+  },
+  "C3_buy_vs_control_only": {
+    "21": {
+      "n_a": 110,
+      "n_b": 183,
+      "a_mean": 4.6184,
+      "a_median": 3.6577,
+      "b_mean": 7.0138,
+      "b_median": 3.0689,
+      "raw_diff_a_minus_b": -2.3954,
+      "perm_p_mean": 0.2603,
+      "perm_p_median": 0.683,
+      "boot_ci95": [
+        -6.217,
+        1.4188
+      ],
+      "size_liq_adjusted_diff": -2.0138,
+      "size_liq_adjusted_perm_p": 0.3684,
+      "deciles_used": 10
+    },
+    "42": {
+      "n_a": 109,
+      "n_b": 183,
+      "a_mean": 7.2314,
+      "a_median": 4.3983,
+      "b_mean": 11.309,
+      "b_median": 5.3,
+      "raw_diff_a_minus_b": -4.0776,
+      "perm_p_mean": 0.214,
+      "perm_p_median": 0.7708,
+      "boot_ci95": [
+        -10.049,
+        1.8531
+      ],
+      "size_liq_adjusted_diff": -3.3657,
+      "size_liq_adjusted_perm_p": 0.3043,
+      "deciles_used": 10
+    },
+    "63": {
+      "n_a": 99,
+      "n_b": 183,
+      "a_mean": 13.8294,
+      "a_median": 5.2342,
+      "b_mean": 18.5127,
+      "b_median": 6.5292,
+      "raw_diff_a_minus_b": -4.6833,
+      "perm_p_mean": 0.3534,
+      "perm_p_median": 0.8164,
+      "boot_ci95": [
+        -13.7182,
+        4.4979
+      ],
+      "size_liq_adjusted_diff": 0.0656,
+      "size_liq_adjusted_perm_p": 0.9902,
+      "deciles_used": 10
+    }
+  },
+  "layer_B_placebo_ref": {
+    "21": {
+      "n_sell": 133,
+      "n_placebo": 135,
+      "diff_sell_minus_placebo": -3.7567,
+      "perm_p_median": 0.666
+    },
+    "42": {
+      "n_sell": 130,
+      "n_placebo": 135,
+      "diff_sell_minus_placebo": -6.6251,
+      "perm_p_median": 0.2799
+    },
+    "63": {
+      "n_sell": 124,
+      "n_placebo": 135,
+      "diff_sell_minus_placebo": -8.274,
+      "perm_p_median": 0.2789
+    }
+  },
+  "decision": {
+    "21": {
+      "C1_adjusted_diff": -4.7226,
+      "C1_adjusted_perm_p": 0.0448,
+      "C1_raw_perm_p_median": 0.1571,
+      "call": "CHALLENGED (sell negative-deviates from clean baseline)"
+    },
+    "42": {
+      "C1_adjusted_diff": -6.565,
+      "C1_adjusted_perm_p": 0.0541,
+      "C1_raw_perm_p_median": 0.307,
+      "call": "SOLIDIFIED (confound; clean baseline still NS)"
+    },
+    "63": {
+      "C1_adjusted_diff": -13.8539,
+      "C1_adjusted_perm_p": 0.0109,
+      "C1_raw_perm_p_median": 0.5239,
+      "call": "CHALLENGED (sell negative-deviates from clean baseline)"
+    }
+  },
+  "overall_call": "CHALLENGED -> sell-side live again; growing N (016-B) gains value",
+  "caveats": [
+    "C1 (sell vs no-disclosure-control-only) is the clean-baseline PRIMARY; C2/C3 are context.",
+    "Decision keyed to C1 size/liquidity-adjusted stratified-permutation p (pre-frozen rule).",
+    "Per-disclosure event grain for all groups; control/placebo = pseudo-events >90d from any disclosure.",
+    "10k permutation (mean+median+stratified) + 10k bootstrap, seed=42. Fat-tail-robust median reported.",
+    "Underpowered-null possible (modest N); fresh-scrape lineage; sell-side diagnostic-only (long-only)."
+  ]
+}
