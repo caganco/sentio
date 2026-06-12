@@ -1,0 +1,71 @@
+{
+  "id": "RR-Y1-016-F cluster-intensity power prior (counts only, NO returns)",
+  "class": "diagnostic power-check; Stage-0-NOT; NO return measurement (DEC-053-safe)",
+  "provenance": "fresh KAP scrape run-2 (2026-06-12); NOT the canonical panel",
+  "split": "X1 look-half only (frozen, same as 016-C/D/E); X2 sealed/untouched",
+  "frozen_rule_sha256": "240514c3110b8d9322545d33655a7cd82a5bb14bcf0f841336ad58e3157ab41e",
+  "cluster_def": "window_days=30, distinct insiders BUYing same ticker in window (project min_insider_count=2); intensity = distinct insiders",
+  "x1_buy_tickers": 40,
+  "x1_buy_transactions": 134,
+  "per_ticker_max_intensity_hist": {
+    "1": 32,
+    "2": 6,
+    "3": 2
+  },
+  "per_window_event_intensity_hist": {
+    "1": 99,
+    "2": 17,
+    "3": 7
+  },
+  "high_intensity_summary": {
+    ">=2_insiders": {
+      "distinct_names": 8,
+      "window_events": 24,
+      "merged_episodes": 11,
+      "episode_names": 8,
+      "names": [
+        "AKSA",
+        "ARTMS",
+        "AVOD",
+        "ENKAI",
+        "GENIL",
+        "MOGAN",
+        "SARKY",
+        "TMPOL"
+      ]
+    },
+    ">=3_insiders": {
+      "distinct_names": 2,
+      "window_events": 7,
+      "merged_episodes": 3,
+      "episode_names": 2,
+      "names": [
+        "ENKAI",
+        "MOGAN"
+      ]
+    },
+    ">=4_insiders": {
+      "distinct_names": 0,
+      "window_events": 0,
+      "merged_episodes": 0,
+      "episode_names": 0,
+      "names": []
+    }
+  },
+  "by_year_ge3": {
+    "2025": 7
+  },
+  "by_liquidity_tertile_ge3": {
+    "low": 0,
+    "mid": 1,
+    "high": 1,
+    "no_liq": 0
+  },
+  "caveats": [
+    "COUNTS ONLY -- no returns examined (DEC-053-safe; power before returns).",
+    "Cluster = project config (30d window, >=2 distinct insiders).",
+    "'distinct insiders' = distinct insider_name; may include related parties (upper bound on independence).",
+    "Window-events over-count overlapping windows; 'merged_episodes' and 'distinct_names' are the robust counts.",
+    "X1 only; fresh-scrape lineage; X2 sealed."
+  ]
+}
