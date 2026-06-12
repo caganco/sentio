@@ -1,0 +1,24 @@
+{
+  "id": "RR-Y1-016-CONJUGATE-SPLIT-FREEZE",
+  "frozen_at": "2026-06-12",
+  "class": "conjugate-split freeze (DISC-9); NOT a keep-bar Stage-0",
+  "purpose": "Freeze the conjugate name-split BEFORE any post-disclosure return is observed, so the descriptive buy/sell asymmetry feasibility (RR-Y1-016-B IS-4) runs ONLY on the look-half X1. X2 is a sealed single-shot lockbox reserved for a future pre-registered Stage-0; examining it now would burn it (DEC-053 self-deception guard: choosing/tuning an axis on what a full-sample look already revealed is the failure DEC-053 prevents).",
+  "protocol": "Mod-A primary = direct descriptive measurement on X1. Mod-B (other-half corroboration) not used here; X2 stays sealed.",
+  "split_rule": {
+    "unit": "ticker (BIST short code, uppercased, trimmed)",
+    "frozen_rule": "bucket(ticker) = int(sha256(ticker.strip().upper().encode('utf-8')).hexdigest()[:8], 16) % 2",
+    "X1_LOOK": "bucket == 0  -> descriptive feasibility runs here (F1/F2 observed on X1)",
+    "X2_SEALED": "bucket == 1  -> lockbox; NOT examined; reserved for a future single-shot pre-registered Stage-0",
+    "data_independent": true,
+    "rationale": "The rule depends only on the ticker string, never on any return/price/outcome/score, so freezing it now cannot be informed by results. This is what makes the X2 lockbox a genuine single-shot."
+  },
+  "data_provenance": {
+    "source": "fresh KAP DKB insider scrape (run-2, post-UTF-8 fix, local Postgres pg16.9, 2026-06-12)",
+    "is_canonical_panel": false,
+    "note": "This is NOT the original canonical localhost Postgres panel that the daily radar wrote to. That panel is unrecoverable on this machine (no Docker, no native data dir, no dump). If a canonical panel is ever restored, the two sources may diverge; this artifact and everything derived from it is the FRESH-SCRAPE lineage, labelled as such.",
+    "scrape_window": "2025-01-01 .. 2026-06-12 (Option 4 cheap-first-look). Expandable to 2019-01-01 ONLY on the X1 side if N or regime-coverage proves insufficient; X2 stays sealed regardless."
+  },
+  "expectation_calibration_DISC3": "This measures F1/F2 (whether the post-disclosure edge sits on the buy or sell side in BIST), NOT 'an edge was found'. Literature is conflicting (Tahaoglu-Guner 2010: sell-side strong; large-sample work: both sides). The descriptive buy-side profile is expected positive-but-weak. A clean-X2 Stage-0 is expected to remain FAIL-leaning (decay-against prior + cost tail). Signed BEFORE measurement.",
+  "scope_guard": "Descriptive output is a decision-input, NOT a verdict. No keep-bar, no sign-flip, no composite-optimize, no grave revival. Sell-side is diagnostic-only (long-only/no-short invariant); it is never a trade candidate. measurement-verification (DISC-10) is not auto-triggered.",
+  "frozen_rule_sha256": "240514c3110b8d9322545d33655a7cd82a5bb14bcf0f841336ad58e3157ab41e"
+}
