@@ -1,0 +1,94 @@
+{
+  "id": "RR-Y1-016 X1 descriptive buy-vs-sell asymmetry",
+  "class": "diagnostic-only; market-relative; NOT a verdict (decision-input)",
+  "provenance": "fresh KAP scrape run-2 (post-UTF-8, 2026-06-12); NOT the canonical panel",
+  "split": "X1 look-half only (frozen); X2 sealed and untouched",
+  "frozen_rule_sha256": "240514c3110b8d9322545d33655a7cd82a5bb14bcf0f841336ad58e3157ab41e",
+  "benchmark": "XU100 (market-relative active return)",
+  "entry": "look-ahead-safe signal date (max published_at, correction-aware) + t+1",
+  "horizons_trading_days": [
+    5,
+    10,
+    21,
+    42,
+    63
+  ],
+  "x1_distinct_tickers": 78,
+  "x2_distinct_tickers_sealed": 83,
+  "buy_events_x1": 134,
+  "sell_events_x1": 147,
+  "skipped": {
+    "BUY_no_entry_price": 11,
+    "SELL_no_entry_price": 5
+  },
+  "buy_side": {
+    "5": {
+      "n": 118,
+      "hit_rate_pct": 50.0,
+      "median_pct": -0.0451,
+      "mean_pct": 0.4968
+    },
+    "10": {
+      "n": 118,
+      "hit_rate_pct": 42.37,
+      "median_pct": -1.3259,
+      "mean_pct": -0.2645
+    },
+    "21": {
+      "n": 110,
+      "hit_rate_pct": 41.82,
+      "median_pct": -2.1459,
+      "mean_pct": -1.32
+    },
+    "42": {
+      "n": 109,
+      "hit_rate_pct": 39.45,
+      "median_pct": -4.954,
+      "mean_pct": -1.6042
+    },
+    "63": {
+      "n": 99,
+      "hit_rate_pct": 41.41,
+      "median_pct": -4.7747,
+      "mean_pct": 3.2243
+    }
+  },
+  "sell_side": {
+    "5": {
+      "n": 137,
+      "hit_rate_pct": 47.45,
+      "median_pct": -0.3895,
+      "mean_pct": 0.0712
+    },
+    "10": {
+      "n": 136,
+      "hit_rate_pct": 47.06,
+      "median_pct": -0.9792,
+      "mean_pct": -0.0728
+    },
+    "21": {
+      "n": 133,
+      "hit_rate_pct": 32.33,
+      "median_pct": -2.5598,
+      "mean_pct": -0.8026
+    },
+    "42": {
+      "n": 130,
+      "hit_rate_pct": 35.38,
+      "median_pct": -6.6916,
+      "mean_pct": -2.2411
+    },
+    "63": {
+      "n": 124,
+      "hit_rate_pct": 38.71,
+      "median_pct": -10.8544,
+      "mean_pct": -0.5652
+    }
+  },
+  "caveats": [
+    "Per-disclosure events both sides (symmetric); buy-side TRADING signal uses multi-insider clusters, not modelled here.",
+    "Per-series trading-day offsets for stock vs benchmark (minor alignment approximation).",
+    "Market-relative vs XU100 price index (not total-return); descriptive only.",
+    "Sell-side is diagnostic-only (long-only invariant), never a trade candidate."
+  ]
+}
