@@ -12,19 +12,22 @@
       "docs/yol1/graveyard/*.md (dedicated graveyard records)",
       "git merge-commit history (pr_refs)"
     ],
-    "entry_count": 14,
+    "entry_count": 15,
     "pending_count": 1,
     "absent_count": 4,
     "phase5_localization": "See localization_phase5 (cross-repo localization + status verification of the Phase-2 absent items). Localization only; no revival, no recompute. C7/C8/C9 = LOCATED-VERIFIED in lab-demo-clone1 (committed-motor C-series; measured-NEGATIVE — CORRECTS the Phase-2 'absent' / early-Phase-5 'UNLOCATED' finding, which searched the wrong sibling lab); Grup-C = LOCATED-VERIFIED; NRR-009 + DEC-053 = LOCATED-PARTIAL; DEC-054 + S#13/15/16 = UNLOCATED."
   },
-
   "entries": [
     {
       "candidate_id": "value_static",
       "axis": "cross-sectional",
       "title": "Static value factor (clean-universe, bm-primary)",
-      "directive_refs": ["D-203"],
-      "pr_refs": ["#172"],
+      "directive_refs": [
+        "D-203"
+      ],
+      "pr_refs": [
+        "#172"
+      ],
       "verdict": "SERAP",
       "deployable": false,
       "primary_metric": {
@@ -38,8 +41,13 @@
       "graveyard_doc": null,
       "stage0_json": "docs/yol1/STAGE0_d203.json",
       "results_json": "docs/yol1/d203_results.json",
-      "code_modules": ["src/screening/d203_clean_universe_test.py", "src/screening/d203_config.py"],
-      "test_modules": ["tests/test_d203_clean_universe_test.py"],
+      "code_modules": [
+        "src/screening/d203_clean_universe_test.py",
+        "src/screening/d203_config.py"
+      ],
+      "test_modules": [
+        "tests/test_d203_clean_universe_test.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "Committed harness/verdict tests pass; recorded edge-metric end-to-end uses git-ignored panels (data-wall) — not numerically re-run, by design (no new edge metric).",
       "session_closed": null,
@@ -51,8 +59,12 @@
       "candidate_id": "edge2_composite",
       "axis": "cross-sectional",
       "title": "EDGE-2 equal-weight composite (mom120 + hi52 + lowvol63)",
-      "directive_refs": ["D-203"],
-      "pr_refs": ["#172"],
+      "directive_refs": [
+        "D-203"
+      ],
+      "pr_refs": [
+        "#172"
+      ],
       "verdict": "REAL-EDGE-NOT-DEPLOYED",
       "deployable": false,
       "primary_metric": {
@@ -66,8 +78,13 @@
       "graveyard_doc": null,
       "stage0_json": "docs/yol1/STAGE0_d203.json",
       "results_json": "docs/yol1/d203_results.json",
-      "code_modules": ["src/screening/d203_clean_universe_test.py", "src/screening/d203_config.py"],
-      "test_modules": ["tests/test_d203_clean_universe_test.py"],
+      "code_modules": [
+        "src/screening/d203_clean_universe_test.py",
+        "src/screening/d203_config.py"
+      ],
+      "test_modules": [
+        "tests/test_d203_clean_universe_test.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "Committed harness tests pass; full edge-metric re-run gated by git-ignored panels (data-wall).",
       "session_closed": null,
@@ -79,8 +96,18 @@
       "candidate_id": "hi52",
       "axis": "cross-sectional",
       "title": "52-week-high proximity factor",
-      "directive_refs": ["D-203", "D-204", "D-205", "D-208"],
-      "pr_refs": ["#172", "#173", "#175", "#181"],
+      "directive_refs": [
+        "D-203",
+        "D-204",
+        "D-205",
+        "D-208"
+      ],
+      "pr_refs": [
+        "#172",
+        "#173",
+        "#175",
+        "#181"
+      ],
       "verdict": "KESIN-KAPANDI",
       "deployable": false,
       "primary_metric": {
@@ -94,8 +121,14 @@
       "graveyard_doc": null,
       "stage0_json": "docs/yol1/STAGE0_d204.json",
       "results_json": "docs/yol1/d208_results.json",
-      "code_modules": ["src/screening/d204_hi52_stress.py", "src/screening/d203_clean_universe_test.py"],
-      "test_modules": ["tests/test_d204_hi52_stress.py", "tests/test_d205_hi52_liquid.py"],
+      "code_modules": [
+        "src/screening/d204_hi52_stress.py",
+        "src/screening/d203_clean_universe_test.py"
+      ],
+      "test_modules": [
+        "tests/test_d204_hi52_stress.py",
+        "tests/test_d205_hi52_liquid.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_d204_hi52_stress + test_d205_hi52_liquid pass; cost-model fidelity (D-207) and verdict logic intact.",
       "session_closed": null,
@@ -107,8 +140,12 @@
       "candidate_id": "lowvol63",
       "axis": "cross-sectional",
       "title": "63-day low-volatility factor (isolated)",
-      "directive_refs": ["NRR-007"],
-      "pr_refs": ["#176"],
+      "directive_refs": [
+        "NRR-007"
+      ],
+      "pr_refs": [
+        "#176"
+      ],
       "verdict": "SERAP",
       "deployable": false,
       "primary_metric": {
@@ -122,8 +159,13 @@
       "graveyard_doc": null,
       "stage0_json": "docs/yol1/STAGE0_nrr007.json",
       "results_json": "docs/yol1/nrr007_results.json",
-      "code_modules": ["src/screening/nrr007_lowvol63.py", "src/screening/nrr007_config.py"],
-      "test_modules": ["tests/test_nrr007_lowvol63.py"],
+      "code_modules": [
+        "src/screening/nrr007_lowvol63.py",
+        "src/screening/nrr007_config.py"
+      ],
+      "test_modules": [
+        "tests/test_nrr007_lowvol63.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_nrr007_lowvol63 passes incl. committed-engine-dispatch-untouched + verdict-logic; data-wall on full re-run.",
       "session_closed": null,
@@ -135,8 +177,13 @@
       "candidate_id": "mom120",
       "axis": "cross-sectional",
       "title": "120-day momentum factor (component / adversarial control)",
-      "directive_refs": ["D-203", "RR-Y1-008"],
-      "pr_refs": ["#172"],
+      "directive_refs": [
+        "D-203",
+        "RR-Y1-008"
+      ],
+      "pr_refs": [
+        "#172"
+      ],
       "verdict": "SERAP",
       "deployable": false,
       "primary_metric": {
@@ -150,8 +197,12 @@
       "graveyard_doc": null,
       "stage0_json": "examples/rry1008/stage0/part1_mom120.json",
       "results_json": null,
-      "code_modules": ["examples/rry1008/signals.py"],
-      "test_modules": ["tests/test_engine_stats.py"],
+      "code_modules": [
+        "examples/rry1008/signals.py"
+      ],
+      "test_modules": [
+        "tests/test_engine_stats.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "Engine NW primitives + conjugate-agreement determinism pinned (test_engine_stats); RR-Y1-008 example is examples-tier.",
       "session_closed": null,
@@ -163,8 +214,12 @@
       "candidate_id": "value_regime_arm",
       "axis": "cross-sectional",
       "title": "Value regime-gated tilt (DIRECTION-not-LEVEL arm)",
-      "directive_refs": ["NRR-008"],
-      "pr_refs": ["#177"],
+      "directive_refs": [
+        "NRR-008"
+      ],
+      "pr_refs": [
+        "#177"
+      ],
       "verdict": "SERAP",
       "deployable": false,
       "primary_metric": {
@@ -178,8 +233,12 @@
       "graveyard_doc": null,
       "stage0_json": "docs/yol1/STAGE0_nrr008.json",
       "results_json": "docs/yol1/nrr008_results.json",
-      "code_modules": ["src/screening/k2_factor_tilt.py"],
-      "test_modules": ["tests/test_nrr008_value_regime.py"],
+      "code_modules": [
+        "src/screening/k2_factor_tilt.py"
+      ],
+      "test_modules": [
+        "tests/test_nrr008_value_regime.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_nrr008_value_regime passes incl. run_gates_on_score==engine replica MATCH + regime-mask logic; data-wall on full re-run.",
       "session_closed": null,
@@ -191,8 +250,13 @@
       "candidate_id": "value_only_regime",
       "axis": "cross-sectional",
       "title": "Value-only regime-resilience (frozen DEC-Y1 P/B primary)",
-      "directive_refs": ["D-Y1-001", "RR-Y1"],
-      "pr_refs": ["#156"],
+      "directive_refs": [
+        "D-Y1-001",
+        "RR-Y1"
+      ],
+      "pr_refs": [
+        "#156"
+      ],
       "verdict": "FRAGILE",
       "deployable": false,
       "primary_metric": {
@@ -219,8 +283,12 @@
       "candidate_id": "h2b_dividend_runup",
       "axis": "cross-sectional",
       "title": "H2b dividend run-up (capture window)",
-      "directive_refs": ["D-209"],
-      "pr_refs": ["#187"],
+      "directive_refs": [
+        "D-209"
+      ],
+      "pr_refs": [
+        "#187"
+      ],
       "verdict": "KESIN-KAPANDI",
       "deployable": false,
       "primary_metric": {
@@ -234,8 +302,13 @@
       "graveyard_doc": null,
       "stage0_json": "docs/yol1/STAGE0_d209.json",
       "results_json": "docs/yol1/d209_results.json",
-      "code_modules": ["src/screening/d209_h2b_runup.py", "src/screening/d209_config.py"],
-      "test_modules": ["tests/test_d209_h2b_runup.py"],
+      "code_modules": [
+        "src/screening/d209_h2b_runup.py",
+        "src/screening/d209_config.py"
+      ],
+      "test_modules": [
+        "tests/test_d209_h2b_runup.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_d209_h2b_runup passes incl. detection reproduction + verdict logic; data-wall on full panel re-run.",
       "session_closed": null,
@@ -247,8 +320,14 @@
       "candidate_id": "nav_discount_z",
       "axis": "cross-sectional",
       "title": "Holding NAV-discount-Z time-series mean-reversion",
-      "directive_refs": ["D-206", "RR-013", "RR-044"],
-      "pr_refs": ["#178"],
+      "directive_refs": [
+        "D-206",
+        "RR-013",
+        "RR-044"
+      ],
+      "pr_refs": [
+        "#178"
+      ],
       "verdict": "SERAP",
       "deployable": false,
       "primary_metric": {
@@ -263,7 +342,9 @@
       "stage0_json": "docs/yol1/STAGE0_d206.json",
       "results_json": "docs/yol1/d206_results.json",
       "code_modules": [],
-      "test_modules": ["tests/test_d206_nav_discount.py"],
+      "test_modules": [
+        "tests/test_d206_nav_discount.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_d206_nav_discount passes; full re-run uses git-ignored degoran/market-cap panels (data-wall).",
       "session_closed": null,
@@ -275,8 +356,14 @@
       "candidate_id": "foreign_flow_timing",
       "axis": "orthogonal-timing",
       "title": "Aggregate foreign-flow -> forward BIST index real return",
-      "directive_refs": ["D-211", "RR-Y1-002", "RR-038"],
-      "pr_refs": ["#188"],
+      "directive_refs": [
+        "D-211",
+        "RR-Y1-002",
+        "RR-038"
+      ],
+      "pr_refs": [
+        "#188"
+      ],
       "verdict": "TRADEABLE-DEGIL",
       "deployable": false,
       "primary_metric": {
@@ -291,7 +378,9 @@
       "stage0_json": "docs/yol1/STAGE0_d211.json",
       "results_json": "docs/yol1/d211_results.json",
       "code_modules": [],
-      "test_modules": ["tests/test_d211_foreign_flow.py"],
+      "test_modules": [
+        "tests/test_d211_foreign_flow.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_d211_foreign_flow passes incl. NW-OLS slope recovery + hash-drift guard + Stage-0 refusal; NW-stat pinned via test_engine_stats equivalence.",
       "session_closed": null,
@@ -303,8 +392,14 @@
       "candidate_id": "real_rate_timing",
       "axis": "orthogonal-timing",
       "title": "Ex-ante real rate -> forward XU100 TL-real return",
-      "directive_refs": ["D-213", "RR-Y1-003"],
-      "pr_refs": ["#192", "#194"],
+      "directive_refs": [
+        "D-213",
+        "RR-Y1-003"
+      ],
+      "pr_refs": [
+        "#192",
+        "#194"
+      ],
       "verdict": "TRADEABLE-DEGIL",
       "deployable": false,
       "primary_metric": {
@@ -319,7 +414,9 @@
       "stage0_json": "docs/yol1/STAGE0_d213.json",
       "results_json": "docs/yol1/d213_results.json",
       "code_modules": [],
-      "test_modules": ["tests/test_d213_real_rate.py"],
+      "test_modules": [
+        "tests/test_d213_real_rate.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_d213_real_rate passes incl. deploy-rule sign + ex-ante lag-1 alignment + hash guard; NW-stat pinned via test_engine_stats equivalence.",
       "session_closed": null,
@@ -331,8 +428,16 @@
       "candidate_id": "viop_ssf_oi_k2",
       "axis": "derivative-oi",
       "title": "VIOP SSF open-interest growth (K2) cross-sectional tilt",
-      "directive_refs": ["RR-Y1-005 §10 (PM-1 compliant)", "VIOP-SSF-OI thread"],
-      "pr_refs": ["#221", "#222", "#226", "#227"],
+      "directive_refs": [
+        "RR-Y1-005 §10 (PM-1 compliant)",
+        "VIOP-SSF-OI thread"
+      ],
+      "pr_refs": [
+        "#221",
+        "#222",
+        "#226",
+        "#227"
+      ],
       "verdict": "FAIL",
       "deployable": false,
       "primary_metric": {
@@ -346,8 +451,16 @@
       "graveyard_doc": "docs/yol1/graveyard/VIOP_SSF_OI.md",
       "stage0_json": "docs/yol1/STAGE0_VIOP_SSF_OI.json",
       "results_json": "data/processed/viop_k2_engine_output.json (git-ignored)",
-      "code_modules": ["src/signals/viop_k2.py", "scripts/run_viop_k2_harness.py"],
-      "test_modules": ["tests/test_viop_k2_harness.py", "tests/test_viop_loader.py", "tests/test_viop_fetcher.py", "tests/test_viop_takasbank_parser.py"],
+      "code_modules": [
+        "src/signals/viop_k2.py",
+        "scripts/run_viop_k2_harness.py"
+      ],
+      "test_modules": [
+        "tests/test_viop_k2_harness.py",
+        "tests/test_viop_loader.py",
+        "tests/test_viop_fetcher.py",
+        "tests/test_viop_takasbank_parser.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "test_viop_k2_harness passes incl. test_stage0_content_hash_stable (hash 34d312edf5b3c27b) + PM-1 compliance + signal scoring; engine-output JSON git-ignored (data-wall on numeric).",
       "session_closed": "S#15",
@@ -359,8 +472,13 @@
       "candidate_id": "index_recon_xu030_in",
       "axis": "mechanical-flow",
       "title": "XU030 periodic-reconstitution IN demand-shock event study",
-      "directive_refs": ["RR-Y1-011-E"],
-      "pr_refs": ["#228", "#240"],
+      "directive_refs": [
+        "RR-Y1-011-E"
+      ],
+      "pr_refs": [
+        "#228",
+        "#240"
+      ],
       "verdict": "SERAP",
       "deployable": false,
       "primary_metric": {
@@ -374,7 +492,11 @@
       "graveyard_doc": "docs/yol1/graveyard/INDEX_RECON_XU030_IN.md",
       "stage0_json": "docs/yol1/STAGE0_INDEX_RECON_XU030_IN.json",
       "results_json": "docs/yol1/RESULTS_INDEX_RECON_XU030_IN.json",
-      "code_modules": ["scripts/scratch/build_index_recon_panel.py", "scripts/scratch/run_rr_y1_011_e.py", "scripts/scratch/probe_index_recon_3184.py"],
+      "code_modules": [
+        "scripts/scratch/build_index_recon_panel.py",
+        "scripts/scratch/run_rr_y1_011_e.py",
+        "scripts/scratch/probe_index_recon_3184.py"
+      ],
       "test_modules": [],
       "reproducible": "NO-FIXTURE",
       "reproducible_note": "Standalone scratch script (CI-impact zero); Stage-0 asserts data hashes (panel sha256 d94b910003c7d11b, prices ccabef3d6622841b) on load but the panels live under git-ignored data/snapshots — no committed determinism vector. Verdict artifacts (Stage-0 + results + graveyard) are present and internally consistent.",
@@ -387,8 +509,12 @@
       "candidate_id": "pm1_forgone_beta",
       "axis": "infrastructure-law",
       "title": "PM-1 forgone-beta invariant (idle = fully-invested EW benchmark)",
-      "directive_refs": ["RR-Y1-005 §10"],
-      "pr_refs": ["#195"],
+      "directive_refs": [
+        "RR-Y1-005 §10"
+      ],
+      "pr_refs": [
+        "#195"
+      ],
       "verdict": "LAW-PRODUCING",
       "primary_metric": {
         "name": "design invariant (not an edge)",
@@ -400,36 +526,95 @@
       "graveyard_doc": null,
       "stage0_json": null,
       "results_json": null,
-      "code_modules": ["src/engine/__init__.py", "src/engine/contracts.py"],
-      "test_modules": ["tests/test_engine_contracts.py"],
+      "code_modules": [
+        "src/engine/__init__.py",
+        "src/engine/contracts.py"
+      ],
+      "test_modules": [
+        "tests/test_engine_contracts.py"
+      ],
       "reproducible": "VERIFIED",
       "reproducible_note": "PM-1 guard enforced by committed engine; test_engine_contracts + Stage-0 pm1_compliant flag pinned.",
       "session_closed": null,
       "dec_ref": null,
       "revival_status": "N/A",
       "revival_note": "Permanent invariant; not subject to revival semantics."
+    },
+    {
+      "candidate_id": "insider_disclosure_direction_intensity",
+      "axis": "event-tilt",
+      "title": "KAP insider-disclosure axis (buy/sell direction + cluster-intensity)",
+      "directive_refs": [
+        "RR-Y1-016",
+        "RR-Y1-016-B",
+        "RR-Y1-016-C",
+        "RR-Y1-016-D",
+        "RR-Y1-016-E",
+        "RR-Y1-016-F"
+      ],
+      "pr_refs": [
+        "#251",
+        "#252",
+        "#253",
+        "#254"
+      ],
+      "verdict": "TRADEABLE-DEGIL",
+      "deployable": false,
+      "primary_metric": {
+        "name": ">=3-insider coordinated-buy clusters (X1 power-prior; terminal closer)",
+        "value": 2,
+        "threshold": "NOT-APPLICABLE",
+        "direction": "count (need cross-sectional mass for a frozen Stage-0)",
+        "note": "Only 2 names (ENKAI, MOGAN), >=4 = zero. Power-prior, returns NOT examined (DEC-053-safe). Tradeable buy-side also showed no positive market-relative drift (016-C/E)."
+      },
+      "why": "Insider-disclosure feasibility chain on the X1 look-half (fresh-scrape lineage, NOT the canonical panel; X2 sealed). 016-C: the tradeable BUY side has NO positive market-relative post-disclosure drift (median -2.1% at 21d, -5.0% at 42d); the SELL side looked more negative. 016-D: concluded an (ii-a) universe/timing confound -- but the Layer-A baseline mixed in buy-flagged names (themselves negative-drifting), a CONTAMINATED baseline that pulled the diff toward null; that confound verdict was WRONG. Decision-audit D5 caught it. 016-E: re-run with a clean control-only baseline -> sell-vs-clean-baseline is size/liquidity-significant (CHALLENGED), but pooled mean/median NS, bootstrap CIs cross zero, and Layer-B placebo NS -> the separation is NAME-SELECTION (sell names are structurally weaker-drifting), not an event-bound signal; the tradeable buy side stays edgeless even vs a clean baseline. 016-F: cluster-intensity power-prior (counts only) -> >=3-insider coordinated clusters are only 2 names / 3 episodes, >=4 zero -> a cluster Stage-0 is dead-on-arrival. Net: NOT tradeable in this panel; the un-tradeable sell side is name-selection + un-shortable (long-only).",
+      "graveyard_doc": "docs/research/RR-Y1-016-G-insider-axis-consolidation.md",
+      "stage0_json": "docs/research/RR-Y1-016-CONJUGATE-SPLIT-FREEZE.json",
+      "results_json": "docs/research/RR-Y1-016-X1-asymmetry-result.json",
+      "code_modules": [
+        "scripts/probe/rr_y1_016_x1_asymmetry.py",
+        "scripts/probe/rr_y1_016_d_confound.py",
+        "scripts/probe/rr_y1_016_e_baseline.py",
+        "scripts/probe/rr_y1_016_f_cluster_intensity.py"
+      ],
+      "test_modules": [],
+      "reproducible": "NO-FIXTURE",
+      "reproducible_note": "Analysis scripts are deterministic (seed=42) and the result JSONs are committed, but a full re-run needs the git-ignored local flow_intel Postgres (fresh-scrape, not committed). The look-ahead-safe entry timing + sell-side builder live in caganco/trailingedge (PR #4) and are unit-tested there (130 passed / 1 skipped).",
+      "session_closed": null,
+      "dec_ref": null,
+      "revival_status": "save/wait",
+      "revival_note": "Closed in THIS panel only (X1, 2025-2026 fresh-scrape) -- NOT permanent. X2 lockbox stays sealed (single-shot reserved); a fuller panel (X2 + pre-2025, or accumulated radar data) could re-warrant a fresh pre-registered Stage-0 IF high-intensity cluster mass grows. The direction sub-axis is the weaker prior (buy edgeless, sell name-selection); cluster-intensity is the only reopen-candidate and is currently power-dead. AUDIT VALUE: first time our own decision-audit corrected a verdict in-flight (016-D confound -> 016-E baseline-artefact), live-validating the measurement-verification / DISC-10 thesis."
     }
   ],
-
   "pending": [
     {
       "candidate_id": "pead",
       "axis": "event-tilt",
       "title": "Post-earnings-announcement drift (PEAD)",
-      "directive_refs": ["RR-Y1-013", "RR-Y1-013-B", "RR-046", "RR-Y1-014"],
-      "pr_refs": ["#243", "#244"],
+      "directive_refs": [
+        "RR-Y1-013",
+        "RR-Y1-013-B",
+        "RR-046",
+        "RR-Y1-014"
+      ],
+      "pr_refs": [
+        "#243",
+        "#244"
+      ],
       "verdict": "PENDING",
       "status_note": "RR-Y1-014 Stage-0 in-flight (parallel task). Feasibility CONDITIONAL->PASS (RR-Y1-013-B: G1 PASS, G2 PASS, G3 PASS-tercile, G4 PASS). Stage-0 decision pending. PER RR-Y1-015 DISCIPLINE: slot marked PENDING; result not waited-on or written here. Do not touch RR-Y1-014 files.",
       "reproducible": "NOT-CHECKED",
       "revival_status": "N/A"
     }
   ],
-
   "absent_from_master": [
     {
       "candidate_id": "event_tilt_c7_falling_knife",
       "axis": "event-tilt",
-      "directive_refs": ["C7 (düşen-bıçak / negative-veto)", "S#13"],
+      "directive_refs": [
+        "C7 (düşen-bıçak / negative-veto)",
+        "S#13"
+      ],
       "artifact_status": "LOCATED_IN_LAB (lab-demo-clone1; CORRECTS Phase-2 ABSENT_FROM_MASTER)",
       "localization_status": "LOCATED-VERIFIED",
       "located_repo": "lab-demo-clone1 (CONSTRUCTION-as-EDGE lab; git-excluded local sibling lab, present in one working copy; same lab that produced the committed C9/C12 golden fixtures; production repo read-only by design)",
@@ -445,7 +630,10 @@
     {
       "candidate_id": "event_tilt_c8_core_satellite",
       "axis": "event-tilt",
-      "directive_refs": ["C8 (core-satellite)", "S#13"],
+      "directive_refs": [
+        "C8 (core-satellite)",
+        "S#13"
+      ],
       "artifact_status": "LOCATED_IN_LAB (lab-demo-clone1; CORRECTS Phase-2 ABSENT_FROM_MASTER)",
       "localization_status": "LOCATED-VERIFIED",
       "located_repo": "lab-demo-clone1 (git-excluded local sibling lab)",
@@ -461,7 +649,10 @@
     {
       "candidate_id": "event_tilt_c9_sector_tilt",
       "axis": "event-tilt",
-      "directive_refs": ["C9 (sektör-tilt / event sector-tilt)", "S#13"],
+      "directive_refs": [
+        "C9 (sektör-tilt / event sector-tilt)",
+        "S#13"
+      ],
       "artifact_status": "LOCATED_IN_LAB (lab-demo-clone1; CORRECTS Phase-2 ABSENT_FROM_MASTER)",
       "localization_status": "LOCATED-VERIFIED",
       "located_repo": "lab-demo-clone1 (git-excluded local sibling lab; note: the c9 module's `_nw_t` convention is also the lineage of the committed C9/C12 golden NW anchor in master)",
@@ -477,7 +668,10 @@
     {
       "candidate_id": "fund_nav_arb_nrr009",
       "axis": "cross-sectional",
-      "directive_refs": ["NRR-009", "RR-045"],
+      "directive_refs": [
+        "NRR-009",
+        "RR-045"
+      ],
       "artifact_status": "ABSENT_FROM_MASTER",
       "localization_status": "LOCATED-PARTIAL",
       "located_repo": "this repo's LOCAL working tree; git-EXCLUDED via .git/info/exclude — not committed, not on any branch, not pushed",
@@ -491,7 +685,6 @@
       "note": "Phase-5 UPDATE: RR-045 (committed, master) records the 'NRR-009 ucuz-on-bakis TETIKLENDI' trigger; the preview itself was then RUN locally and located at investigate/NRR-009-mkyo-nav-prob.md in this repo's working tree. It is git-EXCLUDED scratch — never committed, no Stage-0 / results JSON / test / 5-gate. Its own verdict LEANS MORE NEGATIVE (double-elimination: RR-045 N=9-weak PLUS wrong-sign persistent premium), not a revival. Status: located as an uncommitted observational preview; the fund/CEF NAV-arb axis remains NOT a committed measured grave. This is a localization finding, NOT a status upgrade and NOT a revival warrant."
     }
   ],
-
   "localization_phase5": {
     "purpose": "RR-Y1-015 Phase-5 cross-repo localization + status verification of items the Phase-2 consistency audit flagged ABSENT from master. Localization, NOT revival: nothing was re-run, re-parametrized, or sign-flipped (DEC-053/DISC-9). Metrics/rulings are transcribed from located artifacts; never recomputed or fabricated.",
     "repos_searched": [
@@ -568,5 +761,16 @@
       }
     ],
     "discipline_check": "All repos read-only; no candidate re-run/re-parametrized; metrics transcribed not recomputed; status changes are findings (UNLOCATED / LOCATED-PARTIAL), never revival proposals; UNLOCATED items honestly marked (no invented locations); only this branch's registry/docs were written."
-  }
+  },
+  "decision_audit_log": [
+    {
+      "audit_id": "D5",
+      "date": "2026-06-12",
+      "corrected_report": "RR-Y1-016-D",
+      "correction_report": "RR-Y1-016-E",
+      "finding": "RR-Y1-016-D's Layer-A confound verdict used a contaminated baseline (non-sell = buy-flagged + no-disclosure control; buy-flagged itself drifts negative), pulling the sell-vs-non-sell difference toward null.",
+      "correction": "RR-Y1-016-E re-ran Layer-A with a clean control-only baseline -> sell deviates (size/liquidity-significant) -> the 016-D 'confound solidified' null was a BASELINE ARTEFACT; mechanism re-attributed to name-selection. Axis conclusion (not tradeable) unchanged; the REASON was corrected.",
+      "significance": "First in-flight self-correction of a verdict by our own decision-audit; live validation of the measurement-verification / DISC-10 thesis (a wrong call caught and fixed BEFORE consolidation)."
+    }
+  ]
 }
