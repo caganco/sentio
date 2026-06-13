@@ -39,6 +39,31 @@ Her sürdürülebilir edge, parayı *kimden* aldığını yapısal olarak adland
 - **Deflated Sharpe Ratio.** Gözlenen Sharpe, denenen-konfigürasyon sayısına göre deflate edilir; deneme-sayısı bağlayıcı bir parametredir, opsiyonel değil.
 - **Newey-West HAC.** Ardışık-bağımlı ve heteroskedastik getiri serilerinde standart-hata düzeltmesi; kabul çıtası HAC-düzeltilmiş `t ≥ 2` (çoklu-test bağlamında yukarı taşınır).
 
+#### Çoklu-Test Cezası Ne Zaman Taşıyıcıdır
+
+Deflated Sharpe Ratio gibi bir deflasyon düzeltmesi, raporlanan sonucun çok-sayıda deneme arasından en-iyi olarak seçildiği gerçeğini hesaba katmak için stratejinin anlamlılık-eşiğini yukarı taşır. Probabilistic Sharpe Ratio'nun sabit kıyas-noktasını, N bağımsız yeteneksiz (unskilled) deneme arasından maksimum olarak gözlenmesi-beklenen Sharpe oranıyla değiştirir; ayrıca örneklem-uzunluğu, çarpıklık (skewness) ve basıklık (kurtosis) için düzeltir. Tanımlayıcı özelliği deneme-sayısı terimidir: deneme sayısı büyüdükçe, bir adayın aşması gereken çıta yükselir.
+
+Bu düzeltmenin taşıyıcı olup olmadığı, tümüyle doğrulayıcı (confirmatory) testin nasıl kurulduğuna bağlıdır.
+
+Konjuge eğitim/test (train/test) tasarımı altında — bir evrende iteratif geliştirme, ardından kesinlikle-bağımsız bir evrende tek, dondurulmuş, ön-taahhütlü (pre-committed) bir değerlendirme — doğrulayıcı ayak tam olarak tek bir test gözlemler. O ayaktaki etkin deneme-sayısı, kuruluş gereği birdir; bu da deneme-sayısı deflasyon terimini etkisiz (inert) kılar: geliştirme evresinden çıkan sahte (spurious) bir kazanan, bağımsız testte basitçe başarısız olur. Yapısal evren-dışı (out-of-sample) kapı parametrik-değildir (non-parametric) — hiçbir dağılım-varsayımı yapmaz, etkin deneme-sayısının bir tahminini gerektirmez ve hiçbir büyük-deneme asimptotiği çağırmaz. Bu yüzden, uygulanabildiği her yerde parametrik düzeltmeye baskındır. Bu tasarımda deflasyon düzeltmesi onarılacak bir zayıflık değildir; gereksizdir (redundant), çünkü protokol çoklu-test problemini parametrik olarak değil yapısal olarak ortadan kaldırır.
+
+Düzeltme, tümleyici (complementary) durumda doğru-araç hâline gelir: evren-dışı bir ayrık-küme (holdout) karşılanabilir olmadığında. Veri-kıt (data-scarce) bir rejimde, bağımsız bir test-ayrımı oymak, o ayrımı güç-yoksunu (underpowered) bırakabilir — gerçek bir etkiyi gürültüden ayırmak için fazla-az kesitsel isim ya da fazla-kısa bir pencere. Sorunun özünde tüm-evren olduğu, ya da ayırmanın karar-vermek için gereken gücün ta kendisini yok ettiği yerde, çoklu-test problemi yapısal olarak ortadan kaldırılamaz ve parametrik bir düzeltme gereklidir. Orada deflasyon düzeltmesi — ya da eşdeğer bir t-istatistiği kesintisi (haircut) — gerçek iş görür.
+
+Bu niş, kullanımını yöneten özel bir ironi taşır. Parametrik bir düzeltmeyi zorlayan veri-rejimleri — kısa, kalın-kuyruklu (fat-tailed), rejim-kayan seriler — tam da düzeltmenin kendi varsayımlarının en-zayıf olduğu rejimlerdir. Dört uyarı izler:
+
+- Beklenen-maksimum terimi bir büyük-deneme asimptotiğidir. Kasıtlı olarak küçük-deneme bir rejimde, doğru olduğu aralığın dışında uygulanır; asimptotik yaklaşımın yerine tam sıra-istatistiği (order statistic) kullanılmalıdır.
+- Deneme-sayısı gerçekleşmiş bir arama-sayısıdır, serbest bir parametre değil. Bir eşik, deneme-sayısını şişirerek tatmin edilemez, çünkü onu şişirmek fiilen daha-geniş bir arama yürütmek demektir — küçük-deneme disiplininin sınırlamak için var-olduğu aynı veri-madenciliği yüzeyi. Sayı, gerçekten neyin arandığını yansıtmalıdır.
+- Düzeltme yalnızca kayıt-altındaki denemeleri hesaba katar. Kayıtsız keşfedilip atılan gayrı-resmi varyantlar gerçek seçilim-yanlılığını (selection bias) yine de şişirir ve sonradan geri-kazanılamaz; bu da aramanın disiplinli kaydını, düzeltmenin bir anlam ifade etmesi için bir ön-koşul yapar.
+- Deneme Sharpe oranlarının tek bir dağılımdan çekildiği varsayımı, tek bir strateji-ailesi içinde — tek bir fikrin parametre-ızgarası — geçerlidir, ama heterojen aileler arasında değil; orada denemeler-arası varyans temiz bir çekiliş değildir.
+
+Bunlar nedeniyle, parametrik bir düzeltmenin kullanıldığı yerde, o düzeltme tek-başına bir kapı değil bir çapraz-kontrol (cross-check) işlevi görmelidir. Tekil bir parametrik sayı, bir hükmü tek-başına taşımamalıdır; t-istatistiği, deflasyon düzeltmesi ve — herhangi bir evren-dışı dilim karşılanabildiği her yerde — yapısal bir ayrık-kümenin (holdout) uzlaşması şart koşulmalıdır.
+
+İki ilke, seçilim-yanlılığını arka-kapıdan yeniden-devreye-sokmadan bunu operasyonel kılar.
+
+Birinci, mod-seçimi herhangi bir aday gözlenmeden önce dondurulur. Hem konjuge eğitim/test ayrımını hem de tüm-evren değerlendirmesini destekleyen bir değerlendirme-motoru, her soru için en-sadık yöntemin gerçek bir seçimini sunar — ama bu seçim, bir adayın davranışı bilindikten sonra değil, ölçümden önce verinin yapısına bakılarak yapılmalıdır. Bir sinyali hayatta-tutan hangi mod ise ona geçmek, metodolojik bir kostüm giymiş seçilim-yanlılığıdır; ve eşikleri donduran aynı ön-kayıt, mod-seçimini de dondurmalıdır.
+
+İkinci, iki tür fizibilite ayrı tutulmalıdır. Mühendislik-fizibilitesi — bir ayrıştırıcı (parser) inşa etmek, bir panel derlemek, bir seri edinmek — çabayla çözülür; çözülmemişse sebebi maliyet ya da tereddüttür, gerçek bir duvar değil. Bilgi-fizibilitesi — bir etkiyi çözmek için gereken istatistiksel güç, o güç eldeki veride basitçe yokken — çabayla çözülmez. Hiçbir miktar çalışma, verinin içermediği gücü imal etmez. Bu sınırı tanımak, işi doğru yapmanın bir parçasıdır: eldeki-veride saptanamaz hükmü meşru bir sonuçtur, bir özen-eksikliği değil; ve onu kaydetmek başlı-başına pozitif bir sonuçtur.
+
 ### I.4 Ön-kayıt: Frozen Stage-0
 
 Her ölçümden önce hipotez, yön (sign), kabul-eşiği ve per-faktör deneme-bütçesi (`N ≤ 3`) yazılı olarak **donar**. Ölçüm görüldükten sonra:
