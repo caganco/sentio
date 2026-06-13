@@ -1,0 +1,90 @@
+{
+  "id": "RR-Y1-019 VBTS measure-event universe intersection — REAL panel (counts only, NO returns)",
+  "source": "public BIST daily bulletin 'thm' (borsaistanbul.com/data/thm/...), no auth, machine-readable",
+  "span_frozen": "2024-06-01..2026-06-12 (ex-ante; trading days parsed: 506)",
+  "level_mapping": {
+    "L2": "BRUT TAKAS=1 (gross settlement)",
+    "L3": "MAX ORDER VALUE<=1e6 TL (order-package proxy)",
+    "L4": "ISLEM YONTEMI=TF (single-price)",
+    "note": "L1 short-ban masked by market-wide ban; L5 channel-restriction not in this file; L3 proxy approximate"
+  },
+  "measure_entry_events": {
+    "id": "RR-Y1-019 VBTS measure-event universe intersection (counts only, NO returns)",
+    "class": "Phase-1 feasibility; NO return measurement; PIT membership as-of event date",
+    "events_table": "data\\probe\\_vbts_events.parquet",
+    "total_events": 165,
+    "distinct_tickers": 136,
+    "per_year": {
+      "2024": 33,
+      "2025": 111,
+      "2026": 21
+    },
+    "intersection_overall": {
+      "in_panel_outside_index": 164,
+      "bist100_ex30": 1
+    },
+    "intersection_by_level": {
+      "2": {
+        "in_panel_outside_index": 58,
+        "bist100_ex30": 1
+      },
+      "3": {
+        "in_panel_outside_index": 71
+      },
+      "4": {
+        "in_panel_outside_index": 35
+      }
+    },
+    "investable_list_hits_by_level": {},
+    "investable_list_size": 57,
+    "caveats": [
+      "Counts only — no returns / CAR / price reaction examined (Phase-2 scope).",
+      "Membership classified PIT as-of the event date (last panel day <= start_date).",
+      "Investable denominator is today's static config list; intra-span change not modelled.",
+      "BIST50 not available in the PIT panel; classification is BIST30 / BIST100(>30) / outside."
+    ]
+  },
+  "measure_population_everL2plus": {
+    "id": "RR-Y1-019 VBTS measure-event universe intersection (counts only, NO returns)",
+    "class": "Phase-1 feasibility; NO return measurement; PIT membership as-of event date",
+    "events_table": "data\\probe\\_vbts_population.parquet",
+    "total_events": 376,
+    "distinct_tickers": 376,
+    "per_year": {
+      "2024": 299,
+      "2025": 54,
+      "2026": 23
+    },
+    "intersection_overall": {
+      "in_panel_outside_index": 322,
+      "in_panel_no_pit": 53,
+      "bist100_ex30": 1
+    },
+    "intersection_by_level": {
+      "2": {
+        "in_panel_outside_index": 23,
+        "in_panel_no_pit": 1,
+        "bist100_ex30": 1
+      },
+      "3": {
+        "in_panel_outside_index": 228,
+        "in_panel_no_pit": 48
+      },
+      "4": {
+        "in_panel_outside_index": 71,
+        "in_panel_no_pit": 4
+      }
+    },
+    "investable_list_hits_by_level": {
+      "3": 2,
+      "4": 1
+    },
+    "investable_list_size": 57,
+    "caveats": [
+      "Counts only — no returns / CAR / price reaction examined (Phase-2 scope).",
+      "Membership classified PIT as-of the event date (last panel day <= start_date).",
+      "Investable denominator is today's static config list; intra-span change not modelled.",
+      "BIST50 not available in the PIT panel; classification is BIST30 / BIST100(>30) / outside."
+    ]
+  }
+}
