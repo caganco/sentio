@@ -24,3 +24,4 @@ scikit-learn>=1.9.0   # D-123 StandardScaler (hmmlearn dependency, explicit for 
 pdfplumber>=0.11.9    # D-132 Is Yatirim aciga satis PDF parser
 openpyxl>=3.1.5       # D-203 degoran fundamentals .xlsx parser (pd.read_excel engine)
 import-linter>=2.11    # D-138 architecture/layering contracts (CI-enforced)
+arch>=6.3,<8           # RR-Y1-022 multiple-testing harness (Reality Check / SPA bootstrap); capped <8 (validated on 7.x)
