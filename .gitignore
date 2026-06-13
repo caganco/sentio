@@ -112,3 +112,8 @@ data/snapshots/*.meta.json
 # Public-hygiene guard: local-only pattern supplement (project-internal terms;
 # loaded by scripts/check_public_hygiene.py, never published).
 /.hygiene-local-patterns.txt
+
+# VBTS Phase-1: raw public bulletin cache + intermediate per-ticker panels (derivative-only is committed)
+data/probe/_vbts_cache/
+data/probe/_vbts_events.parquet
+data/probe/_vbts_population.parquet
